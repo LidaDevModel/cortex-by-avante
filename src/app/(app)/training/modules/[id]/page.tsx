@@ -504,15 +504,19 @@ export default function ModuleDetailPage() {
 
       {/* Body — scroll container fills the full width; aside is absolutely anchored to the right so the scrollbar lands at the far right edge */}
       <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
-        {/* Blob gradients */}
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }}
-        />
+        {/* Blob gradients — only on final quiz screen */}
+        {currentChapter.isFinalQuiz && (
+          <>
+            <div
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }}
+            />
+            <div
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }}
+            />
+          </>
+        )}
         {/* Top / bottom fades */}
         <div className="absolute top-0 inset-x-0 h-8 pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
         <div className="absolute bottom-0 inset-x-0 h-16 pointer-events-none z-30" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
@@ -521,7 +525,7 @@ export default function ModuleDetailPage() {
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
+          className="absolute inset-0 overflow-y-scroll z-10 scroll-thin"
           style={{ paddingRight: 236 }}
         >
               <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
@@ -561,7 +565,6 @@ export default function ModuleDetailPage() {
                     height: 180,
                     background:
                       "radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%), #F7F8F7",
-                    border: "1px solid #e5e7eb",
                   }}
                 >
                   <Image
