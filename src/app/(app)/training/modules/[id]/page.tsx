@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Search, Check, X, ChevronRight, Flag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -146,9 +146,14 @@ function ChapterStepper({
   onSelect: (id: string) => void;
   search: string;
 }) {
-  const filtered = search.trim()
-    ? chapters.filter((c) =>
-        c.title.toLowerCase().includes(search.trim().toLowerCase())
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? chapters.filter(
+        (c) =>
+          c.title.toLowerCase().includes(q) ||
+          c.body.toLowerCase().includes(q) ||
+          c.quiz?.question.toLowerCase().includes(q) ||
+          c.quiz?.options.some((o) => o.text.toLowerCase().includes(q))
       )
     : chapters;
 
@@ -371,6 +376,7 @@ export default function ModuleDetailPage() {
   const [currentId, setCurrentId] = useState("1");
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set(["1"]));
   const [search, setSearch] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentIndex = CHAPTERS.findIndex((c) => c.id === currentId);
   const currentChapter = CHAPTERS[currentIndex];
@@ -384,8 +390,13 @@ export default function ModuleDetailPage() {
     return Math.round((done / contentChapters.length) * 100);
   }, [completedIds]);
 
+  function scrollToTop() {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }
+
   function goTo(id: string) {
     setCurrentId(id);
+    scrollToTop();
   }
 
   function goNext() {
@@ -393,11 +404,13 @@ export default function ModuleDetailPage() {
     const next = CHAPTERS[currentIndex + 1];
     setCompletedIds((prev) => new Set([...prev, currentId]));
     setCurrentId(next.id);
+    scrollToTop();
   }
 
   function goPrev() {
     if (isFirst) return;
     setCurrentId(CHAPTERS[currentIndex - 1].id);
+    scrollToTop();
   }
 
   const nextLabel = isSecondToLast ? "Final Quiz" : "Next Chapter";
@@ -449,6 +462,7 @@ export default function ModuleDetailPage() {
 
           {/* Scrollable content */}
           <div
+            ref={scrollRef}
             className="absolute inset-0 overflow-y-auto z-10"
             style={{ scrollbarGutter: "stable" }}
           >
