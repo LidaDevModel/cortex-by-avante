@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef } from "react";
 import { Search, Check, X, ChevronRight, Flag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 
@@ -116,6 +117,36 @@ const MODULE = {
   category: "escalations" as const,
   illustration: "/brand/illustration-heart.png",
 };
+
+/* Progress saved per module id (mirrors the mock data in modules/page.tsx) */
+const MODULE_PROGRESS: Record<string, number> = {
+  "1": 10,  // Escalation Procedures 1
+  "2": 90,  // First Aid Awareness 1
+  "3": 37,  // Incident Response 1
+  "4": 90,  // Client Protocols 1
+  "5": 0,
+  "6": 0,
+  "7": 0,
+  "8": 100, // First Aid Awareness 2
+  "9": 0,
+};
+
+function deriveInitialState(moduleId: string) {
+  const progress = MODULE_PROGRESS[moduleId] ?? 0;
+  const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
+  const completedCount = Math.min(
+    Math.round((progress / 100) * contentChapters.length),
+    contentChapters.length
+  );
+  const completedIds = new Set(contentChapters.slice(0, completedCount).map((c) => c.id));
+  const currentId =
+    completedCount >= contentChapters.length
+      ? "final"
+      : completedCount > 0
+      ? contentChapters[completedCount].id
+      : contentChapters[0].id;
+  return { completedIds, currentId };
+}
 
 /* ─── Sub-components ─── */
 
@@ -373,8 +404,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 /* ─── Page ─── */
 
 export default function ModuleDetailPage() {
-  const [currentId, setCurrentId] = useState("1");
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set(["1"]));
+  const params = useParams<{ id: string }>();
+  const moduleId = params?.id ?? "1";
+
+  const [currentId, setCurrentId] = useState(() => deriveInitialState(moduleId).currentId);
+  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(moduleId).completedIds);
   const [search, setSearch] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
