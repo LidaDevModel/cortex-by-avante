@@ -451,11 +451,7 @@ export default function ModuleDetailPage() {
   const isLast = currentIndex === CHAPTERS.length - 1;
   const isSecondToLast = currentIndex === CHAPTERS.length - 2;
 
-  const progress = useMemo(() => {
-    const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
-    const done = contentChapters.filter((c) => completedIds.has(c.id)).length;
-    return Math.round((done / contentChapters.length) * 100);
-  }, [completedIds]);
+  const progress = MODULE_PROGRESS[moduleId] ?? 0;
 
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0 });
