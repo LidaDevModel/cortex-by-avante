@@ -496,41 +496,28 @@ export default function ModuleDetailPage() {
         </div>
       </header>
 
-      {/* Body — single scroll container; scrollbar lands at the far right (outside the chapter panel) */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* Body — scroll container fills the full width; aside is absolutely anchored to the right so the scrollbar lands at the far right edge */}
+      <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
+        {/* Blob gradients */}
+        <div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }}
+        />
+        {/* Top / bottom fades */}
+        <div className="absolute top-0 inset-x-0 h-8 pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
+        <div className="absolute bottom-0 inset-x-0 h-16 pointer-events-none z-30" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
+
+        {/* Scroll container — extends full body width; right-padding reserves aside space */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto scroll-thin"
-          style={{ background: "#FCFCFC" }}
+          className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
+          style={{ paddingRight: 236 }}
         >
-          {/* Blob gradients — fixed so they stay viewport-locked while scrolling */}
-          <div
-            className="fixed inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)",
-              zIndex: 0,
-            }}
-          />
-          <div
-            className="fixed inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)",
-              zIndex: 0,
-            }}
-          />
-
-          {/* Inner flex row: canvas content (scrolls) + aside (sticky) */}
-          <div className="flex relative" style={{ zIndex: 1 }}>
-            {/* Canvas content */}
-            <div className="flex-1 relative">
-              {/* Top fade */}
-              <div
-                className="sticky top-0 h-8 pointer-events-none z-20 -mb-8"
-                style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }}
-              />
               <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
               {/* Module info block */}
               <div className="flex flex-col gap-2">
@@ -662,17 +649,12 @@ export default function ModuleDetailPage() {
                 </div>
               )}
             </div>
-            {/* Bottom fade */}
-            <div
-              className="sticky bottom-0 h-16 pointer-events-none z-20 -mt-16"
-              style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }}
-            />
           </div>
 
-          {/* Chapter panel — sticky, scrollbar lands to its right */}
+          {/* Chapter panel — absolute right, sits above scroll container; stepper scrolls independently */}
           <aside
-            className="sticky top-0 self-start shrink-0 flex flex-col overflow-hidden"
-            style={{ width: 236, height: "100dvh" }}
+            className="absolute top-0 right-0 bottom-0 shrink-0 flex flex-col overflow-hidden z-20"
+            style={{ width: 236 }}
           >
             {/* Search */}
             <div className="px-6 pt-4 pb-3 shrink-0">
@@ -712,8 +694,6 @@ export default function ModuleDetailPage() {
             </div>
           </aside>
         </div>
-      </div>
-    </div>
     </div>
   );
 }
