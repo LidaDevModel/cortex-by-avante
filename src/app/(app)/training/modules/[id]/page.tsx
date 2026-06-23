@@ -82,6 +82,16 @@ const CHAPTERS: Chapter[] = [
     num: 5,
     title: "Documentation Requirements",
     body: `Accurate documentation is not just a procedural obligation — it is a critical tool for accountability, legal protection, and operational improvement. Every incident, no matter how minor, must be recorded.\n\nAn incident report must capture: the date, time, and location; a factual description of events in chronological order; the names or descriptions of individuals involved; actions taken by security personnel; and any injuries, property damage, or losses.\n\nUse plain, factual language. Avoid opinions, assumptions, or emotional language. Write what you observed, not what you inferred. A well-written incident report can be used in legal proceedings — accuracy and objectivity are paramount.`,
+    quiz: {
+      question: "What is the correct language standard for writing an incident report?",
+      options: [
+        { id: "a", text: "Descriptive and expressive, to capture the full atmosphere of the incident" },
+        { id: "b", text: "Plain and factual, recording only what was directly observed" },
+        { id: "c", text: "Brief and informal, to save time during busy shifts" },
+        { id: "d", text: "Technical and detailed, including your assessment of intent" },
+      ],
+      correctId: "b",
+    },
   },
   {
     id: "6",
