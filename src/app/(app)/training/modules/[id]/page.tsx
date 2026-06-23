@@ -604,7 +604,7 @@ export default function ModuleDetailPage() {
                 </>
               ) : (
                 /* Final quiz placeholder */
-                <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+                <div className="flex flex-col items-center gap-4 text-center">
                   <div
                     className="flex items-center justify-center rounded-full"
                     style={{ width: 56, height: 56, background: "rgba(26,74,46,0.08)" }}
