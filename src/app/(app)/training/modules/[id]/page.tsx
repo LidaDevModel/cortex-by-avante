@@ -166,17 +166,29 @@ function ProgressBar({ value, height = 6 }: { value: number; height?: number }) 
 
 function Highlight({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;
-  const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <mark style={{ background: "rgba(26,74,46,0.15)", color: "#1a4a2e", borderRadius: 2, padding: "0 1px" }}>
-        {text.slice(idx, idx + query.length)}
+  const q = query.toLowerCase();
+  const segments: { start: number; end: number }[] = [];
+  let cursor = 0;
+  while (cursor < text.length) {
+    const idx = text.toLowerCase().indexOf(q, cursor);
+    if (idx === -1) break;
+    segments.push({ start: idx, end: idx + q.length });
+    cursor = idx + q.length;
+  }
+  if (segments.length === 0) return <>{text}</>;
+  const nodes: React.ReactNode[] = [];
+  let pos = 0;
+  for (const { start, end } of segments) {
+    if (start > pos) nodes.push(text.slice(pos, start));
+    nodes.push(
+      <mark key={start} style={{ background: "rgba(26,74,46,0.15)", color: "#1a4a2e", borderRadius: 2, padding: "0 1px" }}>
+        {text.slice(start, end)}
       </mark>
-      {text.slice(idx + query.length)}
-    </>
-  );
+    );
+    pos = end;
+  }
+  if (pos < text.length) nodes.push(text.slice(pos));
+  return <>{nodes}</>;
 }
 
 function ChapterStepper({
@@ -586,7 +598,7 @@ export default function ModuleDetailPage() {
                           className="text-[15px] leading-[26px]"
                           style={{ color: "#374151" }}
                         >
-                          {para}
+                          <Highlight text={para} query={search} />
                         </p>
                       ))}
                     </div>
