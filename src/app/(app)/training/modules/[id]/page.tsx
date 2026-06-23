@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Check, X, ChevronRight, Flag } from "lucide-react";
+import { Search, Check, X, ChevronRight, Flag, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 
@@ -209,7 +210,7 @@ function ChapterStepper({
               style={{ paddingTop: 4 }}
             >
               <span
-                className="text-[13px] leading-[18px] block"
+                className="text-[13px] leading-[18px] block truncate"
                 style={{
                   fontWeight: isActive ? 600 : 400,
                   color: isActive
@@ -417,42 +418,7 @@ export default function ModuleDetailPage() {
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left panel — chapter stepper */}
-        <aside
-          className="flex flex-col shrink-0 border-r border-border overflow-hidden"
-          style={{ width: 236 }}
-        >
-          {/* Panel header */}
-          <div className="px-4 pt-4 pb-3 shrink-0">
-            <div className="relative">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-              />
-              <input
-                type="text"
-                placeholder="Search chapters"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-[36px] pl-8 pr-3 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
-              />
-            </div>
-          </div>
-
-          {/* Stepper list */}
-          <div className="flex-1 overflow-y-auto px-4 pb-6">
-            <ChapterStepper
-              chapters={CHAPTERS}
-              currentId={currentId}
-              completedIds={completedIds}
-              onSelect={goTo}
-              search={search}
-            />
-          </div>
-        </aside>
-
-        {/* Right canvas */}
+        {/* Canvas — left */}
         <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
           {/* Blob gradients */}
           <div
@@ -489,11 +455,18 @@ export default function ModuleDetailPage() {
             <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
               {/* Module info block */}
               <div className="flex flex-col gap-2">
+                <Link
+                  href="/training/modules"
+                  className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+                >
+                  <ArrowLeft size={14} strokeWidth={2} />
+                  <span>Back to modules</span>
+                </Link>
                 <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "#111827" }}>
                   {MODULE.title}
                 </h1>
                 <p className="text-[13px] leading-[20px] text-muted-foreground">
-                  {MODULE.chapters} chapters · {MODULE.hours}h · {MODULE.type}
+                  {MODULE.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.type}
                 </p>
                 <div className="flex items-center gap-3 mt-1">
                   <div className="flex-1">
@@ -612,6 +585,41 @@ export default function ModuleDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Chapter panel — right */}
+        <aside
+          className="flex flex-col shrink-0 border-l border-border overflow-hidden"
+          style={{ width: 236 }}
+        >
+          {/* Search */}
+          <div className="px-4 pt-4 pb-3 shrink-0">
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="Search chapters"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-[36px] pl-8 pr-3 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
+              />
+            </div>
+          </div>
+
+          {/* Stepper list */}
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
+            <ChapterStepper
+              chapters={CHAPTERS}
+              currentId={currentId}
+              completedIds={completedIds}
+              onSelect={goTo}
+              search={search}
+            />
+          </div>
+        </aside>
       </div>
     </div>
   );
