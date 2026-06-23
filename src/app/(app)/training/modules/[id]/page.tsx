@@ -242,7 +242,7 @@ function ChapterStepper({
             {/* Chapter label */}
             <button
               onClick={() => onSelect(chapter.id)}
-              className="flex-1 text-left pb-6 focus-visible:outline-none"
+              className="flex-1 min-w-0 text-left pb-6 focus-visible:outline-none overflow-hidden"
               style={{ paddingTop: 4 }}
             >
               <span
@@ -636,11 +636,11 @@ export default function ModuleDetailPage() {
 
         {/* Chapter panel — right */}
         <aside
-          className="flex flex-col shrink-0 border-l border-border overflow-hidden"
+          className="flex flex-col shrink-0 overflow-hidden"
           style={{ width: 236 }}
         >
           {/* Search */}
-          <div className="px-4 pt-4 pb-3 shrink-0">
+          <div className="px-6 pt-4 pb-3 shrink-0">
             <div className="relative">
               <Search
                 size={14}
@@ -658,7 +658,7 @@ export default function ModuleDetailPage() {
           </div>
 
           {/* Stepper list */}
-          <div className="flex-1 overflow-y-auto px-4 pb-6">
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             <ChapterStepper
               chapters={CHAPTERS}
               currentId={currentId}
