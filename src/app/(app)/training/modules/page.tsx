@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
 
 /* ─── Types ─── */
@@ -83,7 +84,8 @@ function RequiredPill({ required }: { required: boolean }) {
 /* Large card used in the In Progress section */
 function InProgressCard({ module }: { module: Module }) {
   return (
-    <div
+    <Link
+      href={`/training/modules/${module.id}`}
       className="flex flex-col rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
       style={{ background: CARD_BG, border: "1px solid #e5e7eb" }}
     >
@@ -117,7 +119,7 @@ function InProgressCard({ module }: { module: Module }) {
           <RequiredPill required={module.required} />
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -125,7 +127,8 @@ function InProgressCard({ module }: { module: Module }) {
 function ModuleCard({ module }: { module: Module }) {
   const showProgress = module.status !== "not-started";
   return (
-    <div
+    <Link
+      href={`/training/modules/${module.id}`}
       className="flex rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
       style={{ background: CARD_BG, border: "1px solid #e5e7eb" }}
     >
@@ -163,7 +166,7 @@ function ModuleCard({ module }: { module: Module }) {
         )}
         <RequiredPill required={module.required} />
       </div>
-    </div>
+    </Link>
   );
 }
 
