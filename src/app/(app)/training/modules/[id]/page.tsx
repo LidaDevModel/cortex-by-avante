@@ -484,44 +484,42 @@ export default function ModuleDetailPage() {
         </div>
       </header>
 
-      {/* Body */}
+      {/* Body — single scroll container; scrollbar lands at the far right (outside the chapter panel) */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Canvas — left */}
-        <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
-          {/* Blob gradients */}
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto scroll-thin"
+          style={{ background: "#FCFCFC" }}
+        >
+          {/* Blob gradients — fixed so they stay viewport-locked while scrolling */}
           <div
-            className="absolute inset-0 pointer-events-none z-0"
+            className="fixed inset-0 pointer-events-none"
             style={{
               background:
                 "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)",
+              zIndex: 0,
             }}
           />
           <div
-            className="absolute inset-0 pointer-events-none z-0"
+            className="fixed inset-0 pointer-events-none"
             style={{
               background:
                 "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)",
+              zIndex: 0,
             }}
           />
 
-          {/* Top fade */}
-          <div
-            className="absolute top-0 inset-x-0 h-8 pointer-events-none z-20"
-            style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }}
-          />
-          {/* Bottom fade */}
-          <div
-            className="absolute bottom-0 inset-x-0 h-16 pointer-events-none z-20"
-            style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }}
-          />
-
-          {/* Scrollable content */}
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-          >
-            <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
+          {/* Inner flex row: canvas content (scrolls) + aside (sticky) */}
+          <div className="flex relative" style={{ zIndex: 1 }}>
+            {/* Canvas content */}
+            <div className="flex-1 relative">
+              {/* Top fade */}
+              <div
+                className="sticky top-0 h-8 pointer-events-none z-20 -mb-8"
+                style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }}
+              />
+              <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
               {/* Module info block */}
               <div className="flex flex-col gap-2">
                 <Link
@@ -652,52 +650,58 @@ export default function ModuleDetailPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Chapter panel — right */}
-        <aside
-          className="flex flex-col shrink-0 overflow-hidden"
-          style={{ width: 236 }}
-        >
-          {/* Search */}
-          <div className="px-6 pt-4 pb-3 shrink-0">
-            <div className="relative">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-              />
-              <input
-                type="text"
-                placeholder="Search chapters"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
-                >
-                  <X size={13} strokeWidth={2} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Stepper list */}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <ChapterStepper
-              chapters={CHAPTERS}
-              currentId={currentId}
-              completedIds={completedIds}
-              onSelect={goTo}
-              search={search}
+            {/* Bottom fade */}
+            <div
+              className="sticky bottom-0 h-16 pointer-events-none z-20 -mt-16"
+              style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }}
             />
           </div>
-        </aside>
+
+          {/* Chapter panel — sticky, scrollbar lands to its right */}
+          <aside
+            className="sticky top-0 self-start shrink-0 flex flex-col overflow-hidden"
+            style={{ width: 236, height: "100dvh" }}
+          >
+            {/* Search */}
+            <div className="px-6 pt-4 pb-3 shrink-0">
+              <div className="relative">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Search chapters"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                  style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
+                  >
+                    <X size={13} strokeWidth={2} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Stepper list */}
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
+              <ChapterStepper
+                chapters={CHAPTERS}
+                currentId={currentId}
+                completedIds={completedIds}
+                onSelect={goTo}
+                search={search}
+              />
+            </div>
+          </aside>
+        </div>
       </div>
+    </div>
     </div>
   );
 }
