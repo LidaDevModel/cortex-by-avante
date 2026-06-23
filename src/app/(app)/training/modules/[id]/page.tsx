@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
-import { Search, Check, X, ChevronRight, Flag, ArrowLeft } from "lucide-react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { Search, Check, X, Flag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -164,6 +164,21 @@ function ProgressBar({ value, height = 6 }: { value: number; height?: number }) 
   );
 }
 
+function Highlight({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark style={{ background: "rgba(26,74,46,0.15)", color: "#1a4a2e", borderRadius: 2, padding: "0 1px" }}>
+        {text.slice(idx, idx + query.length)}
+      </mark>
+      {text.slice(idx + query.length)}
+    </>
+  );
+}
+
 function ChapterStepper({
   chapters,
   currentId,
@@ -256,7 +271,7 @@ function ChapterStepper({
                     : "#374151",
                 }}
               >
-                {chapter.title}
+                <Highlight text={chapter.title} query={q} />
               </span>
             </button>
           </div>
@@ -411,6 +426,12 @@ export default function ModuleDetailPage() {
   const [completedIds, setCompletedIds] = useState(() => deriveInitialState(moduleId).completedIds);
   const [search, setSearch] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const handleScroll = useCallback(() => {
+    scrollRef.current?.classList.add("is-scrolling");
+    clearTimeout(scrollTimerRef.current);
+    scrollTimerRef.current = setTimeout(() => scrollRef.current?.classList.remove("is-scrolling"), 800);
+  }, []);
 
   const currentIndex = CHAPTERS.findIndex((c) => c.id === currentId);
   const currentChapter = CHAPTERS[currentIndex];
@@ -456,9 +477,9 @@ export default function ModuleDetailPage() {
         <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors duration-100" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
           <span className="text-muted-foreground shrink-0">Training</span>
-          <ChevronRight size={14} className="text-muted-foreground shrink-0" />
+          <span className="text-muted-foreground shrink-0">/</span>
           <span className="text-muted-foreground shrink-0">Modules</span>
-          <ChevronRight size={14} className="text-muted-foreground shrink-0" />
+          <span className="text-muted-foreground shrink-0">/</span>
           <span className="font-medium text-foreground truncate">{MODULE.title}</span>
         </div>
       </header>
@@ -497,8 +518,8 @@ export default function ModuleDetailPage() {
           {/* Scrollable content */}
           <div
             ref={scrollRef}
-            className="absolute inset-0 overflow-y-auto z-10"
-            style={{ scrollbarGutter: "stable" }}
+            onScroll={handleScroll}
+            className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
           >
             <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
               {/* Module info block */}
@@ -651,9 +672,17 @@ export default function ModuleDetailPage() {
                 placeholder="Search chapters"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-[36px] pl-8 pr-3 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
                 style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
+                >
+                  <X size={13} strokeWidth={2} />
+                </button>
+              )}
             </div>
           </div>
 

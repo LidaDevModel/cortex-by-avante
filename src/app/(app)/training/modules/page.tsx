@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { Search } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
@@ -177,6 +177,13 @@ export default function ModulesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const handleScroll = useCallback(() => {
+    scrollRef.current?.classList.add("is-scrolling");
+    clearTimeout(scrollTimerRef.current);
+    scrollTimerRef.current = setTimeout(() => scrollRef.current?.classList.remove("is-scrolling"), 800);
+  }, []);
 
   const inProgress = useMemo(
     () => MODULES.filter((m) => m.status === "in-progress").slice(0, 3),
@@ -228,7 +235,7 @@ export default function ModulesPage() {
         {/* Bottom fade */}
         <div className="absolute bottom-0 inset-x-0 h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
         {/* Scrollable content */}
-        <div className="absolute inset-0 overflow-y-auto z-10" style={{ scrollbarGutter: "stable" }}>
+        <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin">
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
           <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
