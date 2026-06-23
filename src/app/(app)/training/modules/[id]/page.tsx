@@ -452,7 +452,7 @@ export default function ModuleDetailPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Breadcrumb header */}
-      <header className="flex items-center gap-3 px-4 py-3 shrink-0 border-b border-border">
+      <header className="flex items-center gap-3 px-4 py-3 shrink-0">
         <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors duration-100" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
           <span className="text-muted-foreground shrink-0">Training</span>
