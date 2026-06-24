@@ -213,9 +213,13 @@ export default function ModulesPage() {
   }, [requirementFilter, statusFilter, categoryFilter, search]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "#FCFCFC" }}>
+      {/* Blob gradients — span the full card including header, same pattern as chat page */}
+      <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }} />
+      <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }} />
+
       {/* Header */}
-      <header className="flex items-center gap-3 px-4 py-3 shrink-0">
+      <header className="relative z-10 flex items-center gap-3 px-4 py-3 shrink-0 bg-[#FCFCFC]">
         <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors duration-100" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px]">
           <span className="text-muted-foreground">Training</span>
@@ -225,11 +229,7 @@ export default function ModulesPage() {
       </header>
 
       {/* Scrollable canvas */}
-      {/* Scroll area with fade overlays */}
-      <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
-        {/* Blob gradients — fixed to the viewport of this container */}
-        <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }} />
-        <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }} />
+      <div className="relative flex-1 overflow-hidden">
         {/* Top fade */}
         <div className="absolute top-0 inset-x-0 h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
         {/* Bottom fade */}
