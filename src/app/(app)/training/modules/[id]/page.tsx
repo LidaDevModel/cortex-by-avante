@@ -509,11 +509,11 @@ export default function ModuleDetailPage() {
           <>
             <div
               className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,var(--blob-opacity)) 0%, rgba(247,255,226,var(--blob-opacity)) 10%, transparent 70%)" }}
+              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 10%, transparent 70%)" }}
             />
             <div
               className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,var(--blob-opacity)) 0%, rgba(239,255,235,var(--blob-opacity)) 10%, transparent 70%)" }}
+              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, var(--blob-2) 0%, var(--blob-2) 10%, transparent 70%)" }}
             />
           </>
         )}

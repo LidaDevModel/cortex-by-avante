@@ -809,7 +809,7 @@ export default function ChatPage() {
           <div
             className="absolute -inset-12 pointer-events-none z-0"
             style={{
-              background: "radial-gradient(ellipse 60% 70% at 28% 55%, #F7FFE2 0%, #F7FFE2 15%, transparent 75%)",
+              background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 15%, transparent 75%)",
               animation: "blob-1 9s ease-in-out infinite",
               willChange: "transform",
             }}
@@ -817,7 +817,7 @@ export default function ChatPage() {
           <div
             className="absolute -inset-12 pointer-events-none z-0"
             style={{
-              background: "radial-gradient(ellipse 65% 70% at 58% 60%, #EFFFEB 0%, #EFFFEB 15%, transparent 75%)",
+              background: "radial-gradient(ellipse 65% 70% at 58% 60%, var(--blob-2) 0%, var(--blob-2) 15%, transparent 75%)",
               animation: "blob-2 12s ease-in-out infinite",
               willChange: "transform",
             }}
