@@ -169,7 +169,7 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
       className={cn("flex flex-col shrink-0 overflow-hidden", isOpen && "border-l border-border/40")}
       style={{
         width: isOpen ? 220 : 48,
-        background: isOpen ? "#FCFCFC" : "transparent",
+        background: isOpen ? "var(--surface)" : "transparent",
         transition: `width ${SLIDE_DURATION} ${SLIDE_EASING}`,
       }}
     >
@@ -213,7 +213,7 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
           <div
             className="absolute top-0 left-0 right-2 h-8 pointer-events-none z-10 transition-opacity duration-200"
             style={{
-              background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)",
+              background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
               opacity: canScrollUp ? 1 : 0,
             }}
           />
@@ -221,7 +221,7 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
           <div
             className="absolute bottom-0 left-0 right-2 h-8 pointer-events-none z-10 transition-opacity duration-200"
             style={{
-              background: "linear-gradient(to top, #FCFCFC 20%, transparent)",
+              background: "linear-gradient(to top, var(--surface) 20%, transparent)",
               opacity: canScrollDown ? 1 : 0,
             }}
           />

@@ -284,7 +284,7 @@ function ShareFeedbackModal({
                 style={
                   selected === opt
                     ? { background: "#F4F9E7", borderColor: "var(--color-primary)", color: "var(--color-primary)" }
-                    : { background: "transparent", borderColor: "#e5e7eb", color: "#374151" }
+                    : { background: "transparent", borderColor: "var(--border)", color: "var(--foreground)" }
                 }
               >
                 {opt}
@@ -678,7 +678,7 @@ export default function ChatPage() {
     ? "flex flex-col gap-2 items-stretch justify-end"
     : "flex flex-row items-center gap-3";
 
-  const canvasBackground = "#FCFCFC";
+  const canvasBackground = "var(--surface)";
 
   const inputWidget = (
     <>
@@ -724,14 +724,14 @@ export default function ChatPage() {
             <div
               className="absolute left-0 right-2 top-0 h-8 pointer-events-none transition-opacity duration-200"
               style={{
-                background: "linear-gradient(to bottom, #fcfdfa 20%, transparent)",
+                background: "linear-gradient(to bottom, #fcfdfa 20%, transparent)", /* input widget bg — intentionally not --surface */
                 opacity: taCanScrollUp ? 1 : 0,
               }}
             />
             <div
               className="absolute left-0 right-2 bottom-0 h-8 pointer-events-none transition-opacity duration-200"
               style={{
-                background: "linear-gradient(to top, #fcfdfa 20%, transparent)",
+                background: "linear-gradient(to top, #fcfdfa 20%, transparent)", /* input widget bg — intentionally not --surface */
                 opacity: taCanScrollDown ? 1 : 0,
               }}
             />
@@ -827,7 +827,7 @@ export default function ChatPage() {
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
 
         {/* Header */}
-        <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 bg-[#FCFCFC] shrink-0">
+        <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
           <SidebarTrigger className="-ml-1" />
 
           {conversationTitle && (
@@ -871,7 +871,7 @@ export default function ChatPage() {
           )}
         </header>
 
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ background: hasConversation ? "#FCFCFC" : "transparent" }}>
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ background: hasConversation ? "var(--surface)" : "transparent" }}>
         {hasConversation ? (
           /* ── Conversation view ── */
           <div className="relative flex-1 min-h-0">
@@ -880,7 +880,7 @@ export default function ChatPage() {
               className="absolute top-[1px] left-[1px] h-16 pointer-events-none z-10 transition-opacity duration-200"
               style={{
                 right: 12,
-                background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)",
+                background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
                 opacity: msgsCanScrollUp ? 1 : 0,
               }}
             />
@@ -890,7 +890,7 @@ export default function ChatPage() {
               style={{
                 right: 12,
                 bottom: 112,
-                background: "linear-gradient(to top, #FCFCFC 30%, transparent)",
+                background: "linear-gradient(to top, var(--surface) 30%, transparent)",
                 opacity: msgsCanScrollDown ? 1 : 0,
               }}
             />
@@ -933,7 +933,7 @@ export default function ChatPage() {
                 {/* Sticky input — same centering as messages above */}
                 <div
                   className="sticky bottom-0 px-6 pb-6 pt-2 flex flex-col items-center gap-2"
-                  style={{ background: "#FCFCFC" }}
+                  style={{ background: "var(--surface)" }}
                 >
                   <div className="w-full max-w-[560px] relative">
                     {inputWidget}

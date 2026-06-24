@@ -310,8 +310,8 @@ function SidebarInset({ className, style, ...props }: React.ComponentProps<"main
         className
       )}
       style={{
-        background: "#FCFCFC",
-        boxShadow: "0 0 50px 1px rgba(184,214,96,0.20), 0 0 20px -6px rgba(151,215,198,0.30)",
+        background: "var(--surface)",
+        boxShadow: "var(--card-glow-shadow)",
         ...style,
       }}
       {...props}

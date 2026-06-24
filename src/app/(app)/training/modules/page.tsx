@@ -57,7 +57,7 @@ function ProgressBar({ value }: { value: number }) {
     <div className="h-2 rounded-full bg-border overflow-hidden">
       <div
         className="h-full rounded-full"
-        style={{ width: `${value}%`, background: "#1a4a2e" }}
+        style={{ width: `${value}%`, background: "var(--primary)" }}
       />
     </div>
   );
@@ -68,7 +68,7 @@ function RequiredPill({ required }: { required: boolean }) {
     return (
       <span
         className="self-start text-[11px] leading-[16px] font-medium px-2 py-0.5 rounded-full border shrink-0"
-        style={{ borderColor: "rgba(26,74,46,0.3)", color: "#1a4a2e" }}
+        style={{ borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--primary)" }}
       >
         Required
       </span>
@@ -87,7 +87,7 @@ function InProgressCard({ module }: { module: Module }) {
     <Link
       href={`/training/modules/${module.id}`}
       className="flex flex-col rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
-      style={{ background: CARD_BG, border: "1px solid #e5e7eb" }}
+      style={{ background: CARD_BG, border: "1px solid var(--border)" }}
     >
       {/* Illustration area — full-width radial glow, no padding from card edges */}
       <div
@@ -105,7 +105,7 @@ function InProgressCard({ module }: { module: Module }) {
 
       {/* Content */}
       <div className="flex flex-col gap-2 px-3 pt-3 pb-3">
-        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "#1a4a2e" }}>
+        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
           {module.title}
         </p>
         <p className="text-[12px] leading-[16px] text-muted-foreground">
@@ -130,7 +130,7 @@ function ModuleCard({ module }: { module: Module }) {
     <Link
       href={`/training/modules/${module.id}`}
       className="flex rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
-      style={{ background: CARD_BG, border: "1px solid #e5e7eb" }}
+      style={{ background: CARD_BG, border: "1px solid var(--border)" }}
     >
       {/* Illustration column — full-height radial glow, no padding from card edges */}
       <div
@@ -213,10 +213,10 @@ export default function ModulesPage() {
   }, [requirementFilter, statusFilter, categoryFilter, search]);
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "#FCFCFC" }}>
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
 
       {/* Header */}
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-[#FCFCFC]">
+      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
         <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px]">
           <span className="text-muted-foreground">Training</span>
@@ -228,9 +228,9 @@ export default function ModulesPage() {
       {/* Scrollable canvas */}
       <div className="relative flex-1 overflow-hidden">
         {/* Top fade — inset from card border (1px) and scrollbar (5px) */}
-        <div className="absolute top-[1px] left-[1px] right-[12px] h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
+        <div className="absolute top-[1px] left-[1px] right-[12px] h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, var(--surface) 20%, transparent)" }} />
         {/* Bottom fade */}
-        <div className="absolute bottom-[1px] left-[1px] right-[12px] h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
+        <div className="absolute bottom-[1px] left-[1px] right-[12px] h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, var(--surface) 30%, transparent)" }} />
         {/* Scrollable content */}
         <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin">
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
@@ -250,7 +250,7 @@ export default function ModulesPage() {
                   <a
                     href="#"
                     className="text-[13px] leading-[20px] font-medium transition-colors duration-100"
-                    style={{ color: "#1a4a2e" }}
+                    style={{ color: "var(--primary)" }}
                   >
                     See all
                   </a>

@@ -168,7 +168,7 @@ function ProgressBar({ value, height = 6 }: { value: number; height?: number }) 
     >
       <div
         className="h-full rounded-full"
-        style={{ width: `${value}%`, background: "#1a4a2e" }}
+        style={{ width: `${value}%`, background: "var(--primary)" }}
       />
     </div>
   );
@@ -191,7 +191,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   for (const { start, end } of segments) {
     if (start > pos) nodes.push(text.slice(pos, start));
     nodes.push(
-      <mark key={start} style={{ background: "rgba(26,74,46,0.15)", color: "#1a4a2e", borderRadius: 2, padding: "0 1px" }}>
+      <mark key={start} style={{ background: "color-mix(in srgb, var(--primary) 15%, transparent)", color: "var(--primary)", borderRadius: 2, padding: "0 1px" }}>
         {text.slice(start, end)}
       </mark>
     );
@@ -244,12 +244,12 @@ function ChapterStepper({
                   width: 28,
                   height: 28,
                   background: isActive
-                    ? "#1a4a2e"
+                    ? "var(--primary)"
                     : isCompleted
-                    ? "#1a4a2e"
+                    ? "var(--primary)"
                     : "transparent",
-                  border: isActive || isCompleted ? "none" : "1.5px solid #d1d5db",
-                  color: isActive || isCompleted ? "#ffffff" : "#9ca3af",
+                  border: isActive || isCompleted ? "none" : "1.5px solid var(--border)",
+                  color: isActive || isCompleted ? "#ffffff" : "var(--muted-foreground)",
                   fontSize: 11,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -268,7 +268,7 @@ function ChapterStepper({
                 <div
                   className="flex-1 w-px"
                   style={{
-                    background: isCompleted ? "#1a4a2e" : "#e5e7eb",
+                    background: isCompleted ? "var(--primary)" : "var(--border)",
                     minHeight: 24,
                     opacity: isCompleted ? 0.4 : 1,
                   }}
@@ -287,10 +287,10 @@ function ChapterStepper({
                 style={{
                   fontWeight: isActive ? 600 : 400,
                   color: isActive
-                    ? "#1a4a2e"
+                    ? "var(--primary)"
                     : isCompleted
-                    ? "#6b7280"
-                    : "#374151",
+                    ? "var(--muted-foreground)"
+                    : "var(--foreground)",
                 }}
               >
                 <Highlight text={chapter.title} query={q} />
@@ -319,9 +319,9 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
   return (
     <div
       className="rounded-[10px] flex flex-col gap-4 p-5"
-      style={{ background: "rgba(222,231,228,0.25)" }}
+      style={{ background: "color-mix(in srgb, var(--primary) 6%, var(--surface))" }}
     >
-      <p className="text-[14px] leading-[22px] font-semibold" style={{ color: "#111827" }}>
+      <p className="text-[14px] leading-[22px] font-semibold" style={{ color: "var(--foreground)" }}>
         {quiz.question}
       </p>
 
@@ -339,11 +339,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
               className="flex items-center gap-3 text-left rounded-[8px] px-3 py-2.5 transition-colors duration-100"
               style={{
                 background: showCorrect
-                  ? "rgba(26,74,46,0.08)"
+                  ? "color-mix(in srgb, var(--primary) 8%, transparent)"
                   : showWrong
-                  ? "rgba(220,38,38,0.06)"
+                  ? "color-mix(in srgb, var(--destructive) 6%, transparent)"
                   : isSelected && !submitted
-                  ? "rgba(26,74,46,0.06)"
+                  ? "color-mix(in srgb, var(--primary) 6%, transparent)"
                   : "transparent",
                 cursor: submitted ? "default" : "pointer",
               }}
@@ -357,12 +357,12 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                   border: showCorrect
                     ? "none"
                     : showWrong
-                    ? "2px solid #dc2626"
+                    ? "2px solid var(--destructive)"
                     : isSelected && !submitted
-                    ? "2px solid #1a4a2e"
+                    ? "2px solid var(--primary)"
                     : "1.5px solid #d1d5db",
                   background: showCorrect
-                    ? "#1a4a2e"
+                    ? "var(--primary)"
                     : showWrong
                     ? "transparent"
                     : isSelected && !submitted
@@ -371,11 +371,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                 }}
               >
                 {showCorrect && <Check size={10} strokeWidth={3} color="#fff" />}
-                {showWrong && <X size={10} strokeWidth={3} color="#dc2626" />}
+                {showWrong && <X size={10} strokeWidth={3} className="text-destructive" />}
                 {isSelected && !submitted && (
                   <span
                     className="rounded-full block"
-                    style={{ width: 8, height: 8, background: "#1a4a2e" }}
+                    style={{ width: 8, height: 8, background: "var(--primary)" }}
                   />
                 )}
               </span>
@@ -385,10 +385,10 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                 style={{
                   fontWeight: showCorrect ? 600 : 400,
                   color: showCorrect
-                    ? "#1a4a2e"
+                    ? "var(--primary)"
                     : showWrong
-                    ? "#dc2626"
-                    : "#374151",
+                    ? "var(--destructive)"
+                    : "var(--foreground)",
                 }}
               >
                 {opt.text}
@@ -402,7 +402,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
       {submitted && (
         <div
           className="flex items-center gap-2"
-          style={{ color: submitState === "correct" ? "#1a4a2e" : "#dc2626" }}
+          style={{ color: submitState === "correct" ? "var(--primary)" : "var(--destructive)" }}
         >
           {submitState === "correct" ? (
             <Check size={15} strokeWidth={2.5} />
@@ -423,8 +423,8 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
             disabled={!selected}
             className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100"
             style={{
-              background: "#1a4a2e",
-              color: "#ffffff",
+              background: "var(--primary)",
+              color: "var(--primary-foreground)",
               opacity: selected ? 1 : 0.5,
               cursor: selected ? "pointer" : "not-allowed",
             }}
@@ -491,7 +491,7 @@ export default function ModuleDetailPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Breadcrumb header */}
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-[#FCFCFC]">
+      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
         <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
           <span className="text-muted-foreground shrink-0">Training</span>
@@ -503,24 +503,24 @@ export default function ModuleDetailPage() {
       </header>
 
       {/* Body — scroll container fills the full width; aside is absolutely anchored to the right so the scrollbar lands at the far right edge */}
-      <div className="relative flex-1 overflow-hidden" style={{ background: "#FCFCFC" }}>
+      <div className="relative flex-1 overflow-hidden" style={{ background: "var(--surface)" }}>
         {/* Blob gradients — only on final quiz screen */}
         {currentChapter.isFinalQuiz && (
           <>
             <div
               className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }}
+              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,var(--blob-opacity)) 0%, rgba(247,255,226,var(--blob-opacity)) 10%, transparent 70%)" }}
             />
             <div
               className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }}
+              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,var(--blob-opacity)) 0%, rgba(239,255,235,var(--blob-opacity)) 10%, transparent 70%)" }}
             />
           </>
         )}
         {/* Top / bottom fades */}
         {/* Top / bottom fades — inset from card border (1px left), stop before aside (237px right) */}
-        <div className="absolute top-[1px] left-[1px] h-8 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
-        <div className="absolute bottom-[1px] left-[1px] h-16 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
+        <div className="absolute top-[1px] left-[1px] h-8 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to bottom, var(--surface) 20%, transparent)" }} />
+        <div className="absolute bottom-[1px] left-[1px] h-16 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to top, var(--surface) 30%, transparent)" }} />
 
         {/* Scroll container — extends full body width; right-padding reserves aside space */}
         <div
@@ -539,7 +539,7 @@ export default function ModuleDetailPage() {
                   <ArrowLeft size={14} strokeWidth={2} />
                   <span>Back to modules</span>
                 </Link>
-                <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "#111827" }}>
+                <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
                   {MODULE.title}
                 </h1>
                 <p className="text-[13px] leading-[20px] text-muted-foreground">
@@ -551,7 +551,7 @@ export default function ModuleDetailPage() {
                   </div>
                   <span
                     className="text-[12px] leading-[16px] font-medium shrink-0"
-                    style={{ color: "#1a4a2e" }}
+                    style={{ color: "var(--primary)" }}
                   >
                     {progress}% Complete
                   </span>
@@ -584,7 +584,7 @@ export default function ModuleDetailPage() {
                   <div className="flex flex-col gap-3">
                     <h2
                       className="text-[18px] leading-[26px] font-semibold"
-                      style={{ color: "#111827" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {currentChapter.num}. {currentChapter.title}
                     </h2>
@@ -593,7 +593,7 @@ export default function ModuleDetailPage() {
                         <p
                           key={i}
                           className="text-[15px] leading-[26px]"
-                          style={{ color: "#374151" }}
+                          style={{ color: "var(--foreground)" }}
                         >
                           <Highlight text={para} query={search} />
                         </p>
@@ -611,14 +611,14 @@ export default function ModuleDetailPage() {
                 <div className="flex flex-col items-center gap-4 text-center">
                   <div
                     className="flex items-center justify-center rounded-full"
-                    style={{ width: 56, height: 56, background: "rgba(26,74,46,0.08)" }}
+                    style={{ width: 56, height: 56, background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}
                   >
-                    <Flag size={24} style={{ color: "#1a4a2e" }} />
+                    <Flag size={24} style={{ color: "var(--primary)" }} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <p
                       className="text-[17px] leading-[26px] font-semibold"
-                      style={{ color: "#111827" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       Ready for the final quiz?
                     </p>
@@ -628,7 +628,7 @@ export default function ModuleDetailPage() {
                   </div>
                   <button
                     className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold"
-                    style={{ background: "#1a4a2e", color: "#ffffff", cursor: "pointer" }}
+                    style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
                   >
                     Start final quiz
                   </button>
@@ -643,7 +643,7 @@ export default function ModuleDetailPage() {
                       <button
                         onClick={goPrev}
                         className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-white transition-colors duration-100 hover:bg-gray-50"
-                        style={{ color: "#374151", cursor: "pointer" }}
+                        style={{ color: "var(--foreground)", cursor: "pointer" }}
                       >
                         Previous
                       </button>
@@ -652,7 +652,7 @@ export default function ModuleDetailPage() {
                   <button
                     onClick={goNext}
                     className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100"
-                    style={{ background: "#1a4a2e", color: "#ffffff", cursor: "pointer" }}
+                    style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
                   >
                     {nextLabel}
                   </button>
@@ -679,7 +679,7 @@ export default function ModuleDetailPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                  style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
+                  style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
                 />
                 {search && (
                   <button
