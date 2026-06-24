@@ -214,13 +214,10 @@ export default function ModulesPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "#FCFCFC" }}>
-      {/* Blob gradients — span the full card including header, same pattern as chat page */}
-      <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, rgba(247,255,226,0.55) 0%, rgba(247,255,226,0.55) 10%, transparent 70%)" }} />
-      <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, rgba(239,255,235,0.55) 0%, rgba(239,255,235,0.55) 10%, transparent 70%)" }} />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center gap-3 px-4 py-3 shrink-0 bg-[#FCFCFC]">
-        <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors duration-100" />
+      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-[#FCFCFC]">
+        <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px]">
           <span className="text-muted-foreground">Training</span>
           <span className="text-muted-foreground">/</span>
@@ -230,10 +227,10 @@ export default function ModulesPage() {
 
       {/* Scrollable canvas */}
       <div className="relative flex-1 overflow-hidden">
-        {/* Top fade */}
-        <div className="absolute top-0 inset-x-0 h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
+        {/* Top fade — inset from card border (1px) and scrollbar (5px) */}
+        <div className="absolute top-[1px] left-[1px] right-[12px] h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
         {/* Bottom fade */}
-        <div className="absolute bottom-0 inset-x-0 h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
+        <div className="absolute bottom-[1px] left-[1px] right-[12px] h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
         {/* Scrollable content */}
         <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin">
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">

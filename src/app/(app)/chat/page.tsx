@@ -877,16 +877,18 @@ export default function ChatPage() {
           <div className="relative flex-1 min-h-0">
             {/* Top fade */}
             <div
-              className="absolute top-0 left-0 right-0 h-16 pointer-events-none z-10 transition-opacity duration-200"
+              className="absolute top-[1px] left-[1px] h-16 pointer-events-none z-10 transition-opacity duration-200"
               style={{
+                right: 12,
                 background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)",
                 opacity: msgsCanScrollUp ? 1 : 0,
               }}
             />
             {/* Bottom fade — sits above the sticky input */}
             <div
-              className="absolute left-0 right-0 h-20 pointer-events-none z-10 transition-opacity duration-200"
+              className="absolute left-[1px] h-20 pointer-events-none z-10 transition-opacity duration-200"
               style={{
+                right: 12,
                 bottom: 112,
                 background: "linear-gradient(to top, #FCFCFC 30%, transparent)",
                 opacity: msgsCanScrollDown ? 1 : 0,

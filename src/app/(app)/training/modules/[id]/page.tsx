@@ -491,8 +491,8 @@ export default function ModuleDetailPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Breadcrumb header */}
-      <header className="relative z-10 flex items-center gap-3 px-4 py-3 shrink-0 bg-[#FCFCFC]">
-        <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors duration-100" />
+      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-[#FCFCFC]">
+        <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
           <span className="text-muted-foreground shrink-0">Training</span>
           <span className="text-muted-foreground shrink-0">/</span>
@@ -518,8 +518,9 @@ export default function ModuleDetailPage() {
           </>
         )}
         {/* Top / bottom fades */}
-        <div className="absolute top-0 inset-x-0 h-8 pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
-        <div className="absolute bottom-0 inset-x-0 h-16 pointer-events-none z-30" style={{ background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
+        {/* Top / bottom fades — inset from card border (1px left), stop before aside (237px right) */}
+        <div className="absolute top-[1px] left-[1px] h-8 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to bottom, #FCFCFC 20%, transparent)" }} />
+        <div className="absolute bottom-[1px] left-[1px] h-16 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to top, #FCFCFC 30%, transparent)" }} />
 
         {/* Scroll container — extends full body width; right-padding reserves aside space */}
         <div
