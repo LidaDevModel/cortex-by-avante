@@ -25,12 +25,11 @@ type Module = {
 
 /* ─── Mock data ─── */
 
-// Note: filenames on disk are swapped — illustration-heart.png is the triangle, illustration-warning.png is the heart
-const CATEGORY_ILLUSTRATION: Record<ModuleCategory, string> = {
-  "first-aid": "/brand/illustration-warning.png",
-  "escalations": "/brand/illustration-heart.png",
-  "clients": "/brand/illustration-person.png",
-  "incidents": "/brand/illustration-shield.png",
+const CATEGORY_ILLUSTRATION: Record<ModuleCategory, { light: string; dark: string }> = {
+  "first-aid":   { light: "/brand/illustration-heart-light.png",   dark: "/brand/illustration-heart-dark.png" },
+  "escalations": { light: "/brand/illustration-warning-light.png", dark: "/brand/illustration-warning-dark.png" },
+  "clients":     { light: "/brand/illustration-person-light.png",  dark: "/brand/illustration-person-dark.png" },
+  "incidents":   { light: "/brand/illustration-shield-light.png",  dark: "/brand/illustration-shield-dark.png" },
 };
 
 const MODULES: Module[] = [
@@ -49,8 +48,8 @@ const MODULES: Module[] = [
 
 
 const CARD_BG = "var(--surface-raised)";
-const ILLUSTRATION_GLOW = "radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%)";
-const ILLUSTRATION_GLOW_SIDE = "radial-gradient(ellipse 95% 75% at 50% 50%, rgba(255,255,255,0.92) 0%, transparent 100%)";
+const ILLUSTRATION_GLOW = "var(--illustration-glow)";
+const ILLUSTRATION_GLOW_SIDE = "var(--illustration-glow-side)";
 
 function ProgressBar({ value }: { value: number }) {
   return (
@@ -94,13 +93,8 @@ function InProgressCard({ module }: { module: Module }) {
         className="flex items-center justify-center"
         style={{ background: ILLUSTRATION_GLOW, height: 157 }}
       >
-        <Image
-          src={CATEGORY_ILLUSTRATION[module.category]}
-          alt={module.title}
-          width={80}
-          height={80}
-          className="object-contain"
-        />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={80} height={80} className="object-contain dark:hidden" />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={80} height={80} className="object-contain hidden dark:block" />
       </div>
 
       {/* Content */}
@@ -137,13 +131,8 @@ function ModuleCard({ module }: { module: Module }) {
         className="flex items-center justify-center shrink-0"
         style={{ width: 88, background: ILLUSTRATION_GLOW_SIDE }}
       >
-        <Image
-          src={CATEGORY_ILLUSTRATION[module.category]}
-          alt={module.title}
-          width={40}
-          height={40}
-          className="object-contain"
-        />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={40} height={40} className="object-contain dark:hidden" />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={40} height={40} className="object-contain hidden dark:block" />
       </div>
 
       {/* Right content */}

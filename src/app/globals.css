@@ -91,50 +91,56 @@
   --blob-1: rgba(247,255,226,0.55);
   --blob-2: rgba(239,255,235,0.55);
   --card-glow-shadow: 0 0 50px 1px rgba(184,214,96,0.20), 0 0 20px -6px rgba(151,215,198,0.30);
+  --illustration-glow: radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%);
+  --illustration-glow-side: radial-gradient(ellipse 95% 75% at 50% 50%, rgba(255,255,255,0.92) 0%, transparent 100%);
+  --card-border: #DEE7E4;                      /* outer card inset border — light mode */
 }
 
 .dark {
-  /* Cortex dark mode — dark gray base, green accent preserved */
-  --background: oklch(0.15 0.008 250);
-  --foreground: oklch(0.96 0.004 145);
-  --card: oklch(0.20 0.008 250);
-  --card-foreground: oklch(0.96 0.004 145);
-  --popover: oklch(0.20 0.008 250);
-  --popover-foreground: oklch(0.96 0.004 145);
-  --primary: oklch(0.55 0.10 150);           /* lighter green for dark mode readability */
-  --primary-foreground: oklch(0.10 0.005 250);
-  --secondary: oklch(0.25 0.02 150);
-  --secondary-foreground: oklch(0.96 0.004 145);
-  --muted: oklch(0.25 0.008 250);
-  --muted-foreground: oklch(0.65 0.006 250);
-  --accent: oklch(0.25 0.03 150);
-  --accent-foreground: oklch(0.96 0.004 145);
+  /* Cortex dark mode — neutral dark gray base, muted teal accent (#353535 cards, #71b7a2 primary) */
+  --background: oklch(0.17 0 0);             /* #1a1a1a — page bg, darker than cards */
+  --foreground: oklch(1 0 0);               /* white */
+  --card: oklch(0.27 0 0);                  /* #353535 — card surface */
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.27 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.69 0.07 175);          /* #71b7a2 — muted teal */
+  --primary-foreground: oklch(0.10 0 0);
+  --secondary: oklch(0.32 0.04 160);        /* nav active pill bg */
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.27 0 0);
+  --muted-foreground: oklch(0.81 0 0);      /* #c5c5c5 */
+  --accent: oklch(0.27 0 0);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.55 0.10 150);
-  --chart-1: oklch(0.55 0.10 150);
-  --chart-2: oklch(0.65 0.08 150);
-  --chart-3: oklch(0.72 0.06 150);
-  --chart-4: oklch(0.80 0.04 150);
-  --chart-5: oklch(0.88 0.02 150);
+  --border: oklch(0.37 0.05 160);           /* #355e50 — dark teal border */
+  --input: oklch(0.37 0.05 160);
+  --ring: oklch(0.75 0.07 170);             /* #7fc3af — lighter teal ring */
+  --chart-1: oklch(0.69 0.07 175);
+  --chart-2: oklch(0.65 0.06 170);
+  --chart-3: oklch(0.60 0.05 165);
+  --chart-4: oklch(0.55 0.04 160);
+  --chart-5: oklch(0.50 0.03 155);
   --sidebar: transparent;
-  --sidebar-foreground: oklch(0.96 0.004 145);
-  --sidebar-primary: oklch(0.55 0.10 150);
-  --sidebar-primary-foreground: oklch(0.10 0.005 250);
-  --sidebar-accent: oklch(0.25 0.02 150);
-  --sidebar-accent-foreground: oklch(0.96 0.004 145);
-  --sidebar-active: oklch(0.27 0.04 150);     /* dark mode nav active pill */
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.55 0.10 150);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.69 0.07 175);
+  --sidebar-primary-foreground: oklch(0.10 0 0);
+  --sidebar-accent: oklch(0.30 0.02 160);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-active: oklch(0.32 0.04 160);   /* active nav pill */
+  --sidebar-border: oklch(0.37 0.05 160);
+  --sidebar-ring: oklch(0.75 0.07 170);
   /* Cortex surface & glow tokens */
-  --surface: oklch(0.20 0.008 250);
-  --surface-raised: oklch(0.245 0.008 250);   /* slightly elevated above --surface */
-  --accent-subtle: oklch(0.30 0.055 130);     /* dark olive — active thumbs, recording btn */
-  --input-border: oklch(1 0 0 / 10%);         /* subtle border for chat input widget */
-  --blob-1: rgba(16,24,2,0.55);
-  --blob-2: rgba(8,24,12,0.55);
-  --card-glow-shadow: 0 0 50px 1px rgba(184,214,96,0.09), 0 0 20px -6px rgba(151,215,198,0.13);
+  --surface: oklch(0.27 0 0);               /* #353535 */
+  --surface-raised: oklch(0.30 0 0);        /* slightly elevated */
+  --accent-subtle: oklch(0.32 0.04 160);    /* active thumbs, recording btn */
+  --input-border: oklch(0.37 0.05 160);     /* chat input widget border */
+  --blob-1: rgba(53,94,80,0.20);
+  --blob-2: rgba(72,72,72,0.30);
+  --card-glow-shadow: 0 4px 5px rgba(189,199,190,0.15);
+  --illustration-glow: radial-gradient(ellipse 85% 80% at 50% 40%, rgba(72,72,72,1) 0%, rgba(43,43,43,1) 100%);
+  --illustration-glow-side: radial-gradient(ellipse 95% 75% at 50% 50%, rgba(72,72,72,1) 0%, rgba(43,43,43,1) 100%);
+  --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
 }
 
 @layer components {
@@ -183,12 +189,12 @@
     position: absolute;
     inset: 0;
     border-radius: 0.75rem;
-    box-shadow: inset 0 0 0 1px oklch(0.68 0.09 145);
+    box-shadow: inset 0 0 0 1px var(--card-border);
     pointer-events: none;
     z-index: 20;
   }
   .dark .cortex-card-border::before {
-    box-shadow: inset 0 0 0 1px oklch(0.32 0.05 145);
+    box-shadow: inset 0 0 0 1px var(--card-border);
   }
 }
 
