@@ -48,7 +48,7 @@ const MODULES: Module[] = [
 /* ─── Sub-components ─── */
 
 
-const CARD_BG = "#F7F8F7";
+const CARD_BG = "var(--surface-raised)";
 const ILLUSTRATION_GLOW = "radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%)";
 const ILLUSTRATION_GLOW_SIDE = "radial-gradient(ellipse 95% 75% at 50% 50%, rgba(255,255,255,0.92) 0%, transparent 100%)";
 
@@ -227,12 +227,8 @@ export default function ModulesPage() {
 
       {/* Scrollable canvas */}
       <div className="relative flex-1 overflow-hidden">
-        {/* Top fade — inset from card border (1px) and scrollbar (5px) */}
-        <div className="absolute top-[1px] left-[1px] right-[12px] h-8 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, var(--surface) 20%, transparent)" }} />
-        {/* Bottom fade */}
-        <div className="absolute bottom-[1px] left-[1px] right-[12px] h-12 pointer-events-none z-20" style={{ background: "linear-gradient(to top, var(--surface) 30%, transparent)" }} />
-        {/* Scrollable content */}
-        <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin">
+        {/* Scrollable content — mask-image fades edges, no border gap */}
+        <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
           <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
@@ -277,7 +273,7 @@ export default function ModulesPage() {
                 placeholder="Search modules..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-[40px] pl-9 pr-3 rounded-[8px] border border-border bg-white text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                className="w-full h-[40px] pl-9 pr-3 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
                 style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
               />
             </div>

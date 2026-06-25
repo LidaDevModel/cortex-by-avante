@@ -517,19 +517,19 @@ export default function ModuleDetailPage() {
             />
           </>
         )}
-        {/* Top / bottom fades */}
-        {/* Top / bottom fades — inset from card border (1px left), stop before aside (237px right) */}
-        <div className="absolute top-[1px] left-[1px] h-8 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to bottom, var(--surface) 20%, transparent)" }} />
-        <div className="absolute bottom-[1px] left-[1px] h-16 pointer-events-none z-30" style={{ right: 237, background: "linear-gradient(to top, var(--surface) 30%, transparent)" }} />
-
         {/* Scroll container — extends full body width; right-padding reserves aside space */}
+        {/* mask-image clips content at edges — no gap vs overlay approach */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-scroll z-10 scroll-thin"
-          style={{ paddingRight: 236 }}
+          style={{
+            paddingRight: 236,
+            maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
+          }}
         >
-              <div className="max-w-[640px] mx-auto px-8 pt-6 pb-20 flex flex-col gap-6">
+              <div className="max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6">
               {/* Module info block */}
               <div className="flex flex-col gap-2">
                 <Link
@@ -642,7 +642,7 @@ export default function ModuleDetailPage() {
                     {!isFirst && (
                       <button
                         onClick={goPrev}
-                        className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-white transition-colors duration-100 hover:bg-gray-50"
+                        className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-[var(--surface-raised)] transition-colors duration-100 hover:bg-[var(--surface)]"
                         style={{ color: "var(--foreground)", cursor: "pointer" }}
                       >
                         Previous
@@ -678,7 +678,7 @@ export default function ModuleDetailPage() {
                   placeholder="Search chapters"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-white text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                  className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
                   style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
                 />
                 {search && (

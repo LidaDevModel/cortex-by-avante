@@ -85,6 +85,9 @@
   --sidebar-ring: oklch(0.30 0.09 150);
   /* Cortex surface & glow tokens */
   --surface: oklch(0.992 0.004 145);
+  --surface-raised: oklch(0.975 0.004 145);   /* module cards, modals, raised surfaces */
+  --accent-subtle: oklch(0.897 0.106 130);    /* #D4EC93 lime — active thumbs, recording btn */
+  --input-border: oklch(0.910 0.040 150);     /* #d4f3e8 mint — chat input widget border */
   --blob-1: rgba(247,255,226,0.55);
   --blob-2: rgba(239,255,235,0.55);
   --card-glow-shadow: 0 0 50px 1px rgba(184,214,96,0.20), 0 0 20px -6px rgba(151,215,198,0.30);
@@ -121,10 +124,14 @@
   --sidebar-primary-foreground: oklch(0.10 0.005 250);
   --sidebar-accent: oklch(0.25 0.02 150);
   --sidebar-accent-foreground: oklch(0.96 0.004 145);
+  --sidebar-active: oklch(0.27 0.04 150);     /* dark mode nav active pill */
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0.10 150);
   /* Cortex surface & glow tokens */
   --surface: oklch(0.20 0.008 250);
+  --surface-raised: oklch(0.245 0.008 250);   /* slightly elevated above --surface */
+  --accent-subtle: oklch(0.30 0.055 130);     /* dark olive — active thumbs, recording btn */
+  --input-border: oklch(1 0 0 / 10%);         /* subtle border for chat input widget */
   --blob-1: rgba(16,24,2,0.55);
   --blob-2: rgba(8,24,12,0.55);
   --card-glow-shadow: 0 0 50px 1px rgba(184,214,96,0.09), 0 0 20px -6px rgba(151,215,198,0.13);
@@ -154,7 +161,7 @@
 
 @layer components {
   .cortex-card {
-    background: #FCFCFC;
+    background: var(--surface);
     box-shadow:
       0 0 50px 1px rgba(184, 214, 96, 0.20),
       0 0 20px -6px rgba(151, 215, 198, 0.30),
@@ -176,9 +183,12 @@
     position: absolute;
     inset: 0;
     border-radius: 0.75rem;
-    box-shadow: inset 0 0 0 1px rgba(168, 214, 147, 0.22);
+    box-shadow: inset 0 0 0 1px oklch(0.68 0.09 145);
     pointer-events: none;
     z-index: 20;
+  }
+  .dark .cortex-card-border::before {
+    box-shadow: inset 0 0 0 1px oklch(0.32 0.05 145);
   }
 }
 
@@ -219,6 +229,24 @@
   50%  { transform: translate(20px, -32px) scale(0.98); }
   75%  { transform: translate(24px, 12px) scale(1.04); }
   100% { transform: translate(0px, 0px) scale(1); }
+}
+
+/* Global webkit scrollbar — transparent track so no white/light bar bleeds through */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.72 0.08 150 / 0.22);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.08 150 / 0.40);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.72 0.08 150 / 0.18);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.08 150 / 0.35);
 }
 
 /* Scrollbar: always hide thumb, show only while .is-scrolling */

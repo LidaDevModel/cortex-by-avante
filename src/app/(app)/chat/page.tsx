@@ -118,7 +118,7 @@ function SourceChip({ label }: { label: string }) {
   return (
     <span
       className="inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap"
-      style={{ background: "#F4F9E7" }}
+      style={{ background: "color-mix(in srgb, var(--primary) 10%, var(--surface))" }}
     >
       {label}
       <ArrowUpRight size={10} />
@@ -166,7 +166,7 @@ function UserMessage({ content, onEdit }: { content: string; onEdit: (newContent
       <div className="flex justify-end">
         <div
           className="w-[85%] rounded-2xl px-4 pt-3 pb-3 flex flex-col gap-3"
-          style={{ background: "oklch(0.965 0.006 90)" }}
+          style={{ background: "var(--surface-raised)" }}
         >
           <textarea
             ref={textareaRef}
@@ -205,7 +205,7 @@ function UserMessage({ content, onEdit }: { content: string; onEdit: (newContent
     <div className="flex flex-col items-end gap-1 group">
       <div
         className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words"
-        style={{ background: "oklch(0.965 0.006 90)" }}
+        style={{ background: "var(--surface-raised)" }}
       >
         {content}
       </div>
@@ -254,7 +254,7 @@ function ShareFeedbackModal({
       onClick={handleBackdrop}
     >
       <div
-        className="relative w-[340px] rounded-[12px] bg-white p-6 flex flex-col gap-5"
+        className="relative w-[340px] rounded-[12px] bg-[var(--surface-raised)] p-6 flex flex-col gap-5"
         style={{
           boxShadow: "0 8px 32px rgba(17,24,39,0.14), 0 2px 8px rgba(17,24,39,0.06)",
           animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both",
@@ -283,7 +283,7 @@ function ShareFeedbackModal({
                 className="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors duration-100"
                 style={
                   selected === opt
-                    ? { background: "#F4F9E7", borderColor: "var(--color-primary)", color: "var(--color-primary)" }
+                    ? { background: "color-mix(in srgb, var(--primary) 10%, var(--surface))", borderColor: "var(--color-primary)", color: "var(--color-primary)" }
                     : { background: "transparent", borderColor: "var(--border)", color: "var(--foreground)" }
                 }
               >
@@ -298,7 +298,7 @@ function ShareFeedbackModal({
               value={otherText}
               onChange={e => setOtherText(e.target.value)}
               placeholder="Tell us more..."
-              className="w-full h-10 rounded-lg border border-border bg-white px-3 text-[13px] text-foreground outline-none focus:ring-1 focus:border-primary transition-colors duration-100"
+              className="w-full h-10 rounded-lg border border-border bg-[var(--surface-raised)] px-3 text-[13px] text-foreground outline-none focus:ring-1 focus:border-primary transition-colors duration-100"
               style={{ "--tw-ring-color": "var(--color-primary)" } as React.CSSProperties}
             />
           )}
@@ -396,7 +396,7 @@ function AiMessage({
       <button
         onClick={onClick}
         className="p-1.5 rounded-lg transition-colors duration-100"
-        style={active ? { background: "#D4EC93" } : undefined}
+        style={active ? { background: "var(--accent-subtle)" } : undefined}
         aria-label={type === "up" ? "Helpful" : "Not helpful"}
       >
         <Icon
@@ -692,8 +692,8 @@ export default function ChatPage() {
         ref={containerRef}
         className={`w-full rounded-2xl ${containerLayout} ${containerPadding}`}
         style={{
-          background: "#fcfdfa",
-          border: "1px solid #d4f3e8",
+          background: "var(--surface)",
+          border: "1px solid var(--input-border)",
           boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.05), 0px 2px 15px -3px rgba(0,0,0,0.05)",
         }}
       >
@@ -724,14 +724,14 @@ export default function ChatPage() {
             <div
               className="absolute left-0 right-2 top-0 h-8 pointer-events-none transition-opacity duration-200"
               style={{
-                background: "linear-gradient(to bottom, #fcfdfa 20%, transparent)", /* input widget bg — intentionally not --surface */
+                background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
                 opacity: taCanScrollUp ? 1 : 0,
               }}
             />
             <div
               className="absolute left-0 right-2 bottom-0 h-8 pointer-events-none transition-opacity duration-200"
               style={{
-                background: "linear-gradient(to top, #fcfdfa 20%, transparent)", /* input widget bg — intentionally not --surface */
+                background: "linear-gradient(to top, var(--surface) 20%, transparent)",
                 opacity: taCanScrollDown ? 1 : 0,
               }}
             />
@@ -743,7 +743,7 @@ export default function ChatPage() {
             <button
               type="button"
               className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
-              style={{ background: "#f6f6f6" }}
+              style={{ background: "var(--surface-raised)" }}
               aria-label="Cancel recording"
               onClick={() => setIsRecording(false)}
             >
@@ -764,7 +764,7 @@ export default function ChatPage() {
             <button
               type="button"
               className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
-              style={{ background: "#d4ec93" }}
+              style={{ background: "var(--accent-subtle)" }}
               aria-label="Confirm recording"
               onClick={handleConfirmRecording}
             >
@@ -774,7 +774,7 @@ export default function ChatPage() {
             <button
               type="button"
               className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
-              style={{ background: "#d4ec93" }}
+              style={{ background: "var(--accent-subtle)" }}
               aria-label="Stop response"
               onClick={handleStopResponse}
             >
@@ -875,18 +875,9 @@ export default function ChatPage() {
         {hasConversation ? (
           /* ── Conversation view ── */
           <div className="relative flex-1 min-h-0">
-            {/* Top fade */}
+            {/* Bottom fade — sits above the sticky input (overlay, not border-adjacent) */}
             <div
-              className="absolute top-[1px] left-[1px] h-16 pointer-events-none z-10 transition-opacity duration-200"
-              style={{
-                right: 12,
-                background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
-                opacity: msgsCanScrollUp ? 1 : 0,
-              }}
-            />
-            {/* Bottom fade — sits above the sticky input */}
-            <div
-              className="absolute left-[1px] h-20 pointer-events-none z-10 transition-opacity duration-200"
+              className="absolute left-0 h-20 pointer-events-none z-10 transition-opacity duration-200"
               style={{
                 right: 12,
                 bottom: 112,
@@ -916,8 +907,16 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {/* Single scroll container — messages + sticky input share the same width */}
-            <div ref={messagesScrollRef} className="h-full overflow-y-auto" style={{ scrollbarGutter: "stable" }}>
+            {/* Single scroll container — top fade via mask-image (no border gap) */}
+            <div
+              ref={messagesScrollRef}
+              className="h-full overflow-y-auto"
+              style={{
+                scrollbarGutter: "stable",
+                maskImage: msgsCanScrollUp ? "linear-gradient(to bottom, transparent 0px, black 64px, black 100%)" : "none",
+                WebkitMaskImage: msgsCanScrollUp ? "linear-gradient(to bottom, transparent 0px, black 64px, black 100%)" : "none",
+              }}
+            >
               <div className="min-h-full flex flex-col">
                 <div className="flex-1 px-6 pt-8 pb-4">
                   <div className="max-w-[560px] mx-auto flex flex-col gap-8">

@@ -85,7 +85,7 @@ function ConversationItem({
   }
 
   return (
-    <div className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-[#E0EEBA] transition-colors duration-100">
+    <div className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent transition-colors duration-100">
       <span className="flex-1 text-[13px] text-primary truncate min-w-0">
         {conversation.title}
       </span>
@@ -202,33 +202,21 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="pl-7 h-9 text-[13px] bg-white border-border rounded-lg"
+              className="pl-7 h-9 text-[13px] bg-[var(--surface-raised)] border-border rounded-lg"
             />
           </div>
         </div>
 
         {/* Conversation list with scroll-aware fade overlays */}
         <div className="relative flex-1 min-h-0">
-          {/* Top fade */}
-          <div
-            className="absolute top-0 left-0 right-2 h-8 pointer-events-none z-10 transition-opacity duration-200"
-            style={{
-              background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
-              opacity: canScrollUp ? 1 : 0,
-            }}
-          />
-          {/* Bottom fade */}
-          <div
-            className="absolute bottom-0 left-0 right-2 h-8 pointer-events-none z-10 transition-opacity duration-200"
-            style={{
-              background: "linear-gradient(to top, var(--surface) 20%, transparent)",
-              opacity: canScrollDown ? 1 : 0,
-            }}
-          />
           <div
             ref={listRef}
             onScroll={handleScroll}
             className="absolute inset-0 overflow-y-auto"
+            style={{
+              maskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
+              WebkitMaskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
+            }}
           >
             <div className="px-2 pb-4">
               {GROUPS.map((group) => {
