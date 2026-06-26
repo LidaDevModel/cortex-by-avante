@@ -185,7 +185,7 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
       >
         <History size={15} className="shrink-0" />
         <span className="text-[13px] font-semibold" style={fadeStyle}>
-          Chat history
+          Old conversations
         </span>
       </button>
 

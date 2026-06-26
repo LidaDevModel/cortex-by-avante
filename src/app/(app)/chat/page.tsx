@@ -314,8 +314,8 @@ function ShareFeedbackModal({
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="h-9 px-4 rounded-lg text-[13px] font-semibold text-white disabled:opacity-50 transition-opacity duration-100"
-            style={{ background: "var(--color-primary)" }}
+            className="h-9 px-4 rounded-lg text-[13px] font-semibold disabled:opacity-50 transition-opacity duration-100"
+            style={{ background: "var(--color-primary)", color: "var(--primary-foreground)" }}
           >
             Submit
           </button>
@@ -742,7 +742,7 @@ export default function ChatPage() {
           {isRecording ? (
             <button
               type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-opacity duration-100 hover:opacity-90"
               style={{ background: "var(--surface-raised)" }}
               aria-label="Cancel recording"
               onClick={() => setIsRecording(false)}
@@ -763,7 +763,7 @@ export default function ChatPage() {
           {isRecording ? (
             <button
               type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-opacity duration-100 hover:opacity-90"
               style={{ background: "var(--accent-subtle)" }}
               aria-label="Confirm recording"
               onClick={handleConfirmRecording}

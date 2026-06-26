@@ -50,10 +50,12 @@ const MODULES: Module[] = [
 const CARD_BG = "var(--surface-raised)";
 const ILLUSTRATION_GLOW = "var(--illustration-glow)";
 const ILLUSTRATION_GLOW_SIDE = "var(--illustration-glow-side)";
+const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
+const ILLUSTRATION_GLOW_SIDE_CARD = "var(--illustration-glow-side-card)";
 
 function ProgressBar({ value }: { value: number }) {
   return (
-    <div className="h-2 rounded-full bg-border overflow-hidden">
+    <div className="h-2 rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden">
       <div
         className="h-full rounded-full"
         style={{ width: `${value}%`, background: "var(--primary)" }}
@@ -85,20 +87,18 @@ function InProgressCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="flex flex-col rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
+      className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
       style={{ background: CARD_BG, border: "1px solid var(--border)" }}
     >
-      {/* Illustration area — full-width radial glow, no padding from card edges */}
-      <div
-        className="flex items-center justify-center"
-        style={{ background: ILLUSTRATION_GLOW, height: 157 }}
-      >
-        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={80} height={80} className="object-contain dark:hidden" />
-        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={80} height={80} className="object-contain hidden dark:block" />
+      {/* Illustration area — gradient anchored to icon zone, bleeds into card body below */}
+      <div className="relative flex items-center justify-center" style={{ height: 157 }}>
+        <div className="absolute inset-x-0 top-0 pointer-events-none z-0" style={{ height: "calc(100% + 600px)", background: ILLUSTRATION_GLOW_CARD }} />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={80} height={80} className="relative object-contain dark:hidden z-10" />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={80} height={80} className="relative object-contain hidden dark:block z-10" />
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col gap-2 px-3 pt-3 pb-3">
+      {/* Content — z-10 so it sits above the bleeding gradient */}
+      <div className="relative z-10 flex flex-col gap-2 px-3 pt-3 pb-3">
         <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
           {module.title}
         </p>
@@ -123,21 +123,19 @@ function ModuleCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="flex rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
+      className="relative flex rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
       style={{ background: CARD_BG, border: "1px solid var(--border)" }}
     >
-      {/* Illustration column — full-height radial glow, no padding from card edges */}
-      <div
-        className="flex items-center justify-center shrink-0"
-        style={{ width: 88, background: ILLUSTRATION_GLOW_SIDE }}
-      >
-        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={40} height={40} className="object-contain dark:hidden" />
-        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={40} height={40} className="object-contain hidden dark:block" />
+      {/* Illustration column — gradient anchored to icon zone, bleeds rightward into text area */}
+      <div className="relative flex items-center justify-center shrink-0" style={{ width: 88 }}>
+        <div className="absolute inset-y-0 left-0 pointer-events-none z-0" style={{ width: "calc(100% + 200px)", background: ILLUSTRATION_GLOW_SIDE_CARD }} />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={40} height={40} className="relative object-contain dark:hidden z-10" />
+        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={40} height={40} className="relative object-contain hidden dark:block z-10" />
       </div>
 
-      {/* Right content */}
-      <div className="flex flex-col gap-1.5 min-w-0 flex-1 px-3 py-3">
-        <p className="text-[14px] leading-[20px] font-semibold truncate" style={{ color: "#1a4a2e" }}>
+      {/* Right content — z-10 so it sits above the bleeding gradient */}
+      <div className="relative z-10 flex flex-col gap-1.5 min-w-0 flex-1 px-3 py-3">
+        <p className="text-[14px] leading-[20px] font-semibold truncate" style={{ color: "var(--primary)" }}>
           {module.title}
         </p>
         <p className="text-[12px] leading-[16px] text-muted-foreground whitespace-nowrap">

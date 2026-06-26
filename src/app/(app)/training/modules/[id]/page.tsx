@@ -163,7 +163,7 @@ function deriveInitialState(moduleId: string) {
 function ProgressBar({ value, height = 6 }: { value: number; height?: number }) {
   return (
     <div
-      className="rounded-full bg-border overflow-hidden"
+      className="rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden"
       style={{ height }}
     >
       <div
@@ -205,12 +205,14 @@ function ChapterStepper({
   chapters,
   currentId,
   completedIds,
+  skippedIds,
   onSelect,
   search,
 }: {
   chapters: Chapter[];
   currentId: string;
   completedIds: Set<string>;
+  skippedIds: Set<string>;
   onSelect: (id: string) => void;
   search: string;
 }) {
@@ -229,6 +231,7 @@ function ChapterStepper({
     <div className="flex flex-col">
       {filtered.map((chapter, i) => {
         const isCompleted = completedIds.has(chapter.id);
+        const isSkipped = skippedIds.has(chapter.id) && !isCompleted;
         const isActive = chapter.id === currentId;
         const isLast = i === filtered.length - 1;
 
@@ -243,13 +246,13 @@ function ChapterStepper({
                 style={{
                   width: 28,
                   height: 28,
-                  background: isActive
-                    ? "var(--primary)"
-                    : isCompleted
-                    ? "var(--primary)"
-                    : "transparent",
-                  border: isActive || isCompleted ? "none" : "1.5px solid var(--border)",
-                  color: isActive || isCompleted ? "#ffffff" : "var(--muted-foreground)",
+                  background: isActive || isCompleted ? "var(--primary)" : "transparent",
+                  border: isActive || isCompleted
+                    ? "none"
+                    : isSkipped
+                    ? "1.5px dashed var(--muted-foreground)"
+                    : "1.5px solid var(--border)",
+                  color: isActive || isCompleted ? "var(--primary-foreground)" : "var(--muted-foreground)",
                   fontSize: 11,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -446,6 +449,7 @@ export default function ModuleDetailPage() {
 
   const [currentId, setCurrentId] = useState(() => deriveInitialState(moduleId).currentId);
   const [completedIds, setCompletedIds] = useState(() => deriveInitialState(moduleId).completedIds);
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -468,6 +472,18 @@ export default function ModuleDetailPage() {
   }
 
   function goTo(id: string) {
+    const targetIndex = CHAPTERS.findIndex((c) => c.id === id);
+    // Mark all non-completed chapters from current position up to (not including) target as skipped
+    setSkippedIds((prev) => {
+      const next = new Set(prev);
+      const lo = Math.min(currentIndex, targetIndex);
+      const hi = Math.max(currentIndex, targetIndex);
+      for (let i = lo; i < hi; i++) {
+        const c = CHAPTERS[i];
+        if (!completedIds.has(c.id)) next.add(c.id);
+      }
+      return next;
+    });
     setCurrentId(id);
     scrollToTop();
   }
@@ -476,6 +492,8 @@ export default function ModuleDetailPage() {
     if (isLast) return;
     const next = CHAPTERS[currentIndex + 1];
     setCompletedIds((prev) => new Set([...prev, currentId]));
+    // Remove from skipped if it was previously skipped
+    setSkippedIds((prev) => { const s = new Set(prev); s.delete(next.id); return s; });
     setCurrentId(next.id);
     scrollToTop();
   }
@@ -494,69 +512,114 @@ export default function ModuleDetailPage() {
       <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
         <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-          <span className="text-muted-foreground shrink-0">Training</span>
+          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Training</Link>
           <span className="text-muted-foreground shrink-0">/</span>
-          <span className="text-muted-foreground shrink-0">Modules</span>
+          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Modules</Link>
           <span className="text-muted-foreground shrink-0">/</span>
           <span className="font-medium text-foreground truncate">{MODULE.title}</span>
         </div>
       </header>
 
-      {/* Body — scroll container fills the full width; aside is absolutely anchored to the right so the scrollbar lands at the far right edge */}
-      <div className="relative flex-1 overflow-hidden" style={{ background: "var(--surface)" }}>
-        {/* Blob gradients — only on final quiz screen */}
-        {currentChapter.isFinalQuiz && (
-          <>
-            <div
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 10%, transparent 70%)" }}
-            />
-            <div
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, var(--blob-2) 0%, var(--blob-2) 10%, transparent 70%)" }}
-            />
-          </>
-        )}
-        {/* Scroll container — extends full body width; right-padding reserves aside space */}
-        {/* mask-image clips content at edges — no gap vs overlay approach */}
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="absolute inset-0 overflow-y-scroll z-10 scroll-thin"
-          style={{
-            paddingRight: 236,
-            maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
-          }}
+      {/* Module info — full width, above the two-column split */}
+      <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+        <Link
+          href="/training/modules"
+          className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
-              <div className="max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6">
-              {/* Module info block */}
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="/training/modules"
-                  className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+          <ArrowLeft size={14} strokeWidth={2} />
+          <span>Back to modules</span>
+        </Link>
+        <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
+          {MODULE.title}
+        </h1>
+        <p className="text-[13px] leading-[20px] text-muted-foreground">
+          {MODULE.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.type}
+        </p>
+        <div className="flex items-center gap-3 mt-1">
+          <div className="flex-1">
+            <ProgressBar value={progress} height={8} />
+          </div>
+          <span
+            className="text-[12px] leading-[16px] font-medium shrink-0"
+            style={{ color: "var(--primary)" }}
+          >
+            {progress}% Complete
+          </span>
+        </div>
+      </div>
+
+      {/* Two-column body */}
+      <div className="flex flex-1 overflow-hidden" style={{ background: "var(--surface)" }}>
+
+        {/* Left: stepper panel */}
+        <aside
+          className="shrink-0 flex flex-col overflow-hidden"
+          style={{ width: 354, borderRight: "1px solid var(--border)" }}
+        >
+          {/* Search */}
+          <div className="px-8 pt-8 pb-3 shrink-0">
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="Search chapters"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+                style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
                 >
-                  <ArrowLeft size={14} strokeWidth={2} />
-                  <span>Back to modules</span>
-                </Link>
-                <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
-                  {MODULE.title}
-                </h1>
-                <p className="text-[13px] leading-[20px] text-muted-foreground">
-                  {MODULE.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.type}
-                </p>
-                <div className="flex items-center gap-3 mt-1">
-                  <div className="flex-1">
-                    <ProgressBar value={progress} height={8} />
-                  </div>
-                  <span
-                    className="text-[12px] leading-[16px] font-medium shrink-0"
-                    style={{ color: "var(--primary)" }}
-                  >
-                    {progress}% Complete
-                  </span>
-                </div>
-              </div>
+                  <X size={13} strokeWidth={2} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Stepper list */}
+          <div className="flex-1 overflow-y-auto px-8 pb-6 scroll-thin">
+            <ChapterStepper
+              chapters={CHAPTERS}
+              currentId={currentId}
+              completedIds={completedIds}
+              skippedIds={skippedIds}
+              onSelect={goTo}
+              search={search}
+            />
+          </div>
+        </aside>
+
+        {/* Right: scrollable content */}
+        <div className="relative flex-1 overflow-hidden">
+          {/* Blob gradients — only on final quiz screen */}
+          {currentChapter.isFinalQuiz && (
+            <>
+              <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 10%, transparent 70%)" }}
+              />
+              <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, var(--blob-2) 0%, var(--blob-2) 10%, transparent 70%)" }}
+              />
+            </>
+          )}
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
+            style={{
+              maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
+            }}
+          >
+              <div className={currentChapter.isFinalQuiz ? "h-full flex items-center justify-center px-8 -mt-10" : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"}>
 
               {/* Chapter illustration — only on first chapter */}
               {currentIndex === 0 && (
@@ -565,7 +628,7 @@ export default function ModuleDetailPage() {
                   style={{
                     height: 180,
                     background:
-                      "radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%), #F7F8F7",
+                      "var(--illustration-glow), var(--surface-raised)",
                   }}
                 >
                   <Image
@@ -651,7 +714,7 @@ export default function ModuleDetailPage() {
                   </div>
                   <button
                     onClick={goNext}
-                    className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100"
+                    className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
                     style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
                   >
                     {nextLabel}
@@ -661,49 +724,8 @@ export default function ModuleDetailPage() {
             </div>
           </div>
 
-          {/* Chapter panel — absolute right, sits above scroll container; stepper scrolls independently */}
-          <aside
-            className="absolute top-0 right-0 bottom-0 shrink-0 flex flex-col overflow-hidden z-20"
-            style={{ width: 236 }}
-          >
-            {/* Search */}
-            <div className="px-6 pt-4 pb-3 shrink-0">
-              <div className="relative">
-                <Search
-                  size={14}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Search chapters"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                  style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
-                />
-                {search && (
-                  <button
-                    onClick={() => setSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
-                  >
-                    <X size={13} strokeWidth={2} />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Stepper list */}
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <ChapterStepper
-                chapters={CHAPTERS}
-                currentId={currentId}
-                completedIds={completedIds}
-                onSelect={goTo}
-                search={search}
-              />
-            </div>
-          </aside>
         </div>
+      </div>
     </div>
   );
 }

@@ -36,7 +36,7 @@ const navItems = [
 
 const trainingSubItems = [
   { label: "Modules", href: "/training/modules" },
-  { label: "Quick Check", href: "/training/quick-check" },
+  { label: "Knowledge Check", href: "/training/quick-check" },
 ];
 
 export function CortexSidebar() {
@@ -88,7 +88,7 @@ export function CortexSidebar() {
                 <SidebarMenuSub>
                   {trainingSubItems.map((sub) => (
                     <SidebarMenuSubItem key={sub.label}>
-                      <SidebarMenuSubButton asChild isActive={pathname === sub.href}>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith(sub.href)}>
                         <a href={sub.href}>{sub.label}</a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
