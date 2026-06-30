@@ -803,31 +803,40 @@ export default function ChatPage() {
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
-      {/* Blobs span the full card — visible through the transparent collapsed history panel */}
+      <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
       {!hasConversation && (
-        <>
+        /* Shared clip container — overflow:hidden with card radius so blobs never bleed outside */
+        <div
+          className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
+          style={{ borderRadius: "12px" }}
+        >
+          {/* Left blob — 80%×80%, starts -10% left so the edge is always off-screen even at max translation */}
           <div
-            className="absolute -inset-12 pointer-events-none z-0"
+            className="absolute pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 15%, transparent 75%)",
+              width: "80%", height: "80%",
+              top: "10%", left: "-10%",
+              background: "radial-gradient(ellipse 70% 70% at 40% 50%, var(--blob-1) 0%, transparent 70%)",
               animation: "blob-1 9s ease-in-out infinite",
               willChange: "transform",
             }}
           />
+          {/* Right blob — 80%×80%, ends -10% right for the same reason */}
           <div
-            className="absolute -inset-12 pointer-events-none z-0"
+            className="absolute pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 65% 70% at 58% 60%, var(--blob-2) 0%, var(--blob-2) 15%, transparent 75%)",
+              width: "80%", height: "80%",
+              top: "10%", right: "-10%",
+              background: "radial-gradient(ellipse 70% 70% at 60% 50%, var(--blob-2) 0%, transparent 70%)",
               animation: "blob-2 12s ease-in-out infinite",
               willChange: "transform",
             }}
           />
-        </>
+        </div>
       )}
-      <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
 
         {/* Header */}
-        <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
+        <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "color-mix(in srgb, var(--surface) 30%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
           <SidebarTrigger className="-ml-1" />
 
           {conversationTitle && (
@@ -860,7 +869,7 @@ export default function ChatPage() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleDeleteConversation}
-                    className="text-destructive focus:text-destructive"
+                    variant="destructive"
                   >
                     <Trash2 size={13} className="mr-2" />
                     Delete

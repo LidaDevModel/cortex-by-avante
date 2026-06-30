@@ -74,7 +74,7 @@
   --chart-4: oklch(0.75 0.05 150);
   --chart-5: oklch(0.88 0.03 150);
   --radius: 0.5rem;                          /* 8px — VISION.md radius.button/input */
-  --sidebar: transparent;
+  --sidebar: var(--background);
   --sidebar-foreground: oklch(0.16 0.012 250);
   --sidebar-primary: oklch(0.30 0.09 150);
   --sidebar-primary-foreground: oklch(1 0 0);
@@ -112,7 +112,7 @@
   --secondary-foreground: oklch(1 0 0);
   --muted: oklch(0.27 0 0);
   --muted-foreground: oklch(0.81 0 0);      /* #c5c5c5 */
-  --accent: oklch(0.27 0 0);
+  --accent: oklch(0.36 0 0);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.38 0 0);                /* neutral gray border — matches light mode contrast */
@@ -123,7 +123,7 @@
   --chart-3: oklch(0.60 0.05 165);
   --chart-4: oklch(0.55 0.04 160);
   --chart-5: oklch(0.50 0.03 155);
-  --sidebar: transparent;
+  --sidebar: var(--background);
   --sidebar-foreground: oklch(1 0 0);
   --sidebar-primary: oklch(0.69 0.07 175);
   --sidebar-primary-foreground: oklch(0.10 0 0);
@@ -259,24 +259,25 @@
   background: oklch(0.72 0.08 150 / 0.35);
 }
 
-/* Scrollbar: always hide thumb, show only while .is-scrolling */
+/* Scrollbar: reserve gutter without forcing a visible track strip */
 .scroll-thin {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
+.scroll-thin:hover,
 .scroll-thin.is-scrolling {
-  scrollbar-color: rgba(26, 74, 46, 0.2) transparent;
-}
-.scroll-thin::-webkit-scrollbar {
-  width: 5px;
-}
-.scroll-thin::-webkit-scrollbar-track {
-  background: transparent;
+  scrollbar-color: oklch(0.72 0.08 150 / 0.22) transparent;
 }
 .scroll-thin::-webkit-scrollbar-thumb {
-  background: transparent;
+  background: transparent !important;
   border-radius: 9999px;
 }
+.scroll-thin:hover::-webkit-scrollbar-thumb,
 .scroll-thin.is-scrolling::-webkit-scrollbar-thumb {
-  background: rgba(26, 74, 46, 0.18);
+  background: oklch(0.72 0.08 150 / 0.22) !important;
+}
+.scroll-thin:hover::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.08 150 / 0.40) !important;
 }

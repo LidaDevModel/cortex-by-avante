@@ -125,7 +125,8 @@ const MODULE = {
   hours: 2,
   type: "Certification",
   category: "escalations" as const,
-  illustration: "/brand/illustration-heart.png",
+  illustrationLight: "/brand/illustration-warning-light.png",
+  illustrationDark: "/brand/illustration-warning-dark.png",
 };
 
 /* Progress saved per module id (mirrors the mock data in modules/page.tsx) */
@@ -465,7 +466,8 @@ export default function ModuleDetailPage() {
   const isLast = currentIndex === CHAPTERS.length - 1;
   const isSecondToLast = currentIndex === CHAPTERS.length - 2;
 
-  const progress = MODULE_PROGRESS[moduleId] ?? 0;
+  const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
+  const progress = Math.round((completedIds.size / contentChapters.length) * 100);
 
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0 });
@@ -557,7 +559,7 @@ export default function ModuleDetailPage() {
           style={{ width: 354, borderRight: "1px solid var(--border)" }}
         >
           {/* Search */}
-          <div className="px-8 pt-8 pb-3 shrink-0">
+          <div className="px-8 pt-8 pb-8 shrink-0">
             <div className="relative">
               <Search
                 size={14}
@@ -632,11 +634,18 @@ export default function ModuleDetailPage() {
                   }}
                 >
                   <Image
-                    src={MODULE.illustration}
+                    src={MODULE.illustrationLight}
                     alt={MODULE.title}
                     width={96}
                     height={96}
-                    className="object-contain"
+                    className="object-contain dark:hidden"
+                  />
+                  <Image
+                    src={MODULE.illustrationDark}
+                    alt={MODULE.title}
+                    width={96}
+                    height={96}
+                    className="object-contain hidden dark:block"
                   />
                 </div>
               )}
@@ -689,12 +698,13 @@ export default function ModuleDetailPage() {
                       You&apos;ve completed all chapters. Test your knowledge to earn your certification.
                     </p>
                   </div>
-                  <button
-                    className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold"
+                  <a
+                    href={`/training/modules/${moduleId}/exam`}
+                    className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center"
                     style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
                   >
                     Start final quiz
-                  </button>
+                  </a>
                 </div>
               )}
 

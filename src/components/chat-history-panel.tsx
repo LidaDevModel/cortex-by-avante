@@ -107,7 +107,7 @@ function ConversationItem({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete(conversation.id)}
-            className="text-destructive focus:text-destructive"
+            variant="destructive"
           >
             <Trash2 size={13} className="mr-2" />
             Delete
@@ -169,7 +169,9 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
       className={cn("flex flex-col shrink-0 overflow-hidden", isOpen && "border-l border-border/40")}
       style={{
         width: isOpen ? 220 : 48,
-        background: isOpen ? "var(--surface)" : "transparent",
+        background: isOpen ? "color-mix(in srgb, var(--surface) 30%, transparent)" : "transparent",
+        backdropFilter: isOpen ? "blur(16px)" : "none",
+        WebkitBackdropFilter: isOpen ? "blur(16px)" : "none",
         transition: `width ${SLIDE_DURATION} ${SLIDE_EASING}`,
       }}
     >
