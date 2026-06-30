@@ -52,7 +52,7 @@ function computeScores(
   const matchCorrect = exam.matching.pairs.filter(
     (p) => matchAnswers[p.id] === p.id
   ).length;
-  const matchScore = Math.round((matchCorrect / matchPairs) * 25);
+  const matchScore = parseFloat(((matchCorrect / matchPairs) * 25).toFixed(2));
 
   // Short answer: mock AI scoring — 20 if answered, 0 if not
   const saScore = shortAnswerText.trim().length > 20 ? 20 : 0;
@@ -63,7 +63,7 @@ function computeScores(
     const chosenId = branchDecisions[n.id];
     return n.options?.find((o) => o.id === chosenId)?.isOptimal;
   }).length;
-  const branchScore = Math.round((optimalCount / decisionNodes.length) * 25);
+  const branchScore = parseFloat(((optimalCount / decisionNodes.length) * 25).toFixed(2));
 
   return { mc: mcScore, matching: matchScore, shortAnswer: saScore, branching: branchScore };
 }

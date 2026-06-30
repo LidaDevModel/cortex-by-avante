@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { ExamSection } from "./ExamProgress";
@@ -50,32 +50,11 @@ function SectionBlock({
     <div className="rounded-[12px] border border-border overflow-hidden">
       {/* Header row */}
       <div className="flex items-center justify-between px-4 py-3 bg-[var(--surface-raised)]">
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-              ok
-                ? "bg-[color-mix(in_srgb,var(--primary)_15%,transparent)]"
-                : "bg-[color-mix(in_srgb,var(--destructive)_12%,transparent)]"
-            )}
-          >
-            {ok ? (
-              <Check size={11} strokeWidth={2.5} color="var(--primary)" />
-            ) : (
-              <AlertCircle size={11} strokeWidth={2} color="var(--destructive)" />
-            )}
-          </div>
-          <div>
-            <span className="text-[14px] font-medium text-foreground">{label}</span>
-            <span
-              className={cn(
-                "ml-2 text-[12px]",
-                ok ? "text-muted-foreground" : "text-destructive"
-              )}
-            >
-              {status}
-            </span>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[14px] font-medium text-foreground">{label}</span>
+          <span className={cn("text-[12px]", ok ? "text-muted-foreground" : "text-destructive")}>
+            {status}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {section && onEdit && (
@@ -99,8 +78,10 @@ function SectionBlock({
 
       {/* Expandable answers */}
       {children && open && (
-        <div className="border-t border-border bg-[var(--surface)] px-4 py-3 flex flex-col gap-2">
-          {children}
+        <div className="border-t border-border bg-[var(--surface)] px-4 py-3">
+          <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
+            {children}
+          </div>
         </div>
       )}
     </div>
@@ -223,8 +204,8 @@ export function ReviewSubmit({
                   className={cn(
                     "text-[13px] font-medium pl-2 border-l-2",
                     selected !== null
-                      ? "text-foreground border-[var(--primary)]"
-                      : "text-muted-foreground border-border italic"
+                      ? "text-[var(--primary)] border-[var(--primary)]"
+                      : "text-muted-foreground border-[#DEE7E4]"
                   )}
                 >
                   {selected !== null ? q.options[selected] : "Not answered"}
@@ -246,12 +227,14 @@ export function ReviewSubmit({
             const matchedDefId = matchAnswers[pair.id];
             const matchedDef = matchingExercise.pairs.find((p) => p.id === matchedDefId);
             return (
-              <div key={pair.id} className="flex items-start gap-2 text-[13px]">
-                <span className="font-medium text-foreground shrink-0">{pair.term}</span>
-                <span className="text-muted-foreground">→</span>
+              <div key={pair.id} className="flex items-start gap-2">
+                <span className="text-[12px] text-muted-foreground shrink-0 w-[200px]">{pair.term}</span>
                 <span
                   className={cn(
-                    matchedDef ? "text-foreground" : "text-muted-foreground italic"
+                    "text-[13px] font-medium pl-2 border-l-2 min-w-0",
+                    matchedDef
+                      ? "text-[var(--primary)] border-[var(--primary)]"
+                      : "text-muted-foreground border-[#DEE7E4]"
                   )}
                 >
                   {matchedDef ? matchedDef.definition : "Not matched"}
@@ -272,10 +255,10 @@ export function ReviewSubmit({
           <p className="text-[12px] text-muted-foreground">{shortAnswerQuestion.prompt}</p>
           <p
             className={cn(
-              "text-[13px] pl-2 border-l-2",
+              "text-[13px] font-medium pl-2 border-l-2",
               shortAnswerAnswered
-                ? "text-foreground border-[var(--primary)]"
-                : "text-muted-foreground italic border-border"
+                ? "text-[var(--primary)] border-[var(--primary)]"
+                : "text-muted-foreground border-[#DEE7E4]"
             )}
           >
             {shortAnswerAnswered ? shortAnswerText : "No answer provided"}
@@ -310,8 +293,8 @@ export function ReviewSubmit({
                         className={cn(
                           "text-[13px] font-medium pl-2 border-l-2",
                           chosenOption
-                            ? "text-foreground border-[var(--primary)]"
-                            : "text-muted-foreground italic border-border"
+                            ? "text-[var(--primary)] border-[var(--primary)]"
+                            : "text-muted-foreground border-[#DEE7E4]"
                         )}
                       >
                         {chosenOption ? chosenOption.text : "No decision made"}
