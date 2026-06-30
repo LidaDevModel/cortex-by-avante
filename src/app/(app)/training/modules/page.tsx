@@ -230,13 +230,13 @@ export default function ModulesPage() {
                   In progress
                 </p>
                 {totalInProgress > 3 && (
-                  <a
-                    href="#"
+                  <Link
+                    href="/training/modules/in-progress"
                     className="text-[13px] leading-[20px] font-medium transition-colors duration-100"
                     style={{ color: "var(--primary)" }}
                   >
                     See all
-                  </a>
+                  </Link>
                 )}
               </div>
               <div className="grid grid-cols-3 gap-4">
