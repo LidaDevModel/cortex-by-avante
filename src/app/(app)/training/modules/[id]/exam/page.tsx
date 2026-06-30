@@ -3,16 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Clock } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
 import { Matching } from "@/components/exam/sections/Matching";
@@ -206,7 +197,7 @@ export default function ExamPage() {
     setBranchDecisions((prev) => ({ ...prev, [nodeId]: optionId }));
   }
 
-  function handleBranchComplete() {
+  function handleBranchComplete(_lastNodeId?: string, _lastOptionId?: string) {
     setBranchingComplete(true);
     markSectionComplete("branching");
     setPhase("review");
@@ -422,31 +413,17 @@ export default function ExamPage() {
         />
       )}
 
-      {/* Exit dialog */}
-      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Exit the exam?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your progress will not be saved.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              variant="destructive"
-              onClick={() => {
-                clearInterval(timerRef.current);
-                router.push(`/training/modules/${moduleId}`);
-              }}
-            >
-              Exit exam
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => setShowExitDialog(false)}>
-              Keep going
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ExitConfirmDialog
+        open={showExitDialog}
+        onOpenChange={setShowExitDialog}
+        title="Exit the exam?"
+        description="Your progress will not be saved."
+        exitLabel="Exit exam"
+        onExit={() => {
+          clearInterval(timerRef.current);
+          router.push(`/training/modules/${moduleId}`);
+        }}
+      />
     </div>
   );
 }

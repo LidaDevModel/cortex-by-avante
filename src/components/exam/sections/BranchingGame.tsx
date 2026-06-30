@@ -12,7 +12,7 @@ type Props = {
   decisions: Record<string, string>; // nodeId → optionId chosen
   isCompleted: boolean;
   onDecision: (nodeId: string, optionId: string) => void;
-  onComplete: () => void;
+  onComplete: (lastNodeId: string, lastOptionId: string) => void;
 };
 
 function getNodeState(
@@ -275,13 +275,15 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
     onDecision(currentNodeId, selectedOption);
 
     const edgeKey = `${currentNodeId}→${option.nextNodeId}`;
+    const lastNodeId = currentNodeId;
+    const lastOptionId = selectedOption;
     setAnimatingEdge(edgeKey);
 
     setTimeout(() => {
       setAnimatingEdge(null);
       const nextNode = scenario.nodes.find((n) => n.id === option.nextNodeId);
       if (nextNode?.type === "end") {
-        onComplete();
+        onComplete(lastNodeId, lastOptionId);
       } else {
         setCurrentNodeId(option.nextNodeId);
         setSelectedOption(null);

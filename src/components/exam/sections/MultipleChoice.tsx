@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { MCQuestion } from "@/lib/exam-mock";
 
@@ -30,6 +31,16 @@ export function MultipleChoice({
   onSkip,
   isLast,
 }: Props) {
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+
+  function handleSelect(i: number) {
+    onSelect(i);
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(onNext, 600);
+  }
+
   return (
     <div
       className="flex-1 overflow-y-auto scroll-thin"
@@ -86,7 +97,7 @@ export function MultipleChoice({
             return (
               <button
                 key={i}
-                onClick={() => onSelect(i)}
+                onClick={() => handleSelect(i)}
                 className={cn(
                   "w-full text-left px-4 py-3.5 rounded-[12px] border-2 text-[14px] leading-[20px] transition-all duration-150 cursor-pointer",
                   isSelected
@@ -113,19 +124,22 @@ export function MultipleChoice({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-2">
-          <button
-            onClick={onSkip}
-            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
-          >
-            Skip question
-          </button>
-          <button
-            onClick={onNext}
-            className="flex items-center gap-2 h-10 px-5 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-          >
-            {isLast ? "Review answers" : "Next"} →
-          </button>
+        <div className="flex items-center justify-end pt-2">
+          {isLast ? (
+            <button
+              onClick={onNext}
+              className="flex items-center gap-2 h-10 px-5 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
+            >
+              Next →
+            </button>
+          ) : (
+            <button
+              onClick={onSkip}
+              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
+            >
+              Skip question
+            </button>
+          )}
         </div>
       </div>
     </div>
