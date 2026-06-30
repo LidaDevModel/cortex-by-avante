@@ -428,6 +428,7 @@ function BranchingQuestion({
         scenario={scenario}
         decisions={decisions}
         isCompleted={isCompleted}
+        mapVariant="card"
         onDecision={(nodeId, optionId) =>
           onAnswer({ ...decisions, [nodeId]: optionId }, false)
         }

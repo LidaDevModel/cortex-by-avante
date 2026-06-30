@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ClipboardList } from "lucide-react";
+import { Eye, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import {
   MOCK_ATTEMPTS,
   FORMAT_LABELS,
@@ -199,6 +199,9 @@ function GeneratingScreen() {
 
 /* ─── History table ─── */
 
+type SortCol = "date" | "score";
+type SortDir = "asc" | "desc";
+
 function HistoryTable({
   attempts,
   onViewDetail,
@@ -206,10 +209,34 @@ function HistoryTable({
   attempts: KCAttempt[];
   onViewDetail: (a: KCAttempt) => void;
 }) {
+  const [sortCol, setSortCol] = useState<SortCol>("date");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [hoveredCol, setHoveredCol] = useState<SortCol | null>(null);
+
+  function handleSort(col: SortCol) {
+    if (sortCol === col) {
+      setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+    } else {
+      setSortCol(col);
+      setSortDir("desc");
+    }
+  }
+
+  const sorted = [...attempts].sort((a, b) => {
+    let cmp = 0;
+    if (sortCol === "date") cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (sortCol === "score") {
+      const pa = a.total > 0 ? a.score / a.total : 0;
+      const pb = b.total > 0 ? b.score / b.total : 0;
+      cmp = pa - pb;
+    }
+    return sortDir === "desc" ? -cmp : cmp;
+  });
+
   if (attempts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-        <ClipboardList size={32} strokeWidth={1.5} className="text-muted-foreground" />
+        <Eye size={32} strokeWidth={1.5} className="text-muted-foreground" />
         <p className="text-[15px] leading-[24px] font-medium text-foreground">No previous checks.</p>
         <p className="text-[13px] leading-[20px] text-muted-foreground">
           Start a knowledge check to see your history here.
@@ -223,30 +250,54 @@ function HistoryTable({
       {/* Table header */}
       <div
         className="grid items-center px-4 py-2.5 border-b border-border"
-        style={{ gridTemplateColumns: "1fr 1fr 1fr 80px 40px", background: "var(--surface-raised)" }}
+        style={{ gridTemplateColumns: "2fr 110px 1.5fr 80px 40px", background: "var(--surface-raised)" }}
       >
-        {["Date", "Categories", "Formats", "Score", ""].map((col) => (
-          <span key={col} className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {col}
-          </span>
-        ))}
+        {(["Categories", "Date", "Formats", "Score", ""] as const).map((col) => {
+          const key = col === "Date" ? "date" : col === "Score" ? "score" : null;
+          const isActive = key && sortCol === key;
+          const isHovered = key && hoveredCol === key;
+          const Icon = isActive
+            ? sortDir === "desc" ? ArrowDown : ArrowUp
+            : ArrowUpDown;
+          return key ? (
+            <button
+              key={col}
+              onClick={() => handleSort(key)}
+              onMouseEnter={() => setHoveredCol(key)}
+              onMouseLeave={() => setHoveredCol(null)}
+              className="flex items-center gap-1 text-[11px] leading-[16px] font-semibold uppercase tracking-wider transition-colors duration-100 text-left"
+              style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
+            >
+              {col}
+              <Icon
+                size={11}
+                strokeWidth={2.5}
+                style={{ opacity: isActive || isHovered ? 1 : 0, transition: "opacity 100ms" }}
+              />
+            </button>
+          ) : (
+            <span key={col} className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {col}
+            </span>
+          );
+        })}
       </div>
 
       {/* Rows */}
-      {attempts.map((attempt) => {
+      {sorted.map((attempt) => {
         const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
         return (
           <div
             key={attempt.id}
             className="grid items-center px-4 py-3 border-b border-border last:border-0"
-            style={{ gridTemplateColumns: "1fr 1fr 1fr 80px 40px", background: "var(--surface)" }}
+            style={{ gridTemplateColumns: "2fr 110px 1.5fr 80px 40px", background: "var(--surface)" }}
           >
-            <span className="text-[13px] leading-[20px] text-foreground">{formatDate(attempt.date)}</span>
-            <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2">
-              {attempt.categories.map((c) => CATEGORY_LABELS[c]).join(", ")}
+            <span className="text-[13px] leading-[20px] text-foreground truncate pr-2">
+              {attempt.categories.length === ALL_CATEGORIES.length ? "All" : attempt.categories.map((c) => CATEGORY_LABELS[c]).join(", ")}
             </span>
+            <span className="text-[13px] leading-[20px] text-muted-foreground">{formatDate(attempt.date)}</span>
             <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2">
-              {attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
+              {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
             </span>
             <span
               className="text-[13px] leading-[20px] font-semibold"
@@ -262,7 +313,7 @@ function HistoryTable({
               className="flex items-center justify-center w-8 h-8 rounded-[8px] text-muted-foreground hover:text-foreground hover:bg-[var(--surface-raised)] transition-colors duration-100"
               aria-label="View details"
             >
-              <ClipboardList size={14} strokeWidth={2} />
+              <Eye size={14} strokeWidth={2} />
             </button>
           </div>
         );

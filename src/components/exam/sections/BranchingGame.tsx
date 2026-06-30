@@ -13,6 +13,7 @@ type Props = {
   isCompleted: boolean;
   onDecision: (nodeId: string, optionId: string) => void;
   onComplete: (lastNodeId: string, lastOptionId: string) => void;
+  mapVariant?: "card" | "plain";
 };
 
 function getNodeState(
@@ -231,7 +232,7 @@ function DecisionMap({ scenario, currentNodeId, decisions, animatingEdge }: SVGM
   );
 }
 
-export function BranchingGame({ scenario, decisions, isCompleted, onDecision, onComplete }: Props) {
+export function BranchingGame({ scenario, decisions, isCompleted, onDecision, onComplete, mapVariant = "plain" }: Props) {
   // Start at the first decision node, not the start placeholder
   const firstDecisionNode = scenario.nodes.find((n) => n.type === "decision");
   const endNode = scenario.nodes.find((n) => n.type === "end");
@@ -292,22 +293,31 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
     }, 600);
   }
 
+  const isCard = mapVariant === "card";
+
   if (isCompleted) {
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div
-          className="shrink-0 flex items-center justify-center px-8 border-b border-border bg-[var(--surface-raised)]"
-          style={{ height: "220px" }}
-        >
-          <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
-            <DecisionMap
-              scenario={scenario}
-              currentNodeId={endNode?.id ?? ""}
-              decisions={decisions}
-              animatingEdge={null}
-            />
+        {isCard ? (
+          <div className="shrink-0 w-full">
+            <div className="max-w-[640px] mx-auto px-8 pt-6">
+              <div
+                className="w-full flex items-center justify-center rounded-[12px] overflow-hidden"
+                style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)", border: "1px solid var(--card-border, var(--border))", cornerShape: "squircle" }}
+              >
+                <div style={{ width: "100%", maxWidth: 540, height: 160 }}>
+                  <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="shrink-0 flex items-center justify-center px-8" style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)" }}>
+            <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
+              <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
+            </div>
+          </div>
+        )}
         <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8">
           <p className="text-[14px] font-medium text-[var(--primary)]">Scenario completed</p>
           <p className="text-[13px] text-muted-foreground text-center max-w-[400px]">
@@ -320,24 +330,29 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Decision map */}
-      <div
-        className="shrink-0 flex items-center justify-center px-8 border-b border-border bg-[var(--surface-raised)]"
-        style={{ height: "220px" }}
-      >
-        <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
-          <DecisionMap
-            scenario={scenario}
-            currentNodeId={currentNodeId}
-            decisions={decisions}
-            animatingEdge={animatingEdge}
-          />
+      {/* Decision map — plain variant stays fixed outside scroll */}
+      {!isCard && (
+        <div className="shrink-0 flex items-center justify-center px-8" style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)" }}>
+          <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
+            <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Decision zone — bottom 60% */}
+      {/* Decision zone */}
       <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
         <div className="max-w-[640px] mx-auto px-8 py-8 flex flex-col gap-6">
+          {/* Card variant map — inside scroll so alignment matches options exactly */}
+          {isCard && (
+            <div
+              className="w-full flex items-center justify-center rounded-[12px] overflow-hidden"
+              style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)", border: "1px solid var(--card-border, var(--border))", cornerShape: "squircle" }}
+            >
+              <div style={{ width: "100%", maxWidth: 540, height: 160 }}>
+                <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
+              </div>
+            </div>
+          )}
           {/* One-time warning */}
           {showWarning && (
             <p className="text-[13px] text-muted-foreground animate-in fade-in duration-200 text-center">
