@@ -1,26 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ExamObject } from "@/lib/exam-mock";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 type SectionScore = {
-  mc: number;      // 0-25
+  mc: number;
   matching: number;
   shortAnswer: number;
   branching: number;
 };
 
 type MCAnswer = { questionIndex: number; selectedIndex: number | null };
-type MatchAnswer = Record<string, string>; // termId → defId
-type BranchAnswer = Record<string, string>; // nodeId → optionId
+type MatchAnswer = Record<string, string>;
+type BranchAnswer = Record<string, string>;
 
 type Props = {
   exam: ExamObject;
@@ -34,6 +28,55 @@ type Props = {
 
 const PASS_THRESHOLD = 85;
 const MAX_TOTAL = 100;
+
+function WrongAnswerRow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-2">
+      <div className="w-[2px] shrink-0 self-stretch rounded-full bg-border" />
+      <div className="flex flex-col gap-1.5 min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function SectionRow({
+  label,
+  score,
+  max,
+  children,
+}: {
+  label: string;
+  score: number;
+  max: number;
+  children?: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-4 py-[10px] border-b border-border hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100 cursor-pointer"
+      >
+        <span className="flex-1 text-left text-[14px] text-foreground">{label}</span>
+        <span className="w-10 text-right text-[14px] font-medium text-foreground tabular-nums">{score}</span>
+        <span className="w-10 text-right text-[14px] text-muted-foreground tabular-nums">{max}</span>
+        <span className="w-5 flex justify-end text-muted-foreground">
+          {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
+        </span>
+      </button>
+
+      {open && (
+        <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
+          <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
+            {children ?? (
+              <p className="text-[13px] text-muted-foreground">All answers correct.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ExamResults({
   exam,
@@ -53,29 +96,53 @@ export function ExamResults({
     year: "numeric",
   });
 
-  const sectionRows = [
-    { label: "Multiple choice", score: scores.mc, max: 25 },
-    { label: "Matching", score: scores.matching, max: 25 },
-    { label: "Short answer", score: scores.shortAnswer, max: 25 },
-    { label: "Branching scenario", score: scores.branching, max: 25 },
-  ];
+  // MC wrong answers
+  const mcWrong = exam.multipleChoice
+    .map((q, qi) => {
+      const answer = mcAnswers.find((a) => a.questionIndex === qi);
+      const userIdx = answer?.selectedIndex ?? null;
+      if (userIdx === q.correctIndex) return null;
+      return { q, qi, userIdx };
+    })
+    .filter(Boolean) as { q: (typeof exam.multipleChoice)[0]; qi: number; userIdx: number | null }[];
+
+  // Matching wrong pairs
+  const matchWrong = exam.matching.pairs.filter((pair) => matchAnswers[pair.id] !== pair.id);
+
+  // Branching wrong decisions
+  const decisionNodes = exam.branching.nodes.filter((n) => n.type === "decision");
+  const branchWrong = decisionNodes.filter((node) => {
+    const chosenId = branchDecisions[node.id];
+    return !node.options?.find((o) => o.id === chosenId)?.isOptimal;
+  });
+
+  const shortAnswerWrong = scores.shortAnswer < 25;
 
   return (
-    <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
+    <div
+      className="flex-1 overflow-y-auto scroll-thin"
+      style={{
+        maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
+      }}
+    >
       <div
         className="max-w-[640px] mx-auto px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
-        {/* Heading */}
+        {/* Heading + score */}
         <div className="flex flex-col gap-3">
           <h1
             className="text-[36px] leading-[44px] font-bold"
             style={{ color: passed ? "var(--primary)" : "var(--foreground)" }}
           >
-            {passed ? "Certified." : "Certification not awarded"}
+            {passed ? "Certified" : "Certification not awarded"}
           </h1>
           <div className="flex items-baseline gap-3">
-            <span className="text-[48px] leading-none font-bold tabular-nums" style={{ color: "var(--primary)" }}>
+            <span
+              className="text-[48px] leading-none font-bold tabular-nums"
+              style={{ color: passed ? "var(--primary)" : "var(--destructive)" }}
+            >
               {total}
             </span>
             <span className="text-[20px] text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
@@ -91,179 +158,119 @@ export function ExamResults({
           )}
         </div>
 
-        {/* Score table */}
-        <div className="rounded-[12px] border border-border overflow-hidden">
-          <div className="grid grid-cols-3 px-4 py-2 bg-[var(--surface-raised)] border-b border-border">
-            {["Section", "Score", "Max"].map((h) => (
-              <span key={h} className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                {h}
-              </span>
-            ))}
+        {/* Score table with integrated accordion */}
+        <div className="rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]">
+          {/* Header row */}
+          <div className="flex items-center gap-2 px-4 py-[10px] bg-[var(--surface-raised)] border-b border-border">
+            <span className="flex-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+              Section
+            </span>
+            <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+              Score
+            </span>
+            <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+              Max
+            </span>
+            <span className="w-5" />
           </div>
-          {sectionRows.map((row, i) => (
-            <div
-              key={row.label}
-              className={cn(
-                "grid grid-cols-3 px-4 py-3 text-[14px]",
-                i < sectionRows.length - 1 ? "border-b border-border" : ""
-              )}
-            >
-              <span className="text-foreground">{row.label}</span>
-              <span
-                className={cn(
-                  "font-medium tabular-nums",
-                  row.score >= row.max * 0.8
-                    ? "text-[var(--primary)]"
-                    : row.score >= row.max * 0.5
-                    ? "text-foreground"
-                    : "text-destructive"
-                )}
-              >
-                {row.score}
-              </span>
-              <span className="text-muted-foreground tabular-nums">{row.max}</span>
-            </div>
-          ))}
-          <div className="grid grid-cols-3 px-4 py-3 bg-[var(--surface-raised)] border-t border-border">
-            <span className="text-[14px] font-semibold text-foreground">Total</span>
+
+          {/* Multiple choice */}
+          <SectionRow label="Multiple choice" score={scores.mc} max={25}>
+            {mcWrong.length > 0 ? (
+              mcWrong.map(({ q, qi, userIdx }) => (
+                <div key={q.id} className="flex flex-col gap-2">
+                  <span className="text-[13px] font-medium text-foreground">
+                    Q{qi + 1} — {q.question}
+                  </span>
+                  <WrongAnswerRow>
+                    <span className="text-[13px] text-destructive">
+                      Your answer: {userIdx !== null ? q.options[userIdx] : "Skipped"}
+                    </span>
+                    <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                      Correct answer: {q.options[q.correctIndex]}
+                    </span>
+                  </WrongAnswerRow>
+                </div>
+              ))
+            ) : null}
+          </SectionRow>
+
+          {/* Matching */}
+          <SectionRow label="Matching" score={scores.matching} max={25}>
+            {matchWrong.length > 0 ? (
+              matchWrong.map((pair) => {
+                const matchedDefId = matchAnswers[pair.id];
+                const matchedDef = exam.matching.pairs.find((p) => p.id === matchedDefId);
+                return (
+                  <div key={pair.id} className="flex flex-col gap-2">
+                    <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
+                    <WrongAnswerRow>
+                      <span className="text-[13px] text-destructive">
+                        Your match: {matchedDef ? matchedDef.definition : "Not matched"}
+                      </span>
+                      <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                        Correct: {pair.definition}
+                      </span>
+                    </WrongAnswerRow>
+                  </div>
+                );
+              })
+            ) : null}
+          </SectionRow>
+
+          {/* Short answer */}
+          <SectionRow label="Short answer" score={scores.shortAnswer} max={25}>
+            {shortAnswerWrong ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-[13px] text-foreground">
+                  &ldquo;{shortAnswer || "No answer provided."}&rdquo;
+                </p>
+                <p className="text-[13px] text-destructive">
+                  {exam.shortAnswer.aiJustification ?? "Your answer didn't fully address the required concepts."}
+                </p>
+              </div>
+            ) : null}
+          </SectionRow>
+
+          {/* Branching scenario */}
+          <SectionRow label="Branching scenario" score={scores.branching} max={25}>
+            {branchWrong.length > 0 ? (
+              branchWrong.map((node) => {
+                const chosenId = branchDecisions[node.id];
+                const chosenOption = node.options?.find((o) => o.id === chosenId);
+                const optimalOption = node.options?.find((o) => o.isOptimal);
+                return (
+                  <div key={node.id} className="flex flex-col gap-2">
+                    <span className="text-[13px] font-medium text-foreground">{node.label}</span>
+                    <WrongAnswerRow>
+                      <span className="text-[13px] text-destructive">
+                        Your choice: {chosenOption?.text ?? "Not answered"}
+                      </span>
+                      <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                        Optimal choice: {optimalOption?.text}
+                      </span>
+                    </WrongAnswerRow>
+                  </div>
+                );
+              })
+            ) : null}
+          </SectionRow>
+
+          {/* Total row */}
+          <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
+            <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
             <span
-              className={cn(
-                "text-[14px] font-bold tabular-nums",
-                passed ? "text-[var(--primary)]" : "text-destructive"
-              )}
+              className={cn("w-10 text-right text-[14px] font-bold tabular-nums", passed ? "" : "text-destructive")}
+              style={passed ? { color: "var(--primary)" } : undefined}
             >
               {total}
             </span>
-            <span className="text-[14px] font-medium text-muted-foreground tabular-nums">{MAX_TOTAL}</span>
+            <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">
+              {MAX_TOTAL}
+            </span>
+            <span className="w-5" />
           </div>
         </div>
-
-        {/* Fail breakdown */}
-        {!passed && (
-          <div className="flex flex-col gap-3">
-            <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Detailed breakdown
-            </p>
-            <Accordion type="multiple" className="flex flex-col gap-2">
-
-              {/* MC breakdown */}
-              <AccordionItem value="mc" className="border border-border rounded-[10px] overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-[14px] font-medium text-foreground hover:no-underline">
-                  Multiple choice — {scores.mc}/25
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 flex flex-col gap-3">
-                  {exam.multipleChoice.map((q, qi) => {
-                    const answer = mcAnswers.find((a) => a.questionIndex === qi);
-                    const userIdx = answer?.selectedIndex ?? null;
-                    const correct = userIdx === q.correctIndex;
-                    if (correct) return null;
-                    return (
-                      <div key={q.id} className="flex flex-col gap-1.5 text-[13px]">
-                        <p className="font-medium text-foreground">{q.question}</p>
-                        <p className="text-muted-foreground">
-                          Your answer:{" "}
-                          <span className="text-destructive">
-                            {userIdx !== null ? q.options[userIdx] : "Skipped"}
-                          </span>
-                        </p>
-                        <p className="text-muted-foreground">
-                          Correct answer:{" "}
-                          <span style={{ color: "var(--primary)" }}>{q.options[q.correctIndex]}</span>
-                        </p>
-                      </div>
-                    );
-                  })}
-                  {mcAnswers.every((a) => a.selectedIndex === exam.multipleChoice[a.questionIndex]?.correctIndex) && (
-                    <p className="text-[13px] text-muted-foreground">All answers correct.</p>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Matching breakdown */}
-              <AccordionItem value="matching" className="border border-border rounded-[10px] overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-[14px] font-medium text-foreground hover:no-underline">
-                  Matching — {scores.matching}/25
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 flex flex-col gap-3">
-                  {exam.matching.pairs.map((pair) => {
-                    const matchedDefId = matchAnswers[pair.id];
-                    const correct = matchedDefId === pair.id;
-                    if (correct) return null;
-                    const matchedDef = exam.matching.pairs.find((p) => p.id === matchedDefId);
-                    return (
-                      <div key={pair.id} className="flex flex-col gap-1 text-[13px]">
-                        <p className="font-medium text-foreground">{pair.term}</p>
-                        <p className="text-muted-foreground">
-                          Your match:{" "}
-                          <span className="text-destructive">
-                            {matchedDef ? matchedDef.definition : "Not matched"}
-                          </span>
-                        </p>
-                        <p className="text-muted-foreground">
-                          Correct:{" "}
-                          <span style={{ color: "var(--primary)" }}>{pair.definition}</span>
-                        </p>
-                      </div>
-                    );
-                  })}
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Short answer breakdown */}
-              <AccordionItem value="sa" className="border border-border rounded-[10px] overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-[14px] font-medium text-foreground hover:no-underline">
-                  Short answer — {scores.shortAnswer}/25
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 flex flex-col gap-2 text-[13px]">
-                  <p className="text-muted-foreground italic">"{shortAnswer || "No answer provided."}"</p>
-                  <p className="text-muted-foreground">
-                    {exam.shortAnswer.aiJustification ??
-                      "Your answer didn't fully address the required concepts."}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Branching breakdown */}
-              <AccordionItem value="branching" className="border border-border rounded-[10px] overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-[14px] font-medium text-foreground hover:no-underline">
-                  Branching scenario — {scores.branching}/25
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 flex flex-col gap-4">
-                  {exam.branching.nodes
-                    .filter((n) => n.type === "decision")
-                    .map((node) => {
-                      const chosenId = branchDecisions[node.id];
-                      const chosenOption = node.options?.find((o) => o.id === chosenId);
-                      const optimalOption = node.options?.find((o) => o.isOptimal);
-                      const wasOptimal = chosenOption?.isOptimal;
-                      return (
-                        <div key={node.id} className="flex flex-col gap-1.5 text-[13px]">
-                          <p className="font-medium text-foreground">{node.scenarioText}</p>
-                          <p className="text-muted-foreground">
-                            Your choice:{" "}
-                            <span className={wasOptimal ? "" : "text-destructive"}>
-                              {chosenOption?.text ?? "Not answered"}
-                            </span>
-                          </p>
-                          {!wasOptimal && (
-                            <>
-                              <p className="text-muted-foreground">
-                                Optimal choice:{" "}
-                                <span style={{ color: "var(--primary)" }}>{optimalOption?.text}</span>
-                              </p>
-                              <p className="text-muted-foreground/80 italic text-[12px]">
-                                {chosenOption?.explanation}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
 
         {/* CTA */}
         <button
