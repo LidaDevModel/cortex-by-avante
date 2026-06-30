@@ -149,7 +149,6 @@ export default function InProgressPage() {
           style={{
             maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-            background: `radial-gradient(ellipse 60% 50% at 50% 40%, color-mix(in srgb, var(--accent) 30%, transparent), transparent), var(--background)`,
           }}
         >
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
@@ -177,7 +176,7 @@ export default function InProgressPage() {
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Search modules..."
+                  placeholder="Search in progress modules..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full h-[40px] pl-9 pr-3 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
