@@ -183,7 +183,7 @@ export function ExamResults({
                     Q{qi + 1} — {q.question}
                   </span>
                   <WrongAnswerRow>
-                    <span className="text-[13px] text-destructive">
+                    <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
                       Your answer: {userIdx !== null ? q.options[userIdx] : "Skipped"}
                     </span>
                     <span className="text-[13px]" style={{ color: "var(--primary)" }}>
@@ -205,7 +205,7 @@ export function ExamResults({
                   <div key={pair.id} className="flex flex-col gap-2">
                     <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
                     <WrongAnswerRow>
-                      <span className="text-[13px] text-destructive">
+                      <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                         Your match: {matchedDef ? matchedDef.definition : "Not matched"}
                       </span>
                       <span className="text-[13px]" style={{ color: "var(--primary)" }}>
@@ -222,10 +222,10 @@ export function ExamResults({
           <SectionRow label="Short answer" score={scores.shortAnswer} max={25}>
             {shortAnswerWrong ? (
               <div className="flex flex-col gap-2">
-                <p className="text-[13px] text-foreground">
+                <p className={cn("text-[13px]", shortAnswer.trim() ? "text-foreground" : "text-muted-foreground")}>
                   &ldquo;{shortAnswer || "No answer provided."}&rdquo;
                 </p>
-                <p className="text-[13px] text-destructive">
+                <p className={cn("text-[13px]", shortAnswer.trim() ? "text-destructive" : "text-muted-foreground")}>
                   {exam.shortAnswer.aiJustification ?? "Your answer didn't fully address the required concepts."}
                 </p>
               </div>
@@ -243,7 +243,7 @@ export function ExamResults({
                   <div key={node.id} className="flex flex-col gap-2">
                     <span className="text-[13px] font-medium text-foreground">{node.label}</span>
                     <WrongAnswerRow>
-                      <span className="text-[13px] text-destructive">
+                      <span className={cn("text-[13px]", chosenOption ? "text-destructive" : "text-muted-foreground")}>
                         Your choice: {chosenOption?.text ?? "Not answered"}
                       </span>
                       <span className="text-[13px]" style={{ color: "var(--primary)" }}>
