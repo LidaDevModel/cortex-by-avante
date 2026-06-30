@@ -187,6 +187,8 @@ export function ReviewSubmit({
     mcAnswered.size < mcQuestions.length || !matchingComplete || !shortAnswerAnswered;
 
   const decisionNodes = branchingScenario.nodes.filter((n) => n.type === "decision");
+  const confirmedCount = decisionNodes.filter((n) => branchingDecisions[n.id]).length;
+  const branchingHasUnconfirmed = !branchingComplete && confirmedCount > 0;
 
   return (
     <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
@@ -284,7 +286,15 @@ export function ReviewSubmit({
         <SectionBlock
           label="Branching scenario"
           ok={branchingComplete}
-          status={branchingComplete ? "Completed" : "Not reached"}
+          status={
+            branchingComplete
+              ? "Completed"
+              : branchingHasUnconfirmed
+              ? `${confirmedCount} of ${decisionNodes.length} decisions made`
+              : "Not reached"
+          }
+          section={branchingHasUnconfirmed ? "branching" : undefined}
+          onEdit={branchingHasUnconfirmed ? () => onEditSection("branching") : undefined}
         >
           {branchingComplete ? (
             <>

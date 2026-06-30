@@ -235,9 +235,21 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
   // Start at the first decision node, not the start placeholder
   const firstDecisionNode = scenario.nodes.find((n) => n.type === "decision");
   const endNode = scenario.nodes.find((n) => n.type === "end");
-  const [currentNodeId, setCurrentNodeId] = useState(
-    isCompleted ? (endNode?.id ?? firstDecisionNode?.id ?? scenario.startNodeId) : (firstDecisionNode?.id ?? scenario.startNodeId)
-  );
+  const [currentNodeId, setCurrentNodeId] = useState(() => {
+    if (isCompleted) return endNode?.id ?? firstDecisionNode?.id ?? scenario.startNodeId;
+    // Walk decisions forward to find the first undecided node
+    let nodeId = firstDecisionNode?.id ?? scenario.startNodeId;
+    while (decisions[nodeId]) {
+      const node = scenario.nodes.find((n) => n.id === nodeId);
+      const option = node?.options?.find((o) => o.id === decisions[nodeId]);
+      const nextId = option?.nextNodeId;
+      if (!nextId) break;
+      const nextNode = scenario.nodes.find((n) => n.id === nextId);
+      if (!nextNode || nextNode.type === "end") return nextId;
+      nodeId = nextId;
+    }
+    return nodeId;
+  });
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
   const [animatingEdge, setAnimatingEdge] = useState<string | null>(null);
@@ -283,7 +295,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
       <div className="flex-1 flex flex-col overflow-hidden">
         <div
           className="shrink-0 flex items-center justify-center px-8 border-b border-border bg-[var(--surface-raised)]"
-          style={{ height: "40%" }}
+          style={{ height: "220px" }}
         >
           <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
             <DecisionMap
@@ -306,10 +318,10 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Decision map — top 40% */}
+      {/* Decision map */}
       <div
         className="shrink-0 flex items-center justify-center px-8 border-b border-border bg-[var(--surface-raised)]"
-        style={{ height: "40%" }}
+        style={{ height: "220px" }}
       >
         <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
           <DecisionMap
