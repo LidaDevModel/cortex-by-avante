@@ -140,23 +140,6 @@ export default function InProgressPage() {
         </div>
       </header>
 
-      {/* Title block */}
-      <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
-        <Link
-          href="/training/modules"
-          className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
-        >
-          <ArrowLeft size={14} strokeWidth={2} />
-          <span>Back to modules</span>
-        </Link>
-        <h1 className="text-[22px] leading-[30px] font-bold text-foreground">
-          In progress
-        </h1>
-        <p className="text-[13px] leading-[20px] text-muted-foreground">
-          {IN_PROGRESS_MODULES.length} module{IN_PROGRESS_MODULES.length !== 1 ? "s" : ""} in progress
-        </p>
-      </div>
-
       {/* Scrollable canvas */}
       <div className="relative flex-1 overflow-hidden">
         <div
@@ -169,7 +152,24 @@ export default function InProgressPage() {
             background: `radial-gradient(ellipse 60% 50% at 50% 40%, color-mix(in srgb, var(--accent) 30%, transparent), transparent), var(--background)`,
           }}
         >
-          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-6">
+          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+
+            {/* Title */}
+            <div className="flex flex-col gap-1">
+              <Link
+                href="/training/modules"
+                className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 mb-1"
+              >
+                <ArrowLeft size={14} strokeWidth={2} />
+                <span>Back to modules</span>
+              </Link>
+              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+                In progress
+              </h1>
+              <p className="text-[13px] leading-[20px] text-muted-foreground">
+                {IN_PROGRESS_MODULES.length} module{IN_PROGRESS_MODULES.length !== 1 ? "s" : ""} in progress
+              </p>
+            </div>
 
             {/* Search + filters */}
             <div className="flex items-center gap-2">
