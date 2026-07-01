@@ -18,7 +18,7 @@ import type {
   KCAnswer,
   KCAttempt,
 } from "@/lib/knowledge-check-mock";
-import { KCQuestionFlow } from "@/components/knowledge-check/KCQuestionFlow";
+import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
 import { KCDetailModal } from "@/components/knowledge-check/KCDetailModal";
@@ -524,27 +524,52 @@ export default function QuickCheckPage() {
 
           {/* Review */}
           {phase === "review" && (
-            <div
-              className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-              style={{
-                maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-              }}
-            >
-              <div className="max-w-[920px] mx-auto px-8">
-                <KCReview
-                  questions={generatedQuestions}
-                  answers={answers}
-                  onJumpTo={(i) => {
-                    setCurrentQuestionIndex(i);
-                    setPhase("flow");
-                  }}
-                  onSubmit={submitCheck}
-                  onBack={() => {
-                    setCurrentQuestionIndex(generatedQuestions.length - 1);
-                    setPhase("flow");
-                  }}
-                />
+            <div className="flex flex-col h-full overflow-hidden">
+              <div className="max-w-[920px] mx-auto w-full px-8 pt-8 pb-4 flex flex-col gap-4 shrink-0">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-[28px] leading-[36px] font-bold text-foreground capitalize">
+                    {selectedCategories.length === 0 || selectedCategories.length === ALL_CATEGORIES.length
+                      ? "All categories check"
+                      : selectedCategories.length === 1
+                      ? `${CATEGORY_LABELS[selectedCategories[0]]} check`
+                      : `${CATEGORY_LABELS[selectedCategories[0]]} & ${selectedCategories.length - 1} more`}
+                  </h1>
+                  <button
+                    onClick={resetToListing}
+                    className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+                    style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+                  >
+                    Quit check
+                  </button>
+                </div>
+                {buildSections(generatedQuestions).length > 1 && (
+                  <KCSectionTabs
+                    sections={buildSections(generatedQuestions)}
+                    currentIndex={currentQuestionIndex}
+                    questions={generatedQuestions}
+                    answers={answers}
+                    onJumpTo={(i) => { setCurrentQuestionIndex(i); setPhase("flow"); }}
+                    onReview={() => setPhase("review")}
+                    isReviewActive={true}
+                  />
+                )}
+              </div>
+              <div
+                className="flex-1 overflow-y-auto scroll-thin"
+                style={{
+                  maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
+                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
+                }}
+              >
+                <div className="max-w-[920px] mx-auto px-8 pb-12">
+                  <KCReview
+                    questions={generatedQuestions}
+                    answers={answers}
+                    onJumpTo={(i) => { setCurrentQuestionIndex(i); setPhase("flow"); }}
+                    onSubmit={submitCheck}
+                    onBack={() => { setCurrentQuestionIndex(generatedQuestions.length - 1); setPhase("flow"); }}
+                  />
+                </div>
               </div>
             </div>
           )}

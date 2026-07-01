@@ -28,7 +28,7 @@ const TYPE_LABELS: Record<KCType, string> = {
 
 type Section = { type: KCType; label: string; startIndex: number; count: number };
 
-function buildSections(questions: KCQuestion[]): Section[] {
+export function buildSections(questions: KCQuestion[]): Section[] {
   const sections: Section[] = [];
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
@@ -62,25 +62,29 @@ function isSectionComplete(section: Section, questions: KCQuestion[], answers: R
 
 /* ─── Section tabs ─── */
 
-function SectionTabs({
+export function KCSectionTabs({
   sections,
   currentIndex,
   questions,
   answers,
   onJumpTo,
+  onReview,
+  isReviewActive,
 }: {
   sections: Section[];
   currentIndex: number;
   questions: KCQuestion[];
   answers: Record<string, KCAnswer>;
   onJumpTo: (i: number) => void;
+  onReview: () => void;
+  isReviewActive?: boolean;
 }) {
-  const activeSection = getSectionForIndex(sections, currentIndex);
+  const activeSection = isReviewActive ? null : getSectionForIndex(sections, currentIndex);
 
   return (
     <div className="flex items-center gap-2">
       {sections.map((s) => {
-        const isActive = s.type === activeSection.type;
+        const isActive = !isReviewActive && s.type === activeSection?.type;
         const isDone = !isActive && isSectionComplete(s, questions, answers);
 
         return (
@@ -109,6 +113,22 @@ function SectionTabs({
           </button>
         );
       })}
+      {/* Review tab — always shown at the end */}
+      <button
+        onClick={onReview}
+        className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150"
+        style={
+          isReviewActive
+            ? { background: "var(--primary)", color: "var(--primary-foreground)" }
+            : {
+                background: "var(--surface-raised)",
+                color: "var(--muted-foreground)",
+                border: "1px solid var(--border)",
+              }
+        }
+      >
+        Review
+      </button>
     </div>
   );
 }
@@ -539,12 +559,14 @@ export function KCQuestionFlow({
 
             {/* Section tabs */}
             {sections.length > 1 && (
-              <SectionTabs
+              <KCSectionTabs
                 sections={sections}
                 currentIndex={currentIndex}
                 questions={questions}
                 answers={answers}
                 onJumpTo={onJumpTo}
+                onReview={onReview}
+                isReviewActive={false}
               />
             )}
 
