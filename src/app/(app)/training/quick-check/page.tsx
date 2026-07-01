@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Eye, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import {
-  MOCK_ATTEMPTS,
   FORMAT_LABELS,
   CATEGORY_LABELS,
   getBudget,
   generateQuestions,
   computeKCScore,
 } from "@/lib/knowledge-check-mock";
+import { addAttempt, getAllAttempts } from "@/lib/kc-store";
 import type {
   KCFormat,
   KCCategory,
@@ -250,9 +250,9 @@ function HistoryTable({
       {/* Table header */}
       <div
         className="grid items-center px-4 py-2.5 border-b border-border"
-        style={{ gridTemplateColumns: "2fr 110px 1.5fr 80px 40px", background: "var(--surface-raised)" }}
+        style={{ gridTemplateColumns: "2fr 2fr 110px 80px", background: "var(--surface-raised)" }}
       >
-        {(["Categories", "Date", "Formats", "Score", ""] as const).map((col) => {
+        {(["Categories", "Formats", "Date", "Score"] as const).map((col) => {
           const key = col === "Date" ? "date" : col === "Score" ? "score" : null;
           const isActive = key && sortCol === key;
           const isHovered = key && hoveredCol === key;
@@ -287,35 +287,29 @@ function HistoryTable({
       {sorted.map((attempt) => {
         const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
         return (
-          <div
+          <button
             key={attempt.id}
-            className="grid items-center px-4 py-3 border-b border-border last:border-0"
-            style={{ gridTemplateColumns: "2fr 110px 1.5fr 80px 40px", background: "var(--surface)" }}
+            onClick={() => onViewDetail(attempt.id)}
+            className="w-full grid items-center px-4 py-3 border-b border-border last:border-0 bg-[var(--surface)] hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
+            style={{ gridTemplateColumns: "2fr 2fr 110px 80px" }}
           >
-            <span className="text-[13px] leading-[20px] text-foreground truncate pr-2">
+            <span className="text-[13px] leading-[20px] text-foreground truncate pr-2 text-left">
               {attempt.categories.length === ALL_CATEGORIES.length ? "All" : attempt.categories.map((c) => CATEGORY_LABELS[c]).join(", ")}
             </span>
-            <span className="text-[13px] leading-[20px] text-muted-foreground">{formatDate(attempt.date)}</span>
-            <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2">
+            <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2 text-left">
               {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
             </span>
+            <span className="text-[13px] leading-[20px] text-muted-foreground text-left">{formatDate(attempt.date)}</span>
             <span
-              className="text-[13px] leading-[20px] font-semibold"
+              className="text-[13px] leading-[20px] font-semibold text-left"
               style={{
                 fontVariantNumeric: "tabular-nums",
-                color: pct >= 70 ? "var(--primary)" : "var(--destructive)",
+                color: pct === 100 ? "var(--primary)" : "var(--muted-foreground)",
               }}
             >
               {attempt.score}/{attempt.total} · {pct}%
             </span>
-            <button
-              onClick={() => onViewDetail(attempt.id)}
-              className="flex items-center justify-center w-8 h-8 rounded-[8px] text-muted-foreground hover:text-foreground hover:bg-[var(--surface-raised)] transition-colors duration-100"
-              aria-label="View details"
-            >
-              <Eye size={14} strokeWidth={2} />
-            </button>
-          </div>
+          </button>
         );
       })}
     </div>
@@ -332,7 +326,7 @@ export default function QuickCheckPage() {
   const [generatedQuestions, setGeneratedQuestions] = useState<KCQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, KCAnswer>>({});
-  const [attempts, setAttempts] = useState<KCAttempt[]>(MOCK_ATTEMPTS);
+  const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
 
   /* Format toggle */
   const toggleFormat = useCallback((f: KCFormat) => {
@@ -390,7 +384,8 @@ export default function QuickCheckPage() {
       questions: generatedQuestions,
       answers,
     };
-    setAttempts((prev) => [newAttempt, ...prev]);
+    addAttempt(newAttempt);
+    setAttempts(getAllAttempts());
     setPhase("results");
   }
 

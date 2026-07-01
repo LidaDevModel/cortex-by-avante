@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ArrowLeft } from "lucide-react";
-import { MOCK_ATTEMPTS, FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
+import { FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
+import { findAttempt } from "@/lib/kc-store";
 import { KCScoreTable } from "@/components/knowledge-check/KCScoreTable";
 
 const ALL_CATEGORIES = ["escalations", "first-aid", "incidents", "clients"] as const;
@@ -22,7 +23,7 @@ function formatDateShort(iso: string) {
 
 export default function KCAttemptPage({ params }: { params: Promise<{ attemptId: string }> }) {
   const { attemptId } = use(params);
-  const attempt = MOCK_ATTEMPTS.find((a) => a.id === attemptId);
+  const attempt = findAttempt(attemptId);
 
   if (!attempt) notFound();
 
@@ -81,17 +82,19 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
             <p className="text-[14px] leading-[20px] text-muted-foreground">
               {formatDate(attempt.date)}&nbsp;&nbsp;·&nbsp;&nbsp;{attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
             </p>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span
-                className="text-[32px] leading-none font-bold tabular-nums"
-                style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
-              >
-                {pct}%
-              </span>
-              <span className="text-[15px] text-muted-foreground">
-                {attempt.score} of {attempt.total} correct
-              </span>
-            </div>
+          </div>
+
+          {/* Score */}
+          <div className="flex items-baseline gap-2">
+            <span
+              className="text-[32px] leading-none font-bold tabular-nums"
+              style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
+            >
+              {pct}%
+            </span>
+            <span className="text-[15px] text-muted-foreground">
+              {attempt.score} of {attempt.total} correct
+            </span>
           </div>
 
           {/* Score table */}
