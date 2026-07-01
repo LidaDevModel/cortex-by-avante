@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Eye, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { FilterSelect } from "@/components/ui/filter-select";
 import {
   FORMAT_LABELS,
   CATEGORY_LABELS,
@@ -202,6 +203,49 @@ function GeneratingScreen() {
 type SortCol = "date" | "score";
 type SortDir = "asc" | "desc";
 
+const CATEGORY_OPTIONS = ALL_CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }));
+const FORMAT_OPTIONS = ALL_FORMATS.map((f) => ({ value: f, label: FORMAT_LABELS[f] }));
+
+function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onViewDetail: (id: string) => void }) {
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [formatFilter, setFormatFilter] = useState("");
+
+  const filtered = attempts.filter((a) => {
+    if (categoryFilter && !a.categories.includes(categoryFilter as KCCategory)) return false;
+    if (formatFilter && !a.formats.includes(formatFilter as KCFormat)) return false;
+    return true;
+  });
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-[12px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
+          Previous checks
+        </p>
+        {attempts.length > 0 && (
+          <div className="flex items-center gap-2">
+            <FilterSelect
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              options={CATEGORY_OPTIONS}
+              placeholder="All categories"
+              className="w-[168px]"
+            />
+            <FilterSelect
+              value={formatFilter}
+              onChange={setFormatFilter}
+              options={FORMAT_OPTIONS}
+              placeholder="All formats"
+              className="w-[168px]"
+            />
+          </div>
+        )}
+      </div>
+      <HistoryTable attempts={filtered} onViewDetail={onViewDetail} />
+    </section>
+  );
+}
+
 function HistoryTable({
   attempts,
   onViewDetail,
@@ -284,7 +328,11 @@ function HistoryTable({
       </div>
 
       {/* Rows */}
-      {sorted.map((attempt) => {
+      {sorted.length === 0 ? (
+        <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
+          No checks match the selected filters.
+        </div>
+      ) : sorted.map((attempt) => {
         const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
         return (
           <button
@@ -469,12 +517,7 @@ export default function QuickCheckPage() {
                 </div>
 
                 {/* History */}
-                <section className="flex flex-col gap-4">
-                  <p className="text-[12px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Previous checks
-                  </p>
-                  <HistoryTable attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
-                </section>
+                <HistorySection attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
               </div>
             </div>
           )}

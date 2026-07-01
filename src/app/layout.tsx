@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full overflow-hidden antialiased", plusJakartaSans.variable)}>
+    <html lang="en" className={cn("h-full overflow-hidden antialiased", plusJakartaSans.variable)} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
