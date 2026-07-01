@@ -281,3 +281,12 @@
 .scroll-thin:hover::-webkit-scrollbar-thumb:hover {
   background: oklch(0.72 0.08 150 / 0.40) !important;
 }
+
+button,
+a,
+[role="button"],
+select,
+summary,
+label[for] {
+  cursor: pointer;
+}

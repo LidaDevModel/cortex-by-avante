@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const MAX_HEIGHT = 160;
 const LINE_HEIGHT = 24;
@@ -750,14 +751,21 @@ export default function ChatPage() {
               <X size={16} />
             </button>
           ) : (
-            <button
-              type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Voice input"
-              onClick={handleVoiceToggle}
-            >
-              <Mic size={16} />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="w-10 h-10 rounded-[10px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Voice input"
+                  onClick={handleVoiceToggle}
+                >
+                  <Mic size={16} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
+                Dictate
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {isRecording ? (
@@ -780,21 +788,37 @@ export default function ChatPage() {
             >
               <Square size={16} />
             </button>
-          ) : (
+          ) : hasText ? (
             <button
               type="button"
               className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
-              aria-label={hasText ? "Send message" : "Start voice recording"}
-              onClick={hasText ? handleSend : handleVoiceToggle}
+              aria-label="Send message"
+              onClick={handleSend}
               style={{
                 boxShadow: "0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2)",
               }}
             >
-              {hasText
-                ? <ArrowUp size={15} className="text-white" />
-                : <AudioLines size={15} className="text-white" />
-              }
+              <ArrowUp size={15} className="text-white" />
             </button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
+                  aria-label="Start voice recording"
+                  onClick={handleVoiceToggle}
+                  style={{
+                    boxShadow: "0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2)",
+                  }}
+                >
+                  <AudioLines size={15} className="text-white" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
+                Use voice mode
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>
