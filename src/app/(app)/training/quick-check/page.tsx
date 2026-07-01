@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Eye, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import {
@@ -21,7 +22,6 @@ import type {
 import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
-import { KCDetailModal } from "@/components/knowledge-check/KCDetailModal";
 
 /* ─── Types ─── */
 
@@ -207,7 +207,7 @@ function HistoryTable({
   onViewDetail,
 }: {
   attempts: KCAttempt[];
-  onViewDetail: (a: KCAttempt) => void;
+  onViewDetail: (id: string) => void;
 }) {
   const [sortCol, setSortCol] = useState<SortCol>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -309,7 +309,7 @@ function HistoryTable({
               {attempt.score}/{attempt.total} · {pct}%
             </span>
             <button
-              onClick={() => onViewDetail(attempt)}
+              onClick={() => onViewDetail(attempt.id)}
               className="flex items-center justify-center w-8 h-8 rounded-[8px] text-muted-foreground hover:text-foreground hover:bg-[var(--surface-raised)] transition-colors duration-100"
               aria-label="View details"
             >
@@ -325,13 +325,13 @@ function HistoryTable({
 /* ─── Page ─── */
 
 export default function QuickCheckPage() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("listing");
   const [selectedFormats, setSelectedFormats] = useState<KCFormat[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<KCCategory[]>([]);
   const [generatedQuestions, setGeneratedQuestions] = useState<KCQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, KCAnswer>>({});
-  const [detailAttempt, setDetailAttempt] = useState<KCAttempt | null>(null);
   const [attempts, setAttempts] = useState<KCAttempt[]>(MOCK_ATTEMPTS);
 
   /* Format toggle */
@@ -414,11 +414,6 @@ export default function QuickCheckPage() {
 
   return (
     <>
-      {/* Detail modal */}
-      {detailAttempt && (
-        <KCDetailModal attempt={detailAttempt} onClose={() => setDetailAttempt(null)} />
-      )}
-
       <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
         {/* Header */}
         <header
@@ -483,7 +478,7 @@ export default function QuickCheckPage() {
                   <p className="text-[12px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground">
                     Previous checks
                   </p>
-                  <HistoryTable attempts={attempts} onViewDetail={setDetailAttempt} />
+                  <HistoryTable attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
                 </section>
               </div>
             </div>
@@ -586,6 +581,7 @@ export default function QuickCheckPage() {
                   questions={generatedQuestions}
                   answers={answers}
                   onTryAnother={openConfig}
+                  onBack={() => setPhase("listing")}
                 />
               </div>
             </div>

@@ -1,27 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
-  KCAttempt,
   KCQuestion,
   KCAnswer,
   KCMCAnswer,
   KCMatchingAnswer,
   KCBranchingAnswer,
 } from "@/lib/knowledge-check-mock";
-import { scoreQuestion, FORMAT_LABELS } from "@/lib/knowledge-check-mock";
-import { useEffect } from "react";
+import { scoreQuestion } from "@/lib/knowledge-check-mock";
 
-/* ─── Helpers ─── */
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
-
-/* ─── Shared table primitives ─── */
+/* ─── Primitives ─── */
 
 function WrongAnswerRow({ children }: { children: React.ReactNode }) {
   return (
@@ -158,9 +149,15 @@ function BranchingWrong({ question, answer }: {
   );
 }
 
-/* ─── Score table (mirrors KCResults) ─── */
+/* ─── Main export ─── */
 
-function ScoreTable({ questions, answers }: { questions: KCQuestion[]; answers: Record<string, KCAnswer> }) {
+export function KCScoreTable({
+  questions,
+  answers,
+}: {
+  questions: KCQuestion[];
+  answers: Record<string, KCAnswer>;
+}) {
   const totalCorrect = questions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).correct, 0);
   const totalPoints = questions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).total, 0);
 
@@ -216,11 +213,13 @@ function ScoreTable({ questions, answers }: { questions: KCQuestion[]; answers: 
         <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Total</span>
         <span className="w-5" />
       </div>
+
       {rows.map((row) => (
         <SectionRow key={row.key} label={row.label} correct={row.correct} total={row.total}>
           {row.content}
         </SectionRow>
       ))}
+
       <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
         <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
         <span
@@ -231,62 +230,6 @@ function ScoreTable({ questions, answers }: { questions: KCQuestion[]; answers: 
         </span>
         <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">{totalPoints}</span>
         <span className="w-5" />
-      </div>
-    </div>
-  );
-}
-
-/* ─── Modal ─── */
-
-export function KCDetailModal({ attempt, onClose }: { attempt: KCAttempt; onClose: () => void }) {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, []);
-
-  const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(17, 24, 39, 0.4)" }}
-      onClick={onClose}
-    >
-      <div
-        className="relative flex flex-col w-full max-w-[600px] max-h-[80vh] rounded-[12px] overflow-hidden"
-        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-border shrink-0">
-          <div className="flex flex-col gap-0.5">
-            <p className="text-[16px] leading-[24px] font-semibold text-foreground">
-              Knowledge check — {formatDate(attempt.date)}
-            </p>
-            <div className="flex items-center gap-3">
-              <span className="text-[13px] leading-[20px] text-muted-foreground">
-                {attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
-              </span>
-              <span
-                className="text-[13px] leading-[20px] font-semibold tabular-nums"
-                style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
-              >
-                {attempt.score}/{attempt.total} · {pct}%
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center w-8 h-8 rounded-[8px] text-muted-foreground hover:text-foreground hover:bg-[var(--surface-raised)] transition-colors duration-100"
-          >
-            <X size={16} strokeWidth={2} />
-          </button>
-        </div>
-
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto p-6 scroll-thin">
-          <ScoreTable questions={attempt.questions} answers={attempt.answers} />
-        </div>
       </div>
     </div>
   );
