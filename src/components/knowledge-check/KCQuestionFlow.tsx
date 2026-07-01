@@ -182,7 +182,7 @@ function MCProgressDots({
           }
           return false;
         })();
-        const isSkipped = ans !== undefined && ans.selectedIndex === null && !isCurrent;
+        const isSkipped = ans !== undefined && ans.type === "mc" && (ans as KCMCAnswer).selectedIndex === null && !isCurrent;
 
         return (
           <div key={globalIdx} className="flex items-center gap-2">

@@ -111,7 +111,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
               onEdit={() => onJumpTo(firstIdx)}
             >
               {g.indices.map((i) => {
-                const q = questions[i];
+                const q = questions[i] as Extract<KCQuestion, { type: "mc" }>;
                 const ans = answers[q.id] as KCMCAnswer | undefined;
                 const selected = ans?.selectedIndex ?? null;
                 return (
@@ -136,7 +136,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
 
         if (g.type === "matching") {
           return g.indices.map((i, nth) => {
-            const q = questions[i];
+            const q = questions[i] as Extract<KCQuestion, { type: "matching" }>;
             const ans = answers[q.id] as KCMatchingAnswer | undefined;
             const matches = ans?.matches ?? {};
             const matched = q.pairs.filter((p) => matches[p.id]).length;
@@ -176,7 +176,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
 
         if (g.type === "branching") {
           return g.indices.map((i, nth) => {
-            const q = questions[i];
+            const q = questions[i] as Extract<KCQuestion, { type: "branching" }>;
             const ans = answers[q.id] as KCBranchingAnswer | undefined;
             const isCompleted = ans?.isCompleted ?? false;
             const decisions = ans?.decisions ?? {};
