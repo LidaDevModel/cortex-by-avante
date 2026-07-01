@@ -135,86 +135,91 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
         }
 
         if (g.type === "matching") {
-          const q = questions[firstIdx];
-          const ans = answers[q.id] as KCMatchingAnswer | undefined;
-          const matches = ans?.matches ?? {};
-          const matched = q.pairs.filter((p) => matches[p.id]).length;
-          const allMatched = matched === q.pairs.length;
-          return (
-            <SectionBlock
-              key="matching"
-              label="Matching"
-              ok={allMatched}
-              status={allMatched ? "All pairs matched" : `${matched} of ${q.pairs.length} matched`}
-              onEdit={() => onJumpTo(firstIdx)}
-            >
-              {q.pairs.map((pair) => {
-                const matchedId = matches[pair.id];
-                const matchedDef = q.pairs.find((p) => p.id === matchedId);
-                return (
-                  <div key={pair.id} className="flex items-start gap-2">
-                    <span className="text-[12px] text-muted-foreground shrink-0 w-[180px]">{pair.term}</span>
-                    <span
-                      className={cn(
-                        "text-[13px] font-medium pl-2 border-l-2 min-w-0",
-                        matchedDef
-                          ? "text-[var(--primary)] border-[var(--primary)]"
-                          : "text-muted-foreground border-[var(--border)]"
-                      )}
-                    >
-                      {matchedDef ? matchedDef.definition : "Not matched"}
-                    </span>
-                  </div>
-                );
-              })}
-            </SectionBlock>
-          );
+          return g.indices.map((i, nth) => {
+            const q = questions[i];
+            const ans = answers[q.id] as KCMatchingAnswer | undefined;
+            const matches = ans?.matches ?? {};
+            const matched = q.pairs.filter((p) => matches[p.id]).length;
+            const allMatched = matched === q.pairs.length;
+            const label = g.indices.length > 1 ? `Matching ${nth + 1}` : "Matching";
+            return (
+              <SectionBlock
+                key={q.id}
+                label={label}
+                ok={allMatched}
+                status={allMatched ? "All pairs matched" : `${matched} of ${q.pairs.length} matched`}
+                onEdit={() => onJumpTo(i)}
+              >
+                {q.pairs.map((pair) => {
+                  const matchedId = matches[pair.id];
+                  const matchedDef = q.pairs.find((p) => p.id === matchedId);
+                  return (
+                    <div key={pair.id} className="flex items-start gap-2">
+                      <span className="text-[12px] text-muted-foreground shrink-0 w-[180px]">{pair.term}</span>
+                      <span
+                        className={cn(
+                          "text-[13px] font-medium pl-2 border-l-2 min-w-0",
+                          matchedDef
+                            ? "text-[var(--primary)] border-[var(--primary)]"
+                            : "text-muted-foreground border-[var(--border)]"
+                        )}
+                      >
+                        {matchedDef ? matchedDef.definition : "Not matched"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </SectionBlock>
+            );
+          });
         }
 
         if (g.type === "branching") {
-          const q = questions[firstIdx];
-          const ans = answers[q.id] as KCBranchingAnswer | undefined;
-          const isCompleted = ans?.isCompleted ?? false;
-          const decisions = ans?.decisions ?? {};
-          const decisionNodes = q.nodes.filter((n) => n.type === "decision");
-          const decided = decisionNodes.filter((n) => decisions[n.id]).length;
-          return (
-            <SectionBlock
-              key="branching"
-              label="Scenarios"
-              ok={isCompleted}
-              status={isCompleted ? "Completed" : decided > 0 ? `${decided} of ${decisionNodes.length} decisions made` : "Not completed"}
-              onEdit={() => onJumpTo(firstIdx)}
-            >
-              {isCompleted ? (
-                <div className="flex flex-col gap-2">
-                  {decisionNodes.map((node) => {
-                    const chosenId = decisions[node.id];
-                    const chosenOption = node.options?.find((o) => o.id === chosenId);
-                    return (
-                      <div key={node.id} className="flex flex-col gap-0.5">
-                        <span className="text-[12px] text-muted-foreground">{node.label}</span>
-                        <span
-                          className={cn(
-                            "text-[13px] font-medium pl-2 border-l-2",
-                            chosenOption
-                              ? "text-[var(--primary)] border-[var(--primary)]"
-                              : "text-muted-foreground border-[var(--border)]"
-                          )}
-                        >
-                          {chosenOption ? chosenOption.text : "No decision made"}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-[13px] text-muted-foreground italic">
-                  {decided > 0 ? "Scenario not yet completed." : "You haven't reached this section yet."}
-                </p>
-              )}
-            </SectionBlock>
-          );
+          return g.indices.map((i, nth) => {
+            const q = questions[i];
+            const ans = answers[q.id] as KCBranchingAnswer | undefined;
+            const isCompleted = ans?.isCompleted ?? false;
+            const decisions = ans?.decisions ?? {};
+            const decisionNodes = q.nodes.filter((n) => n.type === "decision");
+            const decided = decisionNodes.filter((n) => decisions[n.id]).length;
+            return (
+              <SectionBlock
+                key={q.id}
+                label={`Scenario ${nth + 1}`}
+                ok={isCompleted}
+                status={isCompleted ? "Completed" : decided > 0 ? `${decided} of ${decisionNodes.length} decisions made` : "Not started"}
+                onEdit={isCompleted ? undefined : () => onJumpTo(i)}
+              >
+                {isCompleted ? (
+                  <div className="flex flex-col gap-2">
+                    {decisionNodes.map((node) => {
+                      const chosenId = decisions[node.id];
+                      const chosenOption = node.options?.find((o) => o.id === chosenId);
+                      return (
+                        <div key={node.id} className="flex flex-col gap-0.5">
+                          <span className="text-[12px] text-muted-foreground">{node.label}</span>
+                          <span
+                            className={cn(
+                              "text-[13px] font-medium pl-2 border-l-2",
+                              chosenOption
+                                ? "text-[var(--primary)] border-[var(--primary)]"
+                                : "text-muted-foreground border-[var(--border)]"
+                            )}
+                          >
+                            {chosenOption ? chosenOption.text : "No decision made"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-muted-foreground italic">
+                    {decided > 0 ? "Scenario not yet completed." : "You haven't reached this section yet."}
+                  </p>
+                )}
+              </SectionBlock>
+            );
+          });
         }
 
         return null;

@@ -1,8 +1,10 @@
 "use client";
 
-import { ExternalLink, Check, X } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import type {
-  KCAttempt,
   KCQuestion,
   KCAnswer,
   KCMCAnswer,
@@ -10,144 +12,145 @@ import type {
   KCBranchingAnswer,
 } from "@/lib/knowledge-check-mock";
 import { scoreQuestion } from "@/lib/knowledge-check-mock";
-import Link from "next/link";
 
-/* ─── Helpers ─── */
+/* ─── Shared primitives ─── */
 
-function SourceLink({ doc, section }: { doc: string; section: string }) {
+function WrongAnswerRow({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className="inline-flex items-center gap-1 text-[12px] leading-[16px] font-medium"
-      style={{ color: "var(--primary)" }}
-    >
-      <ExternalLink size={11} strokeWidth={2} />
-      {doc} · {section}
-    </span>
-  );
-}
-
-/* ─── Wrong answer breakdowns ─── */
-
-function MCBreakdown({
-  question,
-  answer,
-}: {
-  question: Extract<KCQuestion, { type: "mc" }>;
-  answer: KCMCAnswer;
-}) {
-  const userOpt = answer.selectedIndex !== null ? question.options[answer.selectedIndex] : null;
-  const correctOpt = question.options[question.correctIndex];
-
-  return (
-    <div className="flex flex-col gap-2 py-3 border-b border-border last:border-0">
-      <p className="text-[14px] leading-[20px] font-medium text-foreground">{question.question}</p>
-      <div className="flex flex-col gap-1">
-        {userOpt && answer.selectedIndex !== question.correctIndex && (
-          <div className="flex items-center gap-2 text-[13px] leading-[20px]">
-            <X size={13} strokeWidth={2.5} className="shrink-0" style={{ color: "var(--destructive)" }} />
-            <span className="text-muted-foreground line-through">{userOpt}</span>
-          </div>
-        )}
-        {!userOpt && (
-          <p className="text-[12px] leading-[16px] text-muted-foreground italic">Skipped</p>
-        )}
-        <div className="flex items-center gap-2 text-[13px] leading-[20px]">
-          <Check size={13} strokeWidth={2.5} className="shrink-0" style={{ color: "var(--primary)" }} />
-          <span style={{ color: "var(--primary)" }}>{correctOpt}</span>
-        </div>
-      </div>
-      <SourceLink doc={question.sourceDoc} section={question.sourceSection} />
+    <div className="flex gap-2">
+      <div className="w-[2px] shrink-0 self-stretch rounded-full bg-border" />
+      <div className="flex flex-col gap-1.5 min-w-0">{children}</div>
     </div>
   );
 }
 
-function MatchingBreakdown({
-  question,
-  answer,
+function SectionRow({
+  label,
+  correct,
+  total,
+  children,
 }: {
+  label: string;
+  correct: number;
+  total: number;
+  children?: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-4 py-[10px] border-b border-border hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
+      >
+        <span className="flex-1 text-left text-[14px] text-foreground">{label}</span>
+        <span
+          className="w-10 text-right text-[14px] font-medium tabular-nums"
+          style={{ color: correct === total ? "var(--primary)" : "var(--destructive)" }}
+        >
+          {correct}
+        </span>
+        <span className="w-10 text-right text-[14px] text-muted-foreground tabular-nums">{total}</span>
+        <span className="w-5 flex justify-end text-muted-foreground">
+          {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
+        </span>
+      </button>
+      {open && (
+        <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
+          <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
+            {children ?? <p className="text-[13px] text-muted-foreground">All answers correct.</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Wrong answer content per type ─── */
+
+function MCWrong({ question, answer }: {
+  question: Extract<KCQuestion, { type: "mc" }>;
+  answer: KCMCAnswer;
+}) {
+  const userIdx = answer.selectedIndex;
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-[13px] font-medium text-foreground">{question.question}</span>
+      <WrongAnswerRow>
+        <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
+          Your answer: {userIdx !== null ? question.options[userIdx] : "Skipped"}
+        </span>
+        <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+          Correct answer: {question.options[question.correctIndex]}
+        </span>
+      </WrongAnswerRow>
+    </div>
+  );
+}
+
+function MatchingWrong({ question, answer }: {
   question: Extract<KCQuestion, { type: "matching" }>;
   answer: KCMatchingAnswer;
 }) {
   const wrongPairs = question.pairs.filter((p) => answer.matches[p.id] !== p.id);
   if (wrongPairs.length === 0) return null;
-
   return (
-    <div className="flex flex-col gap-2 py-3 border-b border-border last:border-0">
-      <p className="text-[14px] leading-[20px] font-medium text-foreground">{question.instruction}</p>
-      <div className="flex flex-col gap-1.5">
-        {wrongPairs.map((pair) => {
-          const userMatchId = answer.matches[pair.id];
-          const userMatch = question.pairs.find((p) => p.id === userMatchId);
-          return (
-            <div key={pair.id} className="flex flex-col gap-0.5 pl-2" style={{ borderLeft: "2px solid var(--border)" }}>
-              <p className="text-[13px] leading-[20px] font-medium text-foreground">{pair.term}</p>
-              {userMatch && (
-                <p className="text-[12px] leading-[16px] text-muted-foreground line-through">
-                  {userMatch.definition}
-                </p>
-              )}
-              {!userMatch && (
-                <p className="text-[12px] leading-[16px] text-muted-foreground italic">Not matched</p>
-              )}
-              <p className="text-[12px] leading-[16px]" style={{ color: "var(--primary)" }}>
-                {pair.definition}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-      <SourceLink doc={question.sourceDoc} section={question.sourceSection} />
-    </div>
-  );
-}
-
-function BranchingBreakdown({
-  question,
-  answer,
-}: {
-  question: Extract<KCQuestion, { type: "branching" }>;
-  answer: KCBranchingAnswer;
-}) {
-  const decisionNodes = question.nodes.filter(n => n.type === "decision");
-
-  return (
-    <div className="flex flex-col gap-4 py-3">
-      {decisionNodes.map((node, i) => {
-        const chosenId = answer.decisions[node.id];
-        const chosenOpt = node.options?.find(o => o.id === chosenId);
-        const correctOpt = node.options?.find(o => o.isCorrect);
-        const isCorrect = chosenId && chosenOpt?.isCorrect;
-
+    <>
+      {wrongPairs.map((pair) => {
+        const matchedId = answer.matches[pair.id];
+        const matchedDef = question.pairs.find((p) => p.id === matchedId);
         return (
-          <div key={node.id} className="flex flex-col gap-2 pb-3 border-b border-border last:border-0">
-            <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Decision {i + 1}</p>
-            <p className="text-[14px] leading-[20px] font-medium text-foreground">{node.scenarioText}</p>
-            <div className="flex flex-col gap-1">
-              {!chosenOpt && (
-                <p className="text-[12px] leading-[16px] text-muted-foreground italic">Not decided</p>
-              )}
-              {chosenOpt && !isCorrect && (
-                <div className="flex items-start gap-2 text-[13px] leading-[20px]">
-                  <X size={13} strokeWidth={2.5} className="mt-0.5 shrink-0" style={{ color: "var(--destructive)" }} />
-                  <span className="text-muted-foreground line-through">{chosenOpt.text}</span>
-                </div>
-              )}
-              {correctOpt && (
-                <div className="flex items-start gap-2 text-[13px] leading-[20px]">
-                  <Check size={13} strokeWidth={2.5} className="mt-0.5 shrink-0" style={{ color: "var(--primary)" }} />
-                  <span style={{ color: "var(--primary)" }}>{correctOpt.text}</span>
-                </div>
-              )}
-            </div>
+          <div key={pair.id} className="flex flex-col gap-2">
+            <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
+            <WrongAnswerRow>
+              <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
+                Your match: {matchedDef ? matchedDef.definition : "Not matched"}
+              </span>
+              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                Correct: {pair.definition}
+              </span>
+            </WrongAnswerRow>
           </div>
         );
       })}
-      <SourceLink doc={question.sourceDoc} section={question.sourceSection} />
-    </div>
+    </>
   );
 }
 
-/* ─── Main results component ─── */
+function BranchingWrong({ question, answer }: {
+  question: Extract<KCQuestion, { type: "branching" }>;
+  answer: KCBranchingAnswer;
+}) {
+  const decisionNodes = question.nodes.filter((n) => n.type === "decision");
+  const wrongNodes = decisionNodes.filter((node) => {
+    const chosenId = answer.decisions[node.id];
+    return !node.options?.find((o) => o.id === chosenId)?.isCorrect;
+  });
+  if (wrongNodes.length === 0) return null;
+  return (
+    <>
+      {wrongNodes.map((node) => {
+        const chosenId = answer.decisions[node.id];
+        const chosenOpt = node.options?.find((o) => o.id === chosenId);
+        const correctOpt = node.options?.find((o) => o.isCorrect);
+        return (
+          <div key={node.id} className="flex flex-col gap-2">
+            <span className="text-[13px] font-medium text-foreground">{node.label}</span>
+            <WrongAnswerRow>
+              <span className={cn("text-[13px]", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
+                Your choice: {chosenOpt?.text ?? "Not answered"}
+              </span>
+              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                Correct choice: {correctOpt?.text}
+              </span>
+            </WrongAnswerRow>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+/* ─── Main ─── */
 
 export function KCResults({
   questions,
@@ -162,67 +165,104 @@ export function KCResults({
   const totalPoints = questions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).total, 0);
   const pct = totalPoints > 0 ? Math.round((totalCorrect / totalPoints) * 100) : 0;
 
-  const wrongQuestions = questions.filter((q) => {
+  // Build section rows mirroring tab structure
+  const rows: { key: string; label: string; correct: number; total: number; content: React.ReactNode }[] = [];
+
+  const mcQuestions = questions.filter((q): q is Extract<KCQuestion, { type: "mc" }> => q.type === "mc");
+  if (mcQuestions.length > 0) {
+    const correct = mcQuestions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).correct, 0);
+    const total = mcQuestions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).total, 0);
+    const wrong = mcQuestions.filter((q) => scoreQuestion(q, answers[q.id]).correct < scoreQuestion(q, answers[q.id]).total);
+    rows.push({
+      key: "mc",
+      label: "Multiple choice",
+      correct,
+      total,
+      content: wrong.length > 0
+        ? wrong.map((q) => <MCWrong key={q.id} question={q} answer={(answers[q.id] as KCMCAnswer) ?? { type: "mc", selectedIndex: null }} />)
+        : null,
+    });
+  }
+
+  const matchingQuestions = questions.filter((q): q is Extract<KCQuestion, { type: "matching" }> => q.type === "matching");
+  matchingQuestions.forEach((q, nth) => {
     const { correct, total } = scoreQuestion(q, answers[q.id]);
-    return correct < total;
+    const ans = (answers[q.id] as KCMatchingAnswer) ?? { type: "matching", matches: {} };
+    rows.push({
+      key: q.id,
+      label: matchingQuestions.length > 1 ? `Matching ${nth + 1}` : "Matching",
+      correct,
+      total,
+      content: correct < total ? <MatchingWrong question={q} answer={ans} /> : null,
+    });
+  });
+
+  const branchingQuestions = questions.filter((q): q is Extract<KCQuestion, { type: "branching" }> => q.type === "branching");
+  branchingQuestions.forEach((q, nth) => {
+    const { correct, total } = scoreQuestion(q, answers[q.id]);
+    const ans = (answers[q.id] as KCBranchingAnswer) ?? { type: "branching", decisions: {}, isCompleted: false };
+    rows.push({
+      key: q.id,
+      label: branchingQuestions.length > 1 ? `Scenario ${nth + 1}` : "Scenario",
+      correct,
+      total,
+      content: correct < total ? <BranchingWrong question={q} answer={ans} /> : null,
+    });
   });
 
   return (
-    <div className="flex flex-col gap-8 max-w-[600px] mx-auto py-8">
-      {/* Score */}
-      <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-[13px] leading-[20px] font-medium text-muted-foreground uppercase tracking-wider">
-          Knowledge check complete
-        </p>
-        <p
-          className="text-[56px] leading-none font-bold"
-          style={{ fontVariantNumeric: "tabular-nums", color: "var(--primary)" }}
+    <div
+      className="max-w-[640px] mx-auto px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
+      style={{ animationTimingFunction: "ease-out" }}
+    >
+      {/* Heading + score */}
+      <div className="flex flex-col gap-3">
+        <h1
+          className="text-[36px] leading-[44px] font-bold"
+          style={{ color: pct === 100 ? "var(--primary)" : "var(--foreground)" }}
         >
-          {pct}%
-        </p>
-        <p className="text-[15px] leading-[24px] text-muted-foreground">
-          {totalCorrect} of {totalPoints} points
-        </p>
+          {pct === 100 ? "Perfect score" : "Knowledge check complete"}
+        </h1>
+        <div className="flex items-baseline gap-3">
+          <span
+            className="text-[48px] leading-none font-bold tabular-nums"
+            style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
+          >
+            {pct}%
+          </span>
+          <span className="text-[20px] text-muted-foreground font-medium">
+            {totalCorrect} of {totalPoints} correct
+          </span>
+        </div>
       </div>
 
-      {/* Breakdown: always visible */}
-      {wrongQuestions.length === 0 ? (
-        <div
-          className="flex flex-col items-center gap-2 py-8 rounded-[12px] text-center"
-          style={{ background: "color-mix(in srgb, var(--primary) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 20%, transparent)" }}
-        >
-          <Check size={24} strokeWidth={2} style={{ color: "var(--primary)" }} />
-          <p className="text-[15px] leading-[24px] font-semibold" style={{ color: "var(--primary)" }}>
-            All correct
-          </p>
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
-            You answered every question correctly.
-          </p>
+      {/* Score table */}
+      <div className="rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]">
+        <div className="flex items-center gap-2 px-4 py-[10px] bg-[var(--surface-raised)] border-b border-border">
+          <span className="flex-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Section</span>
+          <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Score</span>
+          <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Total</span>
+          <span className="w-5" />
         </div>
-      ) : (
-        <div
-          className="flex flex-col rounded-[12px] overflow-hidden"
-          style={{ border: "1px solid var(--border)", background: "var(--surface-raised)" }}
-        >
-          <div className="px-4 py-3 border-b border-border">
-            <p className="text-[13px] leading-[20px] font-semibold text-foreground">
-              Review — {wrongQuestions.length} to revisit
-            </p>
-          </div>
-          <div className="px-4">
-            {wrongQuestions.map((q) => {
-              const ans = answers[q.id] as KCAnswer | undefined;
-              if (q.type === "mc")
-                return <MCBreakdown key={q.id} question={q} answer={(ans as KCMCAnswer) ?? { type: "mc", selectedIndex: null }} />;
-              if (q.type === "matching")
-                return <MatchingBreakdown key={q.id} question={q} answer={(ans as KCMatchingAnswer) ?? { type: "matching", matches: {} }} />;
-              if (q.type === "branching")
-                return <BranchingBreakdown key={q.id} question={q} answer={(ans as KCBranchingAnswer) ?? { type: "branching", decisions: {}, isCompleted: false }} />;
-              return null;
-            })}
-          </div>
+
+        {rows.map((row) => (
+          <SectionRow key={row.key} label={row.label} correct={row.correct} total={row.total}>
+            {row.content}
+          </SectionRow>
+        ))}
+
+        <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
+          <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
+          <span
+            className="w-10 text-right text-[14px] font-bold tabular-nums"
+            style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
+          >
+            {totalCorrect}
+          </span>
+          <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">{totalPoints}</span>
+          <span className="w-5" />
         </div>
-      )}
+      </div>
 
       {/* Actions */}
       <div className="flex flex-col gap-2">

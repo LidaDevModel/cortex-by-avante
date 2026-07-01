@@ -542,17 +542,15 @@ export default function QuickCheckPage() {
                     Quit check
                   </button>
                 </div>
-                {buildSections(generatedQuestions).length > 1 && (
-                  <KCSectionTabs
-                    sections={buildSections(generatedQuestions)}
-                    currentIndex={currentQuestionIndex}
-                    questions={generatedQuestions}
-                    answers={answers}
-                    onJumpTo={(i) => { setCurrentQuestionIndex(i); setPhase("flow"); }}
-                    onReview={() => setPhase("review")}
-                    isReviewActive={true}
-                  />
-                )}
+                <KCSectionTabs
+                  sections={buildSections(generatedQuestions)}
+                  currentIndex={currentQuestionIndex}
+                  questions={generatedQuestions}
+                  answers={answers}
+                  onJumpTo={(i) => { setCurrentQuestionIndex(i); setPhase("flow"); }}
+                  onReview={() => setPhase("review")}
+                  isReviewActive={true}
+                />
               </div>
               <div
                 className="flex-1 overflow-y-auto scroll-thin"

@@ -30,14 +30,24 @@ type Section = { type: KCType; label: string; startIndex: number; count: number 
 
 export function buildSections(questions: KCQuestion[]): Section[] {
   const sections: Section[] = [];
+  let scenarioCount = 0;
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
-    const last = sections[sections.length - 1];
-    if (last && last.type === q.type) {
-      last.count++;
+    if (q.type === "branching") {
+      scenarioCount++;
+      sections.push({ type: "branching", label: `Scenario ${scenarioCount}`, startIndex: i, count: 1 });
     } else {
-      sections.push({ type: q.type as KCType, label: TYPE_LABELS[q.type as KCType], startIndex: i, count: 1 });
+      const last = sections[sections.length - 1];
+      if (last && last.type === q.type) {
+        last.count++;
+      } else {
+        sections.push({ type: q.type as KCType, label: TYPE_LABELS[q.type as KCType], startIndex: i, count: 1 });
+      }
     }
+  }
+  if (scenarioCount === 1) {
+    const s = sections.find((s) => s.type === "branching");
+    if (s) s.label = "Scenario";
   }
   return sections;
 }
@@ -51,9 +61,16 @@ function getSectionForIndex(sections: Section[], index: number): Section {
 
 function isSectionComplete(section: Section, questions: KCQuestion[], answers: Record<string, KCAnswer>): boolean {
   for (let i = section.startIndex; i < section.startIndex + section.count; i++) {
-    const ans = answers[questions[i].id];
+    const q = questions[i];
+    const ans = answers[q.id];
     if (!ans) return false;
     if (ans.type === "mc" && (ans as KCMCAnswer).selectedIndex === null) return false;
+    if (ans.type === "matching") {
+      const pairs = (q as Extract<KCQuestion, { type: "matching" }>).pairs;
+      const matches = (ans as KCMatchingAnswer).matches;
+      if (pairs.some((p) => !matches[p.id])) return false;
+    }
+    if (ans.type === "branching" && !(ans as KCBranchingAnswer).isCompleted) return false;
   }
   return true;
 }
@@ -89,7 +106,7 @@ export function KCSectionTabs({
 
         return (
           <button
-            key={s.type}
+            key={s.startIndex}
             onClick={() => onJumpTo(s.startIndex)}
             className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150"
             style={
@@ -155,8 +172,16 @@ function MCProgressDots({
       {indices.map((globalIdx, pos) => {
         const isCurrent = globalIdx === currentIndex;
         const q = questions[globalIdx];
-        const ans = answers[q.id] as KCMCAnswer | undefined;
-        const isAnswered = ans?.selectedIndex !== null && ans?.selectedIndex !== undefined && !isCurrent;
+        const ans = answers[q.id];
+        const isAnswered = !isCurrent && (() => {
+          if (!ans) return false;
+          if (ans.type === "mc") return (ans as KCMCAnswer).selectedIndex !== null && (ans as KCMCAnswer).selectedIndex !== undefined;
+          if (ans.type === "matching") {
+            const pairs = (q as Extract<KCQuestion, { type: "matching" }>).pairs;
+            return pairs.every((p) => (ans as KCMatchingAnswer).matches[p.id]);
+          }
+          return false;
+        })();
         const isSkipped = ans !== undefined && ans.selectedIndex === null && !isCurrent;
 
         return (
@@ -173,7 +198,7 @@ function MCProgressDots({
                 color: isCurrent || isAnswered ? "var(--primary-foreground)" : "var(--muted-foreground)",
               }}
             >
-              {isAnswered ? "✓" : `Q${pos + 1}`}
+              {isAnswered ? "✓" : `${section.type === "matching" ? "M" : "Q"}${pos + 1}`}
             </button>
             {pos < section.count - 1 && (
               <div
@@ -240,7 +265,7 @@ function ProgressDots(props: {
   currentIndex: number;
   onJumpTo: (i: number) => void;
 }) {
-  if (props.section.type === "mc") return <MCProgressDots {...props} />;
+  if (props.section.type === "mc" || props.section.type === "matching") return <MCProgressDots {...props} />;
   return <SimpleDots {...props} />;
 }
 
@@ -341,17 +366,20 @@ function MatchingQuestion({
   onMatch,
   onClear,
   onNext,
+  dots,
 }: {
   question: Extract<KCQuestion, { type: "matching" }>;
   answer: KCMatchingAnswer | undefined;
   onMatch: (termId: string, defId: string) => void;
   onClear: () => void;
   onNext: () => void;
+  dots?: React.ReactNode;
 }) {
   const matches = answer?.matches ?? {};
   const exercise = { instruction: question.instruction, pairs: question.pairs };
   return (
     <div className="w-full flex-1 flex flex-col">
+      {dots}
       <Matching exercise={exercise} matches={matches} onMatch={onMatch} onClear={onClear} onNext={onNext} />
     </div>
   );
@@ -558,17 +586,15 @@ export function KCQuestionFlow({
             </div>
 
             {/* Section tabs */}
-            {sections.length > 1 && (
-              <KCSectionTabs
-                sections={sections}
-                currentIndex={currentIndex}
-                questions={questions}
-                answers={answers}
-                onJumpTo={onJumpTo}
-                onReview={onReview}
-                isReviewActive={false}
-              />
-            )}
+            <KCSectionTabs
+              sections={sections}
+              currentIndex={currentIndex}
+              questions={questions}
+              answers={answers}
+              onJumpTo={onJumpTo}
+              onReview={onReview}
+              isReviewActive={false}
+            />
 
             {/* Question */}
             {question.type === "mc" && (
@@ -582,7 +608,7 @@ export function KCQuestionFlow({
                 isLastSection={isLastSection}
                 questionIndex={currentIndex - activeSection.startIndex}
                 totalQuestions={activeSection.count}
-                dots={
+                dots={activeSection.count > 1 ? (
                   <ProgressDots
                     section={activeSection}
                     questions={questions}
@@ -590,7 +616,7 @@ export function KCQuestionFlow({
                     currentIndex={currentIndex}
                     onJumpTo={onJumpTo}
                   />
-                }
+                ) : undefined}
               />
             )}
             {question.type === "matching" && (
@@ -607,10 +633,20 @@ export function KCQuestionFlow({
                 }}
                 onClear={() => onAnswer(question.id, { type: "matching", matches: {} })}
                 onNext={handleNext}
+                dots={activeSection.count > 1 ? (
+                  <ProgressDots
+                    section={activeSection}
+                    questions={questions}
+                    answers={answers}
+                    currentIndex={currentIndex}
+                    onJumpTo={onJumpTo}
+                  />
+                ) : undefined}
               />
             )}
             {question.type === "branching" && (
               <BranchingQuestion
+                key={question.id}
                 question={question}
                 answer={answers[question.id] as KCBranchingAnswer | undefined}
                 onAnswer={(decisions, isCompleted) =>
