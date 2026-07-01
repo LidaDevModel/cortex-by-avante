@@ -119,7 +119,10 @@ function BranchingWrong({ question, answer }: {
   question: Extract<KCQuestion, { type: "branching" }>;
   answer: KCBranchingAnswer;
 }) {
-  const decisionNodes = question.nodes.filter((n) => n.type === "decision");
+  const decisionNodes = question.nodes.filter((n) => n.type === "decision" && answer.decisions[n.id]);
+  if (decisionNodes.length === 0) {
+    return <p className="text-[13px] text-muted-foreground">Scenario not attempted.</p>;
+  }
   const wrongNodes = decisionNodes.filter((node) => {
     const chosenId = answer.decisions[node.id];
     return !node.options?.find((o) => o.id === chosenId)?.isCorrect;

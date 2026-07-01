@@ -101,7 +101,7 @@ export function KCSectionTabs({
   return (
     <div className="flex items-center gap-2">
       {sections.map((s) => {
-        const isActive = !isReviewActive && s.type === activeSection?.type;
+        const isActive = !isReviewActive && s.startIndex === activeSection?.startIndex;
         const isDone = !isActive && isSectionComplete(s, questions, answers);
 
         return (
@@ -310,7 +310,7 @@ function MCQuestion({
   return (
     <div className="flex flex-col gap-4 w-full max-w-[600px] mx-auto">
       {dots}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
         <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
           Question {questionIndex + 1} of {totalQuestions}
         </span>
@@ -471,7 +471,14 @@ function BranchingQuestion({
   const isCompleted = answer?.isCompleted ?? false;
 
   return (
-    <div className="flex flex-col w-full flex-1" style={{ minHeight: 500 }}>
+    <div className="flex flex-col w-full flex-1 gap-0 pt-12" style={{ minHeight: 500 }}>
+      <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-8">
+        <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
+        <div className="flex flex-col gap-1">
+          <p className="text-[20px] leading-[28px] font-semibold text-foreground">{question.title}</p>
+          <p className="text-[14px] leading-[20px] text-muted-foreground">Each decision is final. Choose carefully.</p>
+        </div>
+      </div>
       <BranchingGame
         scenario={scenario}
         decisions={decisions}

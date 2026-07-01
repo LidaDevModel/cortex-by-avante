@@ -17,7 +17,7 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
         style={{ animationTimingFunction: "ease-out" }}
       >
         {/* Question */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
           <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
             Short answer
           </span>

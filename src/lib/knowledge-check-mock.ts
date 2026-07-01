@@ -246,30 +246,38 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
     nodes: [
       { id: "b1-start", type: "start", nextId: "b1-d1" },
       {
-        id: "b1-d1", type: "decision", label: "Access check",
+        id: "b1-d1", type: "decision", label: "Access check", nextId: "b1-d2a",
         scenarioText: "You observe an individual in the restricted server room not wearing a site ID badge. They claim to be from IT. What do you do?",
         options: [
-          { id: "b1-d1-a", text: "Accept their explanation and allow them to continue.", nextNodeId: "b1-d2", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b1-d1-b", text: "Request photo ID and verify with the control room before letting them remain.", nextNodeId: "b1-d2", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b1-d1-c", text: "Immediately escort them out without verification.", nextNodeId: "b1-d2", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b1-d1-a", text: "Request photo ID and verify with the control room before letting them remain.", nextNodeId: "b1-d2a", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b1-d1-b", text: "Accept their explanation and allow them to continue.", nextNodeId: "b1-d2b", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b1-d2", type: "decision", label: "Control room",
-        scenarioText: "Control room confirms the person is not on the approved visitor list for today. The individual insists their manager approved the visit verbally. What do you do next?",
+        id: "b1-d2a", type: "decision", label: "Verification",
+        scenarioText: "Control room confirms the individual is not on the approved visitor list. They insist their manager approved the visit verbally. What do you do next?",
+        nextId: "b1-d3",
         options: [
-          { id: "b1-d2-a", text: "Escort them to a waiting area while you contact their named manager to confirm.", nextNodeId: "b1-d3", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b1-d2-b", text: "Allow them to remain — a verbal approval from a manager is sufficient.", nextNodeId: "b1-d3", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b1-d2-c", text: "Remove them immediately and file an incident report.", nextNodeId: "b1-d3", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b1-d2a-a", text: "Escort them to a waiting area while you contact their named manager to confirm.", nextNodeId: "b1-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b1-d2a-b", text: "Remove them immediately without attempting to verify the manager's claim.", nextNodeId: "b1-d3", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b1-d3", type: "decision", label: "Resolution",
-        scenarioText: "The manager confirms the visit was legitimate but forgot to register it. The individual's work is time-sensitive. What is your final action?",
+        id: "b1-d2b", type: "decision", label: "Recovery",
+        scenarioText: "The individual accesses a restricted system before you can intervene. Your supervisor asks how they were admitted without verification. How do you respond?",
+        nextId: "b1-d3",
         options: [
-          { id: "b1-d3-a", text: "Allow them access and ask the manager to complete the visitor registration retroactively.", nextNodeId: "b1-end", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b1-d3-b", text: "Deny access until the registration is formally completed in the system.", nextNodeId: "b1-end", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b1-d3-c", text: "Allow access without any further documentation since the manager confirmed verbally.", nextNodeId: "b1-end", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b1-d2b-a", text: "Give a full and accurate account and commit to following ID protocol going forward.", nextNodeId: "b1-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b1-d2b-b", text: "Explain that the person seemed credible and the situation resolved itself.", nextNodeId: "b1-d3", isCorrect: false, isOptimal: false, explanation: "" },
+        ],
+      },
+      {
+        id: "b1-d3", type: "decision", label: "Documentation",
+        scenarioText: "The manager confirms the visit was legitimate but unregistered. Your shift ends in 20 minutes. What is your final action before leaving?",
+        nextId: "b1-end",
+        options: [
+          { id: "b1-d3-a", text: "File a written incident report and ask the manager to complete the visitor registration retroactively.", nextNodeId: "b1-end", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b1-d3-b", text: "Leave a verbal note with your relief — the manager confirmed verbally and no harm occurred.", nextNodeId: "b1-end", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       { id: "b1-end", type: "end", label: "Complete" },
@@ -285,30 +293,38 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
     nodes: [
       { id: "b2-start", type: "start", nextId: "b2-d1" },
       {
-        id: "b2-d1", type: "decision", label: "First response",
+        id: "b2-d1", type: "decision", label: "First response", nextId: "b2-d2a",
         scenarioText: "During a routine patrol you find a staff member slumped at their desk and unresponsive. A colleague says they saw the person fall asleep earlier. What do you do?",
         options: [
-          { id: "b2-d1-a", text: "Leave them to sleep and check again in 30 minutes.", nextNodeId: "b2-d2", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b2-d1-b", text: "Attempt to rouse them, and if unresponsive, call emergency services immediately.", nextNodeId: "b2-d2", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b2-d1-c", text: "Call their manager and wait for further instructions.", nextNodeId: "b2-d2", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b2-d1-a", text: "Attempt to rouse them, and if unresponsive, call emergency services immediately.", nextNodeId: "b2-d2a", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b2-d1-b", text: "Leave them to sleep and check again in 30 minutes.", nextNodeId: "b2-d2b", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b2-d2", type: "decision", label: "While waiting",
+        id: "b2-d2a", type: "decision", label: "While waiting",
         scenarioText: "Emergency services are on the way. The person is breathing but unconscious. Another staff member offers to help. What do you instruct them to do?",
+        nextId: "b2-d3",
         options: [
-          { id: "b2-d2-a", text: "Keep bystanders back and clear a path to the entrance for paramedics.", nextNodeId: "b2-d3", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b2-d2-b", text: "Ask them to move the person to a more comfortable position.", nextNodeId: "b2-d3", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b2-d2-c", text: "Send them to the break room — bystanders can complicate the situation.", nextNodeId: "b2-d3", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b2-d2a-a", text: "Keep bystanders back and clear a path to the entrance for paramedics.", nextNodeId: "b2-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b2-d2a-b", text: "Ask them to move the person to a more comfortable position.", nextNodeId: "b2-d3", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b2-d3", type: "decision", label: "Handover",
-        scenarioText: "Paramedics arrive and take over. Your supervisor asks you to document the incident. When should you complete the report?",
+        id: "b2-d2b", type: "decision", label: "Escalation",
+        scenarioText: "When you return 30 minutes later the person is now on the floor. A colleague has called emergency services. Your supervisor asks why you did not act immediately. What do you say?",
+        nextId: "b2-d3",
+        options: [
+          { id: "b2-d2b-a", text: "Acknowledge that waiting was the wrong call and that you should have assessed and escalated immediately.", nextNodeId: "b2-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b2-d2b-b", text: "Explain that you assessed the situation and judged there was no immediate risk at the time.", nextNodeId: "b2-d3", isCorrect: false, isOptimal: false, explanation: "" },
+        ],
+      },
+      {
+        id: "b2-d3", type: "decision", label: "Documentation",
+        scenarioText: "Paramedics have taken over. Your supervisor asks you to document the incident. When should you complete the report?",
+        nextId: "b2-end",
         options: [
           { id: "b2-d3-a", text: "Before the end of your shift, while details are fresh.", nextNodeId: "b2-end", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b2-d3-b", text: "The next business day, once you have fully recovered from the incident.", nextNodeId: "b2-end", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b2-d3-c", text: "Only if the person is admitted to hospital.", nextNodeId: "b2-end", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b2-d3-b", text: "The next business day, once you have had time to recover from the incident.", nextNodeId: "b2-end", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       { id: "b2-end", type: "end", label: "Complete" },
@@ -324,30 +340,38 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
     nodes: [
       { id: "b3-start", type: "start", nextId: "b3-d1" },
       {
-        id: "b3-d1", type: "decision", label: "Breach report",
+        id: "b3-d1", type: "decision", label: "Breach report", nextId: "b3-d2a",
         scenarioText: "A colleague reports a minor access breach verbally at shift end. Your relief has arrived. What do you do first?",
         options: [
-          { id: "b3-d1-a", text: "Leave the verbal report with your relief and head home.", nextNodeId: "b3-d2", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b3-d1-b", text: "Complete a written incident report before leaving, then brief your relief fully.", nextNodeId: "b3-d2", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b3-d1-c", text: "Submit the report the next time you are on shift.", nextNodeId: "b3-d2", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b3-d1-a", text: "Complete a written incident report before leaving, then brief your relief fully.", nextNodeId: "b3-d2a", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b3-d1-b", text: "Leave the verbal report with your relief and head home.", nextNodeId: "b3-d2b", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b3-d2", type: "decision", label: "Escalation",
-        scenarioText: "While documenting, you realise the breach may involve a senior staff member. Do you escalate before leaving?",
+        id: "b3-d2a", type: "decision", label: "Evidence",
+        scenarioText: "While documenting, you notice CCTV footage covering the breach period is due to be overwritten in two hours. What is the correct action?",
+        nextId: "b3-d3",
         options: [
-          { id: "b3-d2-a", text: "Yes — notify your supervisor immediately regardless of the time.", nextNodeId: "b3-d3", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b3-d2-b", text: "No — include it in the report and let the next shift supervisor decide.", nextNodeId: "b3-d3", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b3-d2-c", text: "Wait to see if the individual comes forward themselves.", nextNodeId: "b3-d3", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b3-d2a-a", text: "Inform your supervisor and request the footage be preserved before you leave.", nextNodeId: "b3-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b3-d2a-b", text: "Note the timestamp in your report and trust that the system retains footage automatically.", nextNodeId: "b3-d3", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       {
-        id: "b3-d3", type: "decision", label: "Evidence",
-        scenarioText: "CCTV footage covering the breach period is due to be overwritten in two hours. What is the correct action?",
+        id: "b3-d2b", type: "decision", label: "Escalation",
+        scenarioText: "The next shift discovers the breach was not documented and escalates to management. Your supervisor asks why no report was filed. What do you say?",
+        nextId: "b3-d3",
         options: [
-          { id: "b3-d3-a", text: "Inform your supervisor and request the footage be preserved before you leave.", nextNodeId: "b3-end", isCorrect: true, isOptimal: true, explanation: "" },
-          { id: "b3-d3-b", text: "Note the timestamp in your report and trust that the system retains footage automatically.", nextNodeId: "b3-end", isCorrect: false, isOptimal: false, explanation: "" },
-          { id: "b3-d3-c", text: "It is your relief's responsibility — hand over and go.", nextNodeId: "b3-end", isCorrect: false, isOptimal: false, explanation: "" },
+          { id: "b3-d2b-a", text: "Acknowledge the error and commit to completing all required documentation before leaving in future.", nextNodeId: "b3-d3", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b3-d2b-b", text: "Explain that the breach was minor and a verbal handover should have been sufficient.", nextNodeId: "b3-d3", isCorrect: false, isOptimal: false, explanation: "" },
+        ],
+      },
+      {
+        id: "b3-d3", type: "decision", label: "Involvement",
+        scenarioText: "The investigation reveals the breach may involve a senior staff member. You are asked whether you want to add a formal statement. What do you do?",
+        nextId: "b3-end",
+        options: [
+          { id: "b3-d3-a", text: "Provide a full written statement with an accurate account of what was reported to you.", nextNodeId: "b3-end", isCorrect: true, isOptimal: true, explanation: "" },
+          { id: "b3-d3-b", text: "Decline — you only have second-hand information and do not want to implicate anyone unfairly.", nextNodeId: "b3-end", isCorrect: false, isOptimal: false, explanation: "" },
         ],
       },
       { id: "b3-end", type: "end", label: "Complete" },
@@ -384,19 +408,19 @@ export function scoreQuestion(
     return { correct, total: question.pairs.length };
   }
   if (question.type === "branching" && answer.type === "branching") {
-    const decisionNodes = question.nodes.filter(n => n.type === "decision");
-    const correct = decisionNodes.filter(n => {
+    const visitedNodes = question.nodes.filter(n => n.type === "decision" && answer.decisions[n.id]);
+    const correct = visitedNodes.filter(n => {
       const chosenId = answer.decisions[n.id];
       return n.options?.find(o => o.id === chosenId)?.isCorrect ?? false;
     }).length;
-    return { correct, total: decisionNodes.length };
+    return { correct, total: visitedNodes.length };
   }
   return { correct: 0, total: questionTotal(question) };
 }
 
 function questionTotal(question: KCQuestion): number {
   if (question.type === "matching") return question.pairs.length;
-  if (question.type === "branching") return question.nodes.filter(n => n.type === "decision").length;
+  if (question.type === "branching") return 3; // 3 visited decisions per scenario (path length is always 3)
   return 1;
 }
 
@@ -442,12 +466,23 @@ function mockAttempt(
       answers[q.id] = { type: "matching", matches };
     } else if (q.type === "branching") {
       const decisions: Record<string, string> = {};
-      q.nodes.filter(n => n.type === "decision").forEach(n => {
-        const correctOpt = n.options?.find(o => o.isCorrect);
-        const wrongOpt = n.options?.find(o => !o.isCorrect);
-        const chosen = isCorrect ? correctOpt : wrongOpt;
-        if (chosen && n.id) decisions[n.id] = chosen.id;
-      });
+      // Walk the actual path so only visited nodes get a decision recorded
+      const startNode = q.nodes.find(n => n.id === q.startNodeId);
+      let currentId = startNode?.nextId ?? q.startNodeId;
+      while (currentId) {
+        const node = q.nodes.find(n => n.id === currentId);
+        if (!node || node.type === "end") break;
+        if (node.type === "decision") {
+          const correctOpt = node.options?.find(o => o.isCorrect);
+          const wrongOpt = node.options?.find(o => !o.isCorrect);
+          const chosen = isCorrect ? correctOpt : wrongOpt;
+          if (!chosen) break;
+          decisions[node.id] = chosen.id;
+          currentId = chosen.nextNodeId;
+        } else {
+          currentId = node.nextId ?? "";
+        }
+      }
       answers[q.id] = { type: "branching", decisions, isCompleted: true };
     }
   });
@@ -457,9 +492,23 @@ function mockAttempt(
 }
 
 export const MOCK_ATTEMPTS: KCAttempt[] = [
-  mockAttempt("kc-hist-1", "2026-06-28T10:30:00Z", ["mc", "matching"], ["escalations"], "mixed"),
-  mockAttempt("kc-hist-2", "2026-06-25T14:15:00Z", ["mc"], ["incidents"], "good"),
-  mockAttempt("kc-hist-3", "2026-06-20T09:00:00Z", ["mc", "matching", "branching"], ["escalations", "first-aid"], "poor"),
+  mockAttempt("kc-hist-1",  "2026-06-28T10:30:00Z", ["mc", "matching"],            ["escalations"],                              "mixed"),
+  mockAttempt("kc-hist-2",  "2026-06-25T14:15:00Z", ["mc"],                        ["incidents"],                                "good"),
+  mockAttempt("kc-hist-3",  "2026-06-20T09:00:00Z", ["mc", "matching", "branching"],["escalations", "first-aid"],               "poor"),
+  mockAttempt("kc-hist-4",  "2026-06-15T11:00:00Z", ["mc"],                        ["clients"],                                  "good"),
+  mockAttempt("kc-hist-5",  "2026-06-10T08:45:00Z", ["mc", "branching"],           ["escalations"],                             "poor"),
+  mockAttempt("kc-hist-6",  "2026-06-05T16:20:00Z", ["matching"],                  ["first-aid", "incidents"],                  "mixed"),
+  mockAttempt("kc-hist-7",  "2026-05-30T13:00:00Z", ["mc", "matching", "branching"],["escalations", "incidents", "clients", "first-aid"], "good"),
+  mockAttempt("kc-hist-8",  "2026-05-22T09:30:00Z", ["mc"],                        ["escalations"],                             "mixed"),
+  mockAttempt("kc-hist-9",  "2026-05-18T11:45:00Z", ["mc", "matching"],            ["clients", "incidents"],                    "good"),
+  mockAttempt("kc-hist-10", "2026-05-12T08:00:00Z", ["branching"],                 ["first-aid"],                               "mixed"),
+  mockAttempt("kc-hist-11", "2026-05-07T15:30:00Z", ["mc"],                        ["incidents"],                               "poor"),
+  mockAttempt("kc-hist-12", "2026-04-30T10:00:00Z", ["mc", "matching"],            ["escalations"],                             "good"),
+  mockAttempt("kc-hist-13", "2026-04-24T14:00:00Z", ["mc", "branching"],           ["clients"],                                 "mixed"),
+  mockAttempt("kc-hist-14", "2026-04-18T09:15:00Z", ["matching", "branching"],     ["first-aid", "escalations"],               "poor"),
+  mockAttempt("kc-hist-15", "2026-04-10T13:30:00Z", ["mc"],                        ["escalations", "incidents", "clients", "first-aid"], "good"),
+  mockAttempt("kc-hist-16", "2026-04-03T11:00:00Z", ["mc", "matching"],            ["incidents"],                               "mixed"),
+  mockAttempt("kc-hist-17", "2026-03-27T16:45:00Z", ["mc"],                        ["clients"],                                 "poor"),
 ];
 
 export const CATEGORY_LABELS: Record<KCCategory, string> = {

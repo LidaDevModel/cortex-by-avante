@@ -181,18 +181,19 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
             const isCompleted = ans?.isCompleted ?? false;
             const decisions = ans?.decisions ?? {};
             const decisionNodes = q.nodes.filter((n) => n.type === "decision");
-            const decided = decisionNodes.filter((n) => decisions[n.id]).length;
+            const visitedNodes = decisionNodes.filter((n) => decisions[n.id]);
+            const decided = visitedNodes.length;
             return (
               <SectionBlock
                 key={q.id}
                 label={`Scenario ${nth + 1}`}
                 ok={isCompleted}
-                status={isCompleted ? "Completed" : decided > 0 ? `${decided} of ${decisionNodes.length} decisions made` : "Not started"}
+                status={isCompleted ? "Completed" : decided > 0 ? `${3 - decided} decision${3 - decided !== 1 ? "s" : ""} still to make` : "Not started"}
                 onEdit={isCompleted ? undefined : () => onJumpTo(i)}
               >
                 {isCompleted ? (
                   <div className="flex flex-col gap-2">
-                    {decisionNodes.map((node) => {
+                    {visitedNodes.map((node) => {
                       const chosenId = decisions[node.id];
                       const chosenOption = node.options?.find((o) => o.id === chosenId);
                       return (

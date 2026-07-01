@@ -41,6 +41,7 @@ export type BranchingOption = {
 };
 
 export type BranchingScenario = {
+  title: string;
   nodes: BranchingNode[];
   startNodeId: string;
 };
@@ -161,6 +162,7 @@ export const MOCK_EXAM: ExamObject = {
   },
 
   branching: {
+    title: "Incident response scenario",
     startNodeId: "n0",
     nodes: [
       {
@@ -173,52 +175,38 @@ export const MOCK_EXAM: ExamObject = {
         id: "n1",
         type: "decision",
         label: "Suspicious package",
+        nextId: "n2a",
         scenarioText:
           "You notice an unattended bag near the main entrance. There are no visible markings and no one claims ownership. It has been there for approximately 10 minutes. What do you do?",
         options: [
           {
             id: "n1a",
-            text: "Open the bag to identify the contents",
-            nextNodeId: "n2",
-            isOptimal: false,
-            explanation:
-              "Handling an unattended bag directly is unsafe. The correct action is to maintain distance and notify your supervisor.",
-          },
-          {
-            id: "n1b",
             text: "Establish a safety perimeter and notify your supervisor immediately",
-            nextNodeId: "n2",
+            nextNodeId: "n2a",
             isOptimal: true,
             explanation:
               "Correct. Establishing a perimeter and escalating to your supervisor is the standard protocol for unattended items.",
           },
           {
-            id: "n1c",
-            text: "Wait another 10 minutes to see if someone collects it",
-            nextNodeId: "n2",
+            id: "n1b",
+            text: "Open the bag to identify the contents",
+            nextNodeId: "n2b",
             isOptimal: false,
             explanation:
-              "Delaying action on a potential Tier 2 incident increases risk. Immediate escalation is required.",
+              "Handling an unattended bag directly is unsafe. The correct action is to maintain distance and notify your supervisor.",
           },
         ],
       },
       {
-        id: "n2",
+        id: "n2a",
         type: "decision",
         label: "Evacuation order",
         scenarioText:
-          "Your supervisor has ordered a partial evacuation of the east wing. A staff member insists they need to retrieve a laptop from their desk before leaving. You have approximately 90 seconds before the zone must be clear. What do you do?",
+          "The area has been secured and your supervisor has ordered a partial evacuation of the east wing. A staff member insists they need to retrieve a laptop from their desk before leaving. What do you do?",
+        nextId: "n3",
         options: [
           {
-            id: "n2a",
-            text: "Allow them to retrieve the laptop quickly since there is still time",
-            nextNodeId: "n3",
-            isOptimal: false,
-            explanation:
-              "Allowing re-entry during an active evacuation order violates safety protocol regardless of time remaining.",
-          },
-          {
-            id: "n2b",
+            id: "n2a-a",
             text: "Direct them to evacuate immediately and inform your supervisor of the delay",
             nextNodeId: "n3",
             isOptimal: true,
@@ -226,12 +214,38 @@ export const MOCK_EXAM: ExamObject = {
               "Correct. Personal items are never a valid reason to delay evacuation. Reporting the interaction is also protocol.",
           },
           {
-            id: "n2c",
-            text: "Retrieve the laptop yourself to resolve the situation quickly",
+            id: "n2a-b",
+            text: "Allow them to retrieve the laptop quickly since the zone is not yet critical",
             nextNodeId: "n3",
             isOptimal: false,
             explanation:
-              "Guards must not re-enter evacuation zones. Your own safety and the timeline of evacuation take precedence.",
+              "Allowing re-entry during an active evacuation order violates safety protocol regardless of time remaining.",
+          },
+        ],
+      },
+      {
+        id: "n2b",
+        type: "decision",
+        label: "After breach",
+        scenarioText:
+          "The bag contained personal items. A bystander filmed the incident. Your supervisor arrives and asks for a full account of what happened. What do you do?",
+        nextId: "n3",
+        options: [
+          {
+            id: "n2b-a",
+            text: "Give a complete and accurate account, including your decision to open the bag",
+            nextNodeId: "n3",
+            isOptimal: true,
+            explanation:
+              "Correct. Accurate incident reporting is required regardless of the outcome. Omitting your actions would be a further protocol breach.",
+          },
+          {
+            id: "n2b-b",
+            text: "Focus on the outcome — no threat was found — and omit the bag search",
+            nextNodeId: "n3",
+            isOptimal: false,
+            explanation:
+              "Omitting material facts from an incident report is a disciplinary matter. The method taken must always be documented.",
           },
         ],
       },
@@ -240,31 +254,24 @@ export const MOCK_EXAM: ExamObject = {
         type: "decision",
         label: "Post-incident",
         scenarioText:
-          "The incident has been resolved. Your shift ends in 30 minutes. You have not yet completed the incident report. What is your next action?",
+          "The incident has been resolved and the zone is clear. Your shift ends in 30 minutes and the incident report has not yet been filed. What do you do?",
+        nextId: "n4",
         options: [
           {
-            id: "n3a",
-            text: "Complete the incident report before your shift ends",
+            id: "n3-a",
+            text: "Complete the incident report before your shift ends while details are fresh",
             nextNodeId: "n4",
             isOptimal: true,
             explanation:
               "Correct. Incident reports must be completed within the same shift where possible and within 4 hours of the incident.",
           },
           {
-            id: "n3b",
-            text: "Hand over verbally to the incoming guard and submit the report tomorrow",
+            id: "n3-b",
+            text: "Hand over verbally to the incoming guard and file the report tomorrow",
             nextNodeId: "n4",
             isOptimal: false,
             explanation:
               "Verbal handovers do not satisfy the documentation requirement. A written report is mandatory within 4 hours.",
-          },
-          {
-            id: "n3c",
-            text: "Ask your supervisor if the report can be skipped given the minor nature of the incident",
-            nextNodeId: "n4",
-            isOptimal: false,
-            explanation:
-              "All incidents, regardless of severity, require a formal written report. This is non-negotiable under Avante protocol.",
           },
         ],
       },

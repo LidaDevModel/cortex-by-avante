@@ -46,7 +46,7 @@ type SVGMapProps = {
 
 function DecisionMap({ scenario, currentNodeId, decisions, animatingEdge }: SVGMapProps) {
   const W = 600;
-  const H = 180;
+  const H = 84;
   const R = 22;
 
   // Build ordered list — skip start node, begin from first decision/end node
@@ -62,17 +62,21 @@ function DecisionMap({ scenario, currentNodeId, decisions, animatingEdge }: SVGM
     orderedIds.push(nextId);
     cur = scenario.nodes.find(n => n.id === nextId);
   }
-  // Add remaining locked nodes (non-start)
-  scenario.nodes.forEach(n => {
-    if (n.type !== "start" && !orderedIds.includes(n.id)) orderedIds.push(n.id);
-  });
+  // Add future locked nodes by following nextId from the last node in the path
+  let tail: BranchingNode | undefined = scenario.nodes.find(n => n.id === orderedIds[orderedIds.length - 1]);
+  while (tail) {
+    const nextId = tail.nextId;
+    if (!nextId || orderedIds.includes(nextId)) break;
+    orderedIds.push(nextId);
+    tail = scenario.nodes.find(n => n.id === nextId);
+  }
 
   const posMap: Record<string, { x: number; y: number }> = {};
   const total = orderedIds.length;
   orderedIds.forEach((id, i) => {
     posMap[id] = {
       x: (W / (total + 1)) * (i + 1),
-      y: H / 2,
+      y: 34,
     };
   });
 
@@ -254,17 +258,9 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
   const [animatingEdge, setAnimatingEdge] = useState<string | null>(null);
-  const [showWarning, setShowWarning] = useState(true);
 
   const currentNode = scenario.nodes.find((n) => n.id === currentNodeId)!;
   const isDecisionNode = currentNode.type === "decision";
-
-  useEffect(() => {
-    if (showWarning) {
-      const t = setTimeout(() => setShowWarning(false), 4000);
-      return () => clearTimeout(t);
-    }
-  }, [showWarning]);
 
   function handleConfirm() {
     if (!selectedOption || locked) return;
@@ -301,19 +297,14 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
         {isCard ? (
           <div className="shrink-0 w-full">
             <div className="max-w-[640px] mx-auto px-8 pt-6">
-              <div
-                className="w-full flex items-center justify-center rounded-[12px] overflow-hidden"
-                style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)", border: "1px solid var(--card-border, var(--border))", cornerShape: "squircle" }}
-              >
-                <div style={{ width: "100%", maxWidth: 540, height: 160 }}>
+              <div style={{ width: "100%", height: 84 }}>
                   <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
                 </div>
-              </div>
             </div>
           </div>
         ) : (
-          <div className="shrink-0 flex items-center justify-center px-8" style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)" }}>
-            <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
+          <div className="shrink-0 max-w-[640px] mx-auto w-full px-8">
+            <div style={{ width: "100%", height: 84 }}>
               <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
             </div>
           </div>
@@ -332,35 +323,23 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Decision map — plain variant stays fixed outside scroll */}
       {!isCard && (
-        <div className="shrink-0 flex items-center justify-center px-8" style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)" }}>
-          <div style={{ width: "100%", maxWidth: 640, height: 160 }}>
+        <div className="shrink-0 max-w-[640px] mx-auto w-full px-8">
+          <div style={{ width: "100%", height: 84 }}>
             <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
           </div>
         </div>
       )}
 
       {/* Decision zone */}
-      <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
-        <div className="max-w-[640px] mx-auto px-8 py-8 flex flex-col gap-6">
+      <div className="flex-1 overflow-y-auto scroll-thin" style={isCard ? { maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" } : {}}>
+        <div className={`max-w-[640px] mx-auto px-8 flex flex-col gap-6 ${isCard ? "py-8" : "pt-4 pb-8"}`}>
           {/* Card variant map — inside scroll so alignment matches options exactly */}
           {isCard && (
-            <div
-              className="w-full flex items-center justify-center rounded-[12px] overflow-hidden"
-              style={{ height: "220px", background: "var(--illustration-glow), var(--surface-raised)", border: "1px solid var(--card-border, var(--border))", cornerShape: "squircle" }}
-            >
-              <div style={{ width: "100%", maxWidth: 540, height: 160 }}>
-                <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
-              </div>
+            <div style={{ width: "100%", height: 84 }}>
+              <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
             </div>
           )}
-          {/* One-time warning */}
-          {showWarning && (
-            <p className="text-[13px] text-muted-foreground animate-in fade-in duration-200 text-center">
-              Your decisions in this section are final and cannot be changed.
-            </p>
-          )}
-
-          {isDecisionNode && !showWarning && (
+          {isDecisionNode && (
             <>
               <p
                 className="text-[15px] leading-[24px] text-foreground animate-in fade-in slide-in-from-bottom-2 duration-200"

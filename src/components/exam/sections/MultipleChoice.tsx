@@ -81,7 +81,7 @@ export function MultipleChoice({
         </div>
 
         {/* Question */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
           <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
             Question {questionIndex + 1} of {totalQuestions}
           </span>

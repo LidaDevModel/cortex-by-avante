@@ -111,7 +111,8 @@ export function ExamResults({
 
   // Branching wrong decisions
   const decisionNodes = exam.branching.nodes.filter((n) => n.type === "decision");
-  const branchWrong = decisionNodes.filter((node) => {
+  const visitedDecisionNodes = decisionNodes.filter((n) => branchDecisions[n.id]);
+  const branchWrong = visitedDecisionNodes.filter((node) => {
     const chosenId = branchDecisions[node.id];
     return !node.options?.find((o) => o.id === chosenId)?.isOptimal;
   });

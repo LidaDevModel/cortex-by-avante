@@ -48,13 +48,13 @@ function computeScores(
   // Short answer: mock AI scoring — 20 if answered, 0 if not
   const saScore = shortAnswerText.trim().length > 20 ? 20 : 0;
 
-  // Branching: path-based — 25 if all optimal, partial otherwise
+  // Branching: path-based — 25 if all visited decisions are optimal
   const decisionNodes = exam.branching.nodes.filter((n) => n.type === "decision");
-  const optimalCount = decisionNodes.filter((n) => {
-    const chosenId = branchDecisions[n.id];
-    return n.options?.find((o) => o.id === chosenId)?.isOptimal;
+  const visitedDecisions = decisionNodes.filter((n) => branchDecisions[n.id]);
+  const optimalCount = visitedDecisions.filter((n) => {
+    return n.options?.find((o) => o.id === branchDecisions[n.id])?.isOptimal;
   }).length;
-  const branchScore = parseFloat(((optimalCount / decisionNodes.length) * 25).toFixed(2));
+  const branchScore = visitedDecisions.length === 0 ? 0 : parseFloat(((optimalCount / visitedDecisions.length) * 25).toFixed(2));
 
   return { mc: mcScore, matching: matchScore, shortAnswer: saScore, branching: branchScore };
 }
@@ -388,13 +388,23 @@ export default function ExamPage() {
       )}
 
       {phase === "branching" && (
-        <BranchingGame
-          scenario={exam.branching}
-          decisions={branchDecisions}
-          isCompleted={branchingComplete}
-          onDecision={handleBranchDecision}
-          onComplete={handleBranchComplete}
-        />
+        <div className="flex flex-col flex-1 overflow-hidden gap-0 pt-12">
+          <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-8">
+            <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
+            <div className="flex flex-col gap-1">
+              <p className="text-[20px] leading-[28px] font-semibold text-foreground">{exam.branching.title}</p>
+              <p className="text-[14px] leading-[20px] text-muted-foreground">Each decision is final. Choose carefully.</p>
+            </div>
+          </div>
+          <BranchingGame
+            scenario={exam.branching}
+            decisions={branchDecisions}
+            isCompleted={branchingComplete}
+            mapVariant="card"
+            onDecision={handleBranchDecision}
+            onComplete={handleBranchComplete}
+          />
+        </div>
       )}
 
       {phase === "review" && (

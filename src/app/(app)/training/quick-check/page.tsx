@@ -12,7 +12,7 @@ import {
   generateQuestions,
   computeKCScore,
 } from "@/lib/knowledge-check-mock";
-import { addAttempt, getAllAttempts } from "@/lib/kc-store";
+import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal } from "@/lib/kc-store";
 import type {
   KCFormat,
   KCCategory,
@@ -241,10 +241,12 @@ function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onV
           </div>
         )}
       </div>
-      <HistoryTable attempts={filtered} onViewDetail={onViewDetail} />
+      <HistoryTable key={`${categoryFilter}-${formatFilter}`} attempts={filtered} onViewDetail={onViewDetail} />
     </section>
   );
 }
+
+const PAGE_SIZE = 8;
 
 function HistoryTable({
   attempts,
@@ -256,6 +258,7 @@ function HistoryTable({
   const [sortCol, setSortCol] = useState<SortCol>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [hoveredCol, setHoveredCol] = useState<SortCol | null>(null);
+  const [page, setPage] = useState(1);
 
   function handleSort(col: SortCol) {
     if (sortCol === col) {
@@ -264,6 +267,7 @@ function HistoryTable({
       setSortCol(col);
       setSortDir("desc");
     }
+    setPage(1);
   }
 
   const sorted = [...attempts].sort((a, b) => {
@@ -276,6 +280,9 @@ function HistoryTable({
     }
     return sortDir === "desc" ? -cmp : cmp;
   });
+
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
+  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   if (attempts.length === 0) {
     return (
@@ -290,11 +297,12 @@ function HistoryTable({
   }
 
   return (
+    <div className="flex flex-col gap-3">
     <div className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       {/* Table header */}
       <div
         className="grid items-center px-4 py-2.5 border-b border-border"
-        style={{ gridTemplateColumns: "2fr 2fr 110px 80px", background: "var(--surface-raised)" }}
+        style={{ gridTemplateColumns: "2fr 2fr 120px 100px", background: "var(--surface-raised)" }}
       >
         {(["Categories", "Formats", "Date", "Score"] as const).map((col) => {
           const key = col === "Date" ? "date" : col === "Score" ? "score" : null;
@@ -332,17 +340,25 @@ function HistoryTable({
         <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
           No checks match the selected filters.
         </div>
-      ) : sorted.map((attempt) => {
+      ) : paginated.map((attempt) => {
         const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
         return (
           <button
             key={attempt.id}
             onClick={() => onViewDetail(attempt.id)}
             className="w-full grid items-center px-4 py-3 border-b border-border last:border-0 bg-[var(--surface)] hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
-            style={{ gridTemplateColumns: "2fr 2fr 110px 80px" }}
+            style={{ gridTemplateColumns: "2fr 2fr 120px 100px" }}
           >
             <span className="text-[13px] leading-[20px] text-foreground truncate pr-2 text-left">
-              {attempt.categories.length === ALL_CATEGORIES.length ? "All" : attempt.categories.map((c) => CATEGORY_LABELS[c]).join(", ")}
+              {(() => {
+                const cats = attempt.categories;
+                const label = cats.length === ALL_CATEGORIES.length
+                  ? "All categories"
+                  : cats.length === 1 ? CATEGORY_LABELS[cats[0]]
+                  : cats.length === 2 ? `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`
+                  : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+                return `${label} #${getAttemptOrdinal(attempt.id)}`;
+              })()}
             </span>
             <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2 text-left">
               {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
@@ -360,6 +376,48 @@ function HistoryTable({
           </button>
         );
       })}
+    </div>
+
+    {/* Pagination */}
+    {totalPages > 1 && (
+      <div className="flex items-center justify-between px-1">
+        <span className="text-[12px] leading-[16px] text-muted-foreground">
+          Page {page} of {totalPages}
+        </span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="h-8 w-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            ‹
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className="h-8 w-8 flex items-center justify-center rounded-[6px] border text-[13px] leading-[20px] font-medium transition-colors duration-100"
+              style={
+                p === page
+                  ? { background: "var(--primary)", borderColor: "var(--primary)", color: "var(--primary-foreground)" }
+                  : { borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }
+              }
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="h-8 w-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
@@ -472,11 +530,16 @@ export default function QuickCheckPage() {
                 <span className="text-muted-foreground shrink-0">Knowledge check</span>
                 <span className="text-muted-foreground shrink-0">/</span>
                 <span className="font-medium text-foreground truncate">
-                  {selectedCategories.length === 0 || selectedCategories.length === ALL_CATEGORIES.length
-                    ? "All categories"
-                    : selectedCategories.length === 1
-                    ? CATEGORY_LABELS[selectedCategories[0]]
-                    : `${CATEGORY_LABELS[selectedCategories[0]]} & ${selectedCategories.length - 1} more`}
+                  {(() => {
+                    const cats = selectedCategories;
+                    const label = cats.length === 0 || cats.length === ALL_CATEGORIES.length
+                      ? "All categories"
+                      : cats.length === 1
+                      ? CATEGORY_LABELS[cats[0]]
+                      : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+                    const ordinal = getPendingOrdinal(cats);
+                    return `${label} #${ordinal}`;
+                  })()}
                 </span>
               </>
             ) : (

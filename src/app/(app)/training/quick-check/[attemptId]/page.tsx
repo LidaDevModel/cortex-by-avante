@@ -6,7 +6,7 @@ import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ArrowLeft } from "lucide-react";
 import { FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
-import { findAttempt } from "@/lib/kc-store";
+import { findAttempt, getAttemptOrdinal } from "@/lib/kc-store";
 import { KCScoreTable } from "@/components/knowledge-check/KCScoreTable";
 
 const ALL_CATEGORIES = ["escalations", "first-aid", "incidents", "clients"] as const;
@@ -28,6 +28,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
   if (!attempt) notFound();
 
   const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
+  const ordinal = getAttemptOrdinal(attemptId);
   const categoryLabel = (() => {
     const cats = attempt.categories;
     if (cats.length === ALL_CATEGORIES.length) return "All categories";
@@ -35,6 +36,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
     if (cats.length === 2) return `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`;
     return `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
   })();
+  const title = `${categoryLabel} #${ordinal}`;
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
@@ -54,7 +56,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
             Knowledge check
           </Link>
           <span className="text-muted-foreground shrink-0">/</span>
-          <span className="font-medium text-foreground truncate">{formatDateShort(attempt.date)}</span>
+          <span className="font-medium text-foreground truncate">{title}</span>
         </div>
       </header>
 
@@ -77,7 +79,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
               <span>Back to knowledge check</span>
             </Link>
             <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
-              {categoryLabel}
+              {title}
             </h1>
             <p className="text-[14px] leading-[20px] text-muted-foreground">
               {formatDate(attempt.date)}&nbsp;&nbsp;·&nbsp;&nbsp;{attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}

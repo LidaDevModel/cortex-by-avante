@@ -88,63 +88,6 @@ function SectionBlock({
   );
 }
 
-function MiniMap({
-  scenario,
-  decisions,
-}: {
-  scenario: BranchingScenario;
-  decisions: Record<string, string>;
-}) {
-  const W = 200;
-  const H = 50;
-  const nodeIds = scenario.nodes.map((n) => n.id);
-  const total = nodeIds.length;
-  const R = 8;
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H}>
-      {nodeIds.slice(0, -1).map((id, i) => {
-        const x1 = (W / (total + 1)) * (i + 1) + R;
-        const x2 = (W / (total + 1)) * (i + 2) - R;
-        const y = H / 2;
-        return (
-          <line
-            key={`e-${id}`}
-            x1={x1} y1={y} x2={x2} y2={y}
-            stroke={decisions[id] ? "var(--primary)" : "var(--border)"}
-            strokeWidth={1.5}
-          />
-        );
-      })}
-      {nodeIds.map((id, i) => {
-        const node = scenario.nodes[i];
-        const x = (W / (total + 1)) * (i + 1);
-        const y = H / 2;
-        const visited = !!decisions[id];
-        if (node.type === "end") {
-          const s = R * 1.1;
-          return (
-            <polygon
-              key={id}
-              points={`${x},${y - s} ${x + s},${y} ${x},${y + s} ${x - s},${y}`}
-              fill={visited ? "color-mix(in srgb, var(--primary) 20%, var(--surface-raised))" : "var(--surface-raised)"}
-              stroke="var(--border)" strokeWidth={1}
-            />
-          );
-        }
-        return (
-          <circle
-            key={id} cx={x} cy={y} r={R}
-            fill={visited ? "color-mix(in srgb, var(--primary) 20%, var(--surface-raised))" : "var(--surface-raised)"}
-            stroke={visited ? "var(--primary)" : "var(--border)"}
-            strokeWidth={1.5}
-          />
-        );
-      })}
-    </svg>
-  );
-}
-
 export function ReviewSubmit({
   mcQuestions,
   mcAnswers,
@@ -168,7 +111,8 @@ export function ReviewSubmit({
     mcAnswered.size < mcQuestions.length || !matchingComplete || !shortAnswerAnswered;
 
   const decisionNodes = branchingScenario.nodes.filter((n) => n.type === "decision");
-  const confirmedCount = decisionNodes.filter((n) => branchingDecisions[n.id]).length;
+  const visitedDecisionNodes = decisionNodes.filter((n) => branchingDecisions[n.id]);
+  const confirmedCount = visitedDecisionNodes.length;
   const branchingHasUnconfirmed = !branchingComplete && confirmedCount > 0;
 
   return (
@@ -273,7 +217,7 @@ export function ReviewSubmit({
             branchingComplete
               ? "Completed"
               : branchingHasUnconfirmed
-              ? `${confirmedCount} of ${decisionNodes.length} decisions made`
+              ? `${3 - confirmedCount} decision${3 - confirmedCount !== 1 ? "s" : ""} still to make`
               : "Not reached"
           }
           section={branchingHasUnconfirmed ? "branching" : undefined}
@@ -281,9 +225,8 @@ export function ReviewSubmit({
         >
           {branchingComplete ? (
             <>
-              <MiniMap scenario={branchingScenario} decisions={branchingDecisions} />
-              <div className="flex flex-col gap-2 mt-1">
-                {decisionNodes.map((node) => {
+              <div className="flex flex-col gap-2">
+                {visitedDecisionNodes.map((node) => {
                   const chosenId = branchingDecisions[node.id];
                   const chosenOption = node.options?.find((o) => o.id === chosenId);
                   return (
