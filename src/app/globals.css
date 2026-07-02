@@ -96,6 +96,24 @@
   --illustration-glow-card: radial-gradient(ellipse 85% 80% at 50% 10.4%, rgba(255,255,255,0.92) 0%, transparent 100%);
   --illustration-glow-side-card: radial-gradient(ellipse 95% 75% at 15% 50%, rgba(255,255,255,0.92) 0%, transparent 100%);
   --card-border: #DEE7E4;                      /* outer card inset border — light mode */
+  /* Illustration tokens */
+  --il-tray: #DDDDDD;
+  --il-doc-bg: #FEFEFE;
+  --il-doc-border: #FDFDFD;
+  --il-doc-line: #ECEEE7;
+  --il-folder-fill-from: #DEE7E0;
+  --il-folder-fill-to: #93AC97;
+  --il-folder-border-from: #ffffff;
+  --il-folder-border-to: #D5D5D5;
+  /* Module icon illustration tokens */
+  --il-icon-fill-from: #DEE7E0;
+  --il-icon-fill-to: #93AC97;
+  --il-icon-fill-opacity: 0.42;
+  --il-icon-stroke-from: #8FA091;
+  --il-icon-stroke-to: white;
+  --il-icon-shadow-from: #8FA091;
+  --il-icon-shadow-to: #E9F5F0;
+  --il-icon-shadow-opacity: 0.28;
 }
 
 .dark {
@@ -145,6 +163,24 @@
   --illustration-glow-card: radial-gradient(ellipse 85% 80% at 50% 10.4%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --illustration-glow-side-card: radial-gradient(ellipse 95% 75% at 15% 50%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
+  /* Illustration tokens */
+  --il-tray: #6D6D6D;
+  --il-doc-bg: #EBEBEB;
+  --il-doc-border: #EBEBEB;
+  --il-doc-line: #D4D7CA;
+  --il-folder-fill-from: #C6D9CA;
+  --il-folder-fill-to: #75957A;
+  --il-folder-border-from: #E0E0E0;
+  --il-folder-border-to: #919191;
+  /* Module icon illustration tokens */
+  --il-icon-fill-from: white;
+  --il-icon-fill-to: #A0CAA8;
+  --il-icon-fill-opacity: 0.5;
+  --il-icon-stroke-from: #484848;
+  --il-icon-stroke-to: #859F89;
+  --il-icon-shadow-from: #649080;
+  --il-icon-shadow-to: #4A4A4A;
+  --il-icon-shadow-opacity: 0.34;
 }
 
 @layer components {
@@ -154,6 +190,15 @@
     border-radius: 10px;
     border: none;
   }
+  .section-label {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
   .cortex-send-btn::after {
     content: '';
     position: absolute;

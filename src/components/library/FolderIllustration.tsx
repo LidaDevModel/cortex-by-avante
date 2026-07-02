@@ -1,20 +1,19 @@
 "use client";
 
-// Flat fill constants — the card-surface gradients are imperceptible at display size
-const CARD_BG = "#FEFEFE";
-const CARD_STROKE = "#FDFDFD";
-const BAR = "#ECEEE7";
+const CARD_BG = "var(--il-doc-bg)";
+const CARD_STROKE = "var(--il-doc-border)";
+const BAR = "var(--il-doc-line)";
 
-type Props = { uid: string };
+type Props = { uid: string; shadowOpacity: number };
 
-export function FolderIllustration({ uid }: Props) {
+export function FolderIllustration({ uid, shadowOpacity }: Props) {
   const d = `d${uid}`;
   const h = `h${uid}`;
 
   return (
     <svg width="100%" viewBox="0 0 179 164" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* background tray */}
-      <rect x="10" y="18" width="159.61" height="143.001" rx="11.3429" fill="#DDDDDD" />
+      <rect x="10" y="18" width="159.61" height="143.001" rx="11.3429" fill="var(--il-tray)" />
 
       {/* ── DEFAULT STATE ── */}
       <g className="opacity-100 transition-opacity duration-300 ease-in-out group-hover:opacity-0">
@@ -209,7 +208,7 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
@@ -220,7 +219,7 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
@@ -231,16 +230,16 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
         {/* default folder body gradients */}
         <linearGradient id={`${d}fg`} x1="89.805" y1="18" x2="89.805" y2="161.001" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#DEE7E0" /><stop offset="1" stopColor="#93AC97" />
+          <stop stopColor="var(--il-folder-fill-from)" /><stop offset="1" stopColor="var(--il-folder-fill-to)" />
         </linearGradient>
         <linearGradient id={`${d}fb`} x1="138.229" y1="-3.065" x2="-26.88" y2="104.286" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white" /><stop offset="1" stopColor="#D5D5D5" />
+          <stop stopColor="var(--il-folder-border-from)" /><stop offset="1" stopColor="var(--il-folder-border-to)" />
         </linearGradient>
 
         {/* ── hover filters ── */}
@@ -251,7 +250,7 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
@@ -262,7 +261,7 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
@@ -273,7 +272,7 @@ export function FolderIllustration({ uid }: Props) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
@@ -286,10 +285,10 @@ export function FolderIllustration({ uid }: Props) {
         </clipPath>
         {/* hover folder body gradients */}
         <linearGradient id={`${h}fg`} x1="88.846" y1="49.8623" x2="88.846" y2="162.071" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#DEE7E0" /><stop offset="1" stopColor="#93AC97" />
+          <stop stopColor="var(--il-folder-fill-from)" /><stop offset="1" stopColor="var(--il-folder-fill-to)" />
         </linearGradient>
         <linearGradient id={`${h}fb`} x1="138.417" y1="-1.991" x2="0.681" y2="162.076" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white" /><stop offset="1" stopColor="#D5D5D5" />
+          <stop stopColor="var(--il-folder-border-from)" /><stop offset="1" stopColor="var(--il-folder-border-to)" />
         </linearGradient>
       </defs>
     </svg>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState, useEffect } from "react";
 import { FolderIllustration } from "./FolderIllustration";
 
 export type RecentlyViewedItem = {
@@ -12,14 +12,14 @@ export type RecentlyViewedItem = {
 
 type Props = { item: RecentlyViewedItem; onClick?: () => void };
 
-function FileIllustration({ uid }: { uid: string }) {
+function FileIllustration({ uid, shadowOpacity }: { uid: string; shadowOpacity: number }) {
   const d = `d${uid}`;
   const h = `h${uid}`;
 
   return (
     <svg width="100%" viewBox="0 0 179 163" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* background tray — identical in both states */}
-      <rect x="10" y="18" width="159.61" height="143.001" rx="11.3429" fill="#DDDDDD" />
+      <rect x="10" y="18" width="159.61" height="143.001" rx="11.3429" fill="var(--il-tray)" />
 
       {/* ── DEFAULT STATE ── fades out on hover */}
       <g className="opacity-100 transition-opacity duration-300 ease-in-out group-hover:opacity-0">
@@ -86,75 +86,75 @@ function FileIllustration({ uid }: { uid: string }) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
         <linearGradient id={`${d}p0`} x1="139.704" y1="88.5029" x2="39.5754" y2="87.6246" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FDFDFD" /><stop offset="1" stopColor="#FEFEFE" />
+          <stop stopColor="var(--il-doc-border)" /><stop offset="1" stopColor="var(--il-doc-bg)" />
         </linearGradient>
         <linearGradient id={`${d}p1`} x1="139.963" y1="27.1173" x2="39.5754" y2="152.181" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white" /><stop offset="1" stopColor="#FDFDFD" />
+          <stop stopColor="var(--il-doc-bg)" /><stop offset="1" stopColor="var(--il-doc-border)" />
         </linearGradient>
         <linearGradient id={`${d}p2`} x1="48.3586" y1="39.5366" x2="130.921" y2="39.5366" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p3`} x1="48.3588" y1="53.5895" x2="86.5322" y2="53.5895" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p4`} x1="48.3589" y1="62.8122" x2="86.5323" y2="62.8122" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p5`} x1="48.3588" y1="72.0338" x2="86.5322" y2="72.0338" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p6`} x1="48.3588" y1="81.2565" x2="86.5322" y2="81.2565" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p7`} x1="48.3589" y1="90.4791" x2="86.5323" y2="90.4791" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p8`} x1="48.3589" y1="99.7008" x2="86.5323" y2="99.7008" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p9`} x1="48.3588" y1="108.923" x2="86.5322" y2="108.923" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p10`} x1="48.3588" y1="121.22" x2="86.5322" y2="121.22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p11`} x1="48.3589" y1="130.443" x2="86.5323" y2="130.443" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p12`} x1="48.3589" y1="139.665" x2="86.5323" y2="139.665" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p13`} x1="92.7474" y1="53.5895" x2="130.921" y2="53.5895" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p14`} x1="92.7473" y1="62.8122" x2="130.921" y2="62.8122" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p15`} x1="92.7473" y1="72.0338" x2="130.921" y2="72.0338" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p16`} x1="92.7474" y1="81.2565" x2="130.921" y2="81.2565" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p17`} x1="92.7474" y1="90.4791" x2="130.921" y2="90.4791" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p18`} x1="92.7473" y1="99.7018" x2="130.921" y2="99.7018" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p19`} x1="92.7474" y1="108.923" x2="130.921" y2="108.923" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p20`} x1="92.5516" y1="121.22" x2="130.725" y2="121.22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${d}p21`} x1="92.5516" y1="130.443" x2="130.725" y2="130.443" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
 
         {/* ── hover state defs ── */}
@@ -165,75 +165,75 @@ function FileIllustration({ uid }: { uid: string }) {
           <feOffset dx="4.3916" dy="4.3916" />
           <feGaussianBlur stdDeviation="5.09425" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0" />
+          <feColorMatrix type="matrix" values={`0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ${shadowOpacity} 0`} />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
         <linearGradient id={`${h}p0`} x1="137.28" y1="78.457" x2="37.1512" y2="77.5787" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FDFDFD" /><stop offset="1" stopColor="#FEFEFE" />
+          <stop stopColor="var(--il-doc-border)" /><stop offset="1" stopColor="var(--il-doc-bg)" />
         </linearGradient>
         <linearGradient id={`${h}p1`} x1="137.539" y1="17.0714" x2="37.1512" y2="142.135" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white" /><stop offset="1" stopColor="#FDFDFD" />
+          <stop stopColor="var(--il-doc-bg)" /><stop offset="1" stopColor="var(--il-doc-border)" />
         </linearGradient>
         <linearGradient id={`${h}p2`} x1="46.6074" y1="28.9899" x2="129.045" y2="24.4637" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p3`} x1="47.3779" y1="43.0221" x2="85.4939" y2="40.9293" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p4`} x1="47.8836" y1="52.2311" x2="85.9996" y2="50.1383" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p5`} x1="48.389" y1="61.4391" x2="86.505" y2="59.3463" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p6`} x1="48.8945" y1="70.649" x2="87.0105" y2="68.5563" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p7`} x1="49.4002" y1="79.8561" x2="87.5162" y2="77.7633" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p8`} x1="49.9058" y1="89.065" x2="88.0218" y2="86.9723" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p9`} x1="50.4113" y1="98.2731" x2="88.5273" y2="96.1803" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p10`} x1="51.0854" y1="110.551" x2="89.2014" y2="108.459" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p11`} x1="51.5911" y1="119.76" x2="89.7071" y2="117.668" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p12`} x1="52.0966" y1="128.969" x2="90.2126" y2="126.877" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p13`} x1="91.6993" y1="40.5885" x2="129.815" y2="38.4957" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p14`} x1="92.2049" y1="49.7975" x2="130.321" y2="47.7047" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p15`} x1="92.7106" y1="59.0065" x2="130.827" y2="56.9137" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p16`} x1="93.2161" y1="68.2145" x2="131.332" y2="66.1217" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p17`} x1="93.7219" y1="77.4225" x2="131.838" y2="75.3297" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p18`} x1="94.2272" y1="86.6324" x2="132.343" y2="84.5397" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p19`} x1="94.7329" y1="95.8395" x2="132.849" y2="93.7467" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p20`} x1="95.2114" y1="108.129" x2="133.327" y2="106.036" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
         <linearGradient id={`${h}p21`} x1="95.7171" y1="117.337" x2="133.833" y2="115.244" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8EAE2" /><stop offset="1" stopColor="#F4F4F4" />
+          <stop stopColor="var(--il-doc-line)" /><stop offset="1" stopColor="var(--il-doc-line)" />
         </linearGradient>
       </defs>
     </svg>
@@ -243,18 +243,29 @@ function FileIllustration({ uid }: { uid: string }) {
 export function RecentlyViewedCard({ item, onClick }: Props) {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const el = document.documentElement;
+    setIsDark(el.classList.contains("dark"));
+    const obs = new MutationObserver(() => setIsDark(el.classList.contains("dark")));
+    obs.observe(el, { attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+
+  const shadowOpacity = isDark ? 0.16 : 0.07;
 
   return (
     <button
       onClick={onClick}
       className="group flex flex-col gap-[14px] text-left cursor-pointer shrink-0"
-      style={{ width: 160 }}
+      style={{ width: 164 }}
     >
       <div className="w-full">
         {item.type === "file" ? (
-          <FileIllustration uid={uid} />
+          <FileIllustration uid={uid} shadowOpacity={shadowOpacity} />
         ) : (
-          <FolderIllustration uid={uid} />
+          <FolderIllustration uid={uid} shadowOpacity={shadowOpacity} />
         )}
       </div>
 

@@ -25,17 +25,17 @@ export default function LibraryPage() {
             WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
           }}
         >
-          <div className="max-w-[1000px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
             <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Library</h1>
 
             {/* Recently Viewed */}
-            <section className="flex flex-col gap-4">
+            <section className="flex flex-col gap-0">
               <p
-                className="text-[11px] leading-[16px] font-semibold text-muted-foreground tracking-[0.07em] uppercase"
+                className="section-label"
               >
                 Recently viewed
               </p>
-              <div className="flex gap-[44px] overflow-x-auto py-3 px-2 -mx-2 scroll-thin">
+              <div className="flex gap-2 px-2 -mx-2">
                 {RECENTLY_VIEWED.map((item) => (
                   <RecentlyViewedCard key={item.id} item={item} />
                 ))}

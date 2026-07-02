@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { Search, ArrowLeft } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import Image from "next/image";
+import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
 
@@ -23,12 +23,6 @@ type Module = {
 
 /* ─── Mock data (in-progress modules only) ─── */
 
-const CATEGORY_ILLUSTRATION: Record<ModuleCategory, { light: string; dark: string }> = {
-  "first-aid":   { light: "/brand/illustration-heart-light.png",   dark: "/brand/illustration-heart-dark.png" },
-  "escalations": { light: "/brand/illustration-warning-light.png", dark: "/brand/illustration-warning-dark.png" },
-  "clients":     { light: "/brand/illustration-person-light.png",  dark: "/brand/illustration-person-dark.png" },
-  "incidents":   { light: "/brand/illustration-shield-light.png",  dark: "/brand/illustration-shield-dark.png" },
-};
 
 const IN_PROGRESS_MODULES: Module[] = [
   { id: "1", title: "Escalation Procedures 1",  chapters: 6, hours: 2, progress: 10, required: true,  category: "escalations" },
@@ -76,8 +70,7 @@ function InProgressCard({ module }: { module: Module }) {
     >
       <div className="relative flex items-center justify-center" style={{ height: 157 }}>
         <div className="absolute inset-x-0 top-0 pointer-events-none z-0" style={{ height: "calc(100% + 600px)", background: ILLUSTRATION_GLOW_CARD }} />
-        <Image src={CATEGORY_ILLUSTRATION[module.category].light} alt={module.title} width={80} height={80} className="relative object-contain dark:hidden z-10" />
-        <Image src={CATEGORY_ILLUSTRATION[module.category].dark}  alt={module.title} width={80} height={80} className="relative object-contain hidden dark:block z-10" />
+        <ModuleIllustration category={module.category} width={80} height={80} className="relative object-contain z-10" />
       </div>
       <div className="relative z-10 flex flex-col gap-2 px-3 pt-3 pb-3">
         <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
@@ -211,7 +204,7 @@ export default function InProgressPage() {
 
             {/* Card grid */}
             {filtered.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-6">
                 {filtered.map((m) => (
                   <InProgressCard key={m.id} module={m} />
                 ))}
