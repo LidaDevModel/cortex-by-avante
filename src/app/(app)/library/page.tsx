@@ -1,5 +1,6 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/library/RecentlyViewedCard";
+import { DocumentsSection } from "@/components/library/DocumentsSection";
 
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
   { id: "1", type: "file", name: "Incident Response", meta: "13 pages" },
@@ -41,6 +42,8 @@ export default function LibraryPage() {
                 ))}
               </div>
             </section>
+
+            <DocumentsSection />
           </div>
         </div>
       </div>

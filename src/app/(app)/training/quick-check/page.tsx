@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Eye, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Eye } from "lucide-react";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Pagination } from "@/components/ui/pagination";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import {
   FORMAT_LABELS,
   CATEGORY_LABELS,
@@ -201,7 +203,6 @@ function GeneratingScreen() {
 /* ─── History table ─── */
 
 type SortCol = "date" | "score";
-type SortDir = "asc" | "desc";
 
 const CATEGORY_OPTIONS = ALL_CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }));
 const FORMAT_OPTIONS = ALL_FORMATS.map((f) => ({ value: f, label: FORMAT_LABELS[f] }));
@@ -257,7 +258,6 @@ function HistoryTable({
 }) {
   const [sortCol, setSortCol] = useState<SortCol>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [hoveredCol, setHoveredCol] = useState<SortCol | null>(null);
   const [page, setPage] = useState(1);
 
   function handleSort(col: SortCol) {
@@ -298,126 +298,46 @@ function HistoryTable({
 
   return (
     <div className="flex flex-col gap-3">
-    <div className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--border)" }}>
-      {/* Table header */}
-      <div
-        className="grid items-center px-4 py-2.5 border-b border-border"
-        style={{ gridTemplateColumns: "2fr 2fr 120px 100px", background: "var(--surface-raised)" }}
-      >
-        {(["Categories", "Formats", "Date", "Score"] as const).map((col) => {
-          const key = col === "Date" ? "date" : col === "Score" ? "score" : null;
-          const isActive = key && sortCol === key;
-          const isHovered = key && hoveredCol === key;
-          const Icon = isActive
-            ? sortDir === "desc" ? ArrowDown : ArrowUp
-            : ArrowUpDown;
-          return key ? (
-            <button
-              key={col}
-              onClick={() => handleSort(key)}
-              onMouseEnter={() => setHoveredCol(key)}
-              onMouseLeave={() => setHoveredCol(null)}
-              className="flex items-center gap-1 text-[11px] leading-[16px] font-semibold uppercase tracking-wider transition-colors duration-100 text-left"
-              style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
-            >
-              {col}
-              <Icon
-                size={11}
-                strokeWidth={2.5}
-                style={{ opacity: isActive || isHovered ? 1 : 0, transition: "opacity 100ms" }}
-              />
-            </button>
-          ) : (
-            <span key={col} className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {col}
-            </span>
-          );
-        })}
-      </div>
-
-      {/* Rows */}
-      {sorted.length === 0 ? (
-        <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
-          No checks match the selected filters.
-        </div>
-      ) : paginated.map((attempt) => {
-        const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
-        return (
-          <button
-            key={attempt.id}
-            onClick={() => onViewDetail(attempt.id)}
-            className="w-full grid items-center px-4 py-3 border-b border-border last:border-0 bg-[var(--surface)] hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
-            style={{ gridTemplateColumns: "2fr 2fr 120px 100px" }}
-          >
-            <span className="text-[13px] leading-[20px] text-foreground truncate pr-2 text-left">
-              {(() => {
-                const cats = attempt.categories;
-                const label = cats.length === ALL_CATEGORIES.length
-                  ? "All categories"
-                  : cats.length === 1 ? CATEGORY_LABELS[cats[0]]
-                  : cats.length === 2 ? `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`
-                  : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
-                return `${label} #${getAttemptOrdinal(attempt.id)}`;
-              })()}
-            </span>
-            <span className="text-[13px] leading-[20px] text-muted-foreground truncate pr-2 text-left">
-              {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
-            </span>
-            <span className="text-[13px] leading-[20px] text-muted-foreground text-left">{formatDate(attempt.date)}</span>
-            <span
-              className="text-[13px] leading-[20px] font-semibold text-left"
-              style={{
-                fontVariantNumeric: "tabular-nums",
-                color: pct === 100 ? "var(--primary)" : "var(--muted-foreground)",
-              }}
-            >
-              {attempt.score}/{attempt.total} · {pct}%
-            </span>
-          </button>
-        );
-      })}
-    </div>
-
-    {/* Pagination */}
-    {totalPages > 1 && (
-      <div className="flex items-center justify-between px-1">
-        <span className="text-[12px] leading-[16px] text-muted-foreground">
-          Page {page} of {totalPages}
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="h-8 w-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            ‹
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className="h-8 w-8 flex items-center justify-center rounded-[6px] border text-[13px] leading-[20px] font-medium transition-colors duration-100"
-              style={
-                p === page
-                  ? { background: "var(--primary)", borderColor: "var(--primary)", color: "var(--primary-foreground)" }
-                  : { borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }
-              }
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="h-8 w-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            ›
-          </button>
-        </div>
-      </div>
-    )}
+      <Table>
+        <TableHeader>
+          <TableHead className="flex-1">Categories</TableHead>
+          <TableHead className="flex-1">Formats</TableHead>
+          <TableHead className="w-[120px]" sortDir={sortCol === "date" ? sortDir : null} onSort={() => handleSort("date")}>Date</TableHead>
+          <TableHead className="w-[100px]" sortDir={sortCol === "score" ? sortDir : null} onSort={() => handleSort("score")}>Score</TableHead>
+        </TableHeader>
+        <TableBody>
+          {sorted.length === 0 ? (
+            <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
+              No checks match the selected filters.
+            </div>
+          ) : paginated.map((attempt) => {
+            const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
+            const catLabel = (() => {
+              const cats = attempt.categories;
+              if (cats.length === ALL_CATEGORIES.length) return "All categories";
+              if (cats.length === 1) return CATEGORY_LABELS[cats[0]];
+              if (cats.length === 2) return `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`;
+              return `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+            })();
+            return (
+              <TableRow key={attempt.id} onClick={() => onViewDetail(attempt.id)}>
+                <TableCell className="flex-1 truncate pr-2">{catLabel} #{getAttemptOrdinal(attempt.id)}</TableCell>
+                <TableCell className="flex-1 text-muted-foreground truncate pr-2">
+                  {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
+                </TableCell>
+                <TableCell className="w-[120px] text-muted-foreground">{formatDate(attempt.date)}</TableCell>
+                <TableCell
+                  className="w-[100px] font-semibold"
+                  style={{ fontVariantNumeric: "tabular-nums", color: pct === 100 ? "var(--primary)" : "var(--muted-foreground)" }}
+                >
+                  {attempt.score}/{attempt.total} · {pct}%
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} className="px-1" />
     </div>
   );
 }

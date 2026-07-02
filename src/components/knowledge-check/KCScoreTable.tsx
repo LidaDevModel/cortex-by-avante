@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableFooter } from "@/components/ui/table";
 import type {
   KCQuestion,
   KCAnswer,
@@ -37,22 +38,19 @@ function SectionRow({
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-4 py-[10px] border-b border-border hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
-      >
-        <span className="flex-1 text-left text-[14px] text-foreground">{label}</span>
-        <span
-          className="w-10 text-right text-[14px] font-medium tabular-nums"
-          style={{ color: correct === total ? "var(--primary)" : "var(--destructive)" }}
+      <TableRow onClick={() => setOpen((o) => !o)}>
+        <TableCell className="flex-1 text-left">{label}</TableCell>
+        <TableCell
+          className="w-10 text-right font-medium tabular-nums"
+          style={{ color: correct === total ? "var(--primary)" : "var(--destructive)" } as React.CSSProperties}
         >
           {correct}
-        </span>
-        <span className="w-10 text-right text-[14px] text-muted-foreground tabular-nums">{total}</span>
+        </TableCell>
+        <TableCell className="w-10 text-right text-muted-foreground tabular-nums">{total}</TableCell>
         <span className="w-5 flex justify-end text-muted-foreground">
           {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
         </span>
-      </button>
+      </TableRow>
       {open && (
         <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
@@ -209,31 +207,33 @@ export function KCScoreTable({
   });
 
   return (
-    <div className="rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]">
-      <div className="flex items-center gap-2 px-4 py-[10px] bg-[var(--surface-raised)] border-b border-border">
-        <span className="flex-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Section</span>
-        <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Score</span>
-        <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Total</span>
+    <Table>
+      <TableHeader>
+        <TableHead className="flex-1">Section</TableHead>
+        <TableHead className="w-10 text-right">Score</TableHead>
+        <TableHead className="w-10 text-right">Total</TableHead>
         <span className="w-5" />
-      </div>
+      </TableHeader>
 
-      {rows.map((row) => (
-        <SectionRow key={row.key} label={row.label} correct={row.correct} total={row.total}>
-          {row.content}
-        </SectionRow>
-      ))}
+      <TableBody>
+        {rows.map((row) => (
+          <SectionRow key={row.key} label={row.label} correct={row.correct} total={row.total}>
+            {row.content}
+          </SectionRow>
+        ))}
+      </TableBody>
 
-      <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
-        <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
-        <span
-          className="w-10 text-right text-[14px] font-bold tabular-nums"
-          style={{ color: totalCorrect === totalPoints ? "var(--primary)" : "var(--destructive)" }}
+      <TableFooter>
+        <TableCell className="flex-1 font-semibold">Total</TableCell>
+        <TableCell
+          className="w-10 text-right font-bold tabular-nums"
+          style={{ color: totalCorrect === totalPoints ? "var(--primary)" : "var(--destructive)" } as React.CSSProperties}
         >
           {totalCorrect}
-        </span>
-        <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">{totalPoints}</span>
+        </TableCell>
+        <TableCell className="w-10 text-right font-medium text-muted-foreground tabular-nums">{totalPoints}</TableCell>
         <span className="w-5" />
-      </div>
-    </div>
+      </TableFooter>
+    </Table>
   );
 }
