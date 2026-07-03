@@ -7,6 +7,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 
 /* ─── Types ─── */
 
@@ -35,14 +37,6 @@ const IN_PROGRESS_MODULES: Module[] = [
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
 
 /* ─── Sub-components ─── */
-
-function ProgressBar({ value }: { value: number }) {
-  return (
-    <div className="h-2 rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden">
-      <div className="h-full rounded-full" style={{ width: `${value}%`, background: "var(--primary)" }} />
-    </div>
-  );
-}
 
 function RequiredPill({ required }: { required: boolean }) {
   if (required) {
@@ -135,16 +129,7 @@ export default function InProgressPage() {
       </header>
 
       {/* Scrollable canvas */}
-      <div className="relative flex-1 overflow-hidden">
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-          }}
-        >
+      <ScrollCanvas ref={scrollRef} onScroll={handleScroll}>
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
 
             {/* Title */}
@@ -214,8 +199,7 @@ export default function InProgressPage() {
             )}
 
           </div>
-        </div>
-      </div>
+      </ScrollCanvas>
     </div>
   );
 }

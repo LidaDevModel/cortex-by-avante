@@ -7,6 +7,10 @@ import { useParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Highlight } from "@/components/ui/highlight";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { SplitPanel } from "@/components/ui/split-panel";
 
 /* ─── Types ─── */
 
@@ -161,47 +165,6 @@ function deriveInitialState(moduleId: string) {
 }
 
 /* ─── Sub-components ─── */
-
-function ProgressBar({ value, height = 6 }: { value: number; height?: number }) {
-  return (
-    <div
-      className="rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden"
-      style={{ height }}
-    >
-      <div
-        className="h-full rounded-full"
-        style={{ width: `${value}%`, background: "var(--primary)" }}
-      />
-    </div>
-  );
-}
-
-function Highlight({ text, query }: { text: string; query: string }) {
-  if (!query) return <>{text}</>;
-  const q = query.toLowerCase();
-  const segments: { start: number; end: number }[] = [];
-  let cursor = 0;
-  while (cursor < text.length) {
-    const idx = text.toLowerCase().indexOf(q, cursor);
-    if (idx === -1) break;
-    segments.push({ start: idx, end: idx + q.length });
-    cursor = idx + q.length;
-  }
-  if (segments.length === 0) return <>{text}</>;
-  const nodes: React.ReactNode[] = [];
-  let pos = 0;
-  for (const { start, end } of segments) {
-    if (start > pos) nodes.push(text.slice(pos, start));
-    nodes.push(
-      <mark key={start} style={{ background: "color-mix(in srgb, var(--primary) 15%, transparent)", color: "var(--primary)", borderRadius: 2, padding: "0 1px" }}>
-        {text.slice(start, end)}
-      </mark>
-    );
-    pos = end;
-  }
-  if (pos < text.length) nodes.push(text.slice(pos));
-  return <>{nodes}</>;
-}
 
 function ChapterStepper({
   chapters,
@@ -546,13 +509,9 @@ export default function ModuleDetailPage() {
       </div>
 
       {/* Two-column body */}
-      <div className="flex flex-1 overflow-hidden" style={{ background: "var(--surface)" }}>
-
-        {/* Left: stepper panel */}
-        <aside
-          className="shrink-0 flex flex-col overflow-hidden"
-          style={{ width: 354, borderRight: "1px solid var(--border)" }}
-        >
+      <SplitPanel
+        leftWidth={354}
+        left={<>
           {/* Search */}
           <div className="px-8 pt-8 pb-8 shrink-0">
             <div className="relative">
@@ -590,10 +549,8 @@ export default function ModuleDetailPage() {
               search={search}
             />
           </div>
-        </aside>
-
-        {/* Right: scrollable content */}
-        <div className="relative flex-1 overflow-hidden">
+        </>}
+        right={<div className="relative flex flex-col flex-1 overflow-hidden">
           {/* Blob gradients — only on final quiz screen */}
           {currentChapter.isFinalQuiz && (
             <>
@@ -607,15 +564,7 @@ export default function ModuleDetailPage() {
               />
             </>
           )}
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-            style={{
-              maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 64px), transparent 100%)",
-            }}
-          >
+          <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
               <div className={currentChapter.isFinalQuiz ? "h-full flex items-center justify-center px-8 -mt-10" : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"}>
 
               {/* Chapter illustration — only on first chapter */}
@@ -727,10 +676,10 @@ export default function ModuleDetailPage() {
                 </div>
               )}
             </div>
-          </div>
+          </ScrollCanvas>
 
-        </div>
-      </div>
+        </div>}>
+      </SplitPanel>
     </div>
   );
 }

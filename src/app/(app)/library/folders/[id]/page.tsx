@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { FileText } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
@@ -9,6 +9,7 @@ import { DetailHeader } from "@/components/ui/page-header";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { getFolderById } from "@/lib/library-mock";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 
 const PAGE_SIZE = 8;
 
@@ -20,6 +21,7 @@ type SortCol = "name" | "lastModified";
 
 export default function FolderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const folder = getFolderById(id);
 
   const [search, setSearch] = useState("");
@@ -80,14 +82,7 @@ export default function FolderDetailPage() {
         ]}
       />
 
-      <div className="relative flex-1 overflow-hidden">
-        <div
-          className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-          }}
-        >
+      <ScrollCanvas>
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
             <DetailHeader
               backHref="/library"
@@ -129,7 +124,7 @@ export default function FolderDetailPage() {
                   </TableHeader>
                   <TableBody>
                     {paged.map((doc) => (
-                      <TableRow key={doc.id} onClick={() => {}}>
+                      <TableRow key={doc.id} onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}>
                         <TableCell className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 min-w-0">
                             <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
@@ -152,8 +147,7 @@ export default function FolderDetailPage() {
             </div>
             </div>
           </div>
-        </div>
-      </div>
+      </ScrollCanvas>
     </div>
   );
 }

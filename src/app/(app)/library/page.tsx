@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/library/RecentlyViewedCard";
 import { DocumentsSection } from "@/components/library/DocumentsSection";
 import { PageHeader } from "@/components/ui/page-header";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
   { id: "1", type: "file", name: "Incident Response" },
@@ -19,14 +20,7 @@ export default function LibraryPage() {
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
       <PageHeader crumbs={[{ label: "Library" }]} />
 
-      <div className="relative flex-1 overflow-hidden">
-        <div
-          className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-          }}
-        >
+      <ScrollCanvas>
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
             <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Library</h1>
 
@@ -50,8 +44,7 @@ export default function LibraryPage() {
 
             <DocumentsSection />
           </div>
-        </div>
-      </div>
+      </ScrollCanvas>
     </div>
   );
 }

@@ -1,9 +1,18 @@
+export type TocSection = {
+  id: string;
+  num: string;
+  title: string;
+  page: number;
+  body: string;
+};
+
 export type LibraryDoc = {
   id: string;
   name: string;
   kind: "document" | "folder";
   content: string;
   lastModified: string;
+  toc?: TocSection[];
 };
 
 export type LibraryFolder = {
@@ -19,7 +28,23 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Guard Duty",
     lastModified: "2026-06-25",
     documents: [
-      { id: "gd-1", name: "Post Orders",               kind: "document", content: "8 pages",  lastModified: "2026-06-25" },
+      {
+        id: "gd-1",
+        name: "Post Orders",
+        kind: "document",
+        content: "8 pages",
+        lastModified: "2026-06-25",
+        toc: [
+          { id: "s1", num: "1", title: "Scope and Purpose", page: 1, body: "Post orders define the specific duties, responsibilities, and authority of security personnel assigned to a site. Every officer must read and sign these orders before beginning their first shift. The orders are site-specific and supersede general company procedures where they differ." },
+          { id: "s2", num: "2", title: "Access Control Procedures", page: 2, body: "All persons entering the site must present valid identification at the gatehouse. Contractors must be pre-approved by site management and hold a current contractor access pass. Visitors are to be escorted at all times and must sign the visitor log on arrival and departure. Unauthorised access attempts must be reported immediately to the shift supervisor and logged in the incident register." },
+          { id: "s3", num: "3", title: "Patrol Requirements", page: 3, body: "Internal patrols are conducted every two hours on the hour. External perimeter patrols are conducted every four hours. Officers must use the electronic patrol wand at each checkpoint and log any anomalies in the patrol report. Deviation from the patrol schedule requires prior authorisation from the shift supervisor." },
+          { id: "s4", num: "4", title: "Emergency Response", page: 4, body: "In the event of a fire alarm activation, officers are to follow the site evacuation plan posted at each fire point. The control room must be notified immediately. Officers must direct staff and visitors to the designated assembly areas and prevent re-entry until the all-clear is given by the site fire marshal or emergency services." },
+          { id: "s5", num: "5", title: "Communication Protocols", page: 5, body: "Radio communications must follow the site communication plan. All officers are to maintain radio contact throughout their shift. Channel 1 is the primary operations channel. Channel 2 is reserved for emergencies only. Radio silence is prohibited — an unanswered check-in must be escalated within five minutes." },
+          { id: "s6", num: "6", title: "Prohibited Items", page: 6, body: "The following items are prohibited on site: personal mobile phones in operational areas, food and drink in the control room, personal headphones while on patrol, and any item specifically prohibited by the client. Officers are subject to random searches in line with the site security policy." },
+          { id: "s7", num: "7", title: "Reporting Requirements", page: 7, body: "All incidents, regardless of severity, must be logged in the incident register within 30 minutes of occurrence. Shift reports are to be completed before handover. Incomplete reports will be returned for correction. Officers are personally responsible for the accuracy of all documentation they sign." },
+          { id: "s8", num: "8", title: "Handover Procedures", page: 8, body: "Shift handover must take place face-to-face. The outgoing officer is responsible for briefing the incoming officer on all outstanding matters, including incidents, access issues, and equipment status. Both officers must sign the handover log. A handover that cannot take place in person must be authorised by the duty manager." },
+        ],
+      },
       { id: "gd-2", name: "Patrol Schedule Template",  kind: "document", content: "3 pages",  lastModified: "2026-06-20" },
     ],
   },
@@ -129,4 +154,12 @@ export const FOLDERS: LibraryFolder[] = [
 
 export function getFolderById(id: string): LibraryFolder | undefined {
   return FOLDERS.find((f) => f.id === id);
+}
+
+export function getDocById(id: string): { doc: LibraryDoc; folder: LibraryFolder } | undefined {
+  for (const folder of FOLDERS) {
+    const doc = folder.documents.find((d) => d.id === id);
+    if (doc) return { doc, folder };
+  }
+  return undefined;
 }

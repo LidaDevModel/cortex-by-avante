@@ -6,6 +6,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 /* ─── Types ─── */
 
@@ -47,16 +48,6 @@ const ILLUSTRATION_GLOW_SIDE = "var(--illustration-glow-side)";
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
 const ILLUSTRATION_GLOW_SIDE_CARD = "var(--illustration-glow-side-card)";
 
-function ProgressBar({ value }: { value: number }) {
-  return (
-    <div className="h-2 rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden">
-      <div
-        className="h-full rounded-full"
-        style={{ width: `${value}%`, background: "var(--primary)" }}
-      />
-    </div>
-  );
-}
 
 function RequiredPill({ required }: { required: boolean }) {
   if (required) {
