@@ -7,12 +7,11 @@ export type RecentlyViewedItem = {
   id: string;
   type: "file" | "folder";
   name: string;
-  meta: string;
 };
 
 type Props = { item: RecentlyViewedItem; onClick?: () => void };
 
-function FileIllustration({ uid, shadowOpacity }: { uid: string; shadowOpacity: number }) {
+export function FileIllustration({ uid, shadowOpacity }: { uid: string; shadowOpacity: number }) {
   const d = `d${uid}`;
   const h = `h${uid}`;
 
@@ -272,9 +271,6 @@ export function RecentlyViewedCard({ item, onClick }: Props) {
       <div className="flex flex-col gap-0.5 text-center">
         <span className="text-[14px] leading-[20px] font-medium text-[var(--primary)] truncate block">
           {item.name}
-        </span>
-        <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
-          {item.meta}
         </span>
       </div>
     </button>

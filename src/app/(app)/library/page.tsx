@@ -3,11 +3,11 @@ import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/librar
 import { DocumentsSection } from "@/components/library/DocumentsSection";
 
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
-  { id: "1", type: "file", name: "Incident Response", meta: "13 pages" },
-  { id: "2", type: "folder", name: "Guard Duty", meta: "2 files" },
-  { id: "3", type: "file", name: "Security Protocols", meta: "12 pages" },
-  { id: "4", type: "folder", name: "Access Control", meta: "7 files" },
-  { id: "5", type: "file", name: "Emergency Procedures", meta: "8 pages" },
+  { id: "1", type: "file", name: "Incident Response" },
+  { id: "2", type: "folder", name: "Guard Duty" },
+  { id: "3", type: "file", name: "Security Protocols" },
+  { id: "4", type: "folder", name: "Access Control" },
+  { id: "5", type: "file", name: "Emergency Procedures" },
 ];
 
 export default function LibraryPage() {

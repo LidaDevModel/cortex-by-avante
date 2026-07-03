@@ -15,7 +15,7 @@ interface FilterSelectProps {
   value: string;
   onChange: (value: string) => void;
   options: Option[];
-  placeholder: string;
+  placeholder?: string;
   className?: string;
 }
 
@@ -45,15 +45,17 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
         sideOffset={6}
         className="min-w-[var(--radix-dropdown-menu-trigger-width)] p-1"
       >
-        <DropdownMenuItem
-          onClick={() => onChange("")}
-          className={cn(
-            "text-[14px] leading-[20px] cursor-pointer",
-            !value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
-          )}
-        >
-          {placeholder}
-        </DropdownMenuItem>
+        {placeholder && (
+          <DropdownMenuItem
+            onClick={() => onChange("")}
+            className={cn(
+              "text-[14px] leading-[20px] cursor-pointer",
+              !value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
+            )}
+          >
+            {placeholder}
+          </DropdownMenuItem>
+        )}
 
         {options.map((o) => (
           <DropdownMenuItem

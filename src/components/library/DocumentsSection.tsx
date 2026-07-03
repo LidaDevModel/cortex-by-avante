@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Search, FileText, Folder, LayoutList, LayoutGrid } from "lucide-react";
+import { DocGridCard } from "./DocGridCard";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -34,9 +35,22 @@ const DOCUMENTS: Doc[] = [
   { id: "10", name: "Onboarding Pack",            kind: "folder",   content: "9 files",  lastModified: "2026-05-22" },
   { id: "11", name: "Post Incident Report",       kind: "document", content: "3 pages",  lastModified: "2026-05-18" },
   { id: "12", name: "Site Briefings",             kind: "folder",   content: "6 files",  lastModified: "2026-05-10" },
+  { id: "13", name: "CCTV Operations",            kind: "document", content: "7 pages",  lastModified: "2026-05-05" },
+  { id: "14", name: "Visitor Management",         kind: "folder",   content: "3 files",  lastModified: "2026-04-28" },
+  { id: "15", name: "Night Shift Protocols",      kind: "document", content: "9 pages",  lastModified: "2026-04-22" },
+  { id: "16", name: "Key Handover Log",           kind: "document", content: "4 pages",  lastModified: "2026-04-15" },
+  { id: "17", name: "Radio Communications",       kind: "folder",   content: "5 files",  lastModified: "2026-04-10" },
+  { id: "18", name: "Fire Evacuation Plan",       kind: "document", content: "6 pages",  lastModified: "2026-04-03" },
+  { id: "19", name: "Threat Assessment",          kind: "document", content: "11 pages", lastModified: "2026-03-28" },
+  { id: "20", name: "Contractor Induction",       kind: "folder",   content: "4 files",  lastModified: "2026-03-20" },
+  { id: "21", name: "Uniform & Equipment",        kind: "document", content: "5 pages",  lastModified: "2026-03-14" },
+  { id: "22", name: "Incident Log Templates",     kind: "folder",   content: "8 files",  lastModified: "2026-03-07" },
+  { id: "23", name: "Control Room Procedures",   kind: "document", content: "14 pages", lastModified: "2026-02-28" },
+  { id: "24", name: "Lone Worker Policy",         kind: "document", content: "6 pages",  lastModified: "2026-02-20" },
 ];
 
-const PAGE_SIZE = 8;
+const LIST_PAGE_SIZE = 8;
+const GRID_PAGE_SIZE = 12; // 6 cols × 2 rows
 
 /* ─── Helpers ─── */
 
@@ -95,11 +109,12 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
 
 export function DocumentsSection() {
   const [search, setSearch] = useState("");
-  const [sortCol, setSortCol] = useState<"name" | "lastModified">("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [kindFilter, setKindFilter] = useState("");
   const [view, setView] = useState<"list" | "grid">("list");
   const [page, setPage] = useState(1);
+  const pageSize = view === "grid" ? GRID_PAGE_SIZE : LIST_PAGE_SIZE;
 
   function handleSort(col: "name" | "lastModified") {
     if (sortCol === col) {
@@ -126,11 +141,26 @@ export function DocumentsSection() {
     return list;
   }, [search, sortCol, sortDir, kindFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  type GridSort = "name-asc" | "name-desc" | "date-desc" | "date-asc";
+  const gridSort: GridSort = sortCol === "name" ? (sortDir === "asc" ? "name-asc" : "name-desc") : (sortDir === "desc" ? "date-desc" : "date-asc");
+
+  function handleGridSort(v: string) {
+    const map: Record<string, { col: "name" | "lastModified"; dir: SortDir }> = {
+      "name-asc":  { col: "name",         dir: "asc"  },
+      "name-desc": { col: "name",         dir: "desc" },
+      "date-desc": { col: "lastModified", dir: "desc" },
+      "date-asc":  { col: "lastModified", dir: "asc"  },
+    };
+    const target = map[v];
+    if (target) { setSortCol(target.col); setSortDir(target.dir); setPage(1); }
+  }
 
   function handleSearch(v: string) { setSearch(v); setPage(1); }
   function handleKind(v: string) { setKindFilter(v); setPage(1); }
+  function handleView(v: "list" | "grid") { setView(v); setPage(1); }
 
   return (
     <section className="flex flex-col gap-0">
@@ -163,14 +193,32 @@ export function DocumentsSection() {
                 { value: "folder", label: "Folders" },
               ]}
             />
-            <ViewToggle view={view} onChange={setView} />
+            {view === "grid" && (
+              <FilterSelect
+                value={gridSort}
+                onChange={handleGridSort}
+
+                className="w-[140px]"
+                options={[
+                  { value: "date-desc", label: "Newest first" },
+                  { value: "date-asc",  label: "Oldest first" },
+                  { value: "name-asc",  label: "Name A–Z" },
+                  { value: "name-desc", label: "Name Z–A" },
+                ]}
+              />
+            )}
+            <ViewToggle view={view} onChange={handleView} />
           </div>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Content */}
       <div className="mt-4">
-        {paginated.length > 0 ? (
+        {paginated.length === 0 ? (
+          <div className="flex items-center justify-center py-16">
+            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents found.</p>
+          </div>
+        ) : view === "list" ? (
           <Table>
             <TableHeader>
               <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
@@ -194,8 +242,16 @@ export function DocumentsSection() {
             </TableBody>
           </Table>
         ) : (
-          <div className="flex items-center justify-center py-16">
-            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents found.</p>
+          <div className="grid grid-cols-6 gap-x-2 gap-y-8">
+            {paginated.map((doc) => (
+              <DocGridCard
+                key={doc.id}
+                name={doc.name}
+                kind={doc.kind}
+                lastModified={doc.lastModified}
+                onClick={() => {}}
+              />
+            ))}
           </div>
         )}
       </div>
