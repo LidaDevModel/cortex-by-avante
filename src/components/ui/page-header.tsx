@@ -74,7 +74,7 @@ export function DetailHeader({ backHref, backLabel, title, meta, className }: De
       </Link>
       <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{title}</h1>
       {meta && (
-        <p className="text-[14px] leading-[20px] text-muted-foreground">{meta}</p>
+        <p className="text-[13px] leading-[20px] text-muted-foreground">{meta}</p>
       )}
     </div>
   );

@@ -8,7 +8,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
-import { getDocById, type TocSection } from "@/lib/library-mock";
+import { getDocById, type TocSection, type SubSection } from "@/lib/library-mock";
 
 /* ─── Helpers ─── */
 
@@ -41,46 +41,96 @@ function TableOfContents({
   matchCounts: Record<string, number>;
 }) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-0.5">
       {sections.map((s) => {
         const isActive = s.id === activeId;
         const count = matchCounts[s.id] ?? 0;
+        const hasSubs = (s.subsections?.length ?? 0) > 0;
         return (
-          <button
-            key={s.id}
-            onClick={() => onSelect(s.id)}
-            className="w-full flex items-center justify-between gap-3 px-2 py-2 rounded-[6px] text-left transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2"
-            style={{ background: isActive ? "var(--nav-active)" : "transparent" }}
-          >
-            <span
-              className="text-[14px] leading-[20px] truncate flex-1 min-w-0"
-              style={{
-                fontWeight: isActive ? 500 : 400,
-                color: isActive ? "var(--primary)" : "var(--foreground)",
-              }}
+          <div key={s.id}>
+            {/* Section row */}
+            <button
+              onClick={() => onSelect(s.id)}
+              className="w-full flex items-center justify-between gap-3 px-2 py-[7px] rounded-[6px] text-left transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2"
+              style={{ background: isActive ? "var(--nav-active)" : "transparent" }}
             >
-              {s.num}.{"  "}{s.title}
-            </span>
-            <div className="flex items-center gap-2 shrink-0">
-              {count > 0 && (
-                <span
-                  className="text-[11px] font-semibold px-[6px] py-[1px] rounded-[4px] tabular-nums"
-                  style={{
-                    background: "rgba(212, 236, 147, 0.5)",
-                    color: "var(--primary)",
-                  }}
-                >
-                  {count}
-                </span>
-              )}
+              {/* Number chip */}
               <span
-                className="text-[12px] tabular-nums"
+                className="shrink-0 text-[10px] font-semibold tabular-nums w-5 text-center leading-[1]"
                 style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
               >
-                {s.page}
+                {s.num}
               </span>
-            </div>
-          </button>
+              <span
+                className="text-[13px] leading-[18px] truncate flex-1 min-w-0"
+                style={{
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? "var(--primary)" : "var(--foreground)",
+                }}
+              >
+                {s.title}
+              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                {count > 0 && (
+                  <span
+                    className="text-[10px] font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums"
+                    style={{ background: "rgba(212, 236, 147, 0.5)", color: "var(--primary)" }}
+                  >
+                    {count}
+                  </span>
+                )}
+                <span
+                  className="text-[11px] tabular-nums w-4 text-right"
+                  style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
+                >
+                  {s.page}
+                </span>
+              </div>
+            </button>
+
+            {/* Sub-sections */}
+            {hasSubs && (
+              <div className="flex flex-col ml-7 mb-1">
+                {s.subsections!.map((sub, subIdx) => {
+                  const subNum = `${s.num}.${subIdx + 1}`;
+                  const subActive = sub.id === activeId;
+                  const subCount = matchCounts[sub.id] ?? 0;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => onSelect(sub.id)}
+                      className="w-full flex items-center gap-2 px-2 py-[5px] rounded-[5px] text-left transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2"
+                      style={{ background: subActive ? "var(--nav-active)" : "transparent" }}
+                    >
+                      <span
+                        className="shrink-0 text-[10px] tabular-nums w-6 leading-[1]"
+                        style={{ color: subActive ? "var(--primary)" : "var(--muted-foreground)", fontWeight: subActive ? 600 : 400 }}
+                      >
+                        {subNum}
+                      </span>
+                      <span
+                        className="text-[12px] leading-[17px] truncate flex-1 min-w-0"
+                        style={{
+                          fontWeight: subActive ? 600 : 400,
+                          color: subActive ? "var(--primary)" : "var(--muted-foreground)",
+                        }}
+                      >
+                        {sub.title}
+                      </span>
+                      {subCount > 0 && (
+                        <span
+                          className="text-[10px] font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums shrink-0"
+                          style={{ background: "rgba(212, 236, 147, 0.5)", color: "var(--primary)" }}
+                        >
+                          {subCount}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         );
       })}
     </div>
@@ -92,11 +142,13 @@ function TableOfContents({
 function DocumentPage({
   sections,
   activeId,
+  onActiveChange,
   findQuery,
   zoom,
 }: {
   sections: TocSection[];
   activeId: string;
+  onActiveChange: (id: string) => void;
   findQuery: string;
   zoom: number;
 }) {
@@ -111,13 +163,40 @@ function DocumentPage({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const suppressScrollRef = useRef(false);
+  const suppressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const el = pageRefs.current[activeId];
     const container = scrollRef.current;
     if (!el || !container) return;
+    // Suppress the scroll listener while the programmatic scroll animates
+    suppressScrollRef.current = true;
+    if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
+    suppressTimerRef.current = setTimeout(() => { suppressScrollRef.current = false; }, 600);
     container.scrollTo({ top: el.offsetTop - 32, behavior: "smooth" });
   }, [activeId]);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const handler = () => {
+      if (suppressScrollRef.current) return;
+      const midY = container.scrollTop + container.clientHeight / 2;
+      let closest = sections[0]?.id ?? "";
+      let closestDist = Infinity;
+      // Check all page ref keys (includes sub-section ids)
+      for (const [id, el] of Object.entries(pageRefs.current)) {
+        if (!el) continue;
+        const center = el.offsetTop + el.offsetHeight / 2;
+        const dist = Math.abs(center - midY);
+        if (dist < closestDist) { closestDist = dist; closest = id; }
+      }
+      onActiveChange(closest);
+    };
+    container.addEventListener("scroll", handler, { passive: true });
+    return () => container.removeEventListener("scroll", handler);
+  }, [sections, onActiveChange]);
 
   return (
     <div className="relative flex-1 overflow-hidden" style={{ background: canvasBg }}>
@@ -127,48 +206,103 @@ function DocumentPage({
         style={{ background: `linear-gradient(to top, ${canvasBg}, transparent)` }} />
       <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto scroll-thin">
         <div className="flex flex-col items-center gap-4 py-8" style={{ minWidth: scaledW + 48 }}>
-          {sections.map((s) => {
-            const isActive = s.id === activeId;
-            return (
+          {sections.map((s, sIdx) => {
+            // Compute global page index across all rendered pages
+            let pageNum = s.page;
+            const renderPage = (
+              id: string,
+              heading: React.ReactNode,
+              body: string,
+              paragraphs?: string[],
+              points?: string[],
+              note?: string,
+              pgNum?: number,
+            ) => (
               <div
-                key={s.id}
-                ref={el => { pageRefs.current[s.id] = el; }}
+                key={id}
+                ref={el => { pageRefs.current[id] = el; }}
                 style={{ width: scaledW, height: scaledH, flexShrink: 0 }}
               >
                 <div
                   className="bg-white shadow-[0px_4px_20px_0px_rgba(0,0,0,0.08)] flex flex-col"
-                  style={{
-                    width: PAGE_W,
-                    height: PAGE_H,
-                    transform: `scale(${scale})`,
-                    transformOrigin: "top left",
-                    padding: "48px 40px",
-                  }}
+                  style={{ width: PAGE_W, height: PAGE_H, transform: `scale(${scale})`, transformOrigin: "top left", padding: "48px 40px" }}
                 >
-                  <div className="mb-5">
-                    <h2
-                      className="inline font-semibold leading-[1.4] text-[16px]"
-                      style={{
-                        color: "var(--primary)",
-                        ...(isActive && {
-                          background: "rgba(212, 236, 147, 0.3)",
-                          borderRadius: 4,
-                          padding: "2px 4px",
-                        }),
-                      }}
-                    >
-                      <Highlight text={`${s.num}.  ${s.title}`} query={q} />
-                    </h2>
+                  <div className="mb-5">{heading}</div>
+                  <div className="flex flex-col gap-3 overflow-hidden flex-1">
+                    <p className="text-[13px] leading-[1.75]" style={{ color: "#333" }}>
+                      <Highlight text={body} query={q} />
+                    </p>
+                    {paragraphs?.map((p, i) => (
+                      <p key={i} className="text-[13px] leading-[1.75]" style={{ color: "#333" }}>
+                        <Highlight text={p} query={q} />
+                      </p>
+                    ))}
+                    {points && points.length > 0 && (
+                      <ul className="flex flex-col gap-1.5 mt-1">
+                        {points.map((pt, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[13px] leading-[1.7]" style={{ color: "#333" }}>
+                            <span className="mt-[6px] shrink-0 size-[5px] rounded-full" style={{ background: "var(--primary)", opacity: 0.5 }} />
+                            <Highlight text={pt} query={q} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {note && (
+                      <div className="mt-2 rounded-[6px] px-3 py-2.5" style={{ background: "#f5f5f0", borderLeft: "3px solid #d4e897" }}>
+                        <p className="text-[11.5px] leading-[1.7] italic" style={{ color: "#555" }}>
+                          <Highlight text={note} query={q} />
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[13px] leading-[1.75]" style={{ color: "#333" }}>
-                    <Highlight text={s.body} query={q} />
-                  </p>
-                  <div className="mt-auto pt-6 flex justify-end">
-                    <span className="text-[10px]" style={{ color: "#aaa" }}>{s.page}</span>
+                  <div className="pt-4 flex justify-end shrink-0">
+                    <span className="text-[10px]" style={{ color: "#aaa" }}>{pgNum ?? pageNum}</span>
                   </div>
                 </div>
               </div>
             );
+
+            const pages: React.ReactNode[] = [];
+
+            // Main section page
+            pages.push(renderPage(
+              s.id,
+              <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--primary)" }}>
+                <Highlight text={`${s.num}.  ${s.title}`} query={q} />
+              </h2>,
+              s.body, s.paragraphs, s.points, s.note, s.page,
+            ));
+
+            // Sub-section pages
+            s.subsections?.forEach((sub, subIdx) => {
+              const subNum = `${s.num}.${subIdx + 1}`;
+              pages.push(renderPage(
+                sub.id,
+                <>
+                  <p className="text-[11px] font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
+                    {s.num}. {s.title}
+                  </p>
+                  <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--primary)" }}>
+                    <Highlight text={`${subNum}  ${sub.title}`} query={q} />
+                  </h3>
+                </>,
+                sub.body, sub.paragraphs, sub.points, sub.note,
+              ));
+            });
+
+            // Continuation pages
+            s.continuationPages?.forEach((cp, cpIdx) => {
+              const contId = `${s.id}-cont-${cpIdx}`;
+              pages.push(renderPage(
+                contId,
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted-foreground)" }}>
+                  {s.num}. {s.title} — continued
+                </p>,
+                cp.paragraphs?.[0] ?? "", cp.paragraphs?.slice(1), cp.points, cp.note,
+              ));
+            });
+
+            return pages;
           })}
           <div style={{ height: 32 }} />
         </div>
@@ -417,6 +551,7 @@ export default function FileViewPage() {
         <DocumentPage
           sections={sections}
           activeId={activeId}
+          onActiveChange={setActiveId}
           findQuery={findQuery}
           zoom={zoom}
         />
@@ -458,7 +593,7 @@ export default function FileViewPage() {
         ]}
       />
 
-      <div className="shrink-0 px-8 pt-5 pb-4 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
+      <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
         <DetailHeader
           backHref={`/library/folders/${folder.id}`}
           backLabel="Back to folder"
