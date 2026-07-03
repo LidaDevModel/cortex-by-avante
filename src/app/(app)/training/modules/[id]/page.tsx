@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
-import { Search, Check, X, Flag, ArrowLeft } from "lucide-react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { Check, X, Flag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SplitPanel } from "@/components/ui/split-panel";
+import { DocumentToolbar } from "@/components/ui/document-toolbar";
+import { SearchInput } from "@/components/ui/search-input";
 
 /* ─── Types ─── */
 
@@ -134,16 +135,15 @@ const MODULE = {
   illustrationDark: "/brand/illustration-warning-dark.png",
 };
 
-/* Progress saved per module id (mirrors the mock data in modules/page.tsx) */
 const MODULE_PROGRESS: Record<string, number> = {
-  "1": 10,  // Escalation Procedures 1
-  "2": 90,  // First Aid Awareness 1
-  "3": 37,  // Incident Response 1
-  "4": 90,  // Client Protocols 1
+  "1": 10,
+  "2": 90,
+  "3": 37,
+  "4": 90,
   "5": 0,
   "6": 0,
   "7": 0,
-  "8": 100, // First Aid Awareness 2
+  "8": 100,
   "9": 0,
 };
 
@@ -164,7 +164,22 @@ function deriveInitialState(moduleId: string) {
   return { completedIds, currentId };
 }
 
-/* ─── Sub-components ─── */
+/* ─── Helpers ─── */
+
+function countOccurrences(text: string, query: string): number {
+  if (!query) return 0;
+  const lower = text.toLowerCase();
+  const q = query.toLowerCase();
+  let count = 0;
+  let idx = 0;
+  while ((idx = lower.indexOf(q, idx)) !== -1) {
+    count++;
+    idx += q.length;
+  }
+  return count;
+}
+
+/* ─── Chapter stepper ─── */
 
 function ChapterStepper({
   chapters,
@@ -172,24 +187,21 @@ function ChapterStepper({
   completedIds,
   skippedIds,
   onSelect,
-  search,
+  tocFilter,
+  matchCounts,
 }: {
   chapters: Chapter[];
   currentId: string;
   completedIds: Set<string>;
   skippedIds: Set<string>;
   onSelect: (id: string) => void;
-  search: string;
+  tocFilter: string;
+  matchCounts: Record<string, number>;
 }) {
-  const q = search.trim().toLowerCase();
+  const q = tocFilter.trim().toLowerCase();
+  // Left panel filters by chapter title only — full-text find lives in the Find bar
   const filtered = q
-    ? chapters.filter(
-        (c) =>
-          c.title.toLowerCase().includes(q) ||
-          c.body.toLowerCase().includes(q) ||
-          c.quiz?.question.toLowerCase().includes(q) ||
-          c.quiz?.options.some((o) => o.text.toLowerCase().includes(q))
-      )
+    ? chapters.filter(c => c.title.toLowerCase().includes(q))
     : chapters;
 
   return (
@@ -199,12 +211,13 @@ function ChapterStepper({
         const isSkipped = skippedIds.has(chapter.id) && !isCompleted;
         const isActive = chapter.id === currentId;
         const isLast = i === filtered.length - 1;
+        // Only show match badge for text chapters (not final quiz)
+        const matchCount = !chapter.isFinalQuiz ? (matchCounts[chapter.id] ?? 0) : 0;
 
         return (
           <div key={chapter.id} className="flex gap-3">
             {/* Connector column */}
             <div className="flex flex-col items-center shrink-0" style={{ width: 28 }}>
-              {/* Circle */}
               <button
                 onClick={() => onSelect(chapter.id)}
                 className="shrink-0 flex items-center justify-center rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2"
@@ -231,7 +244,6 @@ function ChapterStepper({
                   <span>{chapter.num}</span>
                 )}
               </button>
-              {/* Vertical line */}
               {!isLast && (
                 <div
                   className="flex-1 w-px"
@@ -244,14 +256,14 @@ function ChapterStepper({
               )}
             </div>
 
-            {/* Chapter label */}
+            {/* Chapter label + badge */}
             <button
               onClick={() => onSelect(chapter.id)}
-              className="flex-1 min-w-0 text-left pb-6 focus-visible:outline-none overflow-hidden"
+              className="flex-1 min-w-0 text-left pb-6 focus-visible:outline-none overflow-hidden flex items-start justify-between gap-2"
               style={{ paddingTop: 4 }}
             >
               <span
-                className="text-[13px] leading-[18px] block truncate"
+                className="text-[13px] leading-[18px] block truncate flex-1 min-w-0"
                 style={{
                   fontWeight: isActive ? 600 : 400,
                   color: isActive
@@ -261,8 +273,19 @@ function ChapterStepper({
                     : "var(--foreground)",
                 }}
               >
-                <Highlight text={chapter.title} query={q} />
+                {chapter.title}
               </span>
+              {matchCount > 0 && (
+                <span
+                  className="text-[11px] font-semibold px-[6px] py-[1px] rounded-[4px] tabular-nums shrink-0 mt-[1px]"
+                  style={{
+                    background: "rgba(212, 236, 147, 0.5)",
+                    color: "var(--primary)",
+                  }}
+                >
+                  {matchCount}
+                </span>
+              )}
             </button>
           </div>
         );
@@ -270,6 +293,8 @@ function ChapterStepper({
     </div>
   );
 }
+
+/* ─── Quiz card ─── */
 
 type QuizSubmitState = "idle" | "correct" | "wrong";
 
@@ -316,7 +341,6 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                 cursor: submitted ? "default" : "pointer",
               }}
             >
-              {/* Radio circle */}
               <span
                 className="shrink-0 flex items-center justify-center rounded-full"
                 style={{
@@ -329,22 +353,13 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                     : isSelected && !submitted
                     ? "2px solid var(--primary)"
                     : "1.5px solid #d1d5db",
-                  background: showCorrect
-                    ? "var(--primary)"
-                    : showWrong
-                    ? "transparent"
-                    : isSelected && !submitted
-                    ? "transparent"
-                    : "transparent",
+                  background: showCorrect ? "var(--primary)" : "transparent",
                 }}
               >
                 {showCorrect && <Check size={10} strokeWidth={3} color="#fff" />}
                 {showWrong && <X size={10} strokeWidth={3} className="text-destructive" />}
                 {isSelected && !submitted && (
-                  <span
-                    className="rounded-full block"
-                    style={{ width: 8, height: 8, background: "var(--primary)" }}
-                  />
+                  <span className="rounded-full block" style={{ width: 8, height: 8, background: "var(--primary)" }} />
                 )}
               </span>
 
@@ -366,24 +381,18 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
         })}
       </div>
 
-      {/* Feedback row */}
       {submitted && (
         <div
           className="flex items-center gap-2"
           style={{ color: submitState === "correct" ? "var(--primary)" : "var(--destructive)" }}
         >
-          {submitState === "correct" ? (
-            <Check size={15} strokeWidth={2.5} />
-          ) : (
-            <X size={15} strokeWidth={2.5} />
-          )}
+          {submitState === "correct" ? <Check size={15} strokeWidth={2.5} /> : <X size={15} strokeWidth={2.5} />}
           <span className="text-[13px] leading-[20px] font-semibold">
             {submitState === "correct" ? "Correct!" : "Incorrect"}
           </span>
         </div>
       )}
 
-      {/* Submit button — only shown before submission */}
       {!submitted && (
         <div className="flex items-center gap-3">
           <button
@@ -415,7 +424,15 @@ export default function ModuleDetailPage() {
   const [currentId, setCurrentId] = useState(() => deriveInitialState(moduleId).currentId);
   const [completedIds, setCompletedIds] = useState(() => deriveInitialState(moduleId).completedIds);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
-  const [search, setSearch] = useState("");
+
+  // Left panel — chapter title filter
+  const [tocFilter, setTocFilter] = useState("");
+
+  // Find in document
+  const [findOpen, setFindOpen] = useState(false);
+  const [findQuery, setFindQuery] = useState("");
+  const [findMatchIdx, setFindMatchIdx] = useState(0);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const handleScroll = useCallback(() => {
@@ -433,13 +450,86 @@ export default function ModuleDetailPage() {
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const progress = Math.round((completedIds.size / contentChapters.length) * 100);
 
+  // Searchable chapters: text chapters only (no final quiz)
+  const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), []);
+
+  // Chapters matching the find query (title + body, text chapters only)
+  const findMatchChapters = useMemo(() => {
+    const q = findQuery.trim().toLowerCase();
+    if (!q) return [];
+    return textChapters.filter(c =>
+      c.title.toLowerCase().includes(q) || c.body.toLowerCase().includes(q)
+    );
+  }, [textChapters, findQuery]);
+
+  // Total text occurrences across all searchable chapters
+  const totalFindCount = useMemo(() => {
+    const q = findQuery.trim().toLowerCase();
+    if (!q) return 0;
+    return textChapters.reduce((sum, c) => sum + countOccurrences(c.title + " " + c.body, q), 0);
+  }, [textChapters, findQuery]);
+
+  // Per-chapter occurrence counts for TOC badges
+  const matchCountByChapterId = useMemo<Record<string, number>>(() => {
+    const q = findQuery.trim().toLowerCase();
+    if (!q) return {};
+    return Object.fromEntries(
+      textChapters.map(c => [c.id, countOccurrences(c.title + " " + c.body, q)])
+    );
+  }, [textChapters, findQuery]);
+
+  // Jump to chapter when find match index changes (no skip marking)
+  useEffect(() => {
+    if (findQuery.trim() && findMatchChapters.length > 0) {
+      const clamped = Math.min(findMatchIdx, findMatchChapters.length - 1);
+      const target = findMatchChapters[clamped];
+      setCurrentId(target.id);
+      scrollRef.current?.scrollTo({ top: 0 });
+    }
+  }, [findMatchIdx, findMatchChapters, findQuery]);
+
+  // Reset match index when query changes
+  useEffect(() => {
+    setFindMatchIdx(0);
+  }, [findQuery]);
+
+  // Cmd+F / Ctrl+F
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+        e.preventDefault();
+        setFindOpen(true);
+      }
+      if (e.key === "Escape" && findOpen) {
+        setFindOpen(false);
+        setFindQuery("");
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [findOpen]);
+
+  const closeFindBar = useCallback(() => {
+    setFindOpen(false);
+    setFindQuery("");
+  }, []);
+
+  const goFindPrev = useCallback(() => {
+    if (findMatchChapters.length === 0) return;
+    setFindMatchIdx(i => (i - 1 + findMatchChapters.length) % findMatchChapters.length);
+  }, [findMatchChapters.length]);
+
+  const goFindNext = useCallback(() => {
+    if (findMatchChapters.length === 0) return;
+    setFindMatchIdx(i => (i + 1) % findMatchChapters.length);
+  }, [findMatchChapters.length]);
+
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0 });
   }
 
   function goTo(id: string) {
     const targetIndex = CHAPTERS.findIndex((c) => c.id === id);
-    // Mark all non-completed chapters from current position up to (not including) target as skipped
     setSkippedIds((prev) => {
       const next = new Set(prev);
       const lo = Math.min(currentIndex, targetIndex);
@@ -458,7 +548,6 @@ export default function ModuleDetailPage() {
     if (isLast) return;
     const next = CHAPTERS[currentIndex + 1];
     setCompletedIds((prev) => new Set([...prev, currentId]));
-    // Remove from skipped if it was previously skipped
     setSkippedIds((prev) => { const s = new Set(prev); s.delete(next.id); return s; });
     setCurrentId(next.id);
     scrollToTop();
@@ -480,7 +569,7 @@ export default function ModuleDetailPage() {
         { label: MODULE.title },
       ]} />
 
-      {/* Module info — full width, above the two-column split */}
+      {/* Module info bar */}
       <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         <Link
           href="/training/modules"
@@ -499,187 +588,153 @@ export default function ModuleDetailPage() {
           <div className="flex-1">
             <ProgressBar value={progress} height={8} />
           </div>
-          <span
-            className="text-[12px] leading-[16px] font-medium shrink-0"
-            style={{ color: "var(--primary)" }}
-          >
+          <span className="text-[12px] leading-[16px] font-medium shrink-0" style={{ color: "var(--primary)" }}>
             {progress}% Complete
           </span>
         </div>
       </div>
 
-      {/* Two-column body */}
       <SplitPanel
         leftWidth={354}
-        left={<>
-          {/* Search */}
-          <div className="px-8 pt-8 pb-8 shrink-0">
-            <div className="relative">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        left={
+          <>
+            {/* Chapter title filter */}
+            <div className="px-8 py-3 shrink-0">
+              <SearchInput
+                value={tocFilter}
+                onChange={setTocFilter}
+                placeholder="Jump to chapter..."
               />
-              <input
-                type="text"
-                placeholder="Search chapters"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-[36px] pl-8 pr-7 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[13px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
-                >
-                  <X size={13} strokeWidth={2} />
-                </button>
-              )}
             </div>
-          </div>
 
-          {/* Stepper list */}
-          <div className="flex-1 overflow-y-auto px-8 pb-6 scroll-thin">
-            <ChapterStepper
-              chapters={CHAPTERS}
-              currentId={currentId}
-              completedIds={completedIds}
-              skippedIds={skippedIds}
-              onSelect={goTo}
-              search={search}
+            {/* Stepper */}
+            <div className="flex-1 overflow-y-auto px-8 pb-6 scroll-thin">
+              <ChapterStepper
+                chapters={CHAPTERS}
+                currentId={currentId}
+                completedIds={completedIds}
+                skippedIds={skippedIds}
+                onSelect={goTo}
+                tocFilter={tocFilter}
+                matchCounts={matchCountByChapterId}
+              />
+            </div>
+          </>
+        }
+        right={
+          <div className="relative flex flex-col flex-1 overflow-hidden">
+            {/* Blob gradients on final quiz */}
+            {currentChapter.isFinalQuiz && (
+              <>
+                <div className="absolute inset-0 pointer-events-none z-0"
+                  style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 10%, transparent 70%)" }} />
+                <div className="absolute inset-0 pointer-events-none z-0"
+                  style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, var(--blob-2) 0%, var(--blob-2) 10%, transparent 70%)" }} />
+              </>
+            )}
+
+            <DocumentToolbar
+              findOpen={findOpen}
+              onFindToggle={() => setFindOpen(o => !o)}
+              findQuery={findQuery}
+              onFindChange={setFindQuery}
+              onFindClose={closeFindBar}
+              onFindPrev={goFindPrev}
+              onFindNext={goFindNext}
+              findMatchCount={findMatchChapters.length}
+              findTotalCount={totalFindCount}
+              findMatchIdx={findMatchIdx}
+              findEntityLabel="chapters"
             />
-          </div>
-        </>}
-        right={<div className="relative flex flex-col flex-1 overflow-hidden">
-          {/* Blob gradients — only on final quiz screen */}
-          {currentChapter.isFinalQuiz && (
-            <>
-              <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{ background: "radial-gradient(ellipse 60% 70% at 28% 55%, var(--blob-1) 0%, var(--blob-1) 10%, transparent 70%)" }}
-              />
-              <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{ background: "radial-gradient(ellipse 65% 70% at 68% 45%, var(--blob-2) 0%, var(--blob-2) 10%, transparent 70%)" }}
-              />
-            </>
-          )}
-          <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
-              <div className={currentChapter.isFinalQuiz ? "h-full flex items-center justify-center px-8 -mt-10" : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"}>
 
-              {/* Chapter illustration — only on first chapter */}
-              {currentIndex === 0 && (
-                <div
-                  className="flex items-center justify-center rounded-[12px] overflow-hidden"
-                  style={{
-                    height: 180,
-                    background:
-                      "var(--illustration-glow), var(--surface-raised)",
-                  }}
-                >
-                  <Image
-                    src={MODULE.illustrationLight}
-                    alt={MODULE.title}
-                    width={96}
-                    height={96}
-                    className="object-contain dark:hidden"
-                  />
-                  <Image
-                    src={MODULE.illustrationDark}
-                    alt={MODULE.title}
-                    width={96}
-                    height={96}
-                    className="object-contain hidden dark:block"
-                  />
-                </div>
-              )}
-
-              {/* Chapter content */}
-              {!currentChapter.isFinalQuiz ? (
-                <>
-                  <div className="flex flex-col gap-3">
-                    <h2
-                      className="text-[18px] leading-[26px] font-semibold"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {currentChapter.num}. {currentChapter.title}
-                    </h2>
-                    <div className="flex flex-col gap-4">
-                      {currentChapter.body.split("\n\n").map((para, i) => (
-                        <p
-                          key={i}
-                          className="text-[15px] leading-[26px]"
-                          style={{ color: "var(--foreground)" }}
-                        >
-                          <Highlight text={para} query={search} />
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Quiz card */}
-                  {currentChapter.quiz && (
-                    <QuizCard key={currentChapter.id} quiz={currentChapter.quiz} />
-                  )}
-                </>
-              ) : (
-                /* Final quiz placeholder */
-                <div className="flex flex-col items-center gap-4 text-center">
+            <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
+              <div className={currentChapter.isFinalQuiz
+                ? "h-full flex items-center justify-center px-8 -mt-10"
+                : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"
+              }>
+                {/* Illustration — first chapter only */}
+                {currentIndex === 0 && (
                   <div
-                    className="flex items-center justify-center rounded-full"
-                    style={{ width: 56, height: 56, background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}
+                    className="flex items-center justify-center rounded-[12px] overflow-hidden"
+                    style={{ height: 180, background: "var(--illustration-glow), var(--surface-raised)" }}
                   >
-                    <Flag size={24} style={{ color: "var(--primary)" }} />
+                    <Image src={MODULE.illustrationLight} alt={MODULE.title} width={96} height={96} className="object-contain dark:hidden" />
+                    <Image src={MODULE.illustrationDark} alt={MODULE.title} width={96} height={96} className="object-contain hidden dark:block" />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p
-                      className="text-[17px] leading-[26px] font-semibold"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      Ready for the final quiz?
-                    </p>
-                    <p className="text-[14px] leading-[22px] text-muted-foreground">
-                      You&apos;ve completed all chapters. Test your knowledge to earn your certification.
-                    </p>
-                  </div>
-                  <a
-                    href={`/training/modules/${moduleId}/exam`}
-                    className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
-                  >
-                    Start final quiz
-                  </a>
-                </div>
-              )}
+                )}
 
-              {/* Navigation */}
-              {!currentChapter.isFinalQuiz && (
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    {!isFirst && (
-                      <button
-                        onClick={goPrev}
-                        className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-[var(--surface-raised)] transition-colors duration-100 hover:bg-[var(--surface)]"
-                        style={{ color: "var(--foreground)", cursor: "pointer" }}
-                      >
-                        Previous
-                      </button>
+                {!currentChapter.isFinalQuiz ? (
+                  <>
+                    <div className="flex flex-col gap-3">
+                      <h2 className="text-[18px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
+                        {currentChapter.num}. {currentChapter.title}
+                      </h2>
+                      <div className="flex flex-col gap-4">
+                        {currentChapter.body.split("\n\n").map((para, i) => (
+                          <p key={i} className="text-[15px] leading-[26px]" style={{ color: "var(--foreground)" }}>
+                            <Highlight text={para} query={findQuery.trim().toLowerCase()} />
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+
+                    {currentChapter.quiz && (
+                      <QuizCard key={currentChapter.id} quiz={currentChapter.quiz} />
                     )}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-4 text-center">
+                    <div
+                      className="flex items-center justify-center rounded-full"
+                      style={{ width: 56, height: 56, background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}
+                    >
+                      <Flag size={24} style={{ color: "var(--primary)" }} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-[17px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
+                        Ready for the final quiz?
+                      </p>
+                      <p className="text-[14px] leading-[22px] text-muted-foreground">
+                        You&apos;ve completed all chapters. Test your knowledge to earn your certification.
+                      </p>
+                    </div>
+                    <a
+                      href={`/training/modules/${moduleId}/exam`}
+                      className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center"
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
+                    >
+                      Start final quiz
+                    </a>
                   </div>
-                  <button
-                    onClick={goNext}
-                    className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
-                  >
-                    {nextLabel}
-                  </button>
-                </div>
-              )}
-            </div>
-          </ScrollCanvas>
+                )}
 
-        </div>}>
-      </SplitPanel>
+                {!currentChapter.isFinalQuiz && (
+                  <div className="flex items-center justify-between pt-2">
+                    <div>
+                      {!isFirst && (
+                        <button
+                          onClick={goPrev}
+                          className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-[var(--surface-raised)] transition-colors duration-100 hover:bg-[var(--surface)]"
+                          style={{ color: "var(--foreground)", cursor: "pointer" }}
+                        >
+                          Previous
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      onClick={goNext}
+                      className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
+                    >
+                      {nextLabel}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </ScrollCanvas>
+          </div>
+        }
+      />
     </div>
   );
 }
