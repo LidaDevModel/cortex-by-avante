@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, FileText, Folder, LayoutList, LayoutGrid } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FileText, Folder, LayoutList, LayoutGrid } from "lucide-react";
+import { SearchInput } from "@/components/ui/search-input";
 import { DocGridCard } from "./DocGridCard";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
@@ -108,6 +110,7 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
 /* ─── Main export ─── */
 
 export function DocumentsSection() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -169,17 +172,12 @@ export function DocumentsSection() {
         <p className="section-label">Documents</p>
         <div className="flex items-center justify-between gap-3">
           {/* Search */}
-          <div className="relative w-[280px] shrink-0">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search documents..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-              style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
-            />
-          </div>
+          <SearchInput
+            value={search}
+            onChange={handleSearch}
+            placeholder="Search documents..."
+            className="w-[280px] shrink-0"
+          />
 
           {/* Right controls */}
           <div className="flex items-center gap-2">
@@ -228,7 +226,7 @@ export function DocumentsSection() {
             </TableHeader>
             <TableBody>
               {paginated.map((doc) => (
-                <TableRow key={doc.id} onClick={() => {}}>
+                <TableRow key={doc.id} onClick={() => doc.kind === "folder" ? router.push(`/library/folders/${doc.id}`) : undefined}>
                   <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--primary)" }}>
                     <span className="truncate">{doc.name}</span>
                   </TableCell>
@@ -249,7 +247,7 @@ export function DocumentsSection() {
                 name={doc.name}
                 kind={doc.kind}
                 lastModified={doc.lastModified}
-                onClick={() => {}}
+                onClick={() => doc.kind === "folder" ? router.push(`/library/folders/${doc.id}`) : undefined}
               />
             ))}
           </div>

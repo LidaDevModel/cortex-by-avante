@@ -21,11 +21,13 @@ export function TableHeader({ className, children }: { className?: string; child
 
 export function TableHead({
   className,
+  style,
   children,
   sortDir,
   onSort,
 }: {
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
   sortDir?: SortDir;
   onSort?: () => void;
@@ -34,6 +36,7 @@ export function TableHead({
     return (
       <button
         onClick={onSort}
+        style={style}
         className={cn(
           "flex items-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors duration-100",
           className
@@ -51,7 +54,7 @@ export function TableHead({
     );
   }
   return (
-    <span className={cn("text-[11px] font-semibold text-muted-foreground uppercase tracking-wide", className)}>
+    <span style={style} className={cn("text-[11px] font-semibold text-muted-foreground uppercase tracking-wide", className)}>
       {children}
     </span>
   );

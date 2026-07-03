@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { PageHeader } from "@/components/ui/page-header";
 
 /* ─── Types ─── */
 
@@ -510,17 +511,11 @@ export default function ModuleDetailPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Breadcrumb header */}
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Training</Link>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Modules</Link>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <span className="font-medium text-foreground truncate">{MODULE.title}</span>
-        </div>
-      </header>
+      <PageHeader crumbs={[
+        { label: "Training", href: "/training/modules" },
+        { label: "Modules", href: "/training/modules" },
+        { label: MODULE.title },
+      ]} />
 
       {/* Module info — full width, above the two-column split */}
       <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>

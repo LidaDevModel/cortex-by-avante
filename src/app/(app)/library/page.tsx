@@ -1,6 +1,9 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/library/RecentlyViewedCard";
 import { DocumentsSection } from "@/components/library/DocumentsSection";
+import { PageHeader } from "@/components/ui/page-header";
 
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
   { id: "1", type: "file", name: "Incident Response" },
@@ -11,12 +14,10 @@ const RECENTLY_VIEWED: RecentlyViewedItem[] = [
 ];
 
 export default function LibraryPage() {
+  const router = useRouter();
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
-        <SidebarTrigger className="-ml-1" />
-        <span className="font-medium text-foreground text-[14px] leading-[20px]">Library</span>
-      </header>
+      <PageHeader crumbs={[{ label: "Library" }]} />
 
       <div className="relative flex-1 overflow-hidden">
         <div
@@ -38,7 +39,11 @@ export default function LibraryPage() {
               </p>
               <div className="flex gap-2 px-2 -mx-2">
                 {RECENTLY_VIEWED.map((item) => (
-                  <RecentlyViewedCard key={item.id} item={item} />
+                  <RecentlyViewedCard
+                    key={item.id}
+                    item={item}
+                    onClick={item.type === "folder" ? () => router.push(`/library/folders/${item.id}`) : undefined}
+                  />
                 ))}
               </div>
             </section>

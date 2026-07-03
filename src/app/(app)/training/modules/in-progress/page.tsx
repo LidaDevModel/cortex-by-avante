@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useRef, useCallback } from "react";
-import { Search, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { SearchInput } from "@/components/ui/search-input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import Link from "next/link";
@@ -165,17 +166,12 @@ export default function InProgressPage() {
 
             {/* Search + filters */}
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search in progress modules..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-[40px] pl-9 pr-3 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-                  style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder="Search in progress modules..."
+                className="flex-1"
+              />
               <div className="flex items-center gap-1 shrink-0">
                 <FilterSelect
                   value={categoryFilter}

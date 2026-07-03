@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { History, Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { History, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -195,16 +195,11 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
       <div className="flex flex-col flex-1 overflow-hidden" style={fadeStyle}>
         {/* Search */}
         <div className="px-3 pb-3 shrink-0">
-          <div className="relative">
-            <Search
-              size={13}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
-            <Input
+          <div className="p-[2px]">
+            <SearchInput
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={setSearch}
               placeholder="Search..."
-              className="pl-7 h-9 text-[13px] bg-[var(--surface-raised)] border-border rounded-lg"
             />
           </div>
         </div>

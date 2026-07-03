@@ -1,8 +1,9 @@
 "use client";
 
-import { useId, useState, useEffect } from "react";
+import { useId } from "react";
 import { FileIllustration } from "./RecentlyViewedCard";
 import { FolderIllustration } from "./FolderIllustration";
+import { useTheme } from "@/components/theme-context";
 
 type Props = {
   name: string;
@@ -18,16 +19,7 @@ function formatDate(iso: string) {
 export function DocGridCard({ name, kind, lastModified, onClick }: Props) {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, "");
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const el = document.documentElement;
-    setIsDark(el.classList.contains("dark"));
-    const obs = new MutationObserver(() => setIsDark(el.classList.contains("dark")));
-    obs.observe(el, { attributeFilter: ["class"] });
-    return () => obs.disconnect();
-  }, []);
-
+  const { isDark } = useTheme();
   const shadowOpacity = isDark ? 0.16 : 0.07;
 
   return (

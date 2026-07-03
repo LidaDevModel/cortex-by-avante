@@ -25,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={cn("h-full overflow-hidden antialiased", plusJakartaSans.variable)} suppressHydrationWarning>
       <head>
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('cortex-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(s===null&&d))document.documentElement.classList.add('dark')}catch(e){}})()`,
           }}

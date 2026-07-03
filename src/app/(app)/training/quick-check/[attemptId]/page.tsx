@@ -2,9 +2,7 @@
 
 import { use } from "react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ArrowLeft } from "lucide-react";
+import { PageHeader, DetailHeader } from "@/components/ui/page-header";
 import { FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
 import { findAttempt, getAttemptOrdinal } from "@/lib/kc-store";
 import { KCScoreTable } from "@/components/knowledge-check/KCScoreTable";
@@ -40,25 +38,11 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-      {/* Header */}
-      <header
-        className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0"
-        style={{ background: "var(--surface)" }}
-      >
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-          <span className="text-muted-foreground shrink-0">Training</span>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <Link
-            href="/training/quick-check"
-            className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100"
-          >
-            Knowledge check
-          </Link>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <span className="font-medium text-foreground truncate">{title}</span>
-        </div>
-      </header>
+      <PageHeader crumbs={[
+        { label: "Training" },
+        { label: "Knowledge check", href: "/training/quick-check" },
+        { label: title },
+      ]} />
 
       {/* Canvas */}
       <div
@@ -69,22 +53,12 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
         }}
       >
         <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
-          {/* Back + title block */}
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/training/quick-check"
-              className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
-            >
-              <ArrowLeft size={14} strokeWidth={2} />
-              <span>Back to knowledge check</span>
-            </Link>
-            <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
-              {title}
-            </h1>
-            <p className="text-[14px] leading-[20px] text-muted-foreground">
-              {formatDate(attempt.date)}&nbsp;&nbsp;·&nbsp;&nbsp;{attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
-            </p>
-          </div>
+          <DetailHeader
+            backHref="/training/quick-check"
+            backLabel="Back to knowledge check"
+            title={title}
+            meta={`${formatDate(attempt.date)}  ·  ${attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}`}
+          />
 
           {/* Score */}
           <div className="flex items-baseline gap-2">
