@@ -22,7 +22,7 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full h-10 pl-9 pr-8 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
-        style={{ "--tw-ring-color": "rgba(26,74,46,0.25)" } as React.CSSProperties}
+        style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
       />
       {value && (
         <button

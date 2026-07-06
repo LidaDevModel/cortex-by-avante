@@ -279,7 +279,7 @@ function ChapterStepper({
                 <span
                   className="text-[11px] font-semibold px-[6px] py-[1px] rounded-[4px] tabular-nums shrink-0 mt-[1px]"
                   style={{
-                    background: "rgba(212, 236, 147, 0.5)",
+                    background: "color-mix(in srgb, var(--accent-subtle) 50%, transparent)",
                     color: "var(--primary)",
                   }}
                 >

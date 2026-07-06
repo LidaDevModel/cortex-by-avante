@@ -46,7 +46,7 @@ export function FilterMultiSelect({ values, onChange, options, placeholder, clas
           )}
           style={{
             color: isFiltered ? "var(--foreground)" : "var(--muted-foreground)",
-            ["--tw-ring-color" as string]: "rgba(26,74,46,0.25)",
+            ["--tw-ring-color" as string]: "color-mix(in srgb, var(--primary) 25%, transparent)",
           }}
         >
           {label}

@@ -149,7 +149,7 @@ export function ReviewSubmit({
                     "text-[13px] font-medium pl-2 border-l-2",
                     selected !== null
                       ? "text-[var(--primary)] border-[var(--primary)]"
-                      : "text-muted-foreground border-[#DEE7E4]"
+                      : "text-muted-foreground border-[var(--card-border)]"
                   )}
                 >
                   {selected !== null ? q.options[selected] : "Not answered"}
@@ -178,7 +178,7 @@ export function ReviewSubmit({
                     "text-[13px] font-medium pl-2 border-l-2 min-w-0",
                     matchedDef
                       ? "text-[var(--primary)] border-[var(--primary)]"
-                      : "text-muted-foreground border-[#DEE7E4]"
+                      : "text-muted-foreground border-[var(--card-border)]"
                   )}
                 >
                   {matchedDef ? matchedDef.definition : "Not matched"}
@@ -202,7 +202,7 @@ export function ReviewSubmit({
               "text-[13px] font-medium pl-2 border-l-2",
               shortAnswerAnswered
                 ? "text-[var(--primary)] border-[var(--primary)]"
-                : "text-muted-foreground border-[#DEE7E4]"
+                : "text-muted-foreground border-[var(--card-border)]"
             )}
           >
             {shortAnswerAnswered ? shortAnswerText : "No answer provided"}
@@ -237,7 +237,7 @@ export function ReviewSubmit({
                           "text-[13px] font-medium pl-2 border-l-2",
                           chosenOption
                             ? "text-[var(--primary)] border-[var(--primary)]"
-                            : "text-muted-foreground border-[#DEE7E4]"
+                            : "text-muted-foreground border-[var(--card-border)]"
                         )}
                       >
                         {chosenOption ? chosenOption.text : "No decision made"}

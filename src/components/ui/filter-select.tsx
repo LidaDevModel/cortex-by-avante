@@ -29,7 +29,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
           className={cn("relative h-[40px] pl-3 pr-8 flex items-center rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer", className)}
           style={{
             color: selected ? "var(--foreground)" : "var(--muted-foreground)",
-            ["--tw-ring-color" as string]: "rgba(26,74,46,0.25)",
+            ["--tw-ring-color" as string]: "color-mix(in srgb, var(--primary) 25%, transparent)",
           }}
         >
           {selected?.label ?? placeholder}

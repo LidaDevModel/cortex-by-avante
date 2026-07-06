@@ -64,7 +64,7 @@ export function ExamProgress({
           "ml-auto inline-flex items-center px-[10px] py-[2px] rounded-full text-[12px] font-medium tabular-nums transition-colors duration-300",
           isLowTime
             ? "bg-[color-mix(in_srgb,var(--destructive)_15%,transparent)] text-destructive"
-            : "bg-[var(--sidebar-active,#e0eeba)] text-foreground"
+            : "bg-[var(--sidebar-active)] text-foreground"
         )}
       >
         {formatTime(timeRemaining)} mins

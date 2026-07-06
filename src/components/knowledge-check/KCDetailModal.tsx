@@ -249,7 +249,7 @@ export function KCDetailModal({ attempt, onClose }: { attempt: KCAttempt; onClos
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(17, 24, 39, 0.4)" }}
+      style={{ background: "var(--scrim)" }}
       onClick={onClose}
     >
       <div

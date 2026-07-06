@@ -251,13 +251,13 @@ function ShareFeedbackModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: "rgba(17,24,39,0.4)" }}
+      style={{ background: "var(--scrim)" }}
       onClick={handleBackdrop}
     >
       <div
         className="relative w-[340px] rounded-[12px] bg-[var(--surface-raised)] p-6 flex flex-col gap-5"
         style={{
-          boxShadow: "0 8px 32px rgba(17,24,39,0.14), 0 2px 8px rgba(17,24,39,0.06)",
+          boxShadow: "var(--shadow-modal-panel)",
           animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both",
         }}
         onClick={e => e.stopPropagation()}
@@ -695,7 +695,7 @@ export default function ChatPage() {
         style={{
           background: "var(--surface)",
           border: "1px solid var(--input-border)",
-          boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.05), 0px 2px 15px -3px rgba(0,0,0,0.05)",
+          boxShadow: "var(--shadow-input-widget)",
         }}
       >
         {isRecording ? (
@@ -795,7 +795,7 @@ export default function ChatPage() {
               aria-label="Send message"
               onClick={handleSend}
               style={{
-                boxShadow: "0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2)",
+                boxShadow: "var(--shadow-ai-send-button)",
               }}
             >
               <ArrowUp size={15} className="text-white" />
@@ -809,7 +809,7 @@ export default function ChatPage() {
                   aria-label="Start voice recording"
                   onClick={handleVoiceToggle}
                   style={{
-                    boxShadow: "0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2)",
+                    boxShadow: "var(--shadow-ai-send-button)",
                   }}
                 >
                   <AudioLines size={15} className="text-white" />
@@ -832,7 +832,7 @@ export default function ChatPage() {
         /* Shared clip container — overflow:hidden with card radius so blobs never bleed outside */
         <div
           className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
-          style={{ borderRadius: "12px" }}
+          style={{ borderRadius: "var(--radius-card)" }}
         >
           {/* Left blob — 80%×80%, starts -10% left so the edge is always off-screen even at max translation */}
           <div

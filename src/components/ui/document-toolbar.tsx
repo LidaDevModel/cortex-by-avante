@@ -15,6 +15,7 @@ type Props = {
   findTotalCount: number;
   findMatchIdx: number;
   findEntityLabel?: string;
+  findGridMode?: boolean;
   right?: React.ReactNode;
 };
 
@@ -30,6 +31,7 @@ export function DocumentToolbar({
   findTotalCount,
   findMatchIdx,
   findEntityLabel = "sections",
+  findGridMode = false,
   right,
 }: Props) {
   const findInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +45,10 @@ export function DocumentToolbar({
   const hasQuery = findQuery.trim() !== "";
   const counterText = !hasQuery
     ? ""
+    : findGridMode
+    ? findMatchCount === 0
+      ? "No results"
+      : `${findMatchCount} page${findMatchCount !== 1 ? "s" : ""}`
     : findTotalCount === 0
     ? "No results"
     : `${findMatchIdx + 1} of ${findMatchCount} ${findEntityLabel} · ${findTotalCount} match${findTotalCount !== 1 ? "es" : ""}`;
@@ -81,26 +87,28 @@ export function DocumentToolbar({
                 {counterText}
               </span>
             )}
-            <div className="flex shrink-0">
-              <button
-                onClick={onFindPrev}
-                disabled={findMatchCount === 0}
-                className="flex items-center justify-center size-6 rounded-l-[5px] border transition-colors hover:bg-[var(--surface)] disabled:opacity-40"
-                style={{ borderColor: "var(--border)" }}
-                title="Previous match (⇧ Enter)"
-              >
-                <ChevronUp size={12} strokeWidth={2} className="text-foreground" />
-              </button>
-              <button
-                onClick={onFindNext}
-                disabled={findMatchCount === 0}
-                className="flex items-center justify-center size-6 rounded-r-[5px] border border-l-0 transition-colors hover:bg-[var(--surface)] disabled:opacity-40"
-                style={{ borderColor: "var(--border)" }}
-                title="Next match (Enter)"
-              >
-                <ChevronDown size={12} strokeWidth={2} className="text-foreground" />
-              </button>
-            </div>
+            {!findGridMode && (
+              <div className="flex shrink-0">
+                <button
+                  onClick={onFindPrev}
+                  disabled={findMatchCount === 0}
+                  className="flex items-center justify-center size-6 rounded-l-[5px] border transition-colors hover:bg-[var(--surface)] disabled:opacity-40"
+                  style={{ borderColor: "var(--border)" }}
+                  title="Previous match (⇧ Enter)"
+                >
+                  <ChevronUp size={12} strokeWidth={2} className="text-foreground" />
+                </button>
+                <button
+                  onClick={onFindNext}
+                  disabled={findMatchCount === 0}
+                  className="flex items-center justify-center size-6 rounded-r-[5px] border border-l-0 transition-colors hover:bg-[var(--surface)] disabled:opacity-40"
+                  style={{ borderColor: "var(--border)" }}
+                  title="Next match (Enter)"
+                >
+                  <ChevronDown size={12} strokeWidth={2} className="text-foreground" />
+                </button>
+              </div>
+            )}
             <button
               onClick={onFindClose}
               className="flex items-center justify-center size-6 rounded-[5px] transition-colors hover:bg-[var(--surface)] shrink-0"
