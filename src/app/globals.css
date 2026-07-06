@@ -193,6 +193,7 @@
   --illustration-glow-card: radial-gradient(ellipse 85% 80% at 50% 10.4%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --illustration-glow-side-card: radial-gradient(ellipse 95% 75% at 15% 50%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
+  --background-fileview: #141414;              /* document canvas background (behind pages) — dark mode */
   /* Illustration tokens */
   --il-tray: #6D6D6D;
   --il-doc-bg: #EBEBEB;
