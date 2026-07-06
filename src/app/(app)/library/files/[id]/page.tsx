@@ -438,14 +438,11 @@ function GridView({
     <div className="flex-1 overflow-y-auto scroll-thin" style={{ background: "var(--background-fileview)" }}>
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
+          display: "grid",
+          gridTemplateColumns: `repeat(auto-fill, ${thumbW}px)`,
           gap: 16,
           padding: 24,
-          justifyContent: "flex-start",
-          width: "fit-content",
-          maxWidth: "100%",
-          margin: "0 auto",
+          justifyContent: "center",
         }}
       >
         {allPages.map((pg) => {
