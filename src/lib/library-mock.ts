@@ -248,7 +248,39 @@ export const FOLDERS: LibraryFolder[] = [
           },
         ],
       },
-      { id: "gd-2", name: "Patrol Schedule Template",  kind: "document", content: "3 pages",  lastModified: "2026-06-20" },
+      {
+
+        id: "gd-2",
+
+        name: "Patrol Schedule Template",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-06-20",
+        toc: [
+          {
+            id: "gd-2-s1", num: "1", title: "Review Schedule", page: 1,
+            body: "This section of the Patrol Schedule Template covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "gd-2-s2", num: "2", title: "Standard Practice", page: 2,
+            body: "This section of the Patrol Schedule Template covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "gd-2-s3", num: "3", title: "Overview", page: 3,
+            body: "This section of the Patrol Schedule Template covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -256,13 +288,383 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Access Control",
     lastModified: "2026-06-18",
     documents: [
-      { id: "ac-1", name: "Door Access Policy",        kind: "document", content: "11 pages", lastModified: "2026-06-18" },
-      { id: "ac-2", name: "Visitor Badge Procedures",  kind: "document", content: "5 pages",  lastModified: "2026-06-12" },
-      { id: "ac-3", name: "Key Management Log",        kind: "document", content: "4 pages",  lastModified: "2026-06-08" },
-      { id: "ac-4", name: "CCTV Access Rights",        kind: "document", content: "7 pages",  lastModified: "2026-05-30" },
-      { id: "ac-5", name: "Contractor Access Form",    kind: "document", content: "2 pages",  lastModified: "2026-05-20" },
-      { id: "ac-6", name: "After-Hours Protocol",      kind: "document", content: "6 pages",  lastModified: "2026-05-10" },
-      { id: "ac-7", name: "Emergency Override Guide",  kind: "document", content: "9 pages",  lastModified: "2026-04-28" },
+      {
+
+        id: "ac-1",
+
+        name: "Door Access Policy",
+
+        kind: "document",
+
+        content: "11 pages",
+
+        lastModified: "2026-06-18",
+        toc: [
+          {
+            id: "ac-1-s1", num: "1", title: "Compliance", page: 1,
+            body: "This section of the Door Access Policy covers compliance relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "ac-1-s2", num: "2", title: "Reporting", page: 2,
+            body: "This section of the Door Access Policy covers reporting relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "ac-1-s3", num: "3", title: "Exceptions and Escalation", page: 3,
+            body: "This section of the Door Access Policy covers exceptions and escalation relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "ac-1-s4", num: "4", title: "Roles and Authority", page: 4,
+            body: "This section of the Door Access Policy covers roles and authority relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "ac-1-s5", num: "5", title: "Definitions", page: 5,
+            body: "This section of the Door Access Policy covers definitions relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "ac-1-s6", num: "6", title: "Related Documents", page: 6,
+            body: "This section of the Door Access Policy covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "ac-1-s7", num: "7", title: "Record Keeping", page: 7,
+            body: "This section of the Door Access Policy covers record keeping relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "ac-1-s8", num: "8", title: "Training and Awareness", page: 8,
+            body: "This section of the Door Access Policy covers training and awareness relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+            ],
+          },
+          {
+            id: "ac-1-s9", num: "9", title: "Review Schedule", page: 9,
+            body: "This section of the Door Access Policy covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ac-1-s10", num: "10", title: "Standard Practice", page: 10,
+            body: "This section of the Door Access Policy covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "ac-1-s11", num: "11", title: "Overview", page: 11,
+            body: "This section of the Door Access Policy covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-2",
+
+        name: "Visitor Badge Procedures",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-06-12",
+        toc: [
+          {
+            id: "ac-2-s1", num: "1", title: "Reporting", page: 1,
+            body: "This section of the Visitor Badge Procedures covers reporting relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "ac-2-s2", num: "2", title: "Exceptions and Escalation", page: 2,
+            body: "This section of the Visitor Badge Procedures covers exceptions and escalation relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+          {
+            id: "ac-2-s3", num: "3", title: "Roles and Authority", page: 3,
+            body: "This section of the Visitor Badge Procedures covers roles and authority relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "ac-2-s4", num: "4", title: "Definitions", page: 4,
+            body: "This section of the Visitor Badge Procedures covers definitions relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "ac-2-s5", num: "5", title: "Related Documents", page: 5,
+            body: "This section of the Visitor Badge Procedures covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-3",
+
+        name: "Key Management Log",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-06-08",
+        toc: [
+          {
+            id: "ac-3-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the Key Management Log covers exceptions and escalation relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "ac-3-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the Key Management Log covers roles and authority relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "ac-3-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the Key Management Log covers definitions relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "ac-3-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the Key Management Log covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-4",
+
+        name: "CCTV Access Rights",
+
+        kind: "document",
+
+        content: "7 pages",
+
+        lastModified: "2026-05-30",
+        toc: [
+          {
+            id: "ac-4-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the CCTV Access Rights covers roles and authority relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "ac-4-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the CCTV Access Rights covers definitions relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Records relating to this process must be retained for the period specified in the site retention schedule.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+          {
+            id: "ac-4-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the CCTV Access Rights covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "ac-4-s4", num: "4", title: "Record Keeping", page: 4,
+            body: "This section of the CCTV Access Rights covers record keeping relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "ac-4-s5", num: "5", title: "Training and Awareness", page: 5,
+            body: "This section of the CCTV Access Rights covers training and awareness relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+            points: [
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "ac-4-s6", num: "6", title: "Review Schedule", page: 6,
+            body: "This section of the CCTV Access Rights covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "ac-4-s7", num: "7", title: "Standard Practice", page: 7,
+            body: "This section of the CCTV Access Rights covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-5",
+
+        name: "Contractor Access Form",
+
+        kind: "document",
+
+        content: "2 pages",
+
+        lastModified: "2026-05-20",
+        toc: [
+          {
+            id: "ac-5-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Contractor Access Form covers definitions relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "ac-5-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Contractor Access Form covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-6",
+
+        name: "After-Hours Protocol",
+
+        kind: "document",
+
+        content: "6 pages",
+
+        lastModified: "2026-05-10",
+        toc: [
+          {
+            id: "ac-6-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the After-Hours Protocol covers related documents relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "ac-6-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the After-Hours Protocol covers record keeping relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+          },
+          {
+            id: "ac-6-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the After-Hours Protocol covers training and awareness relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ac-6-s4", num: "4", title: "Review Schedule", page: 4,
+            body: "This section of the After-Hours Protocol covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "ac-6-s5", num: "5", title: "Standard Practice", page: 5,
+            body: "This section of the After-Hours Protocol covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "ac-6-s6", num: "6", title: "Overview", page: 6,
+            body: "This section of the After-Hours Protocol covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ac-7",
+
+        name: "Emergency Override Guide",
+
+        kind: "document",
+
+        content: "9 pages",
+
+        lastModified: "2026-04-28",
+        toc: [
+          {
+            id: "ac-7-s1", num: "1", title: "Record Keeping", page: 1,
+            body: "This section of the Emergency Override Guide covers record keeping relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "ac-7-s2", num: "2", title: "Training and Awareness", page: 2,
+            body: "This section of the Emergency Override Guide covers training and awareness relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+            ],
+          },
+          {
+            id: "ac-7-s3", num: "3", title: "Review Schedule", page: 3,
+            body: "This section of the Emergency Override Guide covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "ac-7-s4", num: "4", title: "Standard Practice", page: 4,
+            body: "This section of the Emergency Override Guide covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "ac-7-s5", num: "5", title: "Overview", page: 5,
+            body: "This section of the Emergency Override Guide covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+          {
+            id: "ac-7-s6", num: "6", title: "Scope and Purpose", page: 6,
+            body: "This section of the Emergency Override Guide covers scope and purpose relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "ac-7-s7", num: "7", title: "Procedure", page: 7,
+            body: "This section of the Emergency Override Guide covers procedure relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ac-7-s8", num: "8", title: "Responsibilities", page: 8,
+            body: "This section of the Emergency Override Guide covers responsibilities relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "ac-7-s9", num: "9", title: "Requirements", page: 9,
+            body: "This section of the Emergency Override Guide covers requirements relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -270,10 +672,246 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Escalation Procedures",
     lastModified: "2026-06-05",
     documents: [
-      { id: "ep-1", name: "Tier 1 Response Guide",     kind: "document", content: "6 pages",  lastModified: "2026-06-05" },
-      { id: "ep-2", name: "Tier 2 Supervisor Brief",   kind: "document", content: "8 pages",  lastModified: "2026-05-28" },
-      { id: "ep-3", name: "Tier 3 Emergency Protocol", kind: "document", content: "12 pages", lastModified: "2026-05-15" },
-      { id: "ep-4", name: "Incident Escalation Form",  kind: "document", content: "3 pages",  lastModified: "2026-05-01" },
+      {
+
+        id: "ep-1",
+
+        name: "Tier 1 Response Guide",
+
+        kind: "document",
+
+        content: "6 pages",
+
+        lastModified: "2026-06-05",
+        toc: [
+          {
+            id: "ep-1-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the Tier 1 Response Guide covers exceptions and escalation relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "ep-1-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the Tier 1 Response Guide covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+          {
+            id: "ep-1-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the Tier 1 Response Guide covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "ep-1-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the Tier 1 Response Guide covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "ep-1-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the Tier 1 Response Guide covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "ep-1-s6", num: "6", title: "Training and Awareness", page: 6,
+            body: "This section of the Tier 1 Response Guide covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ep-2",
+
+        name: "Tier 2 Supervisor Brief",
+
+        kind: "document",
+
+        content: "8 pages",
+
+        lastModified: "2026-05-28",
+        toc: [
+          {
+            id: "ep-2-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Tier 2 Supervisor Brief covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "ep-2-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Tier 2 Supervisor Brief covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "ep-2-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the Tier 2 Supervisor Brief covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ep-2-s4", num: "4", title: "Record Keeping", page: 4,
+            body: "This section of the Tier 2 Supervisor Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "ep-2-s5", num: "5", title: "Training and Awareness", page: 5,
+            body: "This section of the Tier 2 Supervisor Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+          {
+            id: "ep-2-s6", num: "6", title: "Review Schedule", page: 6,
+            body: "This section of the Tier 2 Supervisor Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "ep-2-s7", num: "7", title: "Standard Practice", page: 7,
+            body: "This section of the Tier 2 Supervisor Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "ep-2-s8", num: "8", title: "Overview", page: 8,
+            body: "This section of the Tier 2 Supervisor Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "ep-3",
+
+        name: "Tier 3 Emergency Protocol",
+
+        kind: "document",
+
+        content: "12 pages",
+
+        lastModified: "2026-05-15",
+        toc: [
+          {
+            id: "ep-3-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Tier 3 Emergency Protocol covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "ep-3-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Tier 3 Emergency Protocol covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "ep-3-s3", num: "3", title: "Record Keeping", page: 3,
+            body: "This section of the Tier 3 Emergency Protocol covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "ep-3-s4", num: "4", title: "Training and Awareness", page: 4,
+            body: "This section of the Tier 3 Emergency Protocol covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "ep-3-s5", num: "5", title: "Review Schedule", page: 5,
+            body: "This section of the Tier 3 Emergency Protocol covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "ep-3-s6", num: "6", title: "Standard Practice", page: 6,
+            body: "This section of the Tier 3 Emergency Protocol covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "ep-3-s7", num: "7", title: "Overview", page: 7,
+            body: "This section of the Tier 3 Emergency Protocol covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ep-3-s8", num: "8", title: "Scope and Purpose", page: 8,
+            body: "This section of the Tier 3 Emergency Protocol covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+          },
+          {
+            id: "ep-3-s9", num: "9", title: "Procedure", page: 9,
+            body: "This section of the Tier 3 Emergency Protocol covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "ep-3-s10", num: "10", title: "Responsibilities", page: 10,
+            body: "This section of the Tier 3 Emergency Protocol covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. This requirement applies across all shifts and must be reinforced during team briefings.",
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "ep-3-s11", num: "11", title: "Requirements", page: 11,
+            body: "This section of the Tier 3 Emergency Protocol covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "ep-3-s12", num: "12", title: "Compliance", page: 12,
+            body: "This section of the Tier 3 Emergency Protocol covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ep-4",
+
+        name: "Incident Escalation Form",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-05-01",
+        toc: [
+          {
+            id: "ep-4-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the Incident Escalation Form covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "ep-4-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the Incident Escalation Form covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "ep-4-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the Incident Escalation Form covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -281,15 +919,439 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Onboarding Pack",
     lastModified: "2026-05-22",
     documents: [
-      { id: "op-1", name: "Welcome Guide",             kind: "document", content: "10 pages", lastModified: "2026-05-22" },
-      { id: "op-2", name: "Code of Conduct",           kind: "document", content: "7 pages",  lastModified: "2026-05-18" },
-      { id: "op-3", name: "Uniform Policy",            kind: "document", content: "4 pages",  lastModified: "2026-05-14" },
-      { id: "op-4", name: "Payroll & Leave Info",      kind: "document", content: "5 pages",  lastModified: "2026-05-10" },
-      { id: "op-5", name: "Site Induction Checklist",  kind: "document", content: "3 pages",  lastModified: "2026-05-05" },
-      { id: "op-6", name: "IT & Equipment Setup",      kind: "document", content: "6 pages",  lastModified: "2026-04-28" },
-      { id: "op-7", name: "Emergency Contacts",        kind: "document", content: "2 pages",  lastModified: "2026-04-20" },
-      { id: "op-8", name: "Probation Review Form",     kind: "document", content: "4 pages",  lastModified: "2026-04-12" },
-      { id: "op-9", name: "Training Pathway",          kind: "document", content: "8 pages",  lastModified: "2026-04-01" },
+      {
+
+        id: "op-1",
+
+        name: "Welcome Guide",
+
+        kind: "document",
+
+        content: "10 pages",
+
+        lastModified: "2026-05-22",
+        toc: [
+          {
+            id: "op-1-s1", num: "1", title: "Procedure", page: 1,
+            body: "This section of the Welcome Guide covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "op-1-s2", num: "2", title: "Responsibilities", page: 2,
+            body: "This section of the Welcome Guide covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+          {
+            id: "op-1-s3", num: "3", title: "Requirements", page: 3,
+            body: "This section of the Welcome Guide covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "op-1-s4", num: "4", title: "Compliance", page: 4,
+            body: "This section of the Welcome Guide covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "op-1-s5", num: "5", title: "Reporting", page: 5,
+            body: "This section of the Welcome Guide covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "op-1-s6", num: "6", title: "Exceptions and Escalation", page: 6,
+            body: "This section of the Welcome Guide covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "op-1-s7", num: "7", title: "Roles and Authority", page: 7,
+            body: "This section of the Welcome Guide covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "op-1-s8", num: "8", title: "Definitions", page: 8,
+            body: "This section of the Welcome Guide covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+          {
+            id: "op-1-s9", num: "9", title: "Related Documents", page: 9,
+            body: "This section of the Welcome Guide covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "op-1-s10", num: "10", title: "Record Keeping", page: 10,
+            body: "This section of the Welcome Guide covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-2",
+
+        name: "Code of Conduct",
+
+        kind: "document",
+
+        content: "7 pages",
+
+        lastModified: "2026-05-18",
+        toc: [
+          {
+            id: "op-2-s1", num: "1", title: "Responsibilities", page: 1,
+            body: "This section of the Code of Conduct covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "op-2-s2", num: "2", title: "Requirements", page: 2,
+            body: "This section of the Code of Conduct covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "op-2-s3", num: "3", title: "Compliance", page: 3,
+            body: "This section of the Code of Conduct covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "op-2-s4", num: "4", title: "Reporting", page: 4,
+            body: "This section of the Code of Conduct covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "op-2-s5", num: "5", title: "Exceptions and Escalation", page: 5,
+            body: "This section of the Code of Conduct covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "op-2-s6", num: "6", title: "Roles and Authority", page: 6,
+            body: "This section of the Code of Conduct covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "op-2-s7", num: "7", title: "Definitions", page: 7,
+            body: "This section of the Code of Conduct covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-3",
+
+        name: "Uniform Policy",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-05-14",
+        toc: [
+          {
+            id: "op-3-s1", num: "1", title: "Requirements", page: 1,
+            body: "This section of the Uniform Policy covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "op-3-s2", num: "2", title: "Compliance", page: 2,
+            body: "This section of the Uniform Policy covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Records relating to this process must be retained for the period specified in the site retention schedule.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "op-3-s3", num: "3", title: "Reporting", page: 3,
+            body: "This section of the Uniform Policy covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "op-3-s4", num: "4", title: "Exceptions and Escalation", page: 4,
+            body: "This section of the Uniform Policy covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-4",
+
+        name: "Payroll & Leave Info",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-05-10",
+        toc: [
+          {
+            id: "op-4-s1", num: "1", title: "Compliance", page: 1,
+            body: "This section of the Payroll & Leave Info covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "op-4-s2", num: "2", title: "Reporting", page: 2,
+            body: "This section of the Payroll & Leave Info covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "op-4-s3", num: "3", title: "Exceptions and Escalation", page: 3,
+            body: "This section of the Payroll & Leave Info covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "op-4-s4", num: "4", title: "Roles and Authority", page: 4,
+            body: "This section of the Payroll & Leave Info covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "op-4-s5", num: "5", title: "Definitions", page: 5,
+            body: "This section of the Payroll & Leave Info covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-5",
+
+        name: "Site Induction Checklist",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-05-05",
+        toc: [
+          {
+            id: "op-5-s1", num: "1", title: "Reporting", page: 1,
+            body: "This section of the Site Induction Checklist covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "op-5-s2", num: "2", title: "Exceptions and Escalation", page: 2,
+            body: "This section of the Site Induction Checklist covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+          {
+            id: "op-5-s3", num: "3", title: "Roles and Authority", page: 3,
+            body: "This section of the Site Induction Checklist covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-6",
+
+        name: "IT & Equipment Setup",
+
+        kind: "document",
+
+        content: "6 pages",
+
+        lastModified: "2026-04-28",
+        toc: [
+          {
+            id: "op-6-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the IT & Equipment Setup covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "op-6-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the IT & Equipment Setup covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "op-6-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the IT & Equipment Setup covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "op-6-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the IT & Equipment Setup covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "op-6-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the IT & Equipment Setup covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "op-6-s6", num: "6", title: "Training and Awareness", page: 6,
+            body: "This section of the IT & Equipment Setup covers training and awareness relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-7",
+
+        name: "Emergency Contacts",
+
+        kind: "document",
+
+        content: "2 pages",
+
+        lastModified: "2026-04-20",
+        toc: [
+          {
+            id: "op-7-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Emergency Contacts covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "op-7-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Emergency Contacts covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "op-8",
+
+        name: "Probation Review Form",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-04-12",
+        toc: [
+          {
+            id: "op-8-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Probation Review Form covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "op-8-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Probation Review Form covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+          },
+          {
+            id: "op-8-s3", num: "3", title: "Record Keeping", page: 3,
+            body: "This section of the Probation Review Form covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "op-8-s4", num: "4", title: "Training and Awareness", page: 4,
+            body: "This section of the Probation Review Form covers training and awareness relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+        ],
+
+      },
+      {
+
+        id: "op-9",
+
+        name: "Training Pathway",
+
+        kind: "document",
+
+        content: "8 pages",
+
+        lastModified: "2026-04-01",
+        toc: [
+          {
+            id: "op-9-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the Training Pathway covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "op-9-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the Training Pathway covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+          },
+          {
+            id: "op-9-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the Training Pathway covers training and awareness relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "op-9-s4", num: "4", title: "Review Schedule", page: 4,
+            body: "This section of the Training Pathway covers review schedule relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "op-9-s5", num: "5", title: "Standard Practice", page: 5,
+            body: "This section of the Training Pathway covers standard practice relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "op-9-s6", num: "6", title: "Overview", page: 6,
+            body: "This section of the Training Pathway covers overview relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "op-9-s7", num: "7", title: "Scope and Purpose", page: 7,
+            body: "This section of the Training Pathway covers scope and purpose relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "op-9-s8", num: "8", title: "Procedure", page: 8,
+            body: "This section of the Training Pathway covers procedure relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -297,12 +1359,451 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Site Briefings",
     lastModified: "2026-05-10",
     documents: [
-      { id: "sb-1", name: "City Centre Site Brief",    kind: "document", content: "9 pages",  lastModified: "2026-05-10" },
-      { id: "sb-2", name: "Airport Terminal Brief",    kind: "document", content: "11 pages", lastModified: "2026-05-02" },
-      { id: "sb-3", name: "Warehouse Complex Brief",   kind: "document", content: "8 pages",  lastModified: "2026-04-20" },
-      { id: "sb-4", name: "Hospital Campus Brief",     kind: "document", content: "13 pages", lastModified: "2026-04-10" },
-      { id: "sb-5", name: "Retail Centre Brief",       kind: "document", content: "7 pages",  lastModified: "2026-03-28" },
-      { id: "sb-6", name: "Corporate HQ Brief",        kind: "document", content: "10 pages", lastModified: "2026-03-15" },
+      {
+
+        id: "sb-1",
+
+        name: "City Centre Site Brief",
+
+        kind: "document",
+
+        content: "9 pages",
+
+        lastModified: "2026-05-10",
+        toc: [
+          {
+            id: "sb-1-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the City Centre Site Brief covers exceptions and escalation relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "sb-1-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the City Centre Site Brief covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+          {
+            id: "sb-1-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the City Centre Site Brief covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "sb-1-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the City Centre Site Brief covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "sb-1-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the City Centre Site Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "sb-1-s6", num: "6", title: "Training and Awareness", page: 6,
+            body: "This section of the City Centre Site Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "sb-1-s7", num: "7", title: "Review Schedule", page: 7,
+            body: "This section of the City Centre Site Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "sb-1-s8", num: "8", title: "Standard Practice", page: 8,
+            body: "This section of the City Centre Site Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+          {
+            id: "sb-1-s9", num: "9", title: "Overview", page: 9,
+            body: "This section of the City Centre Site Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+        ],
+
+      },
+      {
+
+        id: "sb-2",
+
+        name: "Airport Terminal Brief",
+
+        kind: "document",
+
+        content: "11 pages",
+
+        lastModified: "2026-05-02",
+        toc: [
+          {
+            id: "sb-2-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Airport Terminal Brief covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "sb-2-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Airport Terminal Brief covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "sb-2-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the Airport Terminal Brief covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "sb-2-s4", num: "4", title: "Record Keeping", page: 4,
+            body: "This section of the Airport Terminal Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "sb-2-s5", num: "5", title: "Training and Awareness", page: 5,
+            body: "This section of the Airport Terminal Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+          {
+            id: "sb-2-s6", num: "6", title: "Review Schedule", page: 6,
+            body: "This section of the Airport Terminal Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "sb-2-s7", num: "7", title: "Standard Practice", page: 7,
+            body: "This section of the Airport Terminal Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "sb-2-s8", num: "8", title: "Overview", page: 8,
+            body: "This section of the Airport Terminal Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+          },
+          {
+            id: "sb-2-s9", num: "9", title: "Scope and Purpose", page: 9,
+            body: "This section of the Airport Terminal Brief covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "sb-2-s10", num: "10", title: "Procedure", page: 10,
+            body: "This section of the Airport Terminal Brief covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Records relating to this process must be retained for the period specified in the site retention schedule.",
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "sb-2-s11", num: "11", title: "Responsibilities", page: 11,
+            body: "This section of the Airport Terminal Brief covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "sb-3",
+
+        name: "Warehouse Complex Brief",
+
+        kind: "document",
+
+        content: "8 pages",
+
+        lastModified: "2026-04-20",
+        toc: [
+          {
+            id: "sb-3-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Warehouse Complex Brief covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "sb-3-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Warehouse Complex Brief covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "sb-3-s3", num: "3", title: "Record Keeping", page: 3,
+            body: "This section of the Warehouse Complex Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "sb-3-s4", num: "4", title: "Training and Awareness", page: 4,
+            body: "This section of the Warehouse Complex Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "sb-3-s5", num: "5", title: "Review Schedule", page: 5,
+            body: "This section of the Warehouse Complex Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "sb-3-s6", num: "6", title: "Standard Practice", page: 6,
+            body: "This section of the Warehouse Complex Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "sb-3-s7", num: "7", title: "Overview", page: 7,
+            body: "This section of the Warehouse Complex Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "sb-3-s8", num: "8", title: "Scope and Purpose", page: 8,
+            body: "This section of the Warehouse Complex Brief covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "sb-4",
+
+        name: "Hospital Campus Brief",
+
+        kind: "document",
+
+        content: "13 pages",
+
+        lastModified: "2026-04-10",
+        toc: [
+          {
+            id: "sb-4-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the Hospital Campus Brief covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "sb-4-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the Hospital Campus Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "sb-4-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the Hospital Campus Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "sb-4-s4", num: "4", title: "Review Schedule", page: 4,
+            body: "This section of the Hospital Campus Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "sb-4-s5", num: "5", title: "Standard Practice", page: 5,
+            body: "This section of the Hospital Campus Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Records relating to this process must be retained for the period specified in the site retention schedule.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "sb-4-s6", num: "6", title: "Overview", page: 6,
+            body: "This section of the Hospital Campus Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "sb-4-s7", num: "7", title: "Scope and Purpose", page: 7,
+            body: "This section of the Hospital Campus Brief covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "sb-4-s8", num: "8", title: "Procedure", page: 8,
+            body: "This section of the Hospital Campus Brief covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+            points: [
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+            ],
+          },
+          {
+            id: "sb-4-s9", num: "9", title: "Responsibilities", page: 9,
+            body: "This section of the Hospital Campus Brief covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "sb-4-s10", num: "10", title: "Requirements", page: 10,
+            body: "This section of the Hospital Campus Brief covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "sb-4-s11", num: "11", title: "Compliance", page: 11,
+            body: "This section of the Hospital Campus Brief covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "sb-4-s12", num: "12", title: "Reporting", page: 12,
+            body: "This section of the Hospital Campus Brief covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "sb-4-s13", num: "13", title: "Exceptions and Escalation", page: 13,
+            body: "This section of the Hospital Campus Brief covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+        ],
+
+      },
+      {
+
+        id: "sb-5",
+
+        name: "Retail Centre Brief",
+
+        kind: "document",
+
+        content: "7 pages",
+
+        lastModified: "2026-03-28",
+        toc: [
+          {
+            id: "sb-5-s1", num: "1", title: "Record Keeping", page: 1,
+            body: "This section of the Retail Centre Brief covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "sb-5-s2", num: "2", title: "Training and Awareness", page: 2,
+            body: "This section of the Retail Centre Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+          {
+            id: "sb-5-s3", num: "3", title: "Review Schedule", page: 3,
+            body: "This section of the Retail Centre Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "sb-5-s4", num: "4", title: "Standard Practice", page: 4,
+            body: "This section of the Retail Centre Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "sb-5-s5", num: "5", title: "Overview", page: 5,
+            body: "This section of the Retail Centre Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "sb-5-s6", num: "6", title: "Scope and Purpose", page: 6,
+            body: "This section of the Retail Centre Brief covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "sb-5-s7", num: "7", title: "Procedure", page: 7,
+            body: "This section of the Retail Centre Brief covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+        ],
+
+      },
+      {
+
+        id: "sb-6",
+
+        name: "Corporate HQ Brief",
+
+        kind: "document",
+
+        content: "10 pages",
+
+        lastModified: "2026-03-15",
+        toc: [
+          {
+            id: "sb-6-s1", num: "1", title: "Training and Awareness", page: 1,
+            body: "This section of the Corporate HQ Brief covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "sb-6-s2", num: "2", title: "Review Schedule", page: 2,
+            body: "This section of the Corporate HQ Brief covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "sb-6-s3", num: "3", title: "Standard Practice", page: 3,
+            body: "This section of the Corporate HQ Brief covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "sb-6-s4", num: "4", title: "Overview", page: 4,
+            body: "This section of the Corporate HQ Brief covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "sb-6-s5", num: "5", title: "Scope and Purpose", page: 5,
+            body: "This section of the Corporate HQ Brief covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+          {
+            id: "sb-6-s6", num: "6", title: "Procedure", page: 6,
+            body: "This section of the Corporate HQ Brief covers procedure relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "sb-6-s7", num: "7", title: "Responsibilities", page: 7,
+            body: "This section of the Corporate HQ Brief covers responsibilities relevant to day-to-day operations. This process supports the wider security objectives of the site and must not be treated as optional. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "sb-6-s8", num: "8", title: "Requirements", page: 8,
+            body: "This section of the Corporate HQ Brief covers requirements relevant to day-to-day operations. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "sb-6-s9", num: "9", title: "Compliance", page: 9,
+            body: "This section of the Corporate HQ Brief covers compliance relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "sb-6-s10", num: "10", title: "Reporting", page: 10,
+            body: "This section of the Corporate HQ Brief covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This process supports the wider security objectives of the site and must not be treated as optional.",
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -310,9 +1811,120 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Visitor Management",
     lastModified: "2026-04-28",
     documents: [
-      { id: "vm-1", name: "Visitor Sign-In Form",      kind: "document", content: "2 pages",  lastModified: "2026-04-28" },
-      { id: "vm-2", name: "Escort Policy",             kind: "document", content: "5 pages",  lastModified: "2026-04-15" },
-      { id: "vm-3", name: "Restricted Areas Map",      kind: "document", content: "4 pages",  lastModified: "2026-04-05" },
+      {
+
+        id: "vm-1",
+
+        name: "Visitor Sign-In Form",
+
+        kind: "document",
+
+        content: "2 pages",
+
+        lastModified: "2026-04-28",
+        toc: [
+          {
+            id: "vm-1-s1", num: "1", title: "Reporting", page: 1,
+            body: "This section of the Visitor Sign-In Form covers reporting relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "vm-1-s2", num: "2", title: "Exceptions and Escalation", page: 2,
+            body: "This section of the Visitor Sign-In Form covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "vm-2",
+
+        name: "Escort Policy",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-04-15",
+        toc: [
+          {
+            id: "vm-2-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the Escort Policy covers exceptions and escalation relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "vm-2-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the Escort Policy covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "vm-2-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the Escort Policy covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "vm-2-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the Escort Policy covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "vm-2-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the Escort Policy covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+        ],
+
+      },
+      {
+
+        id: "vm-3",
+
+        name: "Restricted Areas Map",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-04-05",
+        toc: [
+          {
+            id: "vm-3-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Restricted Areas Map covers roles and authority relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "vm-3-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Restricted Areas Map covers definitions relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+          {
+            id: "vm-3-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the Restricted Areas Map covers related documents relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "vm-3-s4", num: "4", title: "Record Keeping", page: 4,
+            body: "This section of the Restricted Areas Map covers record keeping relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -320,11 +1932,234 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Radio Communications",
     lastModified: "2026-04-10",
     documents: [
-      { id: "rc-1", name: "Radio Codes Reference",     kind: "document", content: "6 pages",  lastModified: "2026-04-10" },
-      { id: "rc-2", name: "Channel Assignments",       kind: "document", content: "3 pages",  lastModified: "2026-04-03" },
-      { id: "rc-3", name: "Equipment Care Guide",      kind: "document", content: "8 pages",  lastModified: "2026-03-25" },
-      { id: "rc-4", name: "Comms Fault Procedure",     kind: "document", content: "5 pages",  lastModified: "2026-03-15" },
-      { id: "rc-5", name: "Handset Sign-Out Log",      kind: "document", content: "2 pages",  lastModified: "2026-03-05" },
+      {
+
+        id: "rc-1",
+
+        name: "Radio Codes Reference",
+
+        kind: "document",
+
+        content: "6 pages",
+
+        lastModified: "2026-04-10",
+        toc: [
+          {
+            id: "rc-1-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the Radio Codes Reference covers exceptions and escalation relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "rc-1-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the Radio Codes Reference covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+          {
+            id: "rc-1-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the Radio Codes Reference covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "rc-1-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the Radio Codes Reference covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "rc-1-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the Radio Codes Reference covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "rc-1-s6", num: "6", title: "Training and Awareness", page: 6,
+            body: "This section of the Radio Codes Reference covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+        ],
+
+      },
+      {
+
+        id: "rc-2",
+
+        name: "Channel Assignments",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-04-03",
+        toc: [
+          {
+            id: "rc-2-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Channel Assignments covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "rc-2-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Channel Assignments covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "rc-2-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the Channel Assignments covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+        ],
+
+      },
+      {
+
+        id: "rc-3",
+
+        name: "Equipment Care Guide",
+
+        kind: "document",
+
+        content: "8 pages",
+
+        lastModified: "2026-03-25",
+        toc: [
+          {
+            id: "rc-3-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Equipment Care Guide covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "rc-3-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Equipment Care Guide covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "rc-3-s3", num: "3", title: "Record Keeping", page: 3,
+            body: "This section of the Equipment Care Guide covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+          {
+            id: "rc-3-s4", num: "4", title: "Training and Awareness", page: 4,
+            body: "This section of the Equipment Care Guide covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "rc-3-s5", num: "5", title: "Review Schedule", page: 5,
+            body: "This section of the Equipment Care Guide covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+            note: "Any exception to this section must be documented and approved in writing before it is applied.",
+          },
+          {
+            id: "rc-3-s6", num: "6", title: "Standard Practice", page: 6,
+            body: "This section of the Equipment Care Guide covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "rc-3-s7", num: "7", title: "Overview", page: 7,
+            body: "This section of the Equipment Care Guide covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "rc-3-s8", num: "8", title: "Scope and Purpose", page: 8,
+            body: "This section of the Equipment Care Guide covers scope and purpose relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+            ],
+          },
+        ],
+
+      },
+      {
+
+        id: "rc-4",
+
+        name: "Comms Fault Procedure",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-03-15",
+        toc: [
+          {
+            id: "rc-4-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the Comms Fault Procedure covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "rc-4-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the Comms Fault Procedure covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "rc-4-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the Comms Fault Procedure covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "rc-4-s4", num: "4", title: "Review Schedule", page: 4,
+            body: "This section of the Comms Fault Procedure covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+          {
+            id: "rc-4-s5", num: "5", title: "Standard Practice", page: 5,
+            body: "This section of the Comms Fault Procedure covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Records relating to this process must be retained for the period specified in the site retention schedule.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+        ],
+
+      },
+      {
+
+        id: "rc-5",
+
+        name: "Handset Sign-Out Log",
+
+        kind: "document",
+
+        content: "2 pages",
+
+        lastModified: "2026-03-05",
+        toc: [
+          {
+            id: "rc-5-s1", num: "1", title: "Record Keeping", page: 1,
+            body: "This section of the Handset Sign-Out Log covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "rc-5-s2", num: "2", title: "Training and Awareness", page: 2,
+            body: "This section of the Handset Sign-Out Log covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -332,10 +2167,180 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Contractor Induction",
     lastModified: "2026-03-20",
     documents: [
-      { id: "ci-1", name: "Contractor Safety Brief",    kind: "document", content: "7 pages",  lastModified: "2026-03-20" },
-      { id: "ci-2", name: "Site Rules for Contractors", kind: "document", content: "5 pages",  lastModified: "2026-03-12" },
-      { id: "ci-3", name: "Work Permit Template",       kind: "document", content: "3 pages",  lastModified: "2026-03-05" },
-      { id: "ci-4", name: "Insurance Requirements",     kind: "document", content: "4 pages",  lastModified: "2026-02-25" },
+      {
+
+        id: "ci-1",
+
+        name: "Contractor Safety Brief",
+
+        kind: "document",
+
+        content: "7 pages",
+
+        lastModified: "2026-03-20",
+        toc: [
+          {
+            id: "ci-1-s1", num: "1", title: "Review Schedule", page: 1,
+            body: "This section of the Contractor Safety Brief covers review schedule relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "ci-1-s2", num: "2", title: "Standard Practice", page: 2,
+            body: "This section of the Contractor Safety Brief covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "ci-1-s3", num: "3", title: "Overview", page: 3,
+            body: "This section of the Contractor Safety Brief covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "ci-1-s4", num: "4", title: "Scope and Purpose", page: 4,
+            body: "This section of the Contractor Safety Brief covers scope and purpose relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "ci-1-s5", num: "5", title: "Procedure", page: 5,
+            body: "This section of the Contractor Safety Brief covers procedure relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+            note: "This section may be updated following a client review. Always refer to the latest version held in the control room.",
+          },
+          {
+            id: "ci-1-s6", num: "6", title: "Responsibilities", page: 6,
+            body: "This section of the Contractor Safety Brief covers responsibilities relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "ci-1-s7", num: "7", title: "Requirements", page: 7,
+            body: "This section of the Contractor Safety Brief covers requirements relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ci-2",
+
+        name: "Site Rules for Contractors",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-03-12",
+        toc: [
+          {
+            id: "ci-2-s1", num: "1", title: "Standard Practice", page: 1,
+            body: "This section of the Site Rules for Contractors covers standard practice relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "ci-2-s2", num: "2", title: "Overview", page: 2,
+            body: "This section of the Site Rules for Contractors covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "ci-2-s3", num: "3", title: "Scope and Purpose", page: 3,
+            body: "This section of the Site Rules for Contractors covers scope and purpose relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "ci-2-s4", num: "4", title: "Procedure", page: 4,
+            body: "This section of the Site Rules for Contractors covers procedure relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "ci-2-s5", num: "5", title: "Responsibilities", page: 5,
+            body: "This section of the Site Rules for Contractors covers responsibilities relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ci-3",
+
+        name: "Work Permit Template",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-03-05",
+        toc: [
+          {
+            id: "ci-3-s1", num: "1", title: "Overview", page: 1,
+            body: "This section of the Work Permit Template covers overview relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "ci-3-s2", num: "2", title: "Scope and Purpose", page: 2,
+            body: "This section of the Work Permit Template covers scope and purpose relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "ci-3-s3", num: "3", title: "Procedure", page: 3,
+            body: "This section of the Work Permit Template covers procedure relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+        ],
+
+      },
+      {
+
+        id: "ci-4",
+
+        name: "Insurance Requirements",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-02-25",
+        toc: [
+          {
+            id: "ci-4-s1", num: "1", title: "Scope and Purpose", page: 1,
+            body: "This section of the Insurance Requirements covers scope and purpose relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "ci-4-s2", num: "2", title: "Procedure", page: 2,
+            body: "This section of the Insurance Requirements covers procedure relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+          {
+            id: "ci-4-s3", num: "3", title: "Responsibilities", page: 3,
+            body: "This section of the Insurance Requirements covers responsibilities relevant to day-to-day operations. Non-compliance with this section may result in a formal review under the site's disciplinary procedure. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "ci-4-s4", num: "4", title: "Requirements", page: 4,
+            body: "This section of the Insurance Requirements covers requirements relevant to day-to-day operations. All personnel are expected to be familiar with the contents of this section before commencing duties. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+        ],
+
+      },
     ],
   },
   {
@@ -343,14 +2348,323 @@ export const FOLDERS: LibraryFolder[] = [
     name: "Incident Log Templates",
     lastModified: "2026-03-07",
     documents: [
-      { id: "il-1", name: "General Incident Report",   kind: "document", content: "6 pages",  lastModified: "2026-03-07" },
-      { id: "il-2", name: "Use of Force Report",       kind: "document", content: "5 pages",  lastModified: "2026-02-28" },
-      { id: "il-3", name: "Near-Miss Record",          kind: "document", content: "3 pages",  lastModified: "2026-02-18" },
-      { id: "il-4", name: "Property Damage Form",      kind: "document", content: "4 pages",  lastModified: "2026-02-10" },
-      { id: "il-5", name: "Medical Incident Log",      kind: "document", content: "5 pages",  lastModified: "2026-02-01" },
-      { id: "il-6", name: "Theft & Loss Report",       kind: "document", content: "4 pages",  lastModified: "2026-01-22" },
-      { id: "il-7", name: "CCTV Evidence Request",     kind: "document", content: "3 pages",  lastModified: "2026-01-14" },
-      { id: "il-8", name: "Witness Statement Form",    kind: "document", content: "2 pages",  lastModified: "2026-01-05" },
+      {
+
+        id: "il-1",
+
+        name: "General Incident Report",
+
+        kind: "document",
+
+        content: "6 pages",
+
+        lastModified: "2026-03-07",
+        toc: [
+          {
+            id: "il-1-s1", num: "1", title: "Exceptions and Escalation", page: 1,
+            body: "This section of the General Incident Report covers exceptions and escalation relevant to day-to-day operations. Updates to this section take effect immediately upon publication and supersede previous guidance. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "il-1-s2", num: "2", title: "Roles and Authority", page: 2,
+            body: "This section of the General Incident Report covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Ensure all entries are legible, accurate, and completed in full.",
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+            ],
+          },
+          {
+            id: "il-1-s3", num: "3", title: "Definitions", page: 3,
+            body: "This section of the General Incident Report covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "il-1-s4", num: "4", title: "Related Documents", page: 4,
+            body: "This section of the General Incident Report covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "il-1-s5", num: "5", title: "Record Keeping", page: 5,
+            body: "This section of the General Incident Report covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Failure to document actions taken under this section may compromise the integrity of the record.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+          {
+            id: "il-1-s6", num: "6", title: "Training and Awareness", page: 6,
+            body: "This section of the General Incident Report covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-2",
+
+        name: "Use of Force Report",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-02-28",
+        toc: [
+          {
+            id: "il-2-s1", num: "1", title: "Roles and Authority", page: 1,
+            body: "This section of the Use of Force Report covers roles and authority relevant to day-to-day operations. Training on this topic is delivered during induction and refreshed annually thereafter. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+          {
+            id: "il-2-s2", num: "2", title: "Definitions", page: 2,
+            body: "This section of the Use of Force Report covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+            points: [
+              "Refer unresolved issues to the duty manager without delay.",
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+            ],
+          },
+          {
+            id: "il-2-s3", num: "3", title: "Related Documents", page: 3,
+            body: "This section of the Use of Force Report covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "il-2-s4", num: "4", title: "Record Keeping", page: 4,
+            body: "This section of the Use of Force Report covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "il-2-s5", num: "5", title: "Training and Awareness", page: 5,
+            body: "This section of the Use of Force Report covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+            note: "This requirement is subject to periodic audit by Avante Security management. Ensure full compliance at all times.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-3",
+
+        name: "Near-Miss Record",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-02-18",
+        toc: [
+          {
+            id: "il-3-s1", num: "1", title: "Definitions", page: 1,
+            body: "This section of the Near-Miss Record covers definitions relevant to day-to-day operations. Any queries relating to this section should be directed to the site manager or Avante Security management. Records relating to this process must be retained for the period specified in the site retention schedule.",
+          },
+          {
+            id: "il-3-s2", num: "2", title: "Related Documents", page: 2,
+            body: "This section of the Near-Miss Record covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+            points: [
+              "Confirm the relevant checklist has been completed before sign-off.",
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+            ],
+          },
+          {
+            id: "il-3-s3", num: "3", title: "Record Keeping", page: 3,
+            body: "This section of the Near-Miss Record covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-4",
+
+        name: "Property Damage Form",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-02-10",
+        toc: [
+          {
+            id: "il-4-s1", num: "1", title: "Related Documents", page: 1,
+            body: "This section of the Property Damage Form covers related documents relevant to day-to-day operations. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly. This requirement applies across all shifts and must be reinforced during team briefings.",
+          },
+          {
+            id: "il-4-s2", num: "2", title: "Record Keeping", page: 2,
+            body: "This section of the Property Damage Form covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. This process supports the wider security objectives of the site and must not be treated as optional.",
+            points: [
+              "Notify the shift supervisor of any deviation from standard practice.",
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+            ],
+          },
+          {
+            id: "il-4-s3", num: "3", title: "Training and Awareness", page: 3,
+            body: "This section of the Property Damage Form covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Training on this topic is delivered during induction and refreshed annually thereafter.",
+          },
+          {
+            id: "il-4-s4", num: "4", title: "Review Schedule", page: 4,
+            body: "This section of the Property Damage Form covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-5",
+
+        name: "Medical Incident Log",
+
+        kind: "document",
+
+        content: "5 pages",
+
+        lastModified: "2026-02-01",
+        toc: [
+          {
+            id: "il-5-s1", num: "1", title: "Record Keeping", page: 1,
+            body: "This section of the Medical Incident Log covers record keeping relevant to day-to-day operations. Failure to document actions taken under this section may compromise the integrity of the record. Non-compliance with this section may result in a formal review under the site's disciplinary procedure.",
+          },
+          {
+            id: "il-5-s2", num: "2", title: "Training and Awareness", page: 2,
+            body: "This section of the Medical Incident Log covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+            points: [
+              "Record the time, location, and personnel involved for every action taken.",
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+            ],
+          },
+          {
+            id: "il-5-s3", num: "3", title: "Review Schedule", page: 3,
+            body: "This section of the Medical Incident Log covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+          },
+          {
+            id: "il-5-s4", num: "4", title: "Standard Practice", page: 4,
+            body: "This section of the Medical Incident Log covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Officers must follow each step in order and confirm completion before proceeding to the next stage.",
+          },
+          {
+            id: "il-5-s5", num: "5", title: "Overview", page: 5,
+            body: "This section of the Medical Incident Log covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. This requirement applies across all shifts and must be reinforced during team briefings.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+            note: "Officers who are unsure how to apply this section should seek clarification from their supervisor before acting.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-6",
+
+        name: "Theft & Loss Report",
+
+        kind: "document",
+
+        content: "4 pages",
+
+        lastModified: "2026-01-22",
+        toc: [
+          {
+            id: "il-6-s1", num: "1", title: "Training and Awareness", page: 1,
+            body: "This section of the Theft & Loss Report covers training and awareness relevant to day-to-day operations. Officers must follow each step in order and confirm completion before proceeding to the next stage. All personnel are expected to be familiar with the contents of this section before commencing duties.",
+          },
+          {
+            id: "il-6-s2", num: "2", title: "Review Schedule", page: 2,
+            body: "This section of the Theft & Loss Report covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. Updates to this section take effect immediately upon publication and supersede previous guidance.",
+            points: [
+              "Escalate immediately if the situation falls outside your authority to resolve.",
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+            ],
+          },
+          {
+            id: "il-6-s3", num: "3", title: "Standard Practice", page: 3,
+            body: "This section of the Theft & Loss Report covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. This section forms part of the site-specific procedures agreed with the client and must be followed accordingly.",
+          },
+          {
+            id: "il-6-s4", num: "4", title: "Overview", page: 4,
+            body: "This section of the Theft & Loss Report covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-7",
+
+        name: "CCTV Evidence Request",
+
+        kind: "document",
+
+        content: "3 pages",
+
+        lastModified: "2026-01-14",
+        toc: [
+          {
+            id: "il-7-s1", num: "1", title: "Review Schedule", page: 1,
+            body: "This section of the CCTV Evidence Request covers review schedule relevant to day-to-day operations. Any deviation from this procedure must be approved in advance by the shift supervisor or duty manager. This process supports the wider security objectives of the site and must not be treated as optional.",
+          },
+          {
+            id: "il-7-s2", num: "2", title: "Standard Practice", page: 2,
+            body: "This section of the CCTV Evidence Request covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Training on this topic is delivered during induction and refreshed annually thereafter.",
+            points: [
+              "Do not proceed without the required approval where one is specified.",
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+            ],
+          },
+          {
+            id: "il-7-s3", num: "3", title: "Overview", page: 3,
+            body: "This section of the CCTV Evidence Request covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Failure to document actions taken under this section may compromise the integrity of the record.",
+          },
+        ],
+
+      },
+      {
+
+        id: "il-8",
+
+        name: "Witness Statement Form",
+
+        kind: "document",
+
+        content: "2 pages",
+
+        lastModified: "2026-01-05",
+        toc: [
+          {
+            id: "il-8-s1", num: "1", title: "Standard Practice", page: 1,
+            body: "This section of the Witness Statement Form covers standard practice relevant to day-to-day operations. Records relating to this process must be retained for the period specified in the site retention schedule. Where responsibilities overlap between roles, the more senior officer takes precedence for decision-making.",
+          },
+          {
+            id: "il-8-s2", num: "2", title: "Overview", page: 2,
+            body: "This section of the Witness Statement Form covers overview relevant to day-to-day operations. This requirement applies across all shifts and must be reinforced during team briefings. Any queries relating to this section should be directed to the site manager or Avante Security management.",
+            points: [
+              "Retain supporting documentation for the period defined in the retention schedule.",
+              "Verify identity before granting access or releasing information.",
+              "Report any equipment faults or shortfalls before the end of the shift.",
+              "Ensure all entries are legible, accurate, and completed in full.",
+            ],
+          },
+        ],
+
+      },
     ],
   },
 ];
