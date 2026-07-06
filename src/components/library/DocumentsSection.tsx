@@ -9,6 +9,7 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type Sor
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { cn } from "@/lib/utils";
+import { FOLDERS, TOP_LEVEL_DOCS } from "@/lib/library-mock";
 
 /* ─── Types ─── */
 
@@ -22,33 +23,23 @@ type Doc = {
   lastModified: string;
 };
 
-/* ─── Mock data ─── */
+/* ─── Data — derived live from the shared library data, never hand-duplicated ─── */
 
 const DOCUMENTS: Doc[] = [
-  { id: "1",  name: "Incident Response",          kind: "document", content: "13 pages", lastModified: "2026-06-28" },
-  { id: "2",  name: "Guard Duty",                 kind: "folder",   content: "2 files",  lastModified: "2026-06-25" },
-  { id: "3",  name: "Security Protocols",         kind: "document", content: "12 pages", lastModified: "2026-06-20" },
-  { id: "4",  name: "Access Control",             kind: "folder",   content: "7 files",  lastModified: "2026-06-18" },
-  { id: "5",  name: "Emergency Procedures",       kind: "document", content: "8 pages",  lastModified: "2026-06-15" },
-  { id: "6",  name: "Client Communication",       kind: "document", content: "6 pages",  lastModified: "2026-06-10" },
-  { id: "7",  name: "Patrol Guidelines",          kind: "document", content: "10 pages", lastModified: "2026-06-08" },
-  { id: "8",  name: "Escalation Procedures",      kind: "folder",   content: "4 files",  lastModified: "2026-06-05" },
-  { id: "9",  name: "First Aid Reference",        kind: "document", content: "5 pages",  lastModified: "2026-05-30" },
-  { id: "10", name: "Onboarding Pack",            kind: "folder",   content: "9 files",  lastModified: "2026-05-22" },
-  { id: "11", name: "Post Incident Report",       kind: "document", content: "3 pages",  lastModified: "2026-05-18" },
-  { id: "12", name: "Site Briefings",             kind: "folder",   content: "6 files",  lastModified: "2026-05-10" },
-  { id: "13", name: "CCTV Operations",            kind: "document", content: "7 pages",  lastModified: "2026-05-05" },
-  { id: "14", name: "Visitor Management",         kind: "folder",   content: "3 files",  lastModified: "2026-04-28" },
-  { id: "15", name: "Night Shift Protocols",      kind: "document", content: "9 pages",  lastModified: "2026-04-22" },
-  { id: "16", name: "Key Handover Log",           kind: "document", content: "4 pages",  lastModified: "2026-04-15" },
-  { id: "17", name: "Radio Communications",       kind: "folder",   content: "5 files",  lastModified: "2026-04-10" },
-  { id: "18", name: "Fire Evacuation Plan",       kind: "document", content: "6 pages",  lastModified: "2026-04-03" },
-  { id: "19", name: "Threat Assessment",          kind: "document", content: "11 pages", lastModified: "2026-03-28" },
-  { id: "20", name: "Contractor Induction",       kind: "folder",   content: "4 files",  lastModified: "2026-03-20" },
-  { id: "21", name: "Uniform & Equipment",        kind: "document", content: "5 pages",  lastModified: "2026-03-14" },
-  { id: "22", name: "Incident Log Templates",     kind: "folder",   content: "8 files",  lastModified: "2026-03-07" },
-  { id: "23", name: "Control Room Procedures",   kind: "document", content: "14 pages", lastModified: "2026-02-28" },
-  { id: "24", name: "Lone Worker Policy",         kind: "document", content: "6 pages",  lastModified: "2026-02-20" },
+  ...FOLDERS.map((f): Doc => ({
+    id: f.id,
+    name: f.name,
+    kind: "folder",
+    content: `${f.documents.length} file${f.documents.length !== 1 ? "s" : ""}`,
+    lastModified: f.lastModified,
+  })),
+  ...TOP_LEVEL_DOCS.map((d): Doc => ({
+    id: d.id,
+    name: d.name,
+    kind: "document",
+    content: d.content,
+    lastModified: d.lastModified,
+  })),
 ];
 
 const LIST_PAGE_SIZE = 8;
