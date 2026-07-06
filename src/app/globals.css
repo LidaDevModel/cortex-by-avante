@@ -84,7 +84,7 @@
   --sidebar-border: oklch(0.922 0.004 250);
   --sidebar-ring: oklch(0.30 0.09 150);
   /* Cortex surface & glow tokens */
-  --surface: #ffffff;                          /* swapped with --doc-page-bg's former value */
+  --surface: oklch(0.992 0.004 145);
   --surface-raised: oklch(0.975 0.004 145);   /* module cards, modals, raised surfaces */
   --accent-subtle: oklch(0.897 0.106 130);    /* #D4EC93 lime — active thumbs, recording btn */
   --input-border: oklch(0.910 0.040 150);     /* #d4f3e8 mint — chat input widget border */
@@ -119,7 +119,7 @@
   --match-pair-4-bg: oklch(0.72 0.14 115 / 0.15);
   --match-pair-4-border: oklch(0.62 0.14 115);
   /* Document page tokens — the "paper" surface and its ink, themed per mode */
-  --doc-page-bg: oklch(0.992 0.004 145);       /* swapped with --surface's former value */
+  --doc-page-bg: #ffffff;
   --doc-text: #333333;
   --doc-text-muted: #555555;
   --doc-text-faint: #aaaaaa;
