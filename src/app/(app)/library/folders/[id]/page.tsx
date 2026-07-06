@@ -86,7 +86,7 @@ export default function FolderDetailPage() {
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
             <DetailHeader
               backHref="/library"
-              backLabel="Back to library"
+              backLabel="Back to Library"
               title={folder.name}
               meta={`${folder.documents.length} document${folder.documents.length !== 1 ? "s" : ""}  ·  Last updated ${formatDate(folder.lastModified)}`}
             />
