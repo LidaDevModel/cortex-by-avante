@@ -36,7 +36,7 @@ export default function LibraryPage() {
                   <RecentlyViewedCard
                     key={item.id}
                     item={item}
-                    onClick={item.type === "folder" ? () => router.push(`/library/folders/${item.id}`) : undefined}
+                    onClick={() => router.push(item.type === "folder" ? `/library/folders/${item.id}` : `/library/files/${item.id}`)}
                   />
                 ))}
               </div>

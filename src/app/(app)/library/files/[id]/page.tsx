@@ -828,17 +828,24 @@ export default function FileViewPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
       <PageHeader
-        crumbs={[
-          { label: "Library", href: "/library" },
-          { label: folder.name, href: `/library/folders/${folder.id}` },
-          { label: doc.name },
-        ]}
+        crumbs={
+          folder
+            ? [
+                { label: "Library", href: "/library" },
+                { label: folder.name, href: `/library/folders/${folder.id}` },
+                { label: doc.name },
+              ]
+            : [
+                { label: "Library", href: "/library" },
+                { label: doc.name },
+              ]
+        }
       />
 
       <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
         <DetailHeader
-          backHref={`/library/folders/${folder.id}`}
-          backLabel="Back to folder"
+          backHref={folder ? `/library/folders/${folder.id}` : "/library"}
+          backLabel={folder ? "Back to folder" : "Back to library"}
           title={doc.name}
           meta={doc.content}
           className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"

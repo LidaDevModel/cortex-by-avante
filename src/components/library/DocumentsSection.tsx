@@ -226,7 +226,7 @@ export function DocumentsSection() {
             </TableHeader>
             <TableBody>
               {paginated.map((doc) => (
-                <TableRow key={doc.id} onClick={() => doc.kind === "folder" ? router.push(`/library/folders/${doc.id}`) : undefined}>
+                <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
                   <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--primary)" }}>
                     <span className="truncate">{doc.name}</span>
                   </TableCell>
@@ -247,7 +247,7 @@ export function DocumentsSection() {
                 name={doc.name}
                 kind={doc.kind}
                 lastModified={doc.lastModified}
-                onClick={() => doc.kind === "folder" ? router.push(`/library/folders/${doc.id}`) : undefined}
+                onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}
               />
             ))}
           </div>
