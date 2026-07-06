@@ -69,13 +69,15 @@ function Waveform() {
 // ─── Thinking loader ──────────────────────────────────────────────────────────
 
 function ThinkingLoader() {
+  const [ready, setReady] = useState(false);
   return (
     <video
       autoPlay
       loop
       muted
       playsInline
-      className="w-[22px] h-[22px] shrink-0"
+      onPlaying={() => setReady(true)}
+      className={`w-[22px] h-[22px] shrink-0 transition-opacity duration-100 ${ready ? "opacity-100" : "opacity-0"}`}
       aria-label="Cortex is thinking"
     >
       <source src="/chat/thinking.webm" type="video/webm" />
