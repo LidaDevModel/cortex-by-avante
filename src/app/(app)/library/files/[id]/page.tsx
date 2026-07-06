@@ -443,6 +443,9 @@ function GridView({
           gap: 16,
           padding: 24,
           justifyContent: "flex-start",
+          width: "fit-content",
+          maxWidth: "100%",
+          margin: "0 auto",
         }}
       >
         {allPages.map((pg) => {
