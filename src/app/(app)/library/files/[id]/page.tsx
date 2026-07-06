@@ -484,7 +484,7 @@ function GridView({
               >
                 {/* Full-size page scaled down */}
                 <div
-                  className="bg-[var(--doc-page-bg)] flex flex-col absolute top-0 left-0"
+                  className="bg-[var(--doc-page-bg)] flex flex-col absolute top-0 left-0 text-left"
                   style={{
                     width: PAGE_W,
                     height: PAGE_H,
