@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Mic, AudioLines, ArrowUp, ArrowDown, Square, X, Check,
-  ChevronDown, Loader2, ThumbsUp, ThumbsDown, Volume2,
+  ChevronDown, ThumbsUp, ThumbsDown, Volume2,
   Pencil, Trash2, ArrowUpRight,
 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -63,6 +63,24 @@ function Waveform() {
         <div key={`b${i}`} className="w-[2px] rounded-full shrink-0 bg-foreground" style={{ height: `${h}px` }} />
       ))}
     </div>
+  );
+}
+
+// ─── Thinking loader ──────────────────────────────────────────────────────────
+
+function ThinkingLoader() {
+  return (
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="w-[22px] h-[22px] shrink-0"
+      aria-label="Cortex is thinking"
+    >
+      <source src="/chat/thinking.webm" type="video/webm" />
+      <source src="/chat/thinking.mp4" type="video/mp4" />
+    </video>
   );
 }
 
@@ -342,7 +360,7 @@ function AiMessage({
   if (message.isStreaming && !message.streamText) {
     return (
       <div className="flex items-start pt-1">
-        <Loader2 size={18} className="animate-spin text-primary shrink-0" />
+        <ThinkingLoader />
       </div>
     );
   }
@@ -353,7 +371,7 @@ function AiMessage({
         <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
           {message.streamText}
         </p>
-        <Loader2 size={18} className="animate-spin text-primary shrink-0" />
+        <ThinkingLoader />
       </div>
     );
   }
@@ -715,7 +733,8 @@ export default function ChatPage() {
                 }
               }}
               rows={1}
-              className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0"
+              placeholder="Ask anything about protocols, procedures, or guidelines..."
+              className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:text-[14px]"
               onScroll={updateTaScroll}
               style={{
                 maxHeight: `${MAX_HEIGHT}px`,
@@ -987,9 +1006,6 @@ export default function ChatPage() {
                 <h1 className="text-[20px] leading-none font-semibold text-primary">
                   How can I help you Mike?
                 </h1>
-                <p className="text-[14px] leading-[20px] text-muted-foreground whitespace-nowrap">
-                  Ask anything about protocols, procedures, or guidelines.
-                </p>
               </div>
               <div className="w-full relative">
                 {inputWidget}
