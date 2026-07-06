@@ -931,9 +931,9 @@ export default function ChatPage() {
                 onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}
                 className="flex items-center justify-center w-9 h-9 rounded-full border border-border"
                 style={{
-                  background: "rgba(252,252,252,0.53)",
+                  background: "var(--surface-glass)",
                   backdropFilter: "blur(4px)",
-                  boxShadow: "0 3px 11.4px rgba(0,0,0,0.10)",
+                  boxShadow: "var(--shadow-floating)",
                 }}
               >
                 <ArrowDown size={15} className="text-foreground" />

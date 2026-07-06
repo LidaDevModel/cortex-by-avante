@@ -104,6 +104,20 @@
   --shadow-ai-send-button: 0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2);
   --shadow-modal-panel: 0 8px 32px rgba(17,24,39,0.14), 0 2px 8px rgba(17,24,39,0.06);
   --shadow-input-widget: 0px 2px 8px 0px rgba(0,0,0,0.05), 0px 2px 15px -3px rgba(0,0,0,0.05);
+  --shadow-floating: 0 3px 11.4px rgba(0,0,0,0.10);           /* scroll-to-bottom / floating buttons */
+  --shadow-thumb: 0px 2px 8px 0px rgba(0,0,0,0.08);           /* library thumbnail drop shadow */
+  --shadow-thumb-strong: 0px 2px 8px 0px rgba(0,0,0,0.10);    /* active thumbnail drop shadow */
+  /* Surface & control tokens */
+  --surface-glass: rgba(252,252,252,0.53);                    /* translucent glass button bg */
+  --control-border: #d1d5db;                                  /* unselected control indicator border */
+  --progress-track: var(--border);                            /* progress-bar track */
+  /* Matching-pair accent palette — distinct hues (not red/green); text stays var(--foreground) */
+  --match-pair-2-bg: oklch(0.60 0.08 175 / 0.15);
+  --match-pair-2-border: oklch(0.60 0.08 175);
+  --match-pair-3-bg: oklch(0.75 0.12 130 / 0.18);
+  --match-pair-3-border: oklch(0.65 0.12 130);
+  --match-pair-4-bg: oklch(0.72 0.14 115 / 0.15);
+  --match-pair-4-border: oklch(0.62 0.14 115);
   /* Document ink tokens — fixed values (ink on white paper, do not theme) */
   --doc-text: #333333;
   --doc-text-muted: #555555;
@@ -133,6 +147,7 @@
 
 .dark {
   /* Cortex dark mode — neutral dark gray base, muted teal accent (#353535 cards, #71b7a2 primary) */
+  --progress-track: oklch(0.46 0 0);        /* neutral mid-gray track in dark mode */
   --background: oklch(0.17 0 0);             /* #1a1a1a — page bg, darker than cards */
   --foreground: oklch(1 0 0);               /* white */
   --card: oklch(0.27 0 0);                  /* #353535 — card surface */

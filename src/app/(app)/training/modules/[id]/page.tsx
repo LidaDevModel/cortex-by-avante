@@ -352,11 +352,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                     ? "2px solid var(--destructive)"
                     : isSelected && !submitted
                     ? "2px solid var(--primary)"
-                    : "1.5px solid #d1d5db",
+                    : "1.5px solid var(--control-border)",
                   background: showCorrect ? "var(--primary)" : "transparent",
                 }}
               >
-                {showCorrect && <Check size={10} strokeWidth={3} color="#fff" />}
+                {showCorrect && <Check size={10} strokeWidth={3} color="var(--primary-foreground)" />}
                 {showWrong && <X size={10} strokeWidth={3} className="text-destructive" />}
                 {isSelected && !submitted && (
                   <span className="rounded-full block" style={{ width: 8, height: 8, background: "var(--primary)" }} />

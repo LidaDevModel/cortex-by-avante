@@ -7,9 +7,9 @@ import type { MatchingExercise, MatchingPair } from "@/lib/exam-mock";
 // Distinct pair colors — bg/border only; text always uses var(--foreground) for contrast in both modes
 const PAIR_COLORS = [
   { bg: "color-mix(in srgb, var(--primary) 10%, transparent)", border: "var(--primary)" },
-  { bg: "oklch(0.60 0.08 175 / 0.15)", border: "oklch(0.60 0.08 175)" },
-  { bg: "oklch(0.75 0.12 130 / 0.18)", border: "oklch(0.65 0.12 130)" },
-  { bg: "oklch(0.72 0.14 115 / 0.15)", border: "oklch(0.62 0.14 115)" },
+  { bg: "var(--match-pair-2-bg)", border: "var(--match-pair-2-border)" },
+  { bg: "var(--match-pair-3-bg)", border: "var(--match-pair-3-border)" },
+  { bg: "var(--match-pair-4-bg)", border: "var(--match-pair-4-border)" },
 ];
 
 type Connector = { id: string; x1: number; y1: number; x2: number; y2: number; colorIdx: number };

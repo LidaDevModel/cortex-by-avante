@@ -6,7 +6,7 @@ type Props = {
 export function ProgressBar({ value, height = 6 }: Props) {
   return (
     <div
-      className="rounded-full bg-border dark:bg-[oklch(0.46_0_0)] overflow-hidden"
+      className="rounded-full bg-[var(--progress-track)] overflow-hidden"
       style={{ height }}
     >
       <div

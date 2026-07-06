@@ -475,10 +475,10 @@ function GridView({
                   height: thumbH,
                   borderRadius: 4,
                   boxShadow: isActive
-                    ? "0 0 0 2px var(--primary), 0px 2px 8px 0px rgba(0,0,0,0.10)"
+                    ? "0 0 0 2px var(--primary), var(--shadow-thumb-strong)"
                     : q && matches && !isActive
-                    ? "0 0 0 2px var(--ring), 0px 2px 8px 0px rgba(0,0,0,0.08)"
-                    : "0px 2px 8px 0px rgba(0,0,0,0.08)",
+                    ? "0 0 0 2px var(--ring), var(--shadow-thumb)"
+                    : "var(--shadow-thumb)",
                   transition: "box-shadow 150ms",
                 }}
               >
