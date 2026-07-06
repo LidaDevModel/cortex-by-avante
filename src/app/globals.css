@@ -84,7 +84,7 @@
   --sidebar-border: oklch(0.922 0.004 250);
   --sidebar-ring: oklch(0.30 0.09 150);
   /* Cortex surface & glow tokens */
-  --surface: oklch(0.992 0.004 145);
+  --surface: #ffffff;                          /* swapped with --doc-page-bg's former value */
   --surface-raised: oklch(0.975 0.004 145);   /* module cards, modals, raised surfaces */
   --accent-subtle: oklch(0.897 0.106 130);    /* #D4EC93 lime — active thumbs, recording btn */
   --input-border: oklch(0.910 0.040 150);     /* #d4f3e8 mint — chat input widget border */
@@ -119,7 +119,7 @@
   --match-pair-4-bg: oklch(0.72 0.14 115 / 0.15);
   --match-pair-4-border: oklch(0.62 0.14 115);
   /* Document page tokens — the "paper" surface and its ink, themed per mode */
-  --doc-page-bg: #ffffff;
+  --doc-page-bg: oklch(0.992 0.004 145);       /* swapped with --surface's former value */
   --doc-text: #333333;
   --doc-text-muted: #555555;
   --doc-text-faint: #aaaaaa;
@@ -151,15 +151,15 @@
   --progress-track: oklch(0.46 0 0);        /* neutral mid-gray track in dark mode */
   --background: oklch(0.17 0 0);             /* #1a1a1a — page bg, darker than cards */
   --foreground: oklch(1 0 0);               /* white */
-  --card: oklch(0.27 0 0);                  /* #353535 — card surface */
+  --card: #1c1c1c;                          /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0) / #353535) */
   --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.27 0 0);
+  --popover: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
   --popover-foreground: oklch(1 0 0);
   --primary: oklch(0.69 0.07 175);          /* #71b7a2 — muted teal */
   --primary-foreground: oklch(0.10 0 0);
   --secondary: oklch(0.32 0.04 160);        /* nav active pill bg */
   --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.27 0 0);
+  --muted: #1c1c1c;                         /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
   --muted-foreground: oklch(0.81 0 0);      /* #c5c5c5 */
   --accent: oklch(0.36 0 0);
   --accent-foreground: oklch(1 0 0);
@@ -182,7 +182,7 @@
   --sidebar-border: oklch(0.37 0.05 160);
   --sidebar-ring: oklch(0.75 0.07 170);
   /* Cortex surface & glow tokens */
-  --surface: oklch(0.27 0 0);               /* #353535 */
+  --surface: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0) / #353535) */
   --surface-raised: oklch(0.30 0 0);        /* slightly elevated */
   --accent-subtle: oklch(0.32 0.04 160);    /* active thumbs, recording btn */
   --input-border: oklch(0.37 0.05 160);     /* chat input widget border */
@@ -195,8 +195,8 @@
   --illustration-glow-side-card: radial-gradient(ellipse 95% 75% at 15% 50%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
   --background-fileview: #141414;              /* document canvas background (behind pages) — dark mode */
-  /* Document page tokens — dark mode: paper reads as an elevated surface, not inverted */
-  --doc-page-bg: #1c1c1c;                      /* barely lighter than the #141414 canvas — low contrast, unlike light mode */
+  /* Document page tokens — dark mode */
+  --doc-page-bg: oklch(0.27 0 0);              /* swapped with --surface's former value (#353535) */
   --doc-text: #e8e8e8;
   --doc-text-muted: #a3a3a3;
   --doc-text-faint: #707070;
