@@ -77,7 +77,7 @@ function ThinkingLoader() {
       muted
       playsInline
       onPlaying={() => setReady(true)}
-      className={`w-[22px] h-[22px] shrink-0 transition-opacity duration-100 ${ready ? "opacity-100" : "opacity-0"}`}
+      className={`w-9 h-9 shrink-0 transition-opacity duration-100 ${ready ? "opacity-100" : "opacity-0"}`}
       aria-label="Cortex is thinking"
     >
       <source src="/chat/thinking.webm" type="video/webm" />
