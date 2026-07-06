@@ -214,7 +214,7 @@ export function DocumentsSection() {
       <div className="mt-4">
         {paginated.length === 0 ? (
           <div className="flex items-center justify-center py-16">
-            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents found.</p>
+            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents available.</p>
           </div>
         ) : view === "list" ? (
           <Table>
