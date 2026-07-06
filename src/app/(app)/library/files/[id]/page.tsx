@@ -349,7 +349,7 @@ function DocumentPage({
                 style={{ width: scaledW, height: scaledH, flexShrink: 0 }}
               >
                 <div
-                  className="bg-[var(--doc-page-bg)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.08)] dark:border dark:border-[var(--card-border)] flex flex-col"
+                  className="bg-[var(--doc-page-bg)] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.08)] flex flex-col"
                   style={{ width: PAGE_W, height: PAGE_H, transform: `scale(${scale})`, transformOrigin: "top left", padding: "48px 40px" }}
                 >
                   <PageInner {...pg} pageNum={pageNumbers[id]} q={q} />
@@ -484,7 +484,7 @@ function GridView({
               >
                 {/* Full-size page scaled down */}
                 <div
-                  className="bg-[var(--doc-page-bg)] dark:border dark:border-[var(--card-border)] flex flex-col absolute top-0 left-0"
+                  className="bg-[var(--doc-page-bg)] flex flex-col absolute top-0 left-0"
                   style={{
                     width: PAGE_W,
                     height: PAGE_H,

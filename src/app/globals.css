@@ -196,7 +196,7 @@
   --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
   --background-fileview: #141414;              /* document canvas background (behind pages) — dark mode */
   /* Document page tokens — dark mode: paper reads as an elevated surface, not inverted */
-  --doc-page-bg: var(--card);                  /* #353535 — lighter than the canvas, same elevation logic as other cards */
+  --doc-page-bg: #1c1c1c;                      /* barely lighter than the #141414 canvas — low contrast, unlike light mode */
   --doc-text: #e8e8e8;
   --doc-text-muted: #a3a3a3;
   --doc-text-faint: #707070;
