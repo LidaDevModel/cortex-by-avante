@@ -42,7 +42,6 @@ const MODULES: Module[] = [
 /* ─── Sub-components ─── */
 
 
-const CARD_BG = "var(--surface-raised)";
 const ILLUSTRATION_GLOW = "var(--illustration-glow)";
 const ILLUSTRATION_GLOW_SIDE = "var(--illustration-glow-side)";
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
@@ -72,8 +71,8 @@ function InProgressCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
-      style={{ background: CARD_BG, border: "1px solid var(--border)" }}
+      className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color] duration-150"
+      style={{ border: "1px solid var(--border)" }}
     >
       {/* Illustration area — gradient anchored to icon zone, bleeds into card body below */}
       <div className="relative flex items-center justify-center" style={{ height: 157 }}>
@@ -107,8 +106,8 @@ function ModuleCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="relative flex rounded-[12px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-150"
-      style={{ background: CARD_BG, border: "1px solid var(--border)" }}
+      className="relative flex rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color] duration-150"
+      style={{ border: "1px solid var(--border)" }}
     >
       {/* Illustration column — gradient anchored to icon zone, bleeds rightward into text area */}
       <div className="relative flex items-center justify-center shrink-0" style={{ width: 88 }}>
