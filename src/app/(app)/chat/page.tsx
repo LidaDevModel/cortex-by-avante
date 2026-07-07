@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import {
-  Mic, AudioLines, ArrowUp, ArrowDown, Square, X, Check,
+  ArrowDown, X,
   ChevronDown, ThumbsUp, ThumbsDown, Volume2,
   Pencil, Trash2, ArrowUpRight,
 } from "lucide-react";
@@ -14,57 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-const MAX_HEIGHT = 160;
-const LINE_HEIGHT = 24;
-
-// ─── Waveform ────────────────────────────────────────────────────────────────
-
-function randomBarHeight() {
-  const r = Math.random();
-  if (r < 0.12) return 3;
-  if (r < 0.30) return 6;
-  if (r < 0.55) return 8;
-  if (r < 0.72) return 10;
-  if (r < 0.87) return 12;
-  return 14;
-}
-
-function Waveform() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [slots, setSlots] = useState(40);
-  const [recorded, setRecorded] = useState<number[]>([]);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      setSlots(Math.floor(containerRef.current.offsetWidth / 5));
-    }
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setRecorded(prev => {
-        const next = [...prev, randomBarHeight()];
-        return next.length > slots ? next.slice(-slots) : next;
-      });
-    }, 110);
-    return () => clearInterval(id);
-  }, [slots]);
-
-  const dotCount = Math.max(0, slots - recorded.length);
-
-  return (
-    <div ref={containerRef} className="flex-1 flex items-center h-10 min-w-0 gap-[3px] overflow-hidden">
-      {Array.from({ length: dotCount }).map((_, i) => (
-        <div key={`d${i}`} className="w-[2px] h-[2px] rounded-full shrink-0 bg-foreground/30" />
-      ))}
-      {recorded.map((h, i) => (
-        <div key={`b${i}`} className="w-[2px] rounded-full shrink-0 bg-foreground" style={{ height: `${h}px` }} />
-      ))}
-    </div>
-  );
-}
+import { ChatComposer } from "@/components/chat/ChatComposer";
 
 // ─── Thinking loader ──────────────────────────────────────────────────────────
 
@@ -481,13 +431,7 @@ function AiMessage({
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
   const [isAiResponding, setIsAiResponding] = useState(false);
-  const [textareaHeight, setTextareaHeight] = useState(LINE_HEIGHT);
-  const [isColumnLayout, setIsColumnLayout] = useState(false);
-  const [taCanScrollUp, setTaCanScrollUp] = useState(false);
-  const [taCanScrollDown, setTaCanScrollDown] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
@@ -497,18 +441,12 @@ export default function ChatPage() {
   const [msgsCanScrollUp, setMsgsCanScrollUp] = useState(false);
   const [msgsCanScrollDown, setMsgsCanScrollDown] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
 
-  const hasText = inputValue.trim().length > 0;
-  const isScrollable = textareaHeight >= MAX_HEIGHT;
-  const activeColumnLayout = isColumnLayout && !isRecording && !isAiResponding;
   const hasConversation = messages.length > 0;
 
   useEffect(() => {
@@ -535,38 +473,6 @@ export default function ChatPage() {
     updateMsgsScroll();
     return () => el.removeEventListener("scroll", updateMsgsScroll);
   }, [hasConversation]);
-
-  const updateTaScroll = () => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    setTaCanScrollUp(ta.scrollTop > 4);
-    setTaCanScrollDown(ta.scrollTop + ta.clientHeight < ta.scrollHeight - 4);
-  };
-
-  const recalcHeight = () => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    ta.style.height = "auto";
-    const next = Math.min(ta.scrollHeight, MAX_HEIGHT);
-    ta.style.height = `${next}px`;
-    setTextareaHeight(next);
-    updateTaScroll();
-  };
-
-  useEffect(() => {
-    const measure = measureRef.current;
-    const container = containerRef.current;
-    if (!measure || !container) return;
-    const rowTaWidth = container.offsetWidth - 124;
-    measure.style.width = `${Math.max(rowTaWidth, 100)}px`;
-    measure.textContent = inputValue || " ";
-    setIsColumnLayout(measure.scrollHeight > LINE_HEIGHT + 1);
-    recalcHeight();
-  }, [inputValue]);
-
-  useEffect(() => {
-    recalcHeight();
-  }, [activeColumnLayout]);
 
   function generateTitle(text: string) {
     const t = text.trim();
@@ -618,10 +524,7 @@ export default function ChatPage() {
     setTimeout(() => startStreaming(msgId), 800);
   }
 
-  function handleSend() {
-    if (!hasText) return;
-    const text = inputValue.trim();
-    setInputValue("");
+  function handleSubmit(text: string) {
     setIsAiResponding(true);
 
     if (messages.length === 0) setConversationTitle(generateTitle(text));
@@ -683,168 +586,6 @@ export default function ChatPage() {
     if (t) setConversationTitle(t);
     setIsRenamingTitle(false);
   }
-
-  function handleVoiceToggle() {
-    if (isAiResponding) return;
-    setIsRecording(true);
-  }
-
-  function handleConfirmRecording() {
-    setIsRecording(false);
-    setInputValue("What are the standard patrol protocols for the night shift?");
-  }
-
-  const containerPadding = activeColumnLayout ? "pl-[16px] pr-[10px] py-[10px]" : "p-[10px]";
-  const containerLayout = activeColumnLayout
-    ? "flex flex-col gap-2 items-stretch justify-end"
-    : "flex flex-row items-center gap-3";
-
-  const canvasBackground = "var(--surface)";
-
-  const inputWidget = (
-    <>
-      <div
-        ref={measureRef}
-        aria-hidden
-        className="absolute invisible pointer-events-none text-[16px] leading-[24px] break-words whitespace-pre-wrap overflow-hidden"
-        style={{ top: -9999, left: -9999 }}
-      />
-      <div
-        ref={containerRef}
-        className={`w-full rounded-2xl ${containerLayout} ${containerPadding}`}
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--input-border)",
-          boxShadow: "var(--shadow-input-widget)",
-        }}
-      >
-        {isRecording ? (
-          <Waveform />
-        ) : isAiResponding ? (
-          <div className="flex-1" />
-        ) : (
-          <div className={`relative ${activeColumnLayout ? "w-full" : "flex-1 flex items-center h-10 min-w-0"}`}>
-            <textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              rows={1}
-              placeholder="Ask anything about protocols, procedures, or guidelines..."
-              className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:text-[14px]"
-              onScroll={updateTaScroll}
-              style={{
-                maxHeight: `${MAX_HEIGHT}px`,
-                overflowY: isScrollable ? "auto" : "hidden",
-              }}
-            />
-            <div
-              className="absolute left-0 right-2 top-0 h-8 pointer-events-none transition-opacity duration-200"
-              style={{
-                background: "linear-gradient(to bottom, var(--surface) 20%, transparent)",
-                opacity: taCanScrollUp ? 1 : 0,
-              }}
-            />
-            <div
-              className="absolute left-0 right-2 bottom-0 h-8 pointer-events-none transition-opacity duration-200"
-              style={{
-                background: "linear-gradient(to top, var(--surface) 20%, transparent)",
-                opacity: taCanScrollDown ? 1 : 0,
-              }}
-            />
-          </div>
-        )}
-
-        <div className={`flex items-center gap-3 shrink-0 ${activeColumnLayout ? "justify-end w-full" : ""}`}>
-          {isRecording ? (
-            <button
-              type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-opacity duration-100 hover:opacity-90"
-              style={{ background: "var(--surface-raised)" }}
-              aria-label="Cancel recording"
-              onClick={() => setIsRecording(false)}
-            >
-              <X size={16} />
-            </button>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="w-10 h-10 rounded-[10px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Voice input"
-                  onClick={handleVoiceToggle}
-                >
-                  <Mic size={16} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
-                Dictate
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          {isRecording ? (
-            <button
-              type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-opacity duration-100 hover:opacity-90"
-              style={{ background: "var(--accent-subtle)" }}
-              aria-label="Confirm recording"
-              onClick={handleConfirmRecording}
-            >
-              <Check size={16} />
-            </button>
-          ) : isAiResponding ? (
-            <button
-              type="button"
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors"
-              style={{ background: "var(--accent-subtle)" }}
-              aria-label="Stop response"
-              onClick={handleStopResponse}
-            >
-              <Square size={16} />
-            </button>
-          ) : hasText ? (
-            <button
-              type="button"
-              className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
-              aria-label="Send message"
-              onClick={handleSend}
-              style={{
-                boxShadow: "var(--shadow-ai-send-button)",
-              }}
-            >
-              <ArrowUp size={15} className="text-white" />
-            </button>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
-                  aria-label="Start voice recording"
-                  onClick={handleVoiceToggle}
-                  style={{
-                    boxShadow: "var(--shadow-ai-send-button)",
-                  }}
-                >
-                  <AudioLines size={15} className="text-white" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
-                Use voice mode
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </div>
-      </div>
-    </>
-  );
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
@@ -989,7 +730,7 @@ export default function ChatPage() {
                   style={{ background: "var(--surface)" }}
                 >
                   <div className="w-full max-w-[560px] relative">
-                    {inputWidget}
+                    <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
                   </div>
                   <p className="text-[12px] text-muted-foreground">
                     Cortex AI can make mistakes. Please check important info.
@@ -1010,7 +751,7 @@ export default function ChatPage() {
                 </h1>
               </div>
               <div className="w-full relative">
-                {inputWidget}
+                <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
               </div>
               <p className="text-[12px] text-muted-foreground -mt-4">
                 Cortex AI can make mistakes. Please check important info.
