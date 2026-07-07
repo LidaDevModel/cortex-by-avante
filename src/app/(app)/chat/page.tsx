@@ -457,6 +457,17 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Consume a prefilled query passed via ?q= (e.g. from the dashboard "Ask Cortex" entry)
+  // and send it once on mount, then strip it from the URL so a refresh doesn't resend.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q && q.trim()) {
+      handleSubmit(q.trim());
+      window.history.replaceState({}, "", "/chat");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const updateMsgsScroll = () => {
     const el = messagesScrollRef.current;
     if (!el) return;

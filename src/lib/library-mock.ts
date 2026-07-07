@@ -32,6 +32,8 @@ export type LibraryDoc = {
   kind: "document" | "folder";
   content: string;
   lastModified: string;
+  /** Flagged as newly added/updated for the user's role since they last looked. */
+  isNew?: boolean;
   toc?: TocSection[];
 };
 
@@ -2676,6 +2678,7 @@ export const TOP_LEVEL_DOCS: LibraryDoc[] = [
     kind: "document",
     content: "13 pages",
     lastModified: "2026-06-28",
+    isNew: true,
     toc: [
       {
         id: "ir1", num: "1", title: "Purpose and Scope", page: 1,
@@ -2814,6 +2817,7 @@ export const TOP_LEVEL_DOCS: LibraryDoc[] = [
     kind: "document",
     content: "12 pages",
     lastModified: "2026-06-20",
+    isNew: true,
     toc: [
       {
         id: "top-3-s1", num: "1", title: "Reporting", page: 1,
@@ -3604,4 +3608,10 @@ export function getDocById(id: string): { doc: LibraryDoc; folder?: LibraryFolde
   const topLevelDoc = TOP_LEVEL_DOCS.find((d) => d.id === id);
   if (topLevelDoc) return { doc: topLevelDoc };
   return undefined;
+}
+
+/** Documents flagged as new/updated for the user's role — surfaced on the dashboard. */
+export function getNewDocuments(): LibraryDoc[] {
+  const fromFolders = FOLDERS.flatMap((f) => f.documents);
+  return [...TOP_LEVEL_DOCS, ...fromFolders].filter((d) => d.isNew);
 }
