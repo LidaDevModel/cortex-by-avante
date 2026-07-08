@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText, LayoutGrid } from "lucide-react";
 import { PageHeader, DetailHeader } from "@/components/ui/page-header";
 import { SearchInput } from "@/components/ui/search-input";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
+import { DocCallout } from "@/components/library/DocCallout";
 import { getDocById, type TocSection, type SubSection } from "@/lib/library-mock";
 
 /* ─── Helpers ─── */
@@ -186,11 +187,9 @@ function PageInner({
           </ul>
         )}
         {note && (
-          <div className="mt-2 rounded-[6px] px-3 py-2.5" style={{ background: "var(--doc-callout-bg)", borderLeft: "3px solid var(--doc-callout-border)" }}>
-            <p className="text-[11.5px] leading-[1.7] italic" style={{ color: "var(--doc-text-muted)" }}>
-              <Highlight text={note} query={q} />
-            </p>
-          </div>
+          <DocCallout className="mt-2">
+            <Highlight text={note} query={q} />
+          </DocCallout>
         )}
       </div>
       <div className="pt-4 flex justify-end shrink-0">
@@ -318,16 +317,19 @@ function DocumentPage({
     const handler = () => {
       if (suppressScrollRef.current) return;
       const midY = container.scrollTop + container.clientHeight / 2;
-      let closest = sections[0]?.id ?? "";
+      let closest: string | null = null;
       let closestDist = Infinity;
-      // Check all page ref keys (includes sub-section ids)
+      // Check all page ref keys (includes sub-section ids). Refs can be
+      // transiently null right after a remount (e.g. React Strict Mode's
+      // dev-only double-invoke) — only report a match once we've actually
+      // measured a real element, never fall back to guessing sections[0].
       for (const [id, el] of Object.entries(pageRefs.current)) {
         if (!el) continue;
         const center = el.offsetTop + el.offsetHeight / 2;
         const dist = Math.abs(center - midY);
         if (dist < closestDist) { closestDist = dist; closest = id; }
       }
-      onActiveChange(closest);
+      if (closest) onActiveChange(closest);
     };
     container.addEventListener("scroll", handler, { passive: true });
     return () => container.removeEventListener("scroll", handler);
@@ -558,6 +560,7 @@ function IconButton({
 
 export default function FileViewPage() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const result = getDocById(id);
 
   const [tocFilter, setTocFilter] = useState("");
@@ -571,7 +574,8 @@ export default function FileViewPage() {
   const [findMatchIdx, setFindMatchIdx] = useState(0);
 
   const sections = result?.doc.toc ?? [];
-  const [activeId, setActiveId] = useState(() => sections[0]?.id ?? "");
+  const requestedSection = searchParams.get("section");
+  const [activeId, setActiveId] = useState(() => requestedSection || sections[0]?.id || "");
 
   // TOC: filter by section title only
   const filteredToc = useMemo(() => {

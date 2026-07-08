@@ -3610,6 +3610,42 @@ export function getDocById(id: string): { doc: LibraryDoc; folder?: LibraryFolde
   return undefined;
 }
 
+export type FoundSection = {
+  id: string;
+  num: string;
+  title: string;
+  body: string;
+  paragraphs?: string[];
+  points?: string[];
+  note?: string;
+  /** Set when the found section is a subsection — its parent section's title. */
+  parentTitle?: string;
+};
+
+/** Finds a top-level section or subsection by id anywhere in a document's toc — used to preview a chat citation without opening the full file viewer. */
+export function findSection(doc: LibraryDoc, sectionId: string): FoundSection | undefined {
+  for (const s of doc.toc ?? []) {
+    if (s.id === sectionId) {
+      return { id: s.id, num: s.num, title: s.title, body: s.body, paragraphs: s.paragraphs, points: s.points, note: s.note };
+    }
+    const subIdx = s.subsections?.findIndex((sub) => sub.id === sectionId) ?? -1;
+    if (subIdx !== -1) {
+      const sub = s.subsections![subIdx];
+      return {
+        id: sub.id,
+        num: `${s.num}.${subIdx + 1}`,
+        title: sub.title,
+        body: sub.body,
+        paragraphs: sub.paragraphs,
+        points: sub.points,
+        note: sub.note,
+        parentTitle: s.title,
+      };
+    }
+  }
+  return undefined;
+}
+
 /** Documents flagged as new/updated for the user's role — surfaced on the dashboard. */
 export function getNewDocuments(): LibraryDoc[] {
   const fromFolders = FOLDERS.flatMap((f) => f.documents);

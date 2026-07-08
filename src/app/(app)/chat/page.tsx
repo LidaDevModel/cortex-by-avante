@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatComposer } from "@/components/chat/ChatComposer";
+import { CitationPanel, type Citation } from "@/components/chat/CitationPanel";
 
 // ─── Thinking loader ──────────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ function ThinkingLoader() {
 
 // ─── Message types ────────────────────────────────────────────────────────────
 
-type Segment = { type: "text"; text: string } | { type: "source"; label: string };
+type Segment = { type: "text"; text: string } | ({ type: "source" } & Citation);
 
 type AiParagraph = { segments: Segment[] };
 
@@ -69,13 +70,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Incidents are classified into three tiers, and the tier determines who needs to know and how fast. Tier 1 (minor) just needs logging in the incident register. Tier 2 (moderate risk or an actual breach) requires notifying your shift supervisor within 15 minutes of discovery." },
-          { type: "source", label: "Escalation Procedures" },
+          { type: "source", label: "Incident Response", docId: "1", sectionId: "ir2" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Tier 3 — serious harm, significant loss, or an ongoing threat — means notifying both the shift supervisor and duty manager immediately, and calling emergency services if required. If you're ever unsure which tier applies, classify upward and notify your supervisor rather than waiting." },
-          { type: "source", label: "Incident Response" },
+          { type: "source", label: "Incident Response", docId: "1", sectionId: "ir5" },
         ],
       },
     ],
@@ -86,13 +87,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Every incident, regardless of severity, must be logged in the incident register within 30 minutes of occurring. Tier 2 and Tier 3 incidents additionally need a full written report submitted through the Avante incident reporting portal within two hours of the end of your shift." },
-          { type: "source", label: "Incident Response" },
+          { type: "source", label: "Incident Response", docId: "1", sectionId: "ir4" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Keep reports factual — describe what you observed and what you did, without speculating about motive or intent. Witness statements should be taken at the time where possible, in the witness's own words." },
-          { type: "source", label: "Post Orders" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s7" },
         ],
       },
     ],
@@ -103,13 +104,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Internal patrols run every two hours on the hour, and external perimeter patrols every four hours. Use the electronic patrol wand at each checkpoint and log any anomalies in the patrol report as you go." },
-          { type: "source", label: "Post Orders" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s3" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Don't alter a patrol route without written approval from your shift supervisor — vary your pace and approach within the defined route instead, so it stays unpredictable. A missed or skipped checkpoint needs to be documented immediately with a reason." },
-          { type: "source", label: "Guard Duty" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s3a" },
         ],
       },
     ],
@@ -120,13 +121,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Everyone entering the site needs valid identification at the gatehouse. Contractors must be pre-approved by site management with a current access pass, and visitors are escorted at all times and signed in and out of the visitor log." },
-          { type: "source", label: "Access Control" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s2" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Accepted ID includes government-issued photo ID, a company employee badge, or a pre-authorised visitor confirmation shown on a mobile device — reject anything expired or unclear. Visitor passes should only be issued after verifying pre-authorisation with the site contact." },
-          { type: "source", label: "Visitor Management" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s2a" },
         ],
       },
     ],
@@ -137,13 +138,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "On a fire alarm activation, follow the site evacuation plan posted at each fire point, notify the control room immediately, and direct staff and visitors to the designated assembly area. Don't investigate the source of the alarm yourself unless you're specifically trained and directed to." },
-          { type: "source", label: "Emergency Procedures" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s4" },
         ],
       },
       {
         segments: [
           { type: "text", text: "For a medical emergency, call emergency services before rendering first aid, unless there's an immediate life-threatening risk that makes first aid the priority — notify your shift supervisor at the same time, not after." },
-          { type: "source", label: "Post Orders" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s4" },
         ],
       },
     ],
@@ -154,13 +155,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Channel 1 is the primary operations channel; Channel 2 is reserved for emergencies only. Run a radio check at the start of every shift — a faulty radio needs to be reported and replaced before you commence duties." },
-          { type: "source", label: "Radio Communications" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s5" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Keep transmissions clear, concise, and professional, and avoid personal conversations on operational channels. Don't transmit sensitive information like names or addresses over an open channel." },
-          { type: "source", label: "Guard Duty" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s5" },
         ],
       },
     ],
@@ -171,13 +172,13 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
       {
         segments: [
           { type: "text", text: "Handover has to happen face-to-face. As the outgoing officer, you're responsible for briefing the incoming officer on everything outstanding — incidents, access issues, equipment status — and both of you sign the handover log." },
-          { type: "source", label: "Post Orders" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s8" },
         ],
       },
       {
         segments: [
           { type: "text", text: "Don't leave site until the incoming officer confirms they're ready to take over. If relief is late, notify your shift supervisor and stay on duty until you're properly relieved." },
-          { type: "source", label: "Guard Duty" },
+          { type: "source", label: "Post Orders", docId: "gd-1", sectionId: "s8" },
         ],
       },
     ],
@@ -188,7 +189,7 @@ const DEFAULT_RESPONSE: AiParagraph[] = [
   {
     segments: [
       { type: "text", text: "I can help with protocols, procedures, and site guidelines — things like access control, incident reporting, patrol requirements, emergency response, or shift handover. Try asking about one of those, or a specific situation you're dealing with." },
-      { type: "source", label: "Security Protocols" },
+      { type: "source", label: "Security Protocols", docId: "3", sectionId: "top-3-s1" },
     ],
   },
 ];
@@ -215,15 +216,17 @@ function getStreamTextFor(paragraphs: AiParagraph[]) {
 
 // ─── Source chip ──────────────────────────────────────────────────────────────
 
-function SourceChip({ label }: { label: string }) {
+function SourceChip({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <span
+    <button
+      type="button"
+      onClick={onClick}
       className="inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap"
       style={{ background: "color-mix(in srgb, var(--primary) 10%, var(--surface))" }}
     >
       {label}
       <ArrowUpRight size={10} />
-    </span>
+    </button>
   );
 }
 
@@ -432,10 +435,12 @@ function AiMessage({
   message,
   onFeedback,
   onRetry,
+  onCitationClick,
 }: {
   message: Message;
   onFeedback: (id: string, value: FeedbackState) => void;
   onRetry: (id: string) => void;
+  onCitationClick: (citation: Citation) => void;
 }) {
   const [showModal, setShowModal] = useState(false);
 
@@ -517,7 +522,7 @@ function AiMessage({
               {para.segments.map((seg, j) =>
                 seg.type === "text"
                   ? <span key={j}>{seg.text}</span>
-                  : <SourceChip key={j} label={seg.label} />
+                  : <SourceChip key={j} label={seg.label} onClick={() => onCitationClick(seg)} />
               )}
             </p>
           ))}
@@ -562,6 +567,7 @@ function AiMessage({
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
@@ -866,7 +872,7 @@ export default function ChatPage() {
                     {messages.map(msg =>
                       msg.role === "user"
                         ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
-                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} />
+                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onCitationClick={setActiveCitation} />
                     )}
                     <div ref={messagesEndRef} />
                   </div>
@@ -916,6 +922,8 @@ export default function ChatPage() {
         onToggle={() => setShowHistory(v => !v)}
       />
       </div>
+
+      <CitationPanel citation={activeCitation} onOpenChange={(open) => !open && setActiveCitation(null)} />
     </div>
   );
 }
