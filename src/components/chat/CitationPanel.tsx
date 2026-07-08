@@ -11,10 +11,12 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 import { DocCallout } from "@/components/library/DocCallout";
 import { getDocById, findSection } from "@/lib/library-mock";
+import type { Citation } from "@/lib/chat-mock";
 
-export type Citation = { docId: string; sectionId: string; label: string };
+export type { Citation };
 
 type Props = {
   citation: Citation | null;
@@ -66,15 +68,15 @@ export function CitationPanel({ citation, onOpenChange }: Props) {
             </div>
 
             <SheetFooter>
-              <Link
-                href={`/library/files/${citation.docId}?section=${citation.sectionId}`}
-                onClick={() => onOpenChange(false)}
-                className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-              >
-                Open in Library
-                <ArrowUpRight size={16} strokeWidth={1.5} />
-              </Link>
+              <Button asChild size="cta" className="w-full">
+                <Link
+                  href={`/library/files/${citation.docId}?section=${citation.sectionId}`}
+                  onClick={() => onOpenChange(false)}
+                >
+                  Open in Library
+                  <ArrowUpRight size={16} strokeWidth={1.5} />
+                </Link>
+              </Button>
             </SheetFooter>
           </>
         ) : (

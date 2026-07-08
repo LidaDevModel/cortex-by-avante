@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-type Conversation = {
+export type Conversation = {
   id: string;
   title: string;
   group: "Today" | "Yesterday" | "Last 7 days" | "Last 30 days";
@@ -47,10 +47,12 @@ const GROUPS = ["Today", "Yesterday", "Last 7 days", "Last 30 days"] as const;
 
 function ConversationItem({
   conversation,
+  onSelect,
   onRename,
   onDelete,
 }: {
   conversation: Conversation;
+  onSelect: (conversation: Conversation) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -85,13 +87,20 @@ function ConversationItem({
   }
 
   return (
-    <div className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent transition-colors duration-100">
+    <div
+      className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent transition-colors duration-100"
+      onClick={() => onSelect(conversation)}
+    >
       <span className="flex-1 text-[13px] text-primary truncate min-w-0">
         {conversation.title}
       </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 p-0.5 rounded hover:bg-black/5 shrink-0">
+          <button
+            aria-label="Conversation options"
+            onClick={(e) => e.stopPropagation()}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 p-0.5 rounded hover:bg-foreground/5 shrink-0"
+          >
             <MoreHorizontal size={14} className="text-muted-foreground" />
           </button>
         </DropdownMenuTrigger>
@@ -121,12 +130,14 @@ function ConversationItem({
 interface ChatHistoryPanelProps {
   isOpen: boolean;
   onToggle: () => void;
+  /** Called when the user picks a past conversation to reopen. */
+  onSelect: (conversation: Conversation) => void;
 }
 
 const SLIDE_EASING = "cubic-bezier(0.32, 0.72, 0, 1)";
 const SLIDE_DURATION = "220ms";
 
-export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
+export function ChatHistoryPanel({ isOpen, onToggle, onSelect }: ChatHistoryPanelProps) {
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [search, setSearch] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
@@ -140,13 +151,13 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
     setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 4);
   };
 
-  useEffect(() => {
-    handleScroll();
-  });
-
   const filtered = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  useEffect(() => {
+    handleScroll();
+  }, [isOpen, filtered.length]);
 
   const handleRename = (id: string, title: string) => {
     setConversations((prev) =>
@@ -216,25 +227,34 @@ export function ChatHistoryPanel({ isOpen, onToggle }: ChatHistoryPanelProps) {
             }}
           >
             <div className="px-2 pb-4">
-              {GROUPS.map((group) => {
-                const items = filtered.filter((c) => c.group === group);
-                if (!items.length) return null;
-                return (
-                  <div key={group}>
-                    <p className="px-2 pt-3 pb-1 text-[13px] font-medium text-foreground/70">
-                      {group}
-                    </p>
-                    {items.map((conv) => (
-                      <ConversationItem
-                        key={conv.id}
-                        conversation={conv}
-                        onRename={handleRename}
-                        onDelete={handleDelete}
-                      />
-                    ))}
-                  </div>
-                );
-              })}
+              {filtered.length === 0 ? (
+                <p className="px-2 pt-3 text-[13px] text-muted-foreground">
+                  {conversations.length === 0
+                    ? "No previous conversations."
+                    : "No conversations found."}
+                </p>
+              ) : (
+                GROUPS.map((group) => {
+                  const items = filtered.filter((c) => c.group === group);
+                  if (!items.length) return null;
+                  return (
+                    <div key={group}>
+                      <p className="px-2 pt-3 pb-1 text-[13px] font-medium text-foreground/70">
+                        {group}
+                      </p>
+                      {items.map((conv) => (
+                        <ConversationItem
+                          key={conv.id}
+                          conversation={conv}
+                          onSelect={onSelect}
+                          onRename={handleRename}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
