@@ -74,8 +74,9 @@ export default function FolderDetailPage() {
   }
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
+    <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
       <PageHeader
+        className="bg-transparent"
         crumbs={[
           { label: "Library", href: "/library" },
           { label: folder.name },

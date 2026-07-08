@@ -249,7 +249,7 @@ export function RecentlyViewedCard({ item, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col gap-[14px] text-left cursor-pointer shrink-0"
+      className="group flex flex-col gap-[14px] text-left cursor-pointer shrink-0 transition-transform duration-150 hover:-translate-y-1"
       style={{ width: 164 }}
     >
       <div className="w-full">

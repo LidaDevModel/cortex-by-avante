@@ -14,8 +14,7 @@ type Crumb = { label: string; href?: string };
 export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?: string }) {
   return (
     <header
-      className={cn("relative z-10 flex items-center gap-2 px-4 h-14 shrink-0", className)}
-      style={{ background: "var(--surface)" }}
+      className={cn("relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-surface", className)}
     >
       <SidebarTrigger className="-ml-1" />
       <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">

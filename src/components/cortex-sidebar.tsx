@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Sidebar,
@@ -27,6 +28,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { USER } from "@/lib/user-mock";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -63,10 +65,10 @@ export function CortexSidebar() {
                 tooltip={item.label}
                 className="gap-3 rounded-lg"
               >
-                <a href={item.href}>
+                <Link href={item.href}>
                   <item.icon size={16} />
                   <span>{item.label}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
@@ -89,7 +91,7 @@ export function CortexSidebar() {
                   {trainingSubItems.map((sub) => (
                     <SidebarMenuSubItem key={sub.label}>
                       <SidebarMenuSubButton asChild isActive={pathname.startsWith(sub.href)}>
-                        <a href={sub.href}>{sub.label}</a>
+                        <Link href={sub.href}>{sub.label}</Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}
@@ -104,18 +106,18 @@ export function CortexSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="shadcn · m@example.com"
+              tooltip={`${USER.fullName} · ${USER.role}`}
               className="gap-3 h-auto py-2 rounded-lg"
             >
               <Avatar className="h-7 w-7 rounded-lg shrink-0">
                 <AvatarFallback className="rounded-lg bg-secondary text-primary font-semibold text-xs">
-                  MM
+                  {USER.initials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start min-w-0 group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium leading-tight truncate">shadcn</span>
+                <span className="text-sm font-medium leading-tight truncate">{USER.fullName}</span>
                 <span className="text-xs text-muted-foreground leading-tight truncate">
-                  m@example.com
+                  {USER.role}
                 </span>
               </div>
               <ChevronRight size={14} className="ml-auto text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />

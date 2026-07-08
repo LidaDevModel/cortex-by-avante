@@ -1,13 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  ArrowDown, X,
-  ChevronDown, ThumbsUp, ThumbsDown, Volume2,
-  Pencil, Trash2, ArrowUpRight,
-} from "lucide-react";
+import { ArrowDown, ChevronDown, Pencil, Trash2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ChatHistoryPanel } from "@/components/chat-history-panel";
+import { ChatHistoryPanel, type Conversation } from "@/components/chat-history-panel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,423 +11,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatComposer } from "@/components/chat/ChatComposer";
-
-// ─── Thinking loader ──────────────────────────────────────────────────────────
-
-function ThinkingLoader() {
-  const [ready, setReady] = useState(false);
-  return (
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      onPlaying={() => setReady(true)}
-      className={`w-9 h-9 shrink-0 transition-opacity duration-100 ${ready ? "opacity-100" : "opacity-0"}`}
-      aria-label="Cortex is thinking"
-    >
-      <source src="/chat/thinking.webm" type="video/webm" />
-      <source src="/chat/thinking.mp4" type="video/mp4" />
-    </video>
-  );
-}
-
-// ─── Message types ────────────────────────────────────────────────────────────
-
-type Segment = { type: "text"; text: string } | { type: "source"; label: string };
-
-type AiParagraph = { segments: Segment[] };
-
-type FeedbackState = null | "up" | "down";
-
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content?: string;
-  streamText?: string;
-  isStreaming?: boolean;
-  isError?: boolean;
-  paragraphs?: AiParagraph[];
-  feedback?: FeedbackState;
-};
-
-// ─── Mock AI response ─────────────────────────────────────────────────────────
-
-const MOCK_PARAGRAPHS: AiParagraph[] = [
-  {
-    segments: [
-      { type: "text", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam vitae sagittis justo. Fusce pharetra interdum risus, et venenatis metus lacinia ac. Vestibulum molestie ultricies est sit amet sodales." },
-      { type: "source", label: "Security Protocols" },
-    ],
-  },
-  {
-    segments: [
-      { type: "text", text: "Donec sollicitudin odio arcu, lobortis laoreet metus facilisis at. Vivamus imperdiet suscipit est, non vulputate nisi ornare nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-      { type: "source", label: "Security Protocols" },
-      { type: "text", text: " Nam vitae sagittis justo. Fusce pharetra interdum risus, et venenatis metus lacinia ac." },
-      { type: "source", label: "Guard Duty" },
-    ],
-  },
-];
-
-function getMockStreamText() {
-  return MOCK_PARAGRAPHS.map(p =>
-    p.segments
-      .filter((s): s is { type: "text"; text: string } => s.type === "text")
-      .map(s => s.text)
-      .join("")
-  ).join("\n\n");
-}
-
-// ─── Source chip ──────────────────────────────────────────────────────────────
-
-function SourceChip({ label }: { label: string }) {
-  return (
-    <span
-      className="inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap"
-      style={{ background: "color-mix(in srgb, var(--primary) 10%, var(--surface))" }}
-    >
-      {label}
-      <ArrowUpRight size={10} />
-    </span>
-  );
-}
-
-// ─── UserMessage ──────────────────────────────────────────────────────────────
-
-function UserMessage({ content, onEdit }: { content: string; onEdit: (newContent: string) => void }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(content);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  function startEdit() {
-    setDraft(content);
-    setIsEditing(true);
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.selectionStart = textareaRef.current.value.length;
-        autoResize(textareaRef.current);
-      }
-    }, 0);
-  }
-
-  function autoResize(el: HTMLTextAreaElement) {
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-  }
-
-  function handleSave() {
-    const trimmed = draft.trim();
-    if (trimmed && trimmed !== content) onEdit(trimmed);
-    setIsEditing(false);
-  }
-
-  function handleCancel() {
-    setDraft(content);
-    setIsEditing(false);
-  }
-
-  if (isEditing) {
-    return (
-      <div className="flex justify-end">
-        <div
-          className="w-[85%] rounded-2xl px-4 pt-3 pb-3 flex flex-col gap-3"
-          style={{ background: "var(--surface-raised)" }}
-        >
-          <textarea
-            ref={textareaRef}
-            value={draft}
-            onChange={e => { setDraft(e.target.value); autoResize(e.target); }}
-            onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSave(); }
-              if (e.key === "Escape") handleCancel();
-            }}
-            rows={1}
-            className="w-full resize-none bg-transparent text-[15px] leading-[24px] text-foreground outline-none focus:ring-1 focus:ring-primary/30 rounded-lg px-1 -mx-1"
-            style={{ overflow: "hidden" }}
-          />
-          <div className="flex justify-end items-center gap-2">
-            <button
-              onClick={handleCancel}
-              className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-3 py-1"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!draft.trim()}
-              className="text-[13px] font-semibold text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-opacity duration-100"
-              style={{ background: "var(--color-primary)" }}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-end gap-1 group">
-      <div
-        className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words"
-        style={{ background: "var(--surface-raised)" }}
-      >
-        {content}
-      </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-        <button
-          onClick={startEdit}
-          className="p-1.5 rounded-lg hover:bg-black/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
-        >
-          <Pencil size={14} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── ShareFeedbackModal ───────────────────────────────────────────────────────
-
-const FEEDBACK_OPTIONS = ["Incomplete", "Wrong info", "Other"] as const;
-type FeedbackOption = typeof FEEDBACK_OPTIONS[number];
-
-function ShareFeedbackModal({
-  onClose,
-  onSubmit,
-}: {
-  onClose: () => void;
-  onSubmit: () => void;
-}) {
-  const [selected, setSelected] = useState<FeedbackOption | null>(null);
-  const [otherText, setOtherText] = useState("");
-
-  function handleBackdrop(e: React.MouseEvent<HTMLDivElement>) {
-    if (e.target === e.currentTarget) onClose();
-  }
-
-  function handleSubmit() {
-    onSubmit();
-    onClose();
-  }
-
-  const canSubmit = selected !== null;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: "var(--scrim)" }}
-      onClick={handleBackdrop}
-    >
-      <div
-        className="relative w-[340px] rounded-[12px] bg-[var(--surface-raised)] p-6 flex flex-col gap-5"
-        style={{
-          boxShadow: "var(--shadow-modal-panel)",
-          animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both",
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5 transition-colors duration-100"
-          aria-label="Close"
-        >
-          <X size={15} />
-        </button>
-
-        <div className="flex flex-col gap-1">
-          <h2 className="text-[16px] font-semibold leading-[24px] text-foreground">Share feedback</h2>
-          <p className="text-[13px] leading-[20px] text-muted-foreground">Help us improve Cortex AI</p>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            {FEEDBACK_OPTIONS.map(opt => (
-              <button
-                key={opt}
-                onClick={() => setSelected(opt)}
-                className="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors duration-100"
-                style={
-                  selected === opt
-                    ? { background: "color-mix(in srgb, var(--primary) 10%, var(--surface))", borderColor: "var(--color-primary)", color: "var(--color-primary)" }
-                    : { background: "transparent", borderColor: "var(--border)", color: "var(--foreground)" }
-                }
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-
-          {selected === "Other" && (
-            <input
-              autoFocus
-              value={otherText}
-              onChange={e => setOtherText(e.target.value)}
-              placeholder="Tell us more..."
-              className="w-full h-10 rounded-lg border border-border bg-[var(--surface-raised)] px-3 text-[13px] text-foreground outline-none focus:ring-1 focus:border-primary transition-colors duration-100"
-              style={{ "--tw-ring-color": "var(--color-primary)" } as React.CSSProperties}
-            />
-          )}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <button
-            onClick={onClose}
-            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="h-9 px-4 rounded-lg text-[13px] font-semibold disabled:opacity-50 transition-opacity duration-100"
-            style={{ background: "var(--color-primary)", color: "var(--primary-foreground)" }}
-          >
-            Submit
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── AiMessage ────────────────────────────────────────────────────────────────
-
-function AiMessage({
-  message,
-  onFeedback,
-  onRetry,
-}: {
-  message: Message;
-  onFeedback: (id: string, value: FeedbackState) => void;
-  onRetry: (id: string) => void;
-}) {
-  const [showModal, setShowModal] = useState(false);
-
-  if (message.isStreaming && !message.streamText) {
-    return (
-      <div className="flex items-start pt-1">
-        <ThinkingLoader />
-      </div>
-    );
-  }
-
-  if (message.isStreaming && message.streamText) {
-    return (
-      <div className="flex flex-col gap-3 w-full">
-        <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
-          {message.streamText}
-        </p>
-        <ThinkingLoader />
-      </div>
-    );
-  }
-
-  if (message.isError) {
-    return (
-      <div className="flex flex-col gap-3 w-full">
-        {message.streamText && (
-          <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
-            {message.streamText}
-          </p>
-        )}
-        <div className="flex items-center gap-2">
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
-            Cortex couldn't get a response. Try again in a moment.
-          </p>
-          <button
-            onClick={() => onRetry(message.id)}
-            className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const fb = message.feedback ?? null;
-
-  function FeedbackBtn({
-    type,
-    active,
-    onClick,
-  }: {
-    type: "up" | "down";
-    active: boolean;
-    onClick: () => void;
-  }) {
-    const Icon = type === "up" ? ThumbsUp : ThumbsDown;
-    return (
-      <button
-        onClick={onClick}
-        className="p-1.5 rounded-lg transition-colors duration-100"
-        style={active ? { background: "var(--accent-subtle)" } : undefined}
-        aria-label={type === "up" ? "Helpful" : "Not helpful"}
-      >
-        <Icon
-          size={14}
-          className={active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
-        />
-      </button>
-    );
-  }
-
-  return (
-    <>
-      <div className="flex flex-col gap-3 w-full">
-        <div className="space-y-4 text-[15px] leading-[24px] text-foreground">
-          {(message.paragraphs ?? []).map((para, i) => (
-            <p key={i}>
-              {para.segments.map((seg, j) =>
-                seg.type === "text"
-                  ? <span key={j}>{seg.text}</span>
-                  : <SourceChip key={j} label={seg.label} />
-              )}
-            </p>
-          ))}
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1">
-            <FeedbackBtn
-              type="up"
-              active={fb === "up"}
-              onClick={() => onFeedback(message.id, fb === "up" ? null : "up")}
-            />
-            <FeedbackBtn
-              type="down"
-              active={fb === "down"}
-              onClick={() => {
-                if (fb === "down") { onFeedback(message.id, null); return; }
-                setShowModal(true);
-              }}
-            />
-            <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5 transition-colors duration-100">
-              <Volume2 size={14} />
-            </button>
-          </div>
-          {fb === "down" && (
-            <p className="text-[12px] leading-[16px] text-muted-foreground">Feedback received</p>
-          )}
-        </div>
-      </div>
-
-      {showModal && (
-        <ShareFeedbackModal
-          onClose={() => setShowModal(false)}
-          onSubmit={() => onFeedback(message.id, "down")}
-        />
-      )}
-    </>
-  );
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { CitationPanel, type Citation } from "@/components/chat/CitationPanel";
+import { UserMessage } from "@/components/chat/UserMessage";
+import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
+import {
+  type AiParagraph,
+  pickResponseFor,
+  getStreamTextFor,
+  getSourceLabelsFor,
+} from "@/lib/chat-mock";
+import { USER } from "@/lib/user-mock";
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
@@ -446,6 +40,10 @@ export default function ChatPage() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
+  const currentParagraphsRef = useRef<AiParagraph[]>([]);
+  // While the user is reading older messages we must not fight their scroll —
+  // auto-follow only when they're already pinned to the bottom.
+  const pinnedToBottomRef = useRef(true);
 
   const hasConversation = messages.length > 0;
 
@@ -454,8 +52,16 @@ export default function ChatPage() {
   }, [isRenamingTitle]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!pinnedToBottomRef.current) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
   }, [messages]);
+
+  // Clear any in-flight stream when leaving the screen.
+  useEffect(() => {
+    return () => {
+      if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    };
+  }, []);
 
   // Consume a prefilled query passed via ?q= (e.g. from the dashboard "Ask Cortex" entry)
   // and send it once on mount, then strip it from the URL so a refresh doesn't resend.
@@ -473,6 +79,7 @@ export default function ChatPage() {
     if (!el) return;
     const atTop = el.scrollTop <= 4;
     const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+    pinnedToBottomRef.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 80;
     setMsgsCanScrollUp(!atTop);
     setMsgsCanScrollDown(!atBottom);
   };
@@ -490,8 +97,14 @@ export default function ChatPage() {
     return t.length > 45 ? t.slice(0, 45) + "…" : t;
   }
 
-  function startStreaming(msgId: string) {
-    const fullText = getMockStreamText();
+  function scrollToBottom(behavior: ScrollBehavior = "smooth") {
+    pinnedToBottomRef.current = true;
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }
+
+  function startStreaming(msgId: string, paragraphs: AiParagraph[]) {
+    currentParagraphsRef.current = paragraphs;
+    const fullText = getStreamTextFor(paragraphs);
     let idx = 0;
     responseCountRef.current += 1;
     const errorAt = responseCountRef.current === 3
@@ -514,7 +127,7 @@ export default function ChatPage() {
         if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
         setMessages(prev => prev.map(m =>
           m.id === msgId
-            ? { ...m, streamText: fullText, isStreaming: false, paragraphs: MOCK_PARAGRAPHS }
+            ? { ...m, streamText: fullText, isStreaming: false, paragraphs }
             : m
         ));
         setIsAiResponding(false);
@@ -526,13 +139,32 @@ export default function ChatPage() {
     }, 30);
   }
 
+  function queueAiResponse(paragraphs: AiParagraph[]) {
+    setTimeout(() => {
+      const aiId = `a${Date.now()}`;
+      setMessages(prev => [...prev, {
+        id: aiId,
+        role: "assistant",
+        isStreaming: true,
+        streamText: "",
+        sources: getSourceLabelsFor(paragraphs),
+      }]);
+      setTimeout(() => startStreaming(aiId, paragraphs), 1400);
+    }, 80);
+  }
+
   function handleRetry(msgId: string) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(true);
+    const msgIdx = messages.findIndex(m => m.id === msgId);
+    const precedingUserMsg = [...messages.slice(0, msgIdx)].reverse().find(m => m.role === "user");
+    const paragraphs = pickResponseFor(precedingUserMsg?.content ?? "");
     setMessages(prev => prev.map(m =>
-      m.id === msgId ? { ...m, isError: false, isStreaming: true, streamText: "" } : m
+      m.id === msgId
+        ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(paragraphs) }
+        : m
     ));
-    setTimeout(() => startStreaming(msgId), 800);
+    setTimeout(() => startStreaming(msgId, paragraphs), 800);
   }
 
   function handleSubmit(text: string) {
@@ -542,12 +174,8 @@ export default function ChatPage() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
-
-    setTimeout(() => {
-      const aiId = `a${Date.now()}`;
-      setMessages(prev => [...prev, { id: aiId, role: "assistant", isStreaming: true, streamText: "" }]);
-      setTimeout(() => startStreaming(aiId), 1000);
-    }, 80);
+    scrollToBottom();
+    queueAiResponse(pickResponseFor(text));
   }
 
   function handleStopResponse() {
@@ -556,7 +184,7 @@ export default function ChatPage() {
     setMessages(prev => {
       const last = prev[prev.length - 1];
       if (last?.isStreaming) {
-        return [...prev.slice(0, -1), { ...last, isStreaming: false, paragraphs: MOCK_PARAGRAPHS }];
+        return [...prev.slice(0, -1), { ...last, isStreaming: false, paragraphs: currentParagraphsRef.current }];
       }
       return prev;
     });
@@ -565,6 +193,7 @@ export default function ChatPage() {
   function handleEditMessage(msgId: string, newContent: string) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(true);
+    const paragraphs = pickResponseFor(newContent);
     setMessages(prev => {
       const idx = prev.findIndex(m => m.id === msgId);
       if (idx === -1) return prev;
@@ -572,11 +201,7 @@ export default function ChatPage() {
         m.id === msgId ? { ...m, content: newContent } : m
       );
     });
-    setTimeout(() => {
-      const aiId = `a${Date.now()}`;
-      setMessages(prev => [...prev, { id: aiId, role: "assistant", isStreaming: true, streamText: "" }]);
-      setTimeout(() => startStreaming(aiId), 1000);
-    }, 80);
+    queueAiResponse(paragraphs);
   }
 
   function handleFeedback(msgId: string, value: FeedbackState) {
@@ -590,6 +215,24 @@ export default function ChatPage() {
     setMessages([]);
     setConversationTitle(null);
     setIsAiResponding(false);
+  }
+
+  // Restore a past conversation from the history panel as a completed exchange.
+  function handleSelectConversation(conversation: Conversation) {
+    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    setIsAiResponding(false);
+    const paragraphs = pickResponseFor(conversation.title);
+    setConversationTitle(conversation.title);
+    setMessages([
+      { id: `u-restored-${conversation.id}`, role: "user", content: conversation.title },
+      {
+        id: `a-restored-${conversation.id}`,
+        role: "assistant",
+        paragraphs,
+        streamText: getStreamTextFor(paragraphs),
+      },
+    ]);
+    pinnedToBottomRef.current = true;
   }
 
   function saveTitle() {
@@ -677,7 +320,12 @@ export default function ChatPage() {
           )}
         </header>
 
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ background: hasConversation ? "var(--surface)" : "transparent" }}>
+        {/* Screen-reader announcement for response state */}
+        <span className="sr-only" role="status" aria-live="polite">
+          {isAiResponding ? "Cortex is responding" : ""}
+        </span>
+
+        <div className={`flex-1 flex flex-col overflow-hidden ${hasConversation ? "bg-surface" : "bg-transparent"}`}>
         {hasConversation ? (
           /* ── Conversation view ── */
           <div className="relative flex-1 min-h-0">
@@ -701,10 +349,10 @@ export default function ChatPage() {
               }}
             >
               <button
-                onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="flex items-center justify-center w-9 h-9 rounded-full border border-border"
+                onClick={() => scrollToBottom()}
+                aria-label="Scroll to latest message"
+                className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-surface-glass"
                 style={{
-                  background: "var(--surface-glass)",
                   backdropFilter: "blur(4px)",
                   boxShadow: "var(--shadow-floating)",
                 }}
@@ -729,17 +377,14 @@ export default function ChatPage() {
                     {messages.map(msg =>
                       msg.role === "user"
                         ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
-                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} />
+                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onCitationClick={setActiveCitation} />
                     )}
                     <div ref={messagesEndRef} />
                   </div>
                 </div>
 
                 {/* Sticky input — same centering as messages above */}
-                <div
-                  className="sticky bottom-0 px-6 pb-6 pt-2 flex flex-col items-center gap-2"
-                  style={{ background: "var(--surface)" }}
-                >
+                <div className="sticky bottom-0 px-6 pb-6 pt-2 flex flex-col items-center gap-2 bg-surface">
                   <div className="w-full max-w-[560px] relative">
                     <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
                   </div>
@@ -755,10 +400,10 @@ export default function ChatPage() {
           <div
             className="relative flex-1 flex flex-col items-center justify-start overflow-hidden px-6 pt-[30vh]"
           >
-            <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center text-center gap-8">
+            <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center text-center gap-8" style={{ animation: "msg-in 200ms ease-out both" }}>
               <div className="flex flex-col items-center gap-2">
                 <h1 className="text-[20px] leading-none font-semibold text-primary">
-                  How can I help you Mike?
+                  How can I help you {USER.firstName}?
                 </h1>
               </div>
               <div className="w-full relative">
@@ -777,8 +422,11 @@ export default function ChatPage() {
       <ChatHistoryPanel
         isOpen={showHistory}
         onToggle={() => setShowHistory(v => !v)}
+        onSelect={handleSelectConversation}
       />
       </div>
+
+      <CitationPanel citation={activeCitation} onOpenChange={(open) => !open && setActiveCitation(null)} />
     </div>
   );
 }

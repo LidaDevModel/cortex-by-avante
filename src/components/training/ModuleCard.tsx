@@ -30,7 +30,7 @@ export function InProgressCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color] duration-150"
+      className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md hover:-translate-y-0.5 dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color,transform] duration-150"
       style={{ border: "1px solid var(--border)" }}
     >
       {/* Illustration area — gradient anchored to icon zone, bleeds into card body below */}
@@ -65,7 +65,7 @@ export function ModuleCard({ module }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
-      className="relative flex rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color] duration-150"
+      className="relative flex rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md hover:-translate-y-0.5 dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color,transform] duration-150"
       style={{ border: "1px solid var(--border)" }}
     >
       {/* Illustration column — gradient anchored to icon zone, bleeds rightward into text area */}

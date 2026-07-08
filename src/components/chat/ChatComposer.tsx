@@ -263,7 +263,7 @@ export function ChatComposer({
           ) : hasText ? (
             <button
               type="button"
-              className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
+              className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-[opacity,transform] duration-100 hover:opacity-90 active:scale-95"
               aria-label="Send message"
               onClick={submit}
               style={{
