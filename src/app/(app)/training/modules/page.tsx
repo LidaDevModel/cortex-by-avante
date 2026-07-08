@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { SearchInput } from "@/components/ui/search-input";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { PageHeader } from "@/components/ui/page-header";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { MODULES } from "@/lib/training-mock";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
@@ -15,13 +16,6 @@ export default function ModulesPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const handleScroll = useCallback(() => {
-    scrollRef.current?.classList.add("is-scrolling");
-    clearTimeout(scrollTimerRef.current);
-    scrollTimerRef.current = setTimeout(() => scrollRef.current?.classList.remove("is-scrolling"), 800);
-  }, []);
 
   const inProgress = useMemo(
     () => MODULES.filter((m) => m.status === "in-progress").slice(0, 3),
@@ -51,22 +45,10 @@ export default function ModulesPage() {
   }, [requirementFilter, statusFilter, categoryFilter, search]);
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
+    <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+      <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className="bg-transparent" />
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex items-center gap-1.5 text-[14px] leading-[20px]">
-          <span className="text-muted-foreground">Training</span>
-          <span className="text-muted-foreground">/</span>
-          <span className="font-medium text-foreground">Modules</span>
-        </div>
-      </header>
-
-      {/* Scrollable canvas */}
-      <div className="relative flex-1 overflow-hidden">
-        {/* Scrollable content — mask-image fades edges, no border gap */}
-        <div ref={scrollRef} onScroll={handleScroll} className="absolute inset-0 overflow-y-auto z-10 scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
+      <ScrollCanvas>
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
           <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
@@ -90,7 +72,7 @@ export default function ModulesPage() {
                   </Link>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {inProgress.map((m) => (
                   <InProgressCard key={m.id} module={m} />
                 ))}
@@ -148,7 +130,7 @@ export default function ModulesPage() {
 
           {/* Module grid */}
           {filteredModules.length > 0 ? (
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredModules.map((m) => (
                 <ModuleCard key={m.id} module={m} />
               ))}
@@ -156,13 +138,12 @@ export default function ModulesPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-[15px] leading-[24px] text-muted-foreground">
-                No modules found.
+                No modules found. Try a different search or filter.
               </p>
             </div>
           )}
         </div>
-        </div>
-      </div>
+      </ScrollCanvas>
     </div>
   );
 }

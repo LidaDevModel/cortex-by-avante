@@ -1,16 +1,38 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Check, ArrowRight, FileText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { Button } from "@/components/ui/button";
 import { ChatComposer } from "@/components/chat/ChatComposer";
 import { InProgressCard } from "@/components/training/ModuleCard";
 import { MODULES } from "@/lib/training-mock";
 import { getNewDocuments } from "@/lib/library-mock";
+import { USER } from "@/lib/user-mock";
 
-const USER_NAME = "Mike";
+/** Counts 0 → target over ~500ms; lands instantly under reduced motion. */
+function useCountUp(target: number, durationMs = 500) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
+    let raf: number;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      setValue(Math.round(t * target));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs]);
+  return value;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -26,13 +48,21 @@ export default function DashboardPage() {
   const inProgress = MODULES.filter((m) => m.status === "in-progress").slice(0, 3);
   const newDocs = getNewDocuments();
 
+  const shownCertified = useCountUp(certifiedCount);
+  // Segments fill one by one after mount instead of appearing pre-filled.
+  const [segmentsLive, setSegmentsLive] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setSegmentsLive(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-      <PageHeader crumbs={[{ label: "Dashboard" }]} />
+    <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+      <PageHeader crumbs={[{ label: "Dashboard" }]} className="bg-transparent" />
 
       <ScrollCanvas>
         <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
-          <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Welcome back, {USER_NAME}</h1>
+          <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Welcome back, {USER.firstName}</h1>
 
           {/* ── Hero: shift readiness ── */}
           <section
@@ -64,18 +94,21 @@ export default function DashboardPage() {
                     {remainingRequired.length} module{remainingRequired.length !== 1 ? "s" : ""} left to be shift-ready
                   </p>
 
-                  {/* Segmented progress — one segment per required module */}
+                  {/* Segmented progress — one segment per required module, filling in sequence */}
                   <div className="flex gap-1.5" role="progressbar" aria-valuenow={certifiedCount} aria-valuemax={requiredModules.length}>
-                    {requiredModules.map((m) => (
+                    {requiredModules.map((m, i) => (
                       <div
                         key={m.id}
-                        className="h-2 flex-1 rounded-full transition-colors duration-150"
-                        style={{ background: m.status === "completed" ? "var(--primary)" : "var(--border)" }}
+                        className="h-2 flex-1 rounded-full transition-colors duration-300"
+                        style={{
+                          background: segmentsLive && m.status === "completed" ? "var(--primary)" : "var(--border)",
+                          transitionDelay: `${i * 80}ms`,
+                        }}
                       />
                     ))}
                   </div>
-                  <p className="text-[13px] leading-[18px] text-muted-foreground">
-                    {certifiedCount} of {requiredModules.length} required certifications complete
+                  <p className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">
+                    {shownCertified} of {requiredModules.length} required certifications complete
                   </p>
                 </div>
 
@@ -120,14 +153,12 @@ export default function DashboardPage() {
 
                 {/* Primary next step */}
                 {nextRequired && (
-                  <Link
-                    href={`/training/modules/${nextRequired.id}`}
-                    className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-[8px] text-[14px] leading-[20px] font-semibold self-start transition-opacity duration-100 hover:opacity-90"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-                  >
-                    {nextRequired.progress > 0 ? "Continue" : "Start"} {nextRequired.title}
-                    <ArrowRight size={16} strokeWidth={1.5} />
-                  </Link>
+                  <Button asChild size="cta" className="self-start">
+                    <Link href={`/training/modules/${nextRequired.id}`}>
+                      {nextRequired.progress > 0 ? "Continue" : "Start"} {nextRequired.title}
+                      <ArrowRight size={16} strokeWidth={1.5} />
+                    </Link>
+                  </Button>
                 )}
               </>
             )}

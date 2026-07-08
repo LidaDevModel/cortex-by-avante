@@ -25,7 +25,7 @@ export function DocGridCard({ name, kind, lastModified, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col gap-3 text-left cursor-pointer w-full"
+      className="group flex flex-col gap-3 text-left cursor-pointer w-full transition-transform duration-150 hover:-translate-y-1"
     >
       <div className="w-full px-3">
         {kind === "document" ? (

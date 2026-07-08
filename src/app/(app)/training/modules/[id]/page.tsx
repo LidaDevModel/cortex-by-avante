@@ -4,7 +4,6 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Check, X, Flag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
@@ -12,143 +11,13 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { SearchInput } from "@/components/ui/search-input";
+import { ModuleIllustration } from "@/components/training/ModuleIllustration";
+import { Button } from "@/components/ui/button";
+import { getModuleById, MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
 
-/* ─── Types ─── */
+const CHAPTERS: Chapter[] = MODULE_CHAPTERS;
 
-type QuizOption = { id: string; text: string };
-type Quiz = { question: string; options: QuizOption[]; correctId: string };
-type Chapter = {
-  id: string;
-  num: number;
-  title: string;
-  body: string;
-  quiz?: Quiz;
-  isFinalQuiz?: boolean;
-};
-
-/* ─── Mock data ─── */
-
-const CHAPTERS: Chapter[] = [
-  {
-    id: "1",
-    num: 1,
-    title: "Introduction",
-    body: `Effective escalation procedures are the backbone of any professional security operation. When incidents arise, the speed and clarity of your response directly determines how quickly order is restored and how much risk is contained.\n\nThis module provides a comprehensive framework for identifying, classifying, and escalating security events. You will learn to distinguish between situations that require immediate action, those that warrant monitoring, and those that must be passed up the chain of command without delay.\n\nBy the end of this module, you will be able to apply these procedures confidently, communicate clearly with supervisors and emergency services, and document each event in a way that supports accountability and continuous improvement.`,
-  },
-  {
-    id: "2",
-    num: 2,
-    title: "Identifying Security Threats",
-    body: `Threat identification is the first and most critical step in the escalation chain. A missed or misclassified threat can have serious consequences — for the site, for bystanders, and for your team.\n\nThreats are generally classified into three tiers: Tier 1 (low risk, monitor only), Tier 2 (elevated risk, requires supervisor notification), and Tier 3 (immediate risk, requires emergency response). Common indicators include unusual behaviour, unauthorised access attempts, suspicious packages, and verbal or physical altercations.\n\nTrust your training. If something feels wrong, it usually is. Always err on the side of caution and escalate earlier rather than later — you will never be penalised for taking a threat seriously.`,
-    quiz: {
-      question: "Which of the following is a Tier 3 threat requiring immediate emergency response?",
-      options: [
-        { id: "a", text: "A visitor waiting in the lobby beyond their appointment time" },
-        { id: "b", text: "A physical altercation in progress on-site" },
-        { id: "c", text: "An employee badge-in outside of normal working hours" },
-        { id: "d", text: "A delivery vehicle parked in a loading bay after hours" },
-      ],
-      correctId: "b",
-    },
-  },
-  {
-    id: "3",
-    num: 3,
-    title: "Communication Protocols",
-    body: `Clear communication is non-negotiable during a security incident. Ambiguous or incomplete information delays response and increases risk. Every communication you make — whether by radio, phone, or written log — must follow a consistent structure.\n\nThe SMEAC format (Situation, Mission, Execution, Administration, Command) is the standard for verbal briefings. For radio communications, use the NATO phonetic alphabet where clarity is essential, and always confirm receipt before ending a transmission.\n\nWhen communicating with emergency services, lead with location and nature of incident, then casualties or ongoing threats, then site access information. Keep it brief. Dispatchers are trained to ask follow-up questions — do not overwhelm them with detail upfront.`,
-    quiz: {
-      question: "What does the 'S' in the SMEAC communication format stand for?",
-      options: [
-        { id: "a", text: "Safety" },
-        { id: "b", text: "Situation" },
-        { id: "c", text: "Summary" },
-        { id: "d", text: "Suspect" },
-      ],
-      correctId: "b",
-    },
-  },
-  {
-    id: "4",
-    num: 4,
-    title: "Escalation Pathways",
-    body: `Every site has a defined escalation pathway — a chain of contacts and decision points that determines who is notified, in what order, and by what method. Knowing your site's pathway before an incident occurs is essential.\n\nTypically, escalation flows from the responding guard to the shift supervisor, from supervisor to the site manager or duty manager, and from there to client representatives and emergency services as required. Some clients require notification at every tier; others only at Tier 2 and above.\n\nYour site briefing document contains the specific escalation pathway for your assignment. Review it at the start of every shift. If you are unsure who to contact, your shift supervisor is always the correct first point of escalation.`,
-    quiz: {
-      question: "If you are unsure who to contact during an incident, who should your first escalation point always be?",
-      options: [
-        { id: "a", text: "The client representative" },
-        { id: "b", text: "Emergency services directly" },
-        { id: "c", text: "Your shift supervisor" },
-        { id: "d", text: "The duty manager" },
-      ],
-      correctId: "c",
-    },
-  },
-  {
-    id: "5",
-    num: 5,
-    title: "Documentation Requirements",
-    body: `Accurate documentation is not just a procedural obligation — it is a critical tool for accountability, legal protection, and operational improvement. Every incident, no matter how minor, must be recorded.\n\nAn incident report must capture: the date, time, and location; a factual description of events in chronological order; the names or descriptions of individuals involved; actions taken by security personnel; and any injuries, property damage, or losses.\n\nUse plain, factual language. Avoid opinions, assumptions, or emotional language. Write what you observed, not what you inferred. A well-written incident report can be used in legal proceedings — accuracy and objectivity are paramount.`,
-    quiz: {
-      question: "What is the correct language standard for writing an incident report?",
-      options: [
-        { id: "a", text: "Descriptive and expressive, to capture the full atmosphere of the incident" },
-        { id: "b", text: "Plain and factual, recording only what was directly observed" },
-        { id: "c", text: "Brief and informal, to save time during busy shifts" },
-        { id: "d", text: "Technical and detailed, including your assessment of intent" },
-      ],
-      correctId: "b",
-    },
-  },
-  {
-    id: "6",
-    num: 6,
-    title: "Post-Incident Review",
-    body: `Every significant incident should be followed by a structured review. The purpose of a post-incident review is not to assign blame — it is to identify what worked, what did not, and what changes would improve outcomes in future.\n\nReviews are typically conducted by the shift supervisor within 24 hours of the incident. They involve the responding personnel, relevant witnesses, and in some cases a client representative. The output is an action log with specific, time-bound improvements.\n\nParticipating constructively in post-incident reviews is part of your professional responsibility. Honest reflection on your own performance, including things you would do differently, demonstrates the kind of professional maturity Avante expects from every team member.`,
-    quiz: {
-      question: "What is the primary purpose of a post-incident review?",
-      options: [
-        { id: "a", text: "To assign blame for failures in the response" },
-        { id: "b", text: "To identify improvements and update procedures" },
-        { id: "c", text: "To satisfy insurance documentation requirements" },
-        { id: "d", text: "To determine if disciplinary action is required" },
-      ],
-      correctId: "b",
-    },
-  },
-  {
-    id: "final",
-    num: 7,
-    title: "Final Quiz",
-    body: "",
-    isFinalQuiz: true,
-  },
-];
-
-const MODULE = {
-  id: "1",
-  title: "Escalation Procedures 1",
-  chapters: 6,
-  hours: 2,
-  type: "Certification",
-  category: "escalations" as const,
-  illustrationLight: "/brand/illustration-warning-light.png",
-  illustrationDark: "/brand/illustration-warning-dark.png",
-};
-
-const MODULE_PROGRESS: Record<string, number> = {
-  "1": 10,
-  "2": 90,
-  "3": 37,
-  "4": 90,
-  "5": 0,
-  "6": 0,
-  "7": 0,
-  "8": 100,
-  "9": 0,
-};
-
-function deriveInitialState(moduleId: string) {
-  const progress = MODULE_PROGRESS[moduleId] ?? 0;
+function deriveInitialState(progress: number) {
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const completedCount = Math.min(
     Math.round((progress / 100) * contentChapters.length),
@@ -384,30 +253,25 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
       {submitted && (
         <div
           className="flex items-center gap-2"
-          style={{ color: submitState === "correct" ? "var(--primary)" : "var(--destructive)" }}
+          style={{
+            color: submitState === "correct" ? "var(--primary)" : "var(--destructive)",
+            animation: submitState === "correct" ? undefined : "quiz-shake 250ms ease-out",
+          }}
         >
-          {submitState === "correct" ? <Check size={15} strokeWidth={2.5} /> : <X size={15} strokeWidth={2.5} />}
+          <span style={{ animation: "check-pop 250ms cubic-bezier(0.32, 0.72, 0, 1) both" }} className="flex">
+            {submitState === "correct" ? <Check size={15} strokeWidth={2.5} /> : <X size={15} strokeWidth={2.5} />}
+          </span>
           <span className="text-[13px] leading-[20px] font-semibold">
-            {submitState === "correct" ? "Correct!" : "Incorrect"}
+            {submitState === "correct" ? "Correct" : "Incorrect"}
           </span>
         </div>
       )}
 
       {!submitted && (
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleSubmit}
-            disabled={!selected}
-            className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100"
-            style={{
-              background: "var(--primary)",
-              color: "var(--primary-foreground)",
-              opacity: selected ? 1 : 0.5,
-              cursor: selected ? "pointer" : "not-allowed",
-            }}
-          >
+          <Button size="cta" disabled={!selected} onClick={handleSubmit}>
             Submit your answer
-          </button>
+          </Button>
           <span className="text-[12px] leading-[16px] text-muted-foreground">optional</span>
         </div>
       )}
@@ -420,9 +284,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 export default function ModuleDetailPage() {
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
+  const trainingModule = getModuleById(moduleId);
+  const initialProgress = trainingModule?.progress ?? 0;
 
-  const [currentId, setCurrentId] = useState(() => deriveInitialState(moduleId).currentId);
-  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(moduleId).completedIds);
+  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress).currentId);
+  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress).completedIds);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
 
   // Left panel — chapter title filter
@@ -561,12 +427,27 @@ export default function ModuleDetailPage() {
 
   const nextLabel = isSecondToLast ? "Final Quiz" : "Next Chapter";
 
+  if (!trainingModule) {
+    return (
+      <div className="flex flex-col h-full overflow-hidden bg-surface">
+        <PageHeader crumbs={[
+          { label: "Training", href: "/training/modules" },
+          { label: "Modules", href: "/training/modules" },
+          { label: "Module" },
+        ]} />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-[14px] text-muted-foreground">Module not found.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader crumbs={[
         { label: "Training", href: "/training/modules" },
         { label: "Modules", href: "/training/modules" },
-        { label: MODULE.title },
+        { label: trainingModule.title },
       ]} />
 
       {/* Module info bar */}
@@ -579,10 +460,10 @@ export default function ModuleDetailPage() {
           <span>Back to modules</span>
         </Link>
         <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
-          {MODULE.title}
+          {trainingModule.title}
         </h1>
         <p className="text-[13px] leading-[20px] text-muted-foreground">
-          {MODULE.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;{MODULE.type}
+          {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
         </p>
         <div className="flex items-center gap-3 mt-1">
           <div className="flex-1">
@@ -648,18 +529,20 @@ export default function ModuleDetailPage() {
             />
 
             <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
-              <div className={currentChapter.isFinalQuiz
-                ? "h-full flex items-center justify-center px-8 -mt-10"
-                : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"
-              }>
+              <div
+                key={currentChapter.id}
+                style={{ animation: "msg-in 200ms ease-out both" }}
+                className={currentChapter.isFinalQuiz
+                  ? "h-full flex items-center justify-center px-8 -mt-10"
+                  : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"
+                }>
                 {/* Illustration — first chapter only */}
                 {currentIndex === 0 && (
                   <div
                     className="flex items-center justify-center rounded-[12px] overflow-hidden"
                     style={{ height: 180, background: "var(--illustration-glow), var(--surface-raised)" }}
                   >
-                    <Image src={MODULE.illustrationLight} alt={MODULE.title} width={96} height={96} className="object-contain dark:hidden" />
-                    <Image src={MODULE.illustrationDark} alt={MODULE.title} width={96} height={96} className="object-contain hidden dark:block" />
+                    <ModuleIllustration category={trainingModule.category} width={96} height={96} className="object-contain" />
                   </div>
                 )}
 
@@ -698,13 +581,12 @@ export default function ModuleDetailPage() {
                         You&apos;ve completed all chapters. Test your knowledge to earn your certification.
                       </p>
                     </div>
-                    <a
+                    <Link
                       href={`/training/modules/${moduleId}/exam`}
-                      className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
+                      className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90"
                     >
                       Start final quiz
-                    </a>
+                    </Link>
                   </div>
                 )}
 
@@ -712,22 +594,14 @@ export default function ModuleDetailPage() {
                   <div className="flex items-center justify-between pt-2">
                     <div>
                       {!isFirst && (
-                        <button
-                          onClick={goPrev}
-                          className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold border border-border bg-[var(--surface-raised)] transition-colors duration-100 hover:bg-[var(--surface)]"
-                          style={{ color: "var(--foreground)", cursor: "pointer" }}
-                        >
+                        <Button size="cta" variant="outline" onClick={goPrev} className="bg-surface-raised">
                           Previous
-                        </button>
+                        </Button>
                       )}
                     </div>
-                    <button
-                      onClick={goNext}
-                      className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)", cursor: "pointer" }}
-                    >
+                    <Button size="cta" onClick={goNext}>
                       {nextLabel}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

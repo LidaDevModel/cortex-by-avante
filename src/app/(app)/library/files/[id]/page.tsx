@@ -299,6 +299,7 @@ function DocumentPage({
   const pageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const suppressScrollRef = useRef(false);
   const suppressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasPositionedRef = useRef(false);
 
   useEffect(() => {
     const el = pageRefs.current[activeId];
@@ -308,7 +309,12 @@ function DocumentPage({
     suppressScrollRef.current = true;
     if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
     suppressTimerRef.current = setTimeout(() => { suppressScrollRef.current = false; }, 600);
-    container.scrollTo({ top: el.offsetTop - 32, behavior: "smooth" });
+    // First positioning (e.g. a ?section= deep link) jumps instantly — a smooth
+    // multi-page scroll can be canceled by the route entrance animation and
+    // strand the viewport at the top; later TOC selections animate as usual.
+    const behavior: ScrollBehavior = hasPositionedRef.current ? "smooth" : "auto";
+    hasPositionedRef.current = true;
+    container.scrollTo({ top: el.offsetTop - 32, behavior });
   }, [activeId]);
 
   useEffect(() => {

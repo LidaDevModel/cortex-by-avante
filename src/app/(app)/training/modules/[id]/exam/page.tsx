@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
@@ -101,27 +102,6 @@ export default function ExamPage() {
   // Scores (computed on submit)
   const [scores, setScores] = useState<SectionScore>({ mc: 0, matching: 0, shortAnswer: 0, branching: 0 });
 
-  // Start timer when exam begins
-  useEffect(() => {
-    if (phase === "mc" || phase === "matching" || phase === "shortAnswer" || phase === "branching" || phase === "review") {
-      if (timerRef.current) return;
-      timerRef.current = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current);
-            if (!timesUpRef.current) {
-              timesUpRef.current = true;
-              handleTimesUp();
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {};
-  }, [phase]);
-
   const handleTimesUp = useCallback(() => {
     // Auto-submit with whatever's answered
     const computed = computeScores(mcAnswers, matchAnswers, shortAnswerText, branchDecisions, exam);
@@ -129,6 +109,36 @@ export default function ExamPage() {
     setPhase("timesUp");
     setTimeout(() => setPhase("results"), 4000);
   }, [mcAnswers, matchAnswers, shortAnswerText, branchDecisions, exam]);
+
+  // The interval's closure is created once, so it must call through a ref —
+  // otherwise expiry would score the answers as they were when the timer started.
+  const handleTimesUpRef = useRef(handleTimesUp);
+  useEffect(() => {
+    handleTimesUpRef.current = handleTimesUp;
+  }, [handleTimesUp]);
+
+  // Start the timer when the exam begins; keep one interval across active phases
+  // and clear it on unmount.
+  const isActivePhase =
+    phase === "mc" || phase === "matching" || phase === "shortAnswer" || phase === "branching" || phase === "review";
+  useEffect(() => {
+    if (!isActivePhase) return;
+    const id = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(id);
+          if (!timesUpRef.current) {
+            timesUpRef.current = true;
+            handleTimesUpRef.current();
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    timerRef.current = id;
+    return () => clearInterval(id);
+  }, [isActivePhase]);
 
   // Back button interception
   useEffect(() => {
@@ -268,12 +278,9 @@ export default function ExamPage() {
           </ul>
 
           <div className="flex flex-col gap-3 pt-2">
-            <button
-              onClick={() => setPhase("mc")}
-              className="w-full h-10 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-            >
+            <Button size="cta" className="w-full" onClick={() => setPhase("mc")}>
               Start exam
-            </button>
+            </Button>
             <button
               onClick={() => router.push(`/training/modules/${moduleId}`)}
               className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer text-center"

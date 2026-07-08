@@ -17,8 +17,8 @@ const RECENTLY_VIEWED: RecentlyViewedItem[] = [
 export default function LibraryPage() {
   const router = useRouter();
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-      <PageHeader crumbs={[{ label: "Library" }]} />
+    <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+      <PageHeader crumbs={[{ label: "Library" }]} className="bg-transparent" />
 
       <ScrollCanvas>
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">

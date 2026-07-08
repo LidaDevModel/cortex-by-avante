@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type { ExamObject } from "@/lib/exam-mock";
 
 type SectionScore = {
@@ -133,6 +134,25 @@ export function ExamResults({
       >
         {/* Heading + score */}
         <div className="flex flex-col gap-3">
+          {passed && (
+            /* Certification moment — restrained: a check badge pops in over a soft glow bloom */
+            <div className="relative w-14 h-14 mb-1">
+              <span
+                aria-hidden
+                className="absolute -inset-4 rounded-full"
+                style={{
+                  background: "radial-gradient(circle, color-mix(in srgb, var(--accent-subtle) 55%, transparent), transparent 70%)",
+                  animation: "glow-bloom 400ms ease-out both",
+                }}
+              />
+              <span
+                className="relative flex items-center justify-center w-14 h-14 rounded-full bg-primary"
+                style={{ animation: "check-pop 300ms cubic-bezier(0.32, 0.72, 0, 1) 100ms both" }}
+              >
+                <Check size={26} strokeWidth={2.5} style={{ color: "var(--primary-foreground)" }} />
+              </span>
+            </div>
+          )}
           <h1
             className="text-[36px] leading-[44px] font-bold"
             style={{ color: passed ? "var(--primary)" : "var(--foreground)" }}
@@ -274,12 +294,9 @@ export function ExamResults({
         </div>
 
         {/* CTA */}
-        <button
-          onClick={onBack}
-          className="w-full h-10 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-        >
+        <Button size="cta" className="w-full" onClick={onBack}>
           {passed ? "Back to training" : "Back to module"}
-        </button>
+        </Button>
       </div>
     </div>
   );
