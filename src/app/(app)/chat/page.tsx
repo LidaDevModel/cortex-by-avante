@@ -55,27 +55,157 @@ type Message = {
   feedback?: FeedbackState;
 };
 
-// ─── Mock AI response ─────────────────────────────────────────────────────────
+// ─── Mock AI responses ────────────────────────────────────────────────────────
+// A small topic bank so replies read as relevant to what was actually asked,
+// instead of one fixed block of placeholder text. Matched by keyword against
+// the user's question; falls back to a general answer if nothing matches.
 
-const MOCK_PARAGRAPHS: AiParagraph[] = [
+type ResponseTopic = { keywords: string[]; paragraphs: AiParagraph[] };
+
+const RESPONSE_TOPICS: ResponseTopic[] = [
   {
-    segments: [
-      { type: "text", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam vitae sagittis justo. Fusce pharetra interdum risus, et venenatis metus lacinia ac. Vestibulum molestie ultricies est sit amet sodales." },
-      { type: "source", label: "Security Protocols" },
+    keywords: ["escalat", "tier", "supervisor", "duty manager"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Incidents are classified into three tiers, and the tier determines who needs to know and how fast. Tier 1 (minor) just needs logging in the incident register. Tier 2 (moderate risk or an actual breach) requires notifying your shift supervisor within 15 minutes of discovery." },
+          { type: "source", label: "Escalation Procedures" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Tier 3 — serious harm, significant loss, or an ongoing threat — means notifying both the shift supervisor and duty manager immediately, and calling emergency services if required. If you're ever unsure which tier applies, classify upward and notify your supervisor rather than waiting." },
+          { type: "source", label: "Incident Response" },
+        ],
+      },
     ],
   },
   {
-    segments: [
-      { type: "text", text: "Donec sollicitudin odio arcu, lobortis laoreet metus facilisis at. Vivamus imperdiet suscipit est, non vulputate nisi ornare nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-      { type: "source", label: "Security Protocols" },
-      { type: "text", text: " Nam vitae sagittis justo. Fusce pharetra interdum risus, et venenatis metus lacinia ac." },
-      { type: "source", label: "Guard Duty" },
+    keywords: ["incident", "report", "log", "documentation"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Every incident, regardless of severity, must be logged in the incident register within 30 minutes of occurring. Tier 2 and Tier 3 incidents additionally need a full written report submitted through the Avante incident reporting portal within two hours of the end of your shift." },
+          { type: "source", label: "Incident Response" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Keep reports factual — describe what you observed and what you did, without speculating about motive or intent. Witness statements should be taken at the time where possible, in the witness's own words." },
+          { type: "source", label: "Post Orders" },
+        ],
+      },
+    ],
+  },
+  {
+    keywords: ["patrol", "perimeter", "checkpoint", "route"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Internal patrols run every two hours on the hour, and external perimeter patrols every four hours. Use the electronic patrol wand at each checkpoint and log any anomalies in the patrol report as you go." },
+          { type: "source", label: "Post Orders" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Don't alter a patrol route without written approval from your shift supervisor — vary your pace and approach within the defined route instead, so it stays unpredictable. A missed or skipped checkpoint needs to be documented immediately with a reason." },
+          { type: "source", label: "Guard Duty" },
+        ],
+      },
+    ],
+  },
+  {
+    keywords: ["access", "visitor", "badge", "gatehouse", "contractor", "id check"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Everyone entering the site needs valid identification at the gatehouse. Contractors must be pre-approved by site management with a current access pass, and visitors are escorted at all times and signed in and out of the visitor log." },
+          { type: "source", label: "Access Control" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Accepted ID includes government-issued photo ID, a company employee badge, or a pre-authorised visitor confirmation shown on a mobile device — reject anything expired or unclear. Visitor passes should only be issued after verifying pre-authorisation with the site contact." },
+          { type: "source", label: "Visitor Management" },
+        ],
+      },
+    ],
+  },
+  {
+    keywords: ["emergency", "fire", "evacuat", "medical", "alarm", "first aid"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "On a fire alarm activation, follow the site evacuation plan posted at each fire point, notify the control room immediately, and direct staff and visitors to the designated assembly area. Don't investigate the source of the alarm yourself unless you're specifically trained and directed to." },
+          { type: "source", label: "Emergency Procedures" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "For a medical emergency, call emergency services before rendering first aid, unless there's an immediate life-threatening risk that makes first aid the priority — notify your shift supervisor at the same time, not after." },
+          { type: "source", label: "Post Orders" },
+        ],
+      },
+    ],
+  },
+  {
+    keywords: ["radio", "channel", "comms", "communication"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Channel 1 is the primary operations channel; Channel 2 is reserved for emergencies only. Run a radio check at the start of every shift — a faulty radio needs to be reported and replaced before you commence duties." },
+          { type: "source", label: "Radio Communications" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Keep transmissions clear, concise, and professional, and avoid personal conversations on operational channels. Don't transmit sensitive information like names or addresses over an open channel." },
+          { type: "source", label: "Guard Duty" },
+        ],
+      },
+    ],
+  },
+  {
+    keywords: ["handover", "shift change", "relief", "end of shift"],
+    paragraphs: [
+      {
+        segments: [
+          { type: "text", text: "Handover has to happen face-to-face. As the outgoing officer, you're responsible for briefing the incoming officer on everything outstanding — incidents, access issues, equipment status — and both of you sign the handover log." },
+          { type: "source", label: "Post Orders" },
+        ],
+      },
+      {
+        segments: [
+          { type: "text", text: "Don't leave site until the incoming officer confirms they're ready to take over. If relief is late, notify your shift supervisor and stay on duty until you're properly relieved." },
+          { type: "source", label: "Guard Duty" },
+        ],
+      },
     ],
   },
 ];
 
-function getMockStreamText() {
-  return MOCK_PARAGRAPHS.map(p =>
+const DEFAULT_RESPONSE: AiParagraph[] = [
+  {
+    segments: [
+      { type: "text", text: "I can help with protocols, procedures, and site guidelines — things like access control, incident reporting, patrol requirements, emergency response, or shift handover. Try asking about one of those, or a specific situation you're dealing with." },
+      { type: "source", label: "Security Protocols" },
+    ],
+  },
+];
+
+function pickResponseFor(question: string): AiParagraph[] {
+  const q = question.toLowerCase();
+  const scored = RESPONSE_TOPICS.map(topic => ({
+    topic,
+    score: topic.keywords.filter(kw => q.includes(kw)).length,
+  })).filter(s => s.score > 0);
+  if (scored.length === 0) return DEFAULT_RESPONSE;
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].topic.paragraphs;
+}
+
+function getStreamTextFor(paragraphs: AiParagraph[]) {
+  return paragraphs.map(p =>
     p.segments
       .filter((s): s is { type: "text"; text: string } => s.type === "text")
       .map(s => s.text)
@@ -446,6 +576,7 @@ export default function ChatPage() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
+  const currentParagraphsRef = useRef<AiParagraph[]>(DEFAULT_RESPONSE);
 
   const hasConversation = messages.length > 0;
 
@@ -490,8 +621,9 @@ export default function ChatPage() {
     return t.length > 45 ? t.slice(0, 45) + "…" : t;
   }
 
-  function startStreaming(msgId: string) {
-    const fullText = getMockStreamText();
+  function startStreaming(msgId: string, paragraphs: AiParagraph[]) {
+    currentParagraphsRef.current = paragraphs;
+    const fullText = getStreamTextFor(paragraphs);
     let idx = 0;
     responseCountRef.current += 1;
     const errorAt = responseCountRef.current === 3
@@ -514,7 +646,7 @@ export default function ChatPage() {
         if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
         setMessages(prev => prev.map(m =>
           m.id === msgId
-            ? { ...m, streamText: fullText, isStreaming: false, paragraphs: MOCK_PARAGRAPHS }
+            ? { ...m, streamText: fullText, isStreaming: false, paragraphs }
             : m
         ));
         setIsAiResponding(false);
@@ -529,10 +661,13 @@ export default function ChatPage() {
   function handleRetry(msgId: string) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(true);
+    const msgIdx = messages.findIndex(m => m.id === msgId);
+    const precedingUserMsg = [...messages.slice(0, msgIdx)].reverse().find(m => m.role === "user");
+    const paragraphs = pickResponseFor(precedingUserMsg?.content ?? "");
     setMessages(prev => prev.map(m =>
       m.id === msgId ? { ...m, isError: false, isStreaming: true, streamText: "" } : m
     ));
-    setTimeout(() => startStreaming(msgId), 800);
+    setTimeout(() => startStreaming(msgId, paragraphs), 800);
   }
 
   function handleSubmit(text: string) {
@@ -542,11 +677,12 @@ export default function ChatPage() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
+    const paragraphs = pickResponseFor(text);
 
     setTimeout(() => {
       const aiId = `a${Date.now()}`;
       setMessages(prev => [...prev, { id: aiId, role: "assistant", isStreaming: true, streamText: "" }]);
-      setTimeout(() => startStreaming(aiId), 1000);
+      setTimeout(() => startStreaming(aiId, paragraphs), 1000);
     }, 80);
   }
 
@@ -556,7 +692,7 @@ export default function ChatPage() {
     setMessages(prev => {
       const last = prev[prev.length - 1];
       if (last?.isStreaming) {
-        return [...prev.slice(0, -1), { ...last, isStreaming: false, paragraphs: MOCK_PARAGRAPHS }];
+        return [...prev.slice(0, -1), { ...last, isStreaming: false, paragraphs: currentParagraphsRef.current }];
       }
       return prev;
     });
@@ -565,6 +701,7 @@ export default function ChatPage() {
   function handleEditMessage(msgId: string, newContent: string) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(true);
+    const paragraphs = pickResponseFor(newContent);
     setMessages(prev => {
       const idx = prev.findIndex(m => m.id === msgId);
       if (idx === -1) return prev;
@@ -575,7 +712,7 @@ export default function ChatPage() {
     setTimeout(() => {
       const aiId = `a${Date.now()}`;
       setMessages(prev => [...prev, { id: aiId, role: "assistant", isStreaming: true, streamText: "" }]);
-      setTimeout(() => startStreaming(aiId), 1000);
+      setTimeout(() => startStreaming(aiId, paragraphs), 1000);
     }, 80);
   }
 
