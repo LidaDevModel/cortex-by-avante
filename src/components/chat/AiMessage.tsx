@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ThumbsUp, ThumbsDown, Volume2, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ThumbsUp, ThumbsDown, Volume2, ArrowUpRight, Library } from "lucide-react";
 import { type Citation, type AiParagraph, getStreamTextFor } from "@/lib/chat-mock";
 import { ThinkingIndicator, StreamingCaret } from "@/components/chat/ThinkingIndicator";
 import { ShareFeedbackModal } from "@/components/chat/ShareFeedbackModal";
@@ -18,6 +19,8 @@ export type Message = {
   paragraphs?: AiParagraph[];
   /** Citation labels for the thinking indicator's status lines. */
   sources?: string[];
+  /** Present on a `not-found` deflection — renders a "Browse the Library" link. */
+  browseLibraryHref?: string;
   feedback?: FeedbackState;
 };
 
@@ -161,6 +164,17 @@ export function AiMessage({
             </p>
           ))}
         </div>
+        {message.browseLibraryHref && (
+          <Link
+            href={message.browseLibraryHref}
+            className="inline-flex items-center gap-1.5 self-start text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
+            style={{ animation: "msg-in 200ms ease-out 150ms both" }}
+          >
+            <Library size={14} strokeWidth={1.5} />
+            Browse the Library
+            <ArrowUpRight size={13} />
+          </Link>
+        )}
         <div className="flex flex-col gap-1.5" style={{ animation: "msg-in 200ms ease-out 150ms both" }}>
           <div className="flex items-center gap-1">
             <FeedbackBtn
