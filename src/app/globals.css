@@ -8,8 +8,25 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  /* Cortex tokens registered as utilities (bg-surface, text-doc-text, border-input-border, …)
+     so components can use classes instead of inline style={{}} objects. */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-glass: var(--surface-glass);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-input-border: var(--input-border);
+  --color-cortex-card-border: var(--card-border);
+  --color-control-border: var(--control-border);
+  --color-progress-track: var(--progress-track);
+  --color-fileview: var(--background-fileview);
+  --color-scrim: var(--scrim);
+  --color-doc-page: var(--doc-page-bg);
+  --color-doc-text: var(--doc-text);
+  --color-doc-text-muted: var(--doc-text-muted);
+  --color-doc-text-faint: var(--doc-text-faint);
+  --color-doc-callout: var(--doc-callout-bg);
+  --color-doc-callout-border: var(--doc-callout-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -100,6 +117,8 @@
   --background-fileview: #f0f0f0;             /* document canvas background (behind pages) */
   --radius-card: 12px;                        /* VISION.md radius.card */
   --scrim: rgba(17, 24, 39, 0.4);             /* modal/drawer backdrop */
+  /* Signature radial glow for main canvases (VISION). Light mode only — dark mode is flat. */
+  --canvas-glow: radial-gradient(ellipse 60% 50% at 50% 35%, color-mix(in srgb, var(--accent) 30%, transparent), transparent);
   /* Shadow tokens */
   --shadow-ai-send-button: 0px 3px 4px rgba(0,139,117,0.13), 0px 1px 2.4px rgba(64,255,0,0.13), inset 3px 3px 2.9px rgba(29,105,84,0.33), inset 1px 1px 5px rgba(255,255,255,0.37), inset -2px -2px 2.4px rgba(239,255,194,0.2);
   --shadow-modal-panel: 0 8px 32px rgba(17,24,39,0.14), 0 2px 8px rgba(17,24,39,0.06);
@@ -196,6 +215,7 @@
   --illustration-glow-side-card: radial-gradient(ellipse 95% 75% at 15% 50%, rgba(72,72,72,1) 0%, rgba(72,72,72,0) 100%);
   --card-border: oklch(0.37 0.05 160);         /* outer card inset border — dark mode (#355e50) */
   --background-fileview: #141414;              /* document canvas background (behind pages) — dark mode */
+  --canvas-glow: none;                         /* glow is light-mode only (VISION dark table) */
   /* Document page tokens — dark mode */
   --doc-page-bg: oklch(0.27 0 0);              /* swapped with --surface's former value (#353535) */
   --doc-text: #e8e8e8;
@@ -306,8 +326,71 @@
   }
 }
 
+@layer components {
+  /* Main-canvas radial glow (VISION signature). Layered over the surface color. */
+  .canvas-glow {
+    background: var(--canvas-glow), var(--surface);
+  }
+  /* Field error state (VISION error protocol) — applied to inputs on failed validation. */
+  .field-error {
+    border-color: var(--destructive) !important;
+    box-shadow: 0 0 0 1px var(--destructive);
+  }
+}
+
 @keyframes modal-in {
   from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Chat & micro-interaction keyframes ─── */
+
+/* Message entrance — slide up + fade (VISION screen-content timing) */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Citation chip pop — subtle scale-in after streaming completes */
+@keyframes chip-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Thinking indicator — breathing orb (600ms each way per VISION cursor pulse) */
+@keyframes think-pulse {
+  0%, 100% { transform: scale(0.82); opacity: 0.55; }
+  50%      { transform: scale(1); opacity: 1; }
+}
+
+/* Thinking status line — soft text shimmer sweep */
+@keyframes think-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Streaming caret — gentle blink while text streams in */
+@keyframes stream-caret {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* Quiz feedback — wrong-answer shake (small, 2px, quick) */
+@keyframes quiz-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-2px); }
+  75%      { transform: translateX(2px); }
+}
+
+/* Quiz/results feedback — check pop-in */
+@keyframes check-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Results celebration — soft glow bloom behind the pass state */
+@keyframes glow-bloom {
+  from { opacity: 0; transform: scale(0.85); }
   to   { opacity: 1; transform: scale(1); }
 }
 
@@ -375,4 +458,19 @@ select,
 summary,
 label[for] {
   cursor: pointer;
+}
+
+/* Reduced motion — collapse all animation/transition to imperceptible durations.
+   Keyframe-driven states still land on their final frame. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
