@@ -21,6 +21,7 @@ import {
   getSourceLabelsFor,
 } from "@/lib/chat-mock";
 import { USER } from "@/lib/user-mock";
+import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
@@ -32,29 +33,20 @@ export default function ChatPage() {
   const [isRenamingTitle, setIsRenamingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
-  const [msgsCanScrollUp, setMsgsCanScrollUp] = useState(false);
-  const [msgsCanScrollDown, setMsgsCanScrollDown] = useState(false);
+  // Stick-to-bottom: follows the streaming response while the user is at the
+  // bottom, yields when they scroll up to read back, re-engages on return.
+  const { scrollRef: messagesScrollRef, contentRef: messagesContentRef, canScrollUp: msgsCanScrollUp, canScrollDown: msgsCanScrollDown, jumpToBottom } = useStickToBottom();
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
   const currentResponseRef = useRef<ChatResponse | null>(null);
-  // While the user is reading older messages we must not fight their scroll —
-  // auto-follow only when they're already pinned to the bottom.
-  const pinnedToBottomRef = useRef(true);
 
   const hasConversation = messages.length > 0;
 
   useEffect(() => {
     if (isRenamingTitle) titleInputRef.current?.focus();
   }, [isRenamingTitle]);
-
-  useEffect(() => {
-    if (!pinnedToBottomRef.current) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
-  }, [messages]);
 
   // Clear any in-flight stream when leaving the screen.
   useEffect(() => {
@@ -74,32 +66,9 @@ export default function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateMsgsScroll = () => {
-    const el = messagesScrollRef.current;
-    if (!el) return;
-    const atTop = el.scrollTop <= 4;
-    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
-    pinnedToBottomRef.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 80;
-    setMsgsCanScrollUp(!atTop);
-    setMsgsCanScrollDown(!atBottom);
-  };
-
-  useEffect(() => {
-    const el = messagesScrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateMsgsScroll, { passive: true });
-    updateMsgsScroll();
-    return () => el.removeEventListener("scroll", updateMsgsScroll);
-  }, [hasConversation]);
-
   function generateTitle(text: string) {
     const t = text.trim();
     return t.length > 45 ? t.slice(0, 45) + "…" : t;
-  }
-
-  function scrollToBottom(behavior: ScrollBehavior = "smooth") {
-    pinnedToBottomRef.current = true;
-    messagesEndRef.current?.scrollIntoView({ behavior });
   }
 
   function startStreaming(msgId: string, response: ChatResponse) {
@@ -175,7 +144,7 @@ export default function ChatPage() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
-    scrollToBottom();
+    jumpToBottom();
     queueAiResponse(resolveResponse(text));
   }
 
@@ -240,7 +209,7 @@ export default function ChatPage() {
         streamText: getStreamTextFor(response.paragraphs),
       },
     ]);
-    pinnedToBottomRef.current = true;
+    jumpToBottom();
   }
 
   function saveTitle() {
@@ -357,7 +326,7 @@ export default function ChatPage() {
               }}
             >
               <button
-                onClick={() => scrollToBottom()}
+                onClick={jumpToBottom}
                 aria-label="Scroll to latest message"
                 className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-surface-glass"
                 style={{
@@ -379,7 +348,7 @@ export default function ChatPage() {
                 WebkitMaskImage: msgsCanScrollUp ? "linear-gradient(to bottom, transparent 0px, black 64px, black 100%)" : "none",
               }}
             >
-              <div className="min-h-full flex flex-col">
+              <div ref={messagesContentRef} className="min-h-full flex flex-col">
                 <div className="flex-1 px-6 pt-8 pb-4">
                   <div className="max-w-[560px] mx-auto flex flex-col gap-8">
                     {messages.map(msg =>
@@ -387,7 +356,6 @@ export default function ChatPage() {
                         ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
                         : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onCitationClick={setActiveCitation} />
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 
