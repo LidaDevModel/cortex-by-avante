@@ -26,6 +26,7 @@ type Props = {
   onExit: () => void;
   timeRemaining: number;
   timeLimitSeconds: number;
+  isSimulation?: boolean;
 };
 
 function formatTime(seconds: number): string {
@@ -41,6 +42,7 @@ export function ExamProgress({
   onExit,
   timeRemaining,
   timeLimitSeconds,
+  isSimulation,
 }: Props) {
   const isLowTime = timeRemaining <= timeLimitSeconds * 0.2;
 
@@ -56,8 +58,13 @@ export function ExamProgress({
         <X size={14} />
         Exit
       </button>
-      <span className="absolute left-1/2 -translate-x-1/2 text-[13px] text-muted-foreground pointer-events-none">
-        Certification exam
+      <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 text-[13px] text-muted-foreground pointer-events-none">
+        {isSimulation ? "Exam simulation" : "Certification exam"}
+        {isSimulation && (
+          <span className="px-2 py-[1px] rounded-full text-[11px] font-medium bg-[var(--sidebar-active)] text-primary">
+            Practice
+          </span>
+        )}
       </span>
       <span
         className={cn(

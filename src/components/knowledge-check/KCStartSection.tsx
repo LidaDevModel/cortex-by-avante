@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Target, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Target, SlidersHorizontal, Timer } from "lucide-react";
 
 /* One actionable preset card — icon tile · title · meta · arrow. Mirrors the
    dashboard's actionable-row idiom so the whole app speaks one card language. */
@@ -46,18 +46,20 @@ export function KCStartSection({
   weakestLabel,
   onDaily5,
   onWeakAreas,
+  onExamSim,
   onCustom,
 }: {
   /** Label of the weakest category, or null when there's no history yet. */
   weakestLabel: string | null;
   onDaily5: () => void;
   onWeakAreas: () => void;
+  onExamSim: () => void;
   onCustom: () => void;
 }) {
   return (
     <section className="flex flex-col gap-3">
       <p className="section-label">Start a check</p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <PresetCard
           icon={<span className="text-[17px] font-bold tabular-nums leading-none">5</span>}
           title="Daily 5"
@@ -70,6 +72,12 @@ export function KCStartSection({
           meta={weakestLabel ? `Targets your weakest area: ${weakestLabel}` : "Complete a check to unlock"}
           onClick={onWeakAreas}
           disabled={!weakestLabel}
+        />
+        <PresetCard
+          icon={<Timer size={20} strokeWidth={1.5} />}
+          title="Exam simulation"
+          meta="Timed practice exam · by category"
+          onClick={onExamSim}
         />
         <PresetCard
           icon={<SlidersHorizontal size={20} strokeWidth={1.5} />}

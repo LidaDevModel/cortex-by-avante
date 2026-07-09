@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getModuleById } from "@/lib/training-mock";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
@@ -62,9 +63,37 @@ function computeScores(
 
 export default function ExamPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const moduleId = params.id as string;
-  const exam = MOCK_EXAM; // In production: fetched/generated per moduleId
+  // Practice mode, launched from Knowledge Check → "Exam simulation". Same
+  // engine and rigor as the certification exam; only the framing changes
+  // (no certificate is awarded). Everything below is gated on this flag so the
+  // real certification flow is byte-for-byte unchanged.
+  const isSimulation = searchParams.get("mode") === "simulation";
+  const moduleTitle = getModuleById(moduleId)?.title;
+  // In simulation, label the exam with the chosen module/category; content is
+  // the shared mock bank (production would supply per-module questions).
+  const exam = isSimulation && moduleTitle
+    ? { ...MOCK_EXAM, moduleName: moduleTitle }
+    : MOCK_EXAM;
+
+  // Simulation reframes the wrapper copy and returns to Knowledge Check; the
+  // certification path keeps its original strings and module destinations.
+  const examKindLabel = isSimulation ? "Exam simulation" : "Certification exam";
+  const startLabel = isSimulation ? "Start simulation" : "Start exam";
+  const exitHref = isSimulation ? "/training/quick-check" : `/training/modules/${moduleId}`;
+  const preExamRules = isSimulation
+    ? [
+        "Same shape as the real exam: 5 multiple choice, 1 matching, 1 short answer, 1 branching scenario.",
+        "Timed like the certification exam — you can skip and return within sections 1–3.",
+        "This is practice — no certificate is awarded. Your score shows how ready you are.",
+      ]
+    : [
+        "5 multiple choice questions, 1 matching exercise, 1 short answer, 1 branching scenario.",
+        "You can skip and return to questions in sections 1–3.",
+        "Exiting at any point discards your progress.",
+      ];
 
   const [phase, setPhase] = useState<Phase>("preExam");
   const [completedSections, setCompletedSections] = useState<Set<ExamSection>>(new Set());
@@ -222,7 +251,7 @@ export default function ExamPage() {
 
   function handleExit() {
     clearInterval(timerRef.current);
-    router.push(`/training/modules/${moduleId}`);
+    router.push(exitHref);
   }
 
   function handleJumpSection(section: ExamSection) {
@@ -250,9 +279,11 @@ export default function ExamPage() {
               className="text-[22px] leading-[30px] font-bold"
               style={{ color: "var(--primary)" }}
             >
-              Certification exam
+              {examKindLabel}
             </h2>
-            <p className="text-[14px] text-muted-foreground">{exam.moduleName}</p>
+            <p className="text-[14px] text-muted-foreground">
+              {exam.moduleName}{isSimulation ? " · practice run" : ""}
+            </p>
           </div>
 
           {/* Time badge */}
@@ -263,11 +294,7 @@ export default function ExamPage() {
 
           {/* Rules */}
           <ul className="flex flex-col gap-3">
-            {[
-              "5 multiple choice questions, 1 matching exercise, 1 short answer, 1 branching scenario.",
-              "You can skip and return to questions in sections 1–3.",
-              "Exiting at any point discards your progress.",
-            ].map((rule, i) => (
+            {preExamRules.map((rule, i) => (
               <li key={i} className="flex items-start gap-3 text-[14px] text-foreground">
                 <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] flex items-center justify-center text-[11px] font-semibold">
                   {i + 1}
@@ -279,10 +306,10 @@ export default function ExamPage() {
 
           <div className="flex flex-col gap-3 pt-2">
             <Button size="cta" className="w-full" onClick={() => setPhase("mc")}>
-              Start exam
+              {startLabel}
             </Button>
             <button
-              onClick={() => router.push(`/training/modules/${moduleId}`)}
+              onClick={() => router.push(exitHref)}
               className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer text-center"
             >
               Cancel
@@ -320,11 +347,16 @@ export default function ExamPage() {
         <ExamResults
           exam={exam}
           scores={scores}
+          isSimulation={isSimulation}
           mcAnswers={mcAnswers}
           matchAnswers={matchAnswers}
           shortAnswer={shortAnswerText}
           branchDecisions={branchDecisions}
           onBack={() => {
+            if (isSimulation) {
+              router.push("/training/quick-check");
+              return;
+            }
             const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;
             if (total >= 85) {
               router.push("/training/modules");
@@ -347,6 +379,7 @@ export default function ExamPage() {
         onExit={() => setShowExitDialog(true)}
         timeRemaining={timeRemaining}
         timeLimitSeconds={exam.timeLimitSeconds}
+        isSimulation={isSimulation}
       />
 
       {/* Section nav strip */}
@@ -433,12 +466,12 @@ export default function ExamPage() {
       <ExitConfirmDialog
         open={showExitDialog}
         onOpenChange={setShowExitDialog}
-        title="Exit the exam?"
+        title={isSimulation ? "Exit the simulation?" : "Exit the exam?"}
         description="Your progress will not be saved."
-        exitLabel="Exit exam"
+        exitLabel={isSimulation ? "Exit simulation" : "Exit exam"}
         onExit={() => {
           clearInterval(timerRef.current);
-          router.push(`/training/modules/${moduleId}`);
+          router.push(exitHref);
         }}
       />
     </div>
