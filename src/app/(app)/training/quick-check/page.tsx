@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -15,7 +15,7 @@ import {
   generateQuestions,
   computeKCScore,
 } from "@/lib/knowledge-check-mock";
-import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal } from "@/lib/kc-store";
+import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal, getWeakestCategories } from "@/lib/kc-store";
 import type {
   KCFormat,
   KCCategory,
@@ -26,6 +26,7 @@ import type {
 import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
+import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 
 /* ─── Types ─── */
 
@@ -354,6 +355,14 @@ export default function QuickCheckPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, KCAnswer>>({});
   const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
+  // Fixed question cap for count-based presets (Daily 5); null = budget-derived.
+  const [questionCap, setQuestionCap] = useState<number | null>(null);
+
+  // Weakest category label for the "Weak areas" preset; null disables it.
+  const weakestLabel = useMemo(() => {
+    const w = getWeakestCategories(1);
+    return w.length > 0 ? CATEGORY_LABELS[w[0]] : null;
+  }, [attempts]);
 
   /* Format toggle */
   const toggleFormat = useCallback((f: KCFormat) => {
@@ -386,17 +395,41 @@ export default function QuickCheckPage() {
     setPhase("generating");
   }
 
+  /* Preset: Daily 5 — 5 mixed questions, no config step. */
+  function startDaily5() {
+    setSelectedFormats([...ALL_FORMATS]);
+    setSelectedCategories([...ALL_CATEGORIES]);
+    setQuestionCap(5);
+    setAnswers({});
+    setGeneratedQuestions([]);
+    setCurrentQuestionIndex(0);
+    setPhase("generating");
+  }
+
+  /* Preset: Weak areas — mixed questions focused on the lowest-scoring category. */
+  function startWeakAreas() {
+    const cats = getWeakestCategories(1);
+    if (cats.length === 0) return; // no history yet; the card is disabled anyway
+    setSelectedFormats([...ALL_FORMATS]);
+    setSelectedCategories(cats);
+    setQuestionCap(null);
+    setAnswers({});
+    setGeneratedQuestions([]);
+    setCurrentQuestionIndex(0);
+    setPhase("generating");
+  }
+
   useEffect(() => {
     if (phase !== "generating") return;
     const timer = setTimeout(() => {
       const qs = generateQuestions(selectedFormats, selectedCategories);
-      setGeneratedQuestions(qs);
+      setGeneratedQuestions(questionCap != null ? qs.slice(0, questionCap) : qs);
       setAnswers({});
       setCurrentQuestionIndex(0);
       setPhase("flow");
     }, 1200);
     return () => clearTimeout(timer);
-  }, [phase, selectedFormats, selectedCategories]);
+  }, [phase, selectedFormats, selectedCategories, questionCap]);
 
   /* Submit */
   function submitCheck() {
@@ -424,11 +457,12 @@ export default function QuickCheckPage() {
     setCurrentQuestionIndex(0);
   }
 
-  /* Reset to config for "try another" */
+  /* Reset to config for "try another" / Custom check */
   function openConfig() {
     setPhase("config");
     setSelectedFormats([]);
     setSelectedCategories([]);
+    setQuestionCap(null);
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -464,24 +498,23 @@ export default function QuickCheckPage() {
           {phase === "listing" && (
             <ScrollCanvas>
               <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
-                {/* Title + CTA */}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex flex-col gap-1">
-                    <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
-                      Knowledge check
-                    </h1>
-                    <p className="text-[14px] leading-[20px] text-muted-foreground">
-                      Test your knowledge across topics and formats without time pressure.
-                    </p>
-                  </div>
-                  <button
-                    onClick={openConfig}
-                    className="shrink-0 h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-                  >
-                    Check your knowledge
-                  </button>
+                {/* Title */}
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+                    Knowledge check
+                  </h1>
+                  <p className="text-[14px] leading-[20px] text-muted-foreground">
+                    Test your knowledge across topics and formats without time pressure.
+                  </p>
                 </div>
+
+                {/* Start a check — presets + custom */}
+                <KCStartSection
+                  weakestLabel={weakestLabel}
+                  onDaily5={startDaily5}
+                  onWeakAreas={startWeakAreas}
+                  onCustom={openConfig}
+                />
 
                 {/* History */}
                 <HistorySection attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
