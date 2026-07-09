@@ -10,24 +10,20 @@ function PresetCard({
   meta,
   onClick,
   disabled,
-  featured,
 }: {
   icon: React.ReactNode;
   title: string;
   meta: string;
   onClick: () => void;
   disabled?: boolean;
-  featured?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`group relative flex items-center gap-4 rounded-[12px] border p-4 text-left transition-[transform,box-shadow,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md dark:enabled:hover:shadow-none dark:enabled:hover:bg-[var(--card-hover-bg)] ${
-        featured ? "bg-[color-mix(in_srgb,var(--primary)_8%,var(--surface))]" : "bg-surface-raised"
-      }`}
-      style={{ borderColor: featured ? "color-mix(in srgb, var(--primary) 25%, transparent)" : "var(--border)" }}
+      className="group relative flex items-center gap-4 rounded-[12px] border p-4 text-left bg-surface-raised transition-[transform,box-shadow,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:-translate-y-0.5 enabled:hover:shadow-md dark:enabled:hover:shadow-none dark:enabled:hover:bg-[var(--card-hover-bg)]"
+      style={{ borderColor: "var(--border)" }}
     >
       <span
         className="flex items-center justify-center w-11 h-11 rounded-[10px] shrink-0 text-primary"
@@ -63,7 +59,6 @@ export function KCStartSection({
       <p className="section-label">Start a check</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <PresetCard
-          featured
           icon={<span className="text-[17px] font-bold tabular-nums leading-none">5</span>}
           title="Daily 5"
           meta="5 questions · mixed · ~4 min"
