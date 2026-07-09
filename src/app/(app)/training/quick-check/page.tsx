@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Eye } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
@@ -433,52 +434,35 @@ export default function QuickCheckPage() {
     setCurrentQuestionIndex(0);
   }
 
+  // Breadcrumb reflects the phase: the deep crumb (category + attempt number)
+  // only appears once a session is underway.
+  const inSession = phase === "flow" || phase === "review" || phase === "results";
+  const crumbs = inSession
+    ? [
+        { label: "Training" },
+        { label: "Knowledge check" },
+        { label: (() => {
+            const cats = selectedCategories;
+            const label = cats.length === 0 || cats.length === ALL_CATEGORIES.length
+              ? "All categories"
+              : cats.length === 1
+              ? CATEGORY_LABELS[cats[0]]
+              : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+            return `${label} #${getPendingOrdinal(cats)}`;
+          })() },
+      ]
+    : [{ label: "Training" }, { label: "Knowledge check" }];
+
   return (
     <>
-      <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-        {/* Header */}
-        <header
-          className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0"
-          style={{ background: "var(--surface)" }}
-        >
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-            <span className="text-muted-foreground shrink-0">Training</span>
-            <span className="text-muted-foreground shrink-0">/</span>
-            {phase === "flow" || phase === "review" || phase === "results" ? (
-              <>
-                <span className="text-muted-foreground shrink-0">Knowledge check</span>
-                <span className="text-muted-foreground shrink-0">/</span>
-                <span className="font-medium text-foreground truncate">
-                  {(() => {
-                    const cats = selectedCategories;
-                    const label = cats.length === 0 || cats.length === ALL_CATEGORIES.length
-                      ? "All categories"
-                      : cats.length === 1
-                      ? CATEGORY_LABELS[cats[0]]
-                      : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
-                    const ordinal = getPendingOrdinal(cats);
-                    return `${label} #${ordinal}`;
-                  })()}
-                </span>
-              </>
-            ) : (
-              <span className="font-medium text-foreground truncate">Knowledge check</span>
-            )}
-          </div>
-        </header>
+      <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+        <PageHeader crumbs={crumbs} className="bg-transparent" />
 
         {/* Canvas */}
         <div className="relative flex-1 overflow-hidden flex flex-col">
           {/* Listing */}
           {phase === "listing" && (
-            <div
-              className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-              style={{
-                maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-              }}
-            >
+            <ScrollCanvas>
               <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
                 {/* Title + CTA */}
                 <div className="flex items-center justify-between gap-4">
@@ -502,7 +486,7 @@ export default function QuickCheckPage() {
                 {/* History */}
                 <HistorySection attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
               </div>
-            </div>
+            </ScrollCanvas>
           )}
 
           {/* Config */}
@@ -568,13 +552,7 @@ export default function QuickCheckPage() {
                   isReviewActive={true}
                 />
               </div>
-              <div
-                className="flex-1 overflow-y-auto scroll-thin"
-                style={{
-                  maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                }}
-              >
+              <ScrollCanvas>
                 <div className="max-w-[920px] mx-auto px-8 pb-12">
                   <KCReview
                     questions={generatedQuestions}
@@ -584,19 +562,13 @@ export default function QuickCheckPage() {
                     onBack={() => { setCurrentQuestionIndex(generatedQuestions.length - 1); setPhase("flow"); }}
                   />
                 </div>
-              </div>
+              </ScrollCanvas>
             </div>
           )}
 
           {/* Results */}
           {phase === "results" && (
-            <div
-              className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-              style={{
-                maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-              }}
-            >
+            <ScrollCanvas>
               <div className="max-w-[920px] mx-auto px-8">
                 <KCResults
                   questions={generatedQuestions}
@@ -605,7 +577,7 @@ export default function QuickCheckPage() {
                   onBack={() => setPhase("listing")}
                 />
               </div>
-            </div>
+            </ScrollCanvas>
           )}
         </div>
       </div>
