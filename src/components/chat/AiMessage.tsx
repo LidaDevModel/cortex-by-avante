@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ThumbsUp, ThumbsDown, Volume2, ArrowUpRight, Library } from "lucide-react";
-import { type Citation, type AiParagraph, getStreamTextFor } from "@/lib/chat-mock";
+import { type AiParagraph, getStreamTextFor } from "@/lib/chat-mock";
 import { ThinkingIndicator, StreamingCaret } from "@/components/chat/ThinkingIndicator";
 import { ShareFeedbackModal } from "@/components/chat/ShareFeedbackModal";
+import { CitationChip } from "@/components/chat/CitationChip";
 
 export type FeedbackState = null | "up" | "down";
 
@@ -23,23 +24,6 @@ export type Message = {
   browseLibraryHref?: string;
   feedback?: FeedbackState;
 };
-
-function SourceChip({ label, onClick, delayMs }: { label: string; onClick: () => void; delayMs: number }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap"
-      style={{
-        background: "color-mix(in srgb, var(--primary) 10%, var(--surface))",
-        animation: `chip-in 150ms ease-out ${delayMs}ms both`,
-      }}
-    >
-      {label}
-      <ArrowUpRight size={10} />
-    </button>
-  );
-}
 
 function FeedbackBtn({
   type,
@@ -70,12 +54,10 @@ export function AiMessage({
   message,
   onFeedback,
   onRetry,
-  onCitationClick,
 }: {
   message: Message;
   onFeedback: (id: string, value: FeedbackState) => void;
   onRetry: (id: string) => void;
-  onCitationClick: (citation: Citation) => void;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -159,7 +141,7 @@ export function AiMessage({
               {para.segments.map((seg, j) =>
                 seg.type === "text"
                   ? <span key={j}>{seg.text}</span>
-                  : <SourceChip key={j} label={seg.label} delayMs={chipIndex++ * 60} onClick={() => onCitationClick(seg)} />
+                  : <CitationChip key={j} docId={seg.docId} sectionId={seg.sectionId} label={seg.label} delayMs={chipIndex++ * 60} />
               )}
             </p>
           ))}

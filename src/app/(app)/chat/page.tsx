@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatComposer } from "@/components/chat/ChatComposer";
-import { CitationPanel, type Citation } from "@/components/chat/CitationPanel";
 import { UserMessage } from "@/components/chat/UserMessage";
 import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
 import {
@@ -23,10 +22,28 @@ import {
 import { USER } from "@/lib/user-mock";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 
+// The active conversation is held in sessionStorage so it survives navigating
+// out to a citation source (and back via "Back to conversation") — the chat is
+// otherwise ephemeral and any navigation would drop it.
+const CHAT_STORAGE_KEY = "cortex-active-chat";
+
+function loadPersistedChat(): { messages: Message[]; title: string | null } {
+  if (typeof window === "undefined") return { messages: [], title: null };
+  try {
+    const raw = sessionStorage.getItem(CHAT_STORAGE_KEY);
+    if (!raw) return { messages: [], title: null };
+    const parsed = JSON.parse(raw);
+    // Persisted messages are always settled; strip any transient flags defensively.
+    const messages: Message[] = (parsed.messages ?? []).map((m: Message) => ({ ...m, isStreaming: false }));
+    return { messages, title: parsed.title ?? null };
+  } catch {
+    return { messages: [], title: null };
+  }
+}
+
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [isAiResponding, setIsAiResponding] = useState(false);
-  const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
@@ -55,16 +72,37 @@ export default function ChatPage() {
     };
   }, []);
 
-  // Consume a prefilled query passed via ?q= (e.g. from the dashboard "Ask Cortex" entry)
-  // and send it once on mount, then strip it from the URL so a refresh doesn't resend.
+  // On mount: a ?q= (e.g. from the dashboard "Ask Cortex" entry) starts a fresh
+  // question; otherwise restore the persisted conversation so returning from a
+  // citation source lands you back where you were.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get("q");
     if (q && q.trim()) {
       handleSubmit(q.trim());
       window.history.replaceState({}, "", "/chat");
+    } else {
+      const persisted = loadPersistedChat();
+      if (persisted.messages.length) {
+        setMessages(persisted.messages);
+        setConversationTitle(persisted.title);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Persist the settled conversation (never mid-stream) so it survives navigation.
+  useEffect(() => {
+    if (isAiResponding) return;
+    try {
+      if (messages.length) {
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify({ messages, title: conversationTitle }));
+      } else {
+        sessionStorage.removeItem(CHAT_STORAGE_KEY);
+      }
+    } catch {
+      /* storage full / unavailable — non-fatal */
+    }
+  }, [messages, conversationTitle, isAiResponding]);
 
   function generateTitle(text: string) {
     const t = text.trim();
@@ -354,7 +392,7 @@ export default function ChatPage() {
                     {messages.map(msg =>
                       msg.role === "user"
                         ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
-                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onCitationClick={setActiveCitation} />
+                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} />
                     )}
                   </div>
                 </div>
@@ -401,8 +439,6 @@ export default function ChatPage() {
         onSelect={handleSelectConversation}
       />
       </div>
-
-      <CitationPanel citation={activeCitation} onOpenChange={(open) => !open && setActiveCitation(null)} />
     </div>
   );
 }
