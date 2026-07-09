@@ -136,24 +136,78 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
   },
 ];
 
-const DEFAULT_RESPONSE: AiParagraph[] = [
+// ─── Non-answers ──────────────────────────────────────────────────────────────
+// Two deflection responses for questions we can't ground in a real source. Both
+// carry ONLY text segments — no `source` — so no citation chip renders (a chip
+// implies a backing section, and a non-answer has none). Copy is canonical in
+// VISION's "Chat non-answers" table.
+
+const OUT_OF_SCOPE_RESPONSE: AiParagraph[] = [
   {
     segments: [
-      { type: "text", text: "I can help with protocols, procedures, and site guidelines — things like access control, incident reporting, patrol requirements, emergency response, or shift handover. Try asking about one of those, or a specific situation you're dealing with." },
-      { type: "source", label: "Security Protocols", docId: "3", sectionId: "top-3-s1" },
+      { type: "text", text: "I'm focused on Avante's security operations — protocols, procedures, and site guidelines. I can't help with that one. Try asking about access control, incident reporting, patrols, emergencies, or shift handover." },
     ],
   },
 ];
 
-export function pickResponseFor(question: string): AiParagraph[] {
+const NOT_FOUND_RESPONSE: AiParagraph[] = [
+  {
+    segments: [
+      { type: "text", text: "That's within security operations, but I don't have anything on it in the Library yet. Try rephrasing, or ask your manager if you think it should be here." },
+    ],
+  },
+];
+
+// Broad Avante-domain vocabulary. A question that matches no specific topic but
+// DOES hit this set is on-topic-but-uncovered (not-found); one that matches
+// nothing here is off-topic entirely (out-of-scope). This mirrors a real
+// retrieval-confidence gate: topic = high-confidence hit, domain-only = on-topic
+// but retrieval empty, neither = off-topic. Keyword matching can't disambiguate
+// homographs (e.g. "annual report" vs "incident report") — a real NLU/RAG layer
+// would; acceptable for the mock.
+const DOMAIN_VOCABULARY = [
+  "security", "guard", "shift", "site", "safety", "supervisor", "manager",
+  "duty", "uniform", "equipment", "report", "client", "visitor", "access",
+  "incident", "patrol", "radio", "alarm", "emergency", "cctv", "post", "log",
+  "protocol", "procedure", "escalat", "handover", "briefing", "checkpoint",
+  "perimeter", "officer", "badge", "gatehouse", "evacuat", "first aid",
+];
+
+export type ResponseKind = "answer" | "not-found" | "out-of-scope";
+
+export type ChatResponse = {
+  kind: ResponseKind;
+  paragraphs: AiParagraph[];
+  /** Present on `not-found` — a "Browse the Library" affordance (deep link). */
+  browseLibraryHref?: string;
+};
+
+/**
+ * Resolves a question to a typed response via a three-tier gate:
+ *   1. matches a topic       → grounded answer (with citations)
+ *   2. domain vocab, no topic → not-found (on-topic, uncovered; no citation)
+ *   3. neither               → out-of-scope (off-topic; no citation)
+ * The `kind` is carried explicitly rather than inferred from "has sources", so a
+ * real (sourced) answer can never be misread as a deflection, and the future
+ * backend swaps in behind this same signature.
+ */
+export function resolveResponse(question: string): ChatResponse {
   const q = question.toLowerCase();
   const scored = RESPONSE_TOPICS.map(topic => ({
     topic,
     score: topic.keywords.filter(kw => q.includes(kw)).length,
   })).filter(s => s.score > 0);
-  if (scored.length === 0) return DEFAULT_RESPONSE;
-  scored.sort((a, b) => b.score - a.score);
-  return scored[0].topic.paragraphs;
+
+  if (scored.length > 0) {
+    scored.sort((a, b) => b.score - a.score);
+    return { kind: "answer", paragraphs: scored[0].topic.paragraphs };
+  }
+
+  if (DOMAIN_VOCABULARY.some(kw => q.includes(kw))) {
+    return { kind: "not-found", paragraphs: NOT_FOUND_RESPONSE, browseLibraryHref: "/library" };
+  }
+
+  return { kind: "out-of-scope", paragraphs: OUT_OF_SCOPE_RESPONSE };
 }
 
 /** The plain text a response streams as (source chips render only once complete). */

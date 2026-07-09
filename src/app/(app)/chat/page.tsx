@@ -15,12 +15,13 @@ import { CitationPanel, type Citation } from "@/components/chat/CitationPanel";
 import { UserMessage } from "@/components/chat/UserMessage";
 import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
 import {
-  type AiParagraph,
-  pickResponseFor,
+  type ChatResponse,
+  resolveResponse,
   getStreamTextFor,
   getSourceLabelsFor,
 } from "@/lib/chat-mock";
 import { USER } from "@/lib/user-mock";
+import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
@@ -32,29 +33,20 @@ export default function ChatPage() {
   const [isRenamingTitle, setIsRenamingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
-  const [msgsCanScrollUp, setMsgsCanScrollUp] = useState(false);
-  const [msgsCanScrollDown, setMsgsCanScrollDown] = useState(false);
+  // Stick-to-bottom: follows the streaming response while the user is at the
+  // bottom, yields when they scroll up to read back, re-engages on return.
+  const { scrollRef: messagesScrollRef, contentRef: messagesContentRef, canScrollUp: msgsCanScrollUp, canScrollDown: msgsCanScrollDown, jumpToBottom } = useStickToBottom();
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
-  const currentParagraphsRef = useRef<AiParagraph[]>([]);
-  // While the user is reading older messages we must not fight their scroll —
-  // auto-follow only when they're already pinned to the bottom.
-  const pinnedToBottomRef = useRef(true);
+  const currentResponseRef = useRef<ChatResponse | null>(null);
 
   const hasConversation = messages.length > 0;
 
   useEffect(() => {
     if (isRenamingTitle) titleInputRef.current?.focus();
   }, [isRenamingTitle]);
-
-  useEffect(() => {
-    if (!pinnedToBottomRef.current) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
-  }, [messages]);
 
   // Clear any in-flight stream when leaving the screen.
   useEffect(() => {
@@ -74,36 +66,14 @@ export default function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateMsgsScroll = () => {
-    const el = messagesScrollRef.current;
-    if (!el) return;
-    const atTop = el.scrollTop <= 4;
-    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
-    pinnedToBottomRef.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 80;
-    setMsgsCanScrollUp(!atTop);
-    setMsgsCanScrollDown(!atBottom);
-  };
-
-  useEffect(() => {
-    const el = messagesScrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateMsgsScroll, { passive: true });
-    updateMsgsScroll();
-    return () => el.removeEventListener("scroll", updateMsgsScroll);
-  }, [hasConversation]);
-
   function generateTitle(text: string) {
     const t = text.trim();
     return t.length > 45 ? t.slice(0, 45) + "…" : t;
   }
 
-  function scrollToBottom(behavior: ScrollBehavior = "smooth") {
-    pinnedToBottomRef.current = true;
-    messagesEndRef.current?.scrollIntoView({ behavior });
-  }
-
-  function startStreaming(msgId: string, paragraphs: AiParagraph[]) {
-    currentParagraphsRef.current = paragraphs;
+  function startStreaming(msgId: string, response: ChatResponse) {
+    currentResponseRef.current = response;
+    const { paragraphs, browseLibraryHref } = response;
     const fullText = getStreamTextFor(paragraphs);
     let idx = 0;
     responseCountRef.current += 1;
@@ -127,7 +97,7 @@ export default function ChatPage() {
         if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
         setMessages(prev => prev.map(m =>
           m.id === msgId
-            ? { ...m, streamText: fullText, isStreaming: false, paragraphs }
+            ? { ...m, streamText: fullText, isStreaming: false, paragraphs, browseLibraryHref }
             : m
         ));
         setIsAiResponding(false);
@@ -139,7 +109,7 @@ export default function ChatPage() {
     }, 30);
   }
 
-  function queueAiResponse(paragraphs: AiParagraph[]) {
+  function queueAiResponse(response: ChatResponse) {
     setTimeout(() => {
       const aiId = `a${Date.now()}`;
       setMessages(prev => [...prev, {
@@ -147,9 +117,9 @@ export default function ChatPage() {
         role: "assistant",
         isStreaming: true,
         streamText: "",
-        sources: getSourceLabelsFor(paragraphs),
+        sources: getSourceLabelsFor(response.paragraphs),
       }]);
-      setTimeout(() => startStreaming(aiId, paragraphs), 1400);
+      setTimeout(() => startStreaming(aiId, response), 1400);
     }, 80);
   }
 
@@ -158,13 +128,13 @@ export default function ChatPage() {
     setIsAiResponding(true);
     const msgIdx = messages.findIndex(m => m.id === msgId);
     const precedingUserMsg = [...messages.slice(0, msgIdx)].reverse().find(m => m.role === "user");
-    const paragraphs = pickResponseFor(precedingUserMsg?.content ?? "");
+    const response = resolveResponse(precedingUserMsg?.content ?? "");
     setMessages(prev => prev.map(m =>
       m.id === msgId
-        ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(paragraphs) }
+        ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(response.paragraphs) }
         : m
     ));
-    setTimeout(() => startStreaming(msgId, paragraphs), 800);
+    setTimeout(() => startStreaming(msgId, response), 800);
   }
 
   function handleSubmit(text: string) {
@@ -174,8 +144,8 @@ export default function ChatPage() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
-    scrollToBottom();
-    queueAiResponse(pickResponseFor(text));
+    jumpToBottom();
+    queueAiResponse(resolveResponse(text));
   }
 
   function handleStopResponse() {
@@ -184,7 +154,13 @@ export default function ChatPage() {
     setMessages(prev => {
       const last = prev[prev.length - 1];
       if (last?.isStreaming) {
-        return [...prev.slice(0, -1), { ...last, isStreaming: false, paragraphs: currentParagraphsRef.current }];
+        const resp = currentResponseRef.current;
+        return [...prev.slice(0, -1), {
+          ...last,
+          isStreaming: false,
+          paragraphs: resp?.paragraphs ?? [],
+          browseLibraryHref: resp?.browseLibraryHref,
+        }];
       }
       return prev;
     });
@@ -193,7 +169,7 @@ export default function ChatPage() {
   function handleEditMessage(msgId: string, newContent: string) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(true);
-    const paragraphs = pickResponseFor(newContent);
+    const response = resolveResponse(newContent);
     setMessages(prev => {
       const idx = prev.findIndex(m => m.id === msgId);
       if (idx === -1) return prev;
@@ -201,7 +177,7 @@ export default function ChatPage() {
         m.id === msgId ? { ...m, content: newContent } : m
       );
     });
-    queueAiResponse(paragraphs);
+    queueAiResponse(response);
   }
 
   function handleFeedback(msgId: string, value: FeedbackState) {
@@ -221,18 +197,19 @@ export default function ChatPage() {
   function handleSelectConversation(conversation: Conversation) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(false);
-    const paragraphs = pickResponseFor(conversation.title);
+    const response = resolveResponse(conversation.title);
     setConversationTitle(conversation.title);
     setMessages([
       { id: `u-restored-${conversation.id}`, role: "user", content: conversation.title },
       {
         id: `a-restored-${conversation.id}`,
         role: "assistant",
-        paragraphs,
-        streamText: getStreamTextFor(paragraphs),
+        paragraphs: response.paragraphs,
+        browseLibraryHref: response.browseLibraryHref,
+        streamText: getStreamTextFor(response.paragraphs),
       },
     ]);
-    pinnedToBottomRef.current = true;
+    jumpToBottom();
   }
 
   function saveTitle() {
@@ -349,7 +326,7 @@ export default function ChatPage() {
               }}
             >
               <button
-                onClick={() => scrollToBottom()}
+                onClick={jumpToBottom}
                 aria-label="Scroll to latest message"
                 className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-surface-glass"
                 style={{
@@ -371,7 +348,7 @@ export default function ChatPage() {
                 WebkitMaskImage: msgsCanScrollUp ? "linear-gradient(to bottom, transparent 0px, black 64px, black 100%)" : "none",
               }}
             >
-              <div className="min-h-full flex flex-col">
+              <div ref={messagesContentRef} className="min-h-full flex flex-col">
                 <div className="flex-1 px-6 pt-8 pb-4">
                   <div className="max-w-[560px] mx-auto flex flex-col gap-8">
                     {messages.map(msg =>
@@ -379,7 +356,6 @@ export default function ChatPage() {
                         ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
                         : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onCitationClick={setActiveCitation} />
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 

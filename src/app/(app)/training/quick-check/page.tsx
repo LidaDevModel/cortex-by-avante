@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Eye } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Pagination } from "@/components/ui/pagination";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
@@ -14,7 +15,7 @@ import {
   generateQuestions,
   computeKCScore,
 } from "@/lib/knowledge-check-mock";
-import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal } from "@/lib/kc-store";
+import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal, getWeakestCategories } from "@/lib/kc-store";
 import type {
   KCFormat,
   KCCategory,
@@ -25,10 +26,13 @@ import type {
 import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
+import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
+import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
+import { MODULES } from "@/lib/training-mock";
 
 /* ─── Types ─── */
 
-type Phase = "listing" | "config" | "generating" | "flow" | "review" | "results";
+type Phase = "listing" | "config" | "examSim" | "generating" | "flow" | "review" | "results";
 
 const ALL_FORMATS: KCFormat[] = ["mc", "matching", "branching"];
 const ALL_CATEGORIES: KCCategory[] = ["escalations", "first-aid", "incidents", "clients"];
@@ -353,6 +357,16 @@ export default function QuickCheckPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, KCAnswer>>({});
   const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
+  // Fixed question cap for count-based presets (Daily 5); null = budget-derived.
+  const [questionCap, setQuestionCap] = useState<number | null>(null);
+  // Modules eligible for exam simulation — the ones actively being worked on.
+  const inProgressModules = useMemo(() => MODULES.filter((m) => m.status === "in-progress"), []);
+
+  // Weakest category label for the "Weak areas" preset; null disables it.
+  const weakestLabel = useMemo(() => {
+    const w = getWeakestCategories(1);
+    return w.length > 0 ? CATEGORY_LABELS[w[0]] : null;
+  }, [attempts]);
 
   /* Format toggle */
   const toggleFormat = useCallback((f: KCFormat) => {
@@ -385,17 +399,48 @@ export default function QuickCheckPage() {
     setPhase("generating");
   }
 
+  /* Preset: Daily 5 — 5 mixed questions, no config step. */
+  function startDaily5() {
+    setSelectedFormats([...ALL_FORMATS]);
+    setSelectedCategories([...ALL_CATEGORIES]);
+    setQuestionCap(5);
+    setAnswers({});
+    setGeneratedQuestions([]);
+    setCurrentQuestionIndex(0);
+    setPhase("generating");
+  }
+
+  /* Preset: Weak areas — mixed questions focused on the lowest-scoring category. */
+  function startWeakAreas() {
+    const cats = getWeakestCategories(1);
+    if (cats.length === 0) return; // no history yet; the card is disabled anyway
+    setSelectedFormats([...ALL_FORMATS]);
+    setSelectedCategories(cats);
+    setQuestionCap(null);
+    setAnswers({});
+    setGeneratedQuestions([]);
+    setCurrentQuestionIndex(0);
+    setPhase("generating");
+  }
+
+  /* Preset: Exam simulation — pick an in-progress module, then run its
+     certification exam in practice mode (the exam route reads ?mode=simulation). */
+  function launchExamSim(moduleId: string) {
+    const ret = encodeURIComponent("/training/quick-check");
+    router.push(`/training/modules/${moduleId}/exam?mode=simulation&return=${ret}`);
+  }
+
   useEffect(() => {
     if (phase !== "generating") return;
     const timer = setTimeout(() => {
       const qs = generateQuestions(selectedFormats, selectedCategories);
-      setGeneratedQuestions(qs);
+      setGeneratedQuestions(questionCap != null ? qs.slice(0, questionCap) : qs);
       setAnswers({});
       setCurrentQuestionIndex(0);
       setPhase("flow");
     }, 1200);
     return () => clearTimeout(timer);
-  }, [phase, selectedFormats, selectedCategories]);
+  }, [phase, selectedFormats, selectedCategories, questionCap]);
 
   /* Submit */
   function submitCheck() {
@@ -423,86 +468,71 @@ export default function QuickCheckPage() {
     setCurrentQuestionIndex(0);
   }
 
-  /* Reset to config for "try another" */
+  /* Reset to config for "try another" / Custom check */
   function openConfig() {
     setPhase("config");
     setSelectedFormats([]);
     setSelectedCategories([]);
+    setQuestionCap(null);
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
   }
 
+  // Breadcrumb reflects the phase: the deep crumb (category + attempt number)
+  // only appears once a session is underway.
+  const inSession = phase === "flow" || phase === "review" || phase === "results";
+  const crumbs = inSession
+    ? [
+        { label: "Training" },
+        { label: "Knowledge check" },
+        { label: (() => {
+            const cats = selectedCategories;
+            const label = cats.length === 0 || cats.length === ALL_CATEGORIES.length
+              ? "All categories"
+              : cats.length === 1
+              ? CATEGORY_LABELS[cats[0]]
+              : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+            return `${label} #${getPendingOrdinal(cats)}`;
+          })() },
+      ]
+    : [{ label: "Training" }, { label: "Knowledge check" }];
+
   return (
     <>
-      <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-        {/* Header */}
-        <header
-          className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0"
-          style={{ background: "var(--surface)" }}
-        >
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-            <span className="text-muted-foreground shrink-0">Training</span>
-            <span className="text-muted-foreground shrink-0">/</span>
-            {phase === "flow" || phase === "review" || phase === "results" ? (
-              <>
-                <span className="text-muted-foreground shrink-0">Knowledge check</span>
-                <span className="text-muted-foreground shrink-0">/</span>
-                <span className="font-medium text-foreground truncate">
-                  {(() => {
-                    const cats = selectedCategories;
-                    const label = cats.length === 0 || cats.length === ALL_CATEGORIES.length
-                      ? "All categories"
-                      : cats.length === 1
-                      ? CATEGORY_LABELS[cats[0]]
-                      : `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
-                    const ordinal = getPendingOrdinal(cats);
-                    return `${label} #${ordinal}`;
-                  })()}
-                </span>
-              </>
-            ) : (
-              <span className="font-medium text-foreground truncate">Knowledge check</span>
-            )}
-          </div>
-        </header>
+      <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+        <PageHeader crumbs={crumbs} className="bg-transparent" />
 
         {/* Canvas */}
         <div className="relative flex-1 overflow-hidden flex flex-col">
           {/* Listing */}
           {phase === "listing" && (
-            <div
-              className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-              style={{
-                maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-              }}
-            >
+            <ScrollCanvas>
               <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
-                {/* Title + CTA */}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex flex-col gap-1">
-                    <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
-                      Knowledge check
-                    </h1>
-                    <p className="text-[14px] leading-[20px] text-muted-foreground">
-                      Test your knowledge across topics and formats without time pressure.
-                    </p>
-                  </div>
-                  <button
-                    onClick={openConfig}
-                    className="shrink-0 h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-                  >
-                    Check your knowledge
-                  </button>
+                {/* Title */}
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+                    Knowledge check
+                  </h1>
+                  <p className="text-[14px] leading-[20px] text-muted-foreground">
+                    Test your knowledge across topics and formats without time pressure.
+                  </p>
                 </div>
+
+                {/* Start a check — presets + custom */}
+                <KCStartSection
+                  weakestLabel={weakestLabel}
+                  examSimAvailable={inProgressModules.length > 0}
+                  onDaily5={startDaily5}
+                  onWeakAreas={startWeakAreas}
+                  onExamSim={() => setPhase("examSim")}
+                  onCustom={openConfig}
+                />
 
                 {/* History */}
                 <HistorySection attempts={attempts} onViewDetail={(id) => router.push(`/training/quick-check/${id}`)} />
               </div>
-            </div>
+            </ScrollCanvas>
           )}
 
           {/* Config */}
@@ -515,6 +545,15 @@ export default function QuickCheckPage() {
               onToggleCategory={toggleCategory}
               onToggleAllCategories={toggleAllCategories}
               onStart={startCheck}
+              onCancel={() => setPhase("listing")}
+            />
+          )}
+
+          {/* Exam simulation — pick an in-progress module */}
+          {phase === "examSim" && (
+            <KCExamSimConfig
+              modules={inProgressModules}
+              onSelect={launchExamSim}
               onCancel={() => setPhase("listing")}
             />
           )}
@@ -568,13 +607,7 @@ export default function QuickCheckPage() {
                   isReviewActive={true}
                 />
               </div>
-              <div
-                className="flex-1 overflow-y-auto scroll-thin"
-                style={{
-                  maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                }}
-              >
+              <ScrollCanvas>
                 <div className="max-w-[920px] mx-auto px-8 pb-12">
                   <KCReview
                     questions={generatedQuestions}
@@ -584,19 +617,13 @@ export default function QuickCheckPage() {
                     onBack={() => { setCurrentQuestionIndex(generatedQuestions.length - 1); setPhase("flow"); }}
                   />
                 </div>
-              </div>
+              </ScrollCanvas>
             </div>
           )}
 
           {/* Results */}
           {phase === "results" && (
-            <div
-              className="absolute inset-0 overflow-y-auto z-10 scroll-thin"
-              style={{
-                maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
-              }}
-            >
+            <ScrollCanvas>
               <div className="max-w-[920px] mx-auto px-8">
                 <KCResults
                   questions={generatedQuestions}
@@ -605,7 +632,7 @@ export default function QuickCheckPage() {
                   onBack={() => setPhase("listing")}
                 />
               </div>
-            </div>
+            </ScrollCanvas>
           )}
         </div>
       </div>

@@ -587,6 +587,16 @@ export default function ModuleDetailPage() {
                     >
                       Start final quiz
                     </Link>
+                    <p className="text-[13px] leading-[16px] text-muted-foreground">
+                      Not ready?{" "}
+                      <Link
+                        href={`/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`}
+                        className="font-medium transition-colors duration-100"
+                        style={{ color: "var(--primary)" }}
+                      >
+                        Try a timed simulation
+                      </Link>
+                    </p>
                   </div>
                 )}
 
