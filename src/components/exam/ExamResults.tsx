@@ -25,6 +25,8 @@ type Props = {
   shortAnswer: string;
   branchDecisions: BranchAnswer;
   onBack: () => void;
+  /** Practice mode (from Knowledge Check): readiness framing, no certificate. */
+  isSimulation?: boolean;
 };
 
 const PASS_THRESHOLD = 85;
@@ -87,9 +89,18 @@ export function ExamResults({
   shortAnswer,
   branchDecisions,
   onBack,
+  isSimulation,
 }: Props) {
   const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;
   const passed = total >= PASS_THRESHOLD;
+
+  // In practice mode the score is a readiness signal, not a certification.
+  const heading = isSimulation
+    ? passed ? "You're ready" : "Not quite ready"
+    : passed ? "Certified" : "Certification not awarded";
+  const backLabel = isSimulation
+    ? "Back to knowledge check"
+    : passed ? "Back to training" : "Back to module";
 
   const today = new Date().toLocaleDateString("en-GB", {
     day: "numeric",
@@ -157,7 +168,7 @@ export function ExamResults({
             className="text-[36px] leading-[44px] font-bold"
             style={{ color: passed ? "var(--primary)" : "var(--foreground)" }}
           >
-            {passed ? "Certified" : "Certification not awarded"}
+            {heading}
           </h1>
           <div className="flex items-baseline gap-3">
             <span
@@ -168,7 +179,13 @@ export function ExamResults({
             </span>
             <span className="text-[20px] text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
           </div>
-          {passed ? (
+          {isSimulation ? (
+            <p className="text-[14px] text-muted-foreground">
+              {passed
+                ? `Practice score — you'd clear the ${PASS_THRESHOLD} needed to certify. Nothing is recorded; this was practice.`
+                : `Practice score — the certification pass mark is ${PASS_THRESHOLD}. Review the breakdown below and try again when you're ready.`}
+            </p>
+          ) : passed ? (
             <p className="text-[14px] text-muted-foreground">
               Your certification has been recorded. Issued {today}.
             </p>
@@ -295,7 +312,7 @@ export function ExamResults({
 
         {/* CTA */}
         <Button size="cta" className="w-full" onClick={onBack}>
-          {passed ? "Back to training" : "Back to module"}
+          {backLabel}
         </Button>
       </div>
     </div>
