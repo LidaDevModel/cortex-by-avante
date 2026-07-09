@@ -78,11 +78,15 @@ export default function ExamPage() {
     ? { ...MOCK_EXAM, moduleName: moduleTitle }
     : MOCK_EXAM;
 
-  // Simulation reframes the wrapper copy and returns to Knowledge Check; the
-  // certification path keeps its original strings and module destinations.
+  // Simulation reframes the wrapper copy and returns to wherever it was launched
+  // from (Knowledge Check or this module's detail); the certification path keeps
+  // its original strings and module destinations. `return` is validated as an
+  // internal path.
+  const returnParam = searchParams.get("return");
+  const returnHref = returnParam?.startsWith("/") ? returnParam : "/training/quick-check";
   const examKindLabel = isSimulation ? "Exam simulation" : "Certification exam";
   const startLabel = isSimulation ? "Start simulation" : "Start exam";
-  const exitHref = isSimulation ? "/training/quick-check" : `/training/modules/${moduleId}`;
+  const exitHref = isSimulation ? returnHref : `/training/modules/${moduleId}`;
   const preExamRules = isSimulation
     ? [
         "Same shape as the real exam: 5 multiple choice, 1 matching, 1 short answer, 1 branching scenario.",
@@ -354,7 +358,7 @@ export default function ExamPage() {
           branchDecisions={branchDecisions}
           onBack={() => {
             if (isSimulation) {
-              router.push("/training/quick-check");
+              router.push(returnHref);
               return;
             }
             const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;

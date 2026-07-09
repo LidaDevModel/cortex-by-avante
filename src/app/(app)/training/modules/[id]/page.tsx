@@ -587,6 +587,12 @@ export default function ModuleDetailPage() {
                     >
                       Start final quiz
                     </Link>
+                    <Link
+                      href={`/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`}
+                      className="text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+                    >
+                      Not ready? Try a timed simulation first
+                    </Link>
                   </div>
                 )}
 

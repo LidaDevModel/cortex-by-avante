@@ -426,7 +426,8 @@ export default function QuickCheckPage() {
   /* Preset: Exam simulation — pick an in-progress module, then run its
      certification exam in practice mode (the exam route reads ?mode=simulation). */
   function launchExamSim(moduleId: string) {
-    router.push(`/training/modules/${moduleId}/exam?mode=simulation`);
+    const ret = encodeURIComponent("/training/quick-check");
+    router.push(`/training/modules/${moduleId}/exam?mode=simulation&return=${ret}`);
   }
 
   useEffect(() => {
