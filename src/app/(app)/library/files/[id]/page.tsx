@@ -581,6 +581,7 @@ export default function FileViewPage() {
 
   const sections = result?.doc.toc ?? [];
   const requestedSection = searchParams.get("section");
+  const fromChat = searchParams.get("from") === "chat"; // arrived from a citation
   const [activeId, setActiveId] = useState(() => requestedSection || sections[0]?.id || "");
 
   // TOC: filter by section title only
@@ -854,8 +855,8 @@ export default function FileViewPage() {
 
       <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
         <DetailHeader
-          backHref={folder ? `/library/folders/${folder.id}` : "/library"}
-          backLabel={folder ? `Back to ${folder.name}` : "Back to Library"}
+          backHref={fromChat ? "/chat" : folder ? `/library/folders/${folder.id}` : "/library"}
+          backLabel={fromChat ? "Back to conversation" : folder ? `Back to ${folder.name}` : "Back to Library"}
           title={doc.name}
           meta={doc.content}
           className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"
