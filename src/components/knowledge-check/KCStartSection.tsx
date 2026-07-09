@@ -44,6 +44,7 @@ function PresetCard({
 
 export function KCStartSection({
   weakestLabel,
+  examSimAvailable,
   onDaily5,
   onWeakAreas,
   onExamSim,
@@ -51,6 +52,8 @@ export function KCStartSection({
 }: {
   /** Label of the weakest category, or null when there's no history yet. */
   weakestLabel: string | null;
+  /** False when no module is in progress to rehearse. */
+  examSimAvailable: boolean;
   onDaily5: () => void;
   onWeakAreas: () => void;
   onExamSim: () => void;
@@ -76,8 +79,9 @@ export function KCStartSection({
         <PresetCard
           icon={<Timer size={20} strokeWidth={1.5} />}
           title="Exam simulation"
-          meta="Timed practice exam · by category"
+          meta={examSimAvailable ? "Timed practice exam · by module" : "Start a module to unlock"}
           onClick={onExamSim}
+          disabled={!examSimAvailable}
         />
         <PresetCard
           icon={<SlidersHorizontal size={20} strokeWidth={1.5} />}

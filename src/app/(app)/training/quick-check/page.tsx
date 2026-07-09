@@ -27,12 +27,12 @@ import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowl
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
 import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
-import { KCExamSimDialog } from "@/components/knowledge-check/KCExamSimDialog";
+import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
 import { MODULES } from "@/lib/training-mock";
 
 /* ─── Types ─── */
 
-type Phase = "listing" | "config" | "generating" | "flow" | "review" | "results";
+type Phase = "listing" | "config" | "examSim" | "generating" | "flow" | "review" | "results";
 
 const ALL_FORMATS: KCFormat[] = ["mc", "matching", "branching"];
 const ALL_CATEGORIES: KCCategory[] = ["escalations", "first-aid", "incidents", "clients"];
@@ -359,8 +359,8 @@ export default function QuickCheckPage() {
   const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
   // Fixed question cap for count-based presets (Daily 5); null = budget-derived.
   const [questionCap, setQuestionCap] = useState<number | null>(null);
-  // Exam simulation category picker.
-  const [examSimOpen, setExamSimOpen] = useState(false);
+  // Modules eligible for exam simulation — the ones actively being worked on.
+  const inProgressModules = useMemo(() => MODULES.filter((m) => m.status === "in-progress"), []);
 
   // Weakest category label for the "Weak areas" preset; null disables it.
   const weakestLabel = useMemo(() => {
@@ -423,12 +423,9 @@ export default function QuickCheckPage() {
     setPhase("generating");
   }
 
-  /* Preset: Exam simulation — pick a category, then run that module's
+  /* Preset: Exam simulation — pick an in-progress module, then run its
      certification exam in practice mode (the exam route reads ?mode=simulation). */
-  function launchExamSim(category: KCCategory) {
-    setExamSimOpen(false);
-    const moduleId = MODULES.find((m) => m.category === category)?.id;
-    if (!moduleId) return;
+  function launchExamSim(moduleId: string) {
     router.push(`/training/modules/${moduleId}/exam?mode=simulation`);
   }
 
@@ -524,9 +521,10 @@ export default function QuickCheckPage() {
                 {/* Start a check — presets + custom */}
                 <KCStartSection
                   weakestLabel={weakestLabel}
+                  examSimAvailable={inProgressModules.length > 0}
                   onDaily5={startDaily5}
                   onWeakAreas={startWeakAreas}
-                  onExamSim={() => setExamSimOpen(true)}
+                  onExamSim={() => setPhase("examSim")}
                   onCustom={openConfig}
                 />
 
@@ -546,6 +544,15 @@ export default function QuickCheckPage() {
               onToggleCategory={toggleCategory}
               onToggleAllCategories={toggleAllCategories}
               onStart={startCheck}
+              onCancel={() => setPhase("listing")}
+            />
+          )}
+
+          {/* Exam simulation — pick an in-progress module */}
+          {phase === "examSim" && (
+            <KCExamSimConfig
+              modules={inProgressModules}
+              onSelect={launchExamSim}
               onCancel={() => setPhase("listing")}
             />
           )}
@@ -628,13 +635,6 @@ export default function QuickCheckPage() {
           )}
         </div>
       </div>
-
-      <KCExamSimDialog
-        open={examSimOpen}
-        categories={ALL_CATEGORIES}
-        onPick={launchExamSim}
-        onClose={() => setExamSimOpen(false)}
-      />
     </>
   );
 }
