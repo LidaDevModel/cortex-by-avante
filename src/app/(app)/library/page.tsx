@@ -5,6 +5,7 @@ import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/librar
 import { DocumentsSection } from "@/components/library/DocumentsSection";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { useGlassHeader } from "@/hooks/use-glass-header";
 
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
   { id: "1", type: "file", name: "Incident Response" },
@@ -16,11 +17,12 @@ const RECENTLY_VIEWED: RecentlyViewedItem[] = [
 
 export default function LibraryPage() {
   const router = useRouter();
+  const { headerClassName, onScroll } = useGlassHeader();
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Library" }]} className="bg-transparent" />
+      <PageHeader crumbs={[{ label: "Library" }]} className={headerClassName} />
 
-      <ScrollCanvas>
+      <ScrollCanvas onScroll={onScroll}>
           <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
             <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Library</h1>
 

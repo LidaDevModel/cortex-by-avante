@@ -10,6 +10,7 @@ import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
+import { useGlassHeader } from "@/hooks/use-glass-header";
 import { MODULES, getRequiredModules, getCertifiedModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
 import { getRecentDocuments } from "@/lib/library-mock";
 import { USER } from "@/lib/user-mock";
@@ -36,9 +37,8 @@ export default function DashboardPage() {
     setDateMeta(now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
-  // Header turns glass once the canvas scrolls (in-flow tint + hairline — the
-  // ScrollCanvas top mask already handles content dissolving at the edge).
-  const [scrolled, setScrolled] = useState(false);
+  // Header turns glass once the canvas scrolls (shared canvas-glow behavior).
+  const { headerClassName, onScroll } = useGlassHeader();
 
   const inProgress = MODULES.filter((m) => m.status === "in-progress");
 
@@ -56,16 +56,9 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader
-        crumbs={[{ label: "Dashboard" }]}
-        className={`transition-[background-color,border-color] duration-200 border-b ${
-          scrolled
-            ? "bg-surface-glass backdrop-blur-md border-border/50"
-            : "bg-transparent border-transparent"
-        }`}
-      />
+      <PageHeader crumbs={[{ label: "Dashboard" }]} className={headerClassName} />
 
-      <ScrollCanvas onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 8)}>
+      <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">

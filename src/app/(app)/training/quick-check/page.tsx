@@ -29,6 +29,7 @@ import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
 import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
+import { useGlassHeader } from "@/hooks/use-glass-header";
 import { MODULES } from "@/lib/training-mock";
 
 /* ─── Types ─── */
@@ -362,6 +363,9 @@ export default function QuickCheckPage() {
 function QuickCheckContent() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("listing");
+  const { headerClassName, onScroll, reset: resetGlass } = useGlassHeader();
+  // Phases swap canvases in and out — clear stale glass when that happens.
+  useEffect(() => resetGlass(), [phase, resetGlass]);
   const [selectedFormats, setSelectedFormats] = useState<KCFormat[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<KCCategory[]>([]);
   const [generatedQuestions, setGeneratedQuestions] = useState<KCQuestion[]>([]);
@@ -534,13 +538,13 @@ function QuickCheckContent() {
   return (
     <>
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={crumbs} className="bg-transparent" />
+        <PageHeader crumbs={crumbs} className={headerClassName} />
 
         {/* Canvas */}
         <div className="relative flex-1 overflow-hidden flex flex-col">
           {/* Listing */}
           {phase === "listing" && (
-            <ScrollCanvas>
+            <ScrollCanvas onScroll={onScroll}>
               <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
                 <div className="flex flex-col gap-1">
@@ -640,7 +644,7 @@ function QuickCheckContent() {
                   isReviewActive={true}
                 />
               </div>
-              <ScrollCanvas>
+              <ScrollCanvas onScroll={onScroll}>
                 <div className="max-w-[920px] mx-auto px-8 pb-12">
                   <KCReview
                     questions={generatedQuestions}
@@ -656,7 +660,7 @@ function QuickCheckContent() {
 
           {/* Results */}
           {phase === "results" && (
-            <ScrollCanvas>
+            <ScrollCanvas onScroll={onScroll}>
               <div className="max-w-[920px] mx-auto px-8">
                 <KCResults
                   questions={generatedQuestions}
