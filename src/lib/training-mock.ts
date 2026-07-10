@@ -1,5 +1,26 @@
+import { PASS_MARK } from "./exam-mock";
+import { daysSince } from "./utils";
+
 export type ModuleStatus = "not-started" | "in-progress" | "completed";
 export type ModuleCategory = "first-aid" | "escalations" | "clients" | "incidents";
+
+/**
+ * A recorded certification for a module. Present only once the module's exam
+ * has been passed (score ≥ PASS_MARK, out of 100). `status: "completed"` means
+ * the module's chapters are read; a certification is the separate second stage.
+ * The two are deliberately independent — a completed-but-uncertified module is
+ * the "quickest win" on the readiness board.
+ */
+export type Certification = {
+  score: number; // 0-100, always ≥ PASS_MARK when present
+  date: string; // ISO date the certification was issued
+};
+
+/** Two-stage requirement state, derived from status + certification. */
+export type RequirementState = "not-started" | "in-progress" | "ready-to-certify" | "certified";
+
+/** Binary certification tier — Ace at exactly 100, Certified otherwise. */
+export type CertificationTier = "certified" | "ace";
 
 export type Module = {
   id: string;
@@ -10,22 +31,86 @@ export type Module = {
   status: ModuleStatus;
   required: boolean;
   category: ModuleCategory;
+  /** When this module was assigned to the user — powers the recency feed. ISO date. */
+  assignedDate: string;
+  /** Present once the certification exam has been passed. Absent otherwise. */
+  certification?: Certification;
 };
 
 export const MODULES: Module[] = [
-  { id: "1", title: "Escalation Procedures 1", chapters: 6, hours: 2, progress: 10, status: "in-progress", required: true, category: "escalations" },
-  { id: "2", title: "First Aid Awareness 1", chapters: 6, hours: 2, progress: 90, status: "in-progress", required: false, category: "first-aid" },
-  { id: "3", title: "Incident Response 1", chapters: 6, hours: 2, progress: 37, status: "in-progress", required: true, category: "incidents" },
-  { id: "4", title: "Client Protocols 1", chapters: 6, hours: 2, progress: 90, status: "in-progress", required: true, category: "clients" },
-  { id: "5", title: "Security Protocols 1", chapters: 6, hours: 2, progress: 0, status: "not-started", required: true, category: "incidents" },
-  { id: "6", title: "Guard Duty Fundamentals", chapters: 4, hours: 1, progress: 0, status: "not-started", required: true, category: "clients" },
-  { id: "7", title: "Emergency Procedures 1", chapters: 5, hours: 2, progress: 0, status: "not-started", required: false, category: "escalations" },
-  { id: "8", title: "First Aid Awareness 2", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "first-aid" },
-  { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 0, status: "not-started", required: false, category: "clients" },
+  { id: "1", title: "Escalation Procedures 1", chapters: 6, hours: 2, progress: 33, status: "in-progress", required: true, category: "escalations", assignedDate: "2026-05-12" },
+  { id: "2", title: "First Aid Awareness 1", chapters: 6, hours: 2, progress: 90, status: "in-progress", required: false, category: "first-aid", assignedDate: "2026-04-20" },
+  { id: "3", title: "Incident Response 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "incidents", assignedDate: "2026-05-01", certification: { score: 92, date: "2026-06-22" } },
+  { id: "4", title: "Client Protocols 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "clients", assignedDate: "2026-04-28" },
+  { id: "5", title: "Security Protocols 1", chapters: 6, hours: 2, progress: 0, status: "not-started", required: true, category: "incidents", assignedDate: "2026-07-05" },
+  { id: "6", title: "Guard Duty Fundamentals", chapters: 4, hours: 1, progress: 60, status: "in-progress", required: true, category: "clients", assignedDate: "2026-05-18" },
+  { id: "7", title: "Emergency Procedures 1", chapters: 5, hours: 2, progress: 0, status: "not-started", required: false, category: "escalations", assignedDate: "2026-06-30" },
+  { id: "8", title: "First Aid Awareness 2", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "first-aid", assignedDate: "2026-03-15", certification: { score: 100, date: "2026-06-10" } },
+  { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-04-10", certification: { score: 88, date: "2026-05-28" } },
+  { id: "10", title: "Radio Communications", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "incidents", assignedDate: "2026-03-20", certification: { score: 95, date: "2026-05-20" } },
+  { id: "11", title: "Workplace Safety Basics", chapters: 5, hours: 2, progress: 100, status: "completed", required: false, category: "first-aid", assignedDate: "2026-03-05", certification: { score: 100, date: "2026-05-12" } },
 ];
 
 export function getModuleById(id: string): Module | undefined {
   return MODULES.find((m) => m.id === id);
+}
+
+/* ─── Certification & shift-readiness ───
+   Readiness gates shift eligibility: a Field Agent is on-shift only once every
+   required module for the role is certified. These helpers are the single
+   source of truth — the dashboard, honor cards, and exam results all read them
+   rather than re-deriving from raw status. */
+
+/** True when the module has a recorded certification. */
+export function isCertified(m: Module): boolean {
+  return m.certification !== undefined;
+}
+
+/** Certification tier, or null when the module isn't certified. Ace = exactly 100. */
+export function getTier(m: Module): CertificationTier | null {
+  if (!m.certification) return null;
+  return m.certification.score === 100 ? "ace" : "certified";
+}
+
+/** The two-stage requirement state. Certified wins; a completed-but-uncertified
+    module is "ready-to-certify" (the quickest win to close a readiness gap). */
+export function getRequirementState(m: Module): RequirementState {
+  if (isCertified(m)) return "certified";
+  if (m.status === "completed") return "ready-to-certify";
+  if (m.status === "in-progress") return "in-progress";
+  return "not-started";
+}
+
+/** Every required module for the role. */
+export function getRequiredModules(): Module[] {
+  return MODULES.filter((m) => m.required);
+}
+
+/** Every module with a certification — required or optional — most recent first.
+    Powers the certifications shelf, which shows all earned certs regardless of
+    whether the module counts toward shift readiness. */
+export function getCertifiedModules(): Module[] {
+  return MODULES.filter(isCertified).sort((a, b) =>
+    b.certification!.date.localeCompare(a.certification!.date)
+  );
+}
+
+/** True when every required module is certified — i.e. the agent is cleared for shift. */
+export function isShiftReady(modules: Module[] = MODULES): boolean {
+  return modules.filter((m) => m.required).every(isCertified);
+}
+
+/** Estimated minutes left to finish a module's reading, from progress. */
+export function getRemainingMinutes(m: Module): number {
+  return Math.round(m.hours * 60 * (1 - m.progress / 100));
+}
+
+/** Modules assigned within the last `days` days — the module half of the recency feed. */
+export function getRecentModules(days = 14): Module[] {
+  return MODULES.filter((m) => {
+    const d = daysSince(m.assignedDate);
+    return d >= 0 && d <= days;
+  }).sort((a, b) => daysSince(a.assignedDate) - daysSince(b.assignedDate));
 }
 
 /* ─── Module reading content ───

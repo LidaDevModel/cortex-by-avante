@@ -1,3 +1,5 @@
+import { daysSince, isWithinDays } from "./utils";
+
 export type SubSection = {
   id: string;
   title: string;
@@ -3646,8 +3648,15 @@ export function findSection(doc: LibraryDoc, sectionId: string): FoundSection | 
   return undefined;
 }
 
-/** Documents flagged as new/updated for the user's role — surfaced on the dashboard. */
-export function getNewDocuments(): LibraryDoc[] {
+/**
+ * Documents added or updated within the last `days` days — the document half of
+ * the dashboard recency feed. Sorted most-recent first. Pairs with
+ * getRecentModules() in training-mock; the feed is a pure recency view,
+ * independent of required/optional status.
+ */
+export function getRecentDocuments(days = 14): LibraryDoc[] {
   const fromFolders = FOLDERS.flatMap((f) => f.documents);
-  return [...TOP_LEVEL_DOCS, ...fromFolders].filter((d) => d.isNew);
+  return [...TOP_LEVEL_DOCS, ...fromFolders]
+    .filter((d) => isWithinDays(d.lastModified, days))
+    .sort((a, b) => daysSince(a.lastModified) - daysSince(b.lastModified));
 }

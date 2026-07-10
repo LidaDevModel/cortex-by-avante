@@ -42,6 +42,23 @@ export function getPendingOrdinal(categories: string[]): number {
  * a category (a multi-category attempt counts toward each of its categories).
  * Returns [] when there's no history to judge, so the preset can disable itself.
  */
+/**
+ * Today's completed "Daily 5" attempt, if one exists — powers the dashboard's
+ * "Done for today" state on the Quick practice widget. Compares calendar days
+ * in local time. Returns undefined when the daily hasn't been done today.
+ */
+export function getTodaysDailyAttempt(now: Date = new Date()): KCAttempt | undefined {
+  const isSameDay = (iso: string) => {
+    const d = new Date(iso);
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  };
+  return getAllAttempts().find((a) => a.preset === "daily5" && isSameDay(a.date));
+}
+
 export function getWeakestCategories(count = 1): KCCategory[] {
   const totals = new Map<KCCategory, { score: number; total: number }>();
   for (const a of getAllAttempts()) {

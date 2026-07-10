@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatComposer } from "@/components/chat/ChatComposer";
+import { BlobField } from "@/components/chat/BlobField";
 import { UserMessage } from "@/components/chat/UserMessage";
 import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
 import {
@@ -259,36 +260,7 @@ export default function ChatPage() {
   return (
     <div className="relative flex flex-1 overflow-hidden">
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
-      {!hasConversation && (
-        /* Shared clip container — overflow:hidden with card radius so blobs never bleed outside */
-        <div
-          className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
-          style={{ borderRadius: "var(--radius-card)" }}
-        >
-          {/* Left blob — 80%×80%, starts -10% left so the edge is always off-screen even at max translation */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: "80%", height: "80%",
-              top: "10%", left: "-10%",
-              background: "radial-gradient(ellipse 70% 70% at 40% 50%, var(--blob-1) 0%, transparent 70%)",
-              animation: "blob-1 9s ease-in-out infinite",
-              willChange: "transform",
-            }}
-          />
-          {/* Right blob — 80%×80%, ends -10% right for the same reason */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: "80%", height: "80%",
-              top: "10%", right: "-10%",
-              background: "radial-gradient(ellipse 70% 70% at 60% 50%, var(--blob-2) 0%, transparent 70%)",
-              animation: "blob-2 12s ease-in-out infinite",
-              willChange: "transform",
-            }}
-          />
-        </div>
-      )}
+      {!hasConversation && <BlobField />}
 
         {/* Header */}
         <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "color-mix(in srgb, var(--surface) 30%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>

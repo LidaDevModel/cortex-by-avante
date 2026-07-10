@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -22,6 +22,7 @@ import type {
   KCQuestion,
   KCAnswer,
   KCAttempt,
+  KCPreset,
 } from "@/lib/knowledge-check-mock";
 import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
@@ -349,6 +350,16 @@ function HistoryTable({
 /* ─── Page ─── */
 
 export default function QuickCheckPage() {
+  // useSearchParams (read in the deep-link handler) requires a Suspense boundary
+  // so the static route doesn't bail out of prerendering.
+  return (
+    <Suspense fallback={null}>
+      <QuickCheckContent />
+    </Suspense>
+  );
+}
+
+function QuickCheckContent() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("listing");
   const [selectedFormats, setSelectedFormats] = useState<KCFormat[]>([]);
@@ -359,8 +370,12 @@ export default function QuickCheckPage() {
   const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
   // Fixed question cap for count-based presets (Daily 5); null = budget-derived.
   const [questionCap, setQuestionCap] = useState<number | null>(null);
+  // Which preset launched the current session — recorded on the attempt so the
+  // dashboard can detect "Daily 5 done today". null for plain/custom starts.
+  const [activePreset, setActivePreset] = useState<KCPreset | null>(null);
   // Modules eligible for exam simulation — the ones actively being worked on.
   const inProgressModules = useMemo(() => MODULES.filter((m) => m.status === "in-progress"), []);
+  const searchParams = useSearchParams();
 
   // Weakest category label for the "Weak areas" preset; null disables it.
   const weakestLabel = useMemo(() => {
@@ -404,6 +419,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([...ALL_FORMATS]);
     setSelectedCategories([...ALL_CATEGORIES]);
     setQuestionCap(5);
+    setActivePreset("daily5");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -417,6 +433,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([...ALL_FORMATS]);
     setSelectedCategories(cats);
     setQuestionCap(null);
+    setActivePreset("weak");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -442,6 +459,20 @@ export default function QuickCheckPage() {
     return () => clearTimeout(timer);
   }, [phase, selectedFormats, selectedCategories, questionCap]);
 
+  // Deep-link: /training/quick-check?start=daily5|weak|examSim|custom fires the
+  // matching preset on arrival (from the dashboard Quick practice widget), then
+  // strips the param so refresh/back doesn't re-trigger.
+  useEffect(() => {
+    const start = searchParams.get("start");
+    if (!start) return;
+    window.history.replaceState(null, "", "/training/quick-check");
+    if (start === "daily5") startDaily5();
+    else if (start === "weak") startWeakAreas();
+    else if (start === "examSim") setPhase("examSim");
+    else if (start === "custom") openConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* Submit */
   function submitCheck() {
     const { score, total } = computeKCScore(generatedQuestions, answers);
@@ -454,6 +485,7 @@ export default function QuickCheckPage() {
       total,
       questions: generatedQuestions,
       answers,
+      preset: activePreset ?? undefined,
     };
     addAttempt(newAttempt);
     setAttempts(getAllAttempts());
@@ -474,6 +506,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([]);
     setSelectedCategories([]);
     setQuestionCap(null);
+    setActivePreset("custom");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);

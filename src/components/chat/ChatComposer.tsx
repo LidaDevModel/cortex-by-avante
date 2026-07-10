@@ -109,7 +109,10 @@ export function ChatComposer({
     const ta = textareaRef.current;
     if (!ta) return;
     ta.style.height = "auto";
-    const next = Math.min(ta.scrollHeight, MAX_HEIGHT);
+    // Empty field pins to one line: scrollHeight includes the wrapped
+    // placeholder on narrow screens, which would inflate the field beyond its
+    // row and spill outside the widget.
+    const next = inputValue ? Math.min(ta.scrollHeight, MAX_HEIGHT) : LINE_HEIGHT;
     ta.style.height = `${next}px`;
     setTextareaHeight(next);
     updateTaScroll();
