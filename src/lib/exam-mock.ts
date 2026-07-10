@@ -1,3 +1,11 @@
+/**
+ * Certification pass mark, out of 100. The exam scores four sections that sum
+ * to 100 (see the exam page); a total ≥ PASS_MARK passes and records a
+ * certification. Single source of truth — exam results, simulation copy, and
+ * the certification tier logic in training-mock all read this.
+ */
+export const PASS_MARK = 85;
+
 export type MCQuestion = {
   id: string;
   question: string;

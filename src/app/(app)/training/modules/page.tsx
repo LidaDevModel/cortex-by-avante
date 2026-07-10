@@ -6,12 +6,14 @@ import { SearchInput } from "@/components/ui/search-input";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { useGlassHeader } from "@/hooks/use-glass-header";
 import { MODULES } from "@/lib/training-mock";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 
 /* ─── Page ─── */
 
 export default function ModulesPage() {
+  const { headerClassName, onScroll } = useGlassHeader();
   const [requirementFilter, setRequirementFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -46,9 +48,9 @@ export default function ModulesPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className="bg-transparent" />
+      <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className={headerClassName} />
 
-      <ScrollCanvas>
+      <ScrollCanvas onScroll={onScroll}>
         <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
           <h1 className="text-[28px] leading-[36px] font-bold text-foreground">

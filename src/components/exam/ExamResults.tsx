@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { ExamObject } from "@/lib/exam-mock";
+import { type ExamObject, PASS_MARK } from "@/lib/exam-mock";
 
 type SectionScore = {
   mc: number;
@@ -29,7 +29,7 @@ type Props = {
   isSimulation?: boolean;
 };
 
-const PASS_THRESHOLD = 85;
+const PASS_THRESHOLD = PASS_MARK;
 const MAX_TOTAL = 100;
 
 function WrongAnswerRow({ children }: { children: React.ReactNode }) {

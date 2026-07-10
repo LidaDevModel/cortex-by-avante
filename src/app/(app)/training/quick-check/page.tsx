@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -22,12 +22,14 @@ import type {
   KCQuestion,
   KCAnswer,
   KCAttempt,
+  KCPreset,
 } from "@/lib/knowledge-check-mock";
 import { KCQuestionFlow, KCSectionTabs, buildSections } from "@/components/knowledge-check/KCQuestionFlow";
 import { KCReview } from "@/components/knowledge-check/KCReview";
 import { KCResults } from "@/components/knowledge-check/KCResults";
 import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
+import { useGlassHeader } from "@/hooks/use-glass-header";
 import { MODULES } from "@/lib/training-mock";
 
 /* ─── Types ─── */
@@ -349,8 +351,21 @@ function HistoryTable({
 /* ─── Page ─── */
 
 export default function QuickCheckPage() {
+  // useSearchParams (read in the deep-link handler) requires a Suspense boundary
+  // so the static route doesn't bail out of prerendering.
+  return (
+    <Suspense fallback={null}>
+      <QuickCheckContent />
+    </Suspense>
+  );
+}
+
+function QuickCheckContent() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("listing");
+  const { headerClassName, onScroll, reset: resetGlass } = useGlassHeader();
+  // Phases swap canvases in and out — clear stale glass when that happens.
+  useEffect(() => resetGlass(), [phase, resetGlass]);
   const [selectedFormats, setSelectedFormats] = useState<KCFormat[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<KCCategory[]>([]);
   const [generatedQuestions, setGeneratedQuestions] = useState<KCQuestion[]>([]);
@@ -359,8 +374,12 @@ export default function QuickCheckPage() {
   const [attempts, setAttempts] = useState<KCAttempt[]>(() => getAllAttempts());
   // Fixed question cap for count-based presets (Daily 5); null = budget-derived.
   const [questionCap, setQuestionCap] = useState<number | null>(null);
+  // Which preset launched the current session — recorded on the attempt so the
+  // dashboard can detect "Daily 5 done today". null for plain/custom starts.
+  const [activePreset, setActivePreset] = useState<KCPreset | null>(null);
   // Modules eligible for exam simulation — the ones actively being worked on.
   const inProgressModules = useMemo(() => MODULES.filter((m) => m.status === "in-progress"), []);
+  const searchParams = useSearchParams();
 
   // Weakest category label for the "Weak areas" preset; null disables it.
   const weakestLabel = useMemo(() => {
@@ -404,6 +423,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([...ALL_FORMATS]);
     setSelectedCategories([...ALL_CATEGORIES]);
     setQuestionCap(5);
+    setActivePreset("daily5");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -417,6 +437,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([...ALL_FORMATS]);
     setSelectedCategories(cats);
     setQuestionCap(null);
+    setActivePreset("weak");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -442,6 +463,20 @@ export default function QuickCheckPage() {
     return () => clearTimeout(timer);
   }, [phase, selectedFormats, selectedCategories, questionCap]);
 
+  // Deep-link: /training/quick-check?start=daily5|weak|examSim|custom fires the
+  // matching preset on arrival (from the dashboard Quick practice widget), then
+  // strips the param so refresh/back doesn't re-trigger.
+  useEffect(() => {
+    const start = searchParams.get("start");
+    if (!start) return;
+    window.history.replaceState(null, "", "/training/quick-check");
+    if (start === "daily5") startDaily5();
+    else if (start === "weak") startWeakAreas();
+    else if (start === "examSim") setPhase("examSim");
+    else if (start === "custom") openConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* Submit */
   function submitCheck() {
     const { score, total } = computeKCScore(generatedQuestions, answers);
@@ -454,6 +489,7 @@ export default function QuickCheckPage() {
       total,
       questions: generatedQuestions,
       answers,
+      preset: activePreset ?? undefined,
     };
     addAttempt(newAttempt);
     setAttempts(getAllAttempts());
@@ -474,6 +510,7 @@ export default function QuickCheckPage() {
     setSelectedFormats([]);
     setSelectedCategories([]);
     setQuestionCap(null);
+    setActivePreset("custom");
     setAnswers({});
     setGeneratedQuestions([]);
     setCurrentQuestionIndex(0);
@@ -501,13 +538,13 @@ export default function QuickCheckPage() {
   return (
     <>
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={crumbs} className="bg-transparent" />
+        <PageHeader crumbs={crumbs} className={headerClassName} />
 
         {/* Canvas */}
         <div className="relative flex-1 overflow-hidden flex flex-col">
           {/* Listing */}
           {phase === "listing" && (
-            <ScrollCanvas>
+            <ScrollCanvas onScroll={onScroll}>
               <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
                 <div className="flex flex-col gap-1">
@@ -607,7 +644,7 @@ export default function QuickCheckPage() {
                   isReviewActive={true}
                 />
               </div>
-              <ScrollCanvas>
+              <ScrollCanvas onScroll={onScroll}>
                 <div className="max-w-[920px] mx-auto px-8 pb-12">
                   <KCReview
                     questions={generatedQuestions}
@@ -623,7 +660,7 @@ export default function QuickCheckPage() {
 
           {/* Results */}
           {phase === "results" && (
-            <ScrollCanvas>
+            <ScrollCanvas onScroll={onScroll}>
               <div className="max-w-[920px] mx-auto px-8">
                 <KCResults
                   questions={generatedQuestions}

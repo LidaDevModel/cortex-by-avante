@@ -13,7 +13,7 @@ import { ShortAnswer } from "@/components/exam/sections/ShortAnswer";
 import { BranchingGame } from "@/components/exam/sections/BranchingGame";
 import { ReviewSubmit } from "@/components/exam/ReviewSubmit";
 import { ExamResults } from "@/components/exam/ExamResults";
-import { MOCK_EXAM } from "@/lib/exam-mock";
+import { MOCK_EXAM, PASS_MARK } from "@/lib/exam-mock";
 
 type Phase =
   | "preExam"
@@ -362,7 +362,7 @@ export default function ExamPage() {
               return;
             }
             const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;
-            if (total >= 85) {
+            if (total >= PASS_MARK) {
               router.push("/training/modules");
             } else {
               router.push(`/training/modules/${moduleId}`);

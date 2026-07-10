@@ -13,6 +13,9 @@
      so components can use classes instead of inline style={{}} objects. */
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-lifted: var(--surface-lifted);
+  --color-surface-chip: var(--surface-chip);
+  --color-surface-chip-hover: var(--surface-chip-hover);
   --color-surface-glass: var(--surface-glass);
   --color-accent-subtle: var(--accent-subtle);
   --color-input-border: var(--input-border);
@@ -103,6 +106,13 @@
   /* Cortex surface & glow tokens */
   --surface: oklch(0.992 0.004 145);
   --surface-raised: oklch(0.975 0.004 145);   /* module cards, modals, raised surfaces */
+  /* Elevation-step ladder for content INSIDE raised widget cards (aliases of
+     existing values — mode-aware so consumers need no dark: overrides):
+     lifted = resting base for rows/list blocks; chip = flat chips that must
+     match the bloomed rows' effective luminance; chip-hover = one step above. */
+  --surface-lifted: var(--surface);
+  --surface-chip: var(--doc-page-bg);
+  --surface-chip-hover: var(--surface-raised);
   --accent-subtle: oklch(0.897 0.106 130);    /* #D4EC93 lime — active thumbs, recording btn */
   --input-border: oklch(0.910 0.040 150);     /* #d4f3e8 mint — chat input widget border */
   --blob-1: rgba(247,255,226,0.55);
@@ -204,7 +214,13 @@
   --surface: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0) / #353535) */
   --surface-raised: oklch(0.30 0 0);        /* slightly elevated */
   --card-hover-bg: oklch(0.34 0 0);         /* dark-mode-only hover lighten — shadow alone is invisible once surfaces sit this close in tone */
+  /* Elevation-step ladder (dark) — same values as card-hover-bg / accent /
+     border respectively; named for their resting/chip roles on the dashboard. */
+  --surface-lifted: oklch(0.34 0 0);
+  --surface-chip: oklch(0.36 0 0);
+  --surface-chip-hover: oklch(0.38 0 0);
   --accent-subtle: oklch(0.32 0.04 160);    /* active thumbs, recording btn */
+  --surface-glass: rgba(28,28,28,0.62);     /* translucent glass — dark variant of the light token */
   --input-border: oklch(0.37 0.05 160);     /* chat input widget border */
   --blob-1: rgba(113,183,162,0.18);
   --blob-2: rgba(53,94,80,0.28);
@@ -336,6 +352,13 @@
     border-color: var(--destructive) !important;
     box-shadow: 0 0 0 1px var(--destructive);
   }
+  /* Hidden scrollbar for horizontal carousels (arrows + dots are the affordance). */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes modal-in {
@@ -394,19 +417,21 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Drift amplitude is scaled by --blob-scale (default 1) so the same blobs can
+   run gentler on smaller surfaces like the dashboard Ask Cortex card. */
 @keyframes blob-1 {
   0%   { transform: translate(0px, 0px) scale(1); }
-  25%  { transform: translate(32px, -24px) scale(1.04); }
-  50%  { transform: translate(16px, 32px) scale(0.97); }
-  75%  { transform: translate(-24px, 16px) scale(1.02); }
+  25%  { transform: translate(calc(32px * var(--blob-scale, 1)), calc(-24px * var(--blob-scale, 1))) scale(1.04); }
+  50%  { transform: translate(calc(16px * var(--blob-scale, 1)), calc(32px * var(--blob-scale, 1))) scale(0.97); }
+  75%  { transform: translate(calc(-24px * var(--blob-scale, 1)), calc(16px * var(--blob-scale, 1))) scale(1.02); }
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
 @keyframes blob-2 {
   0%   { transform: translate(0px, 0px) scale(1); }
-  25%  { transform: translate(-28px, 20px) scale(1.03); }
-  50%  { transform: translate(20px, -32px) scale(0.98); }
-  75%  { transform: translate(24px, 12px) scale(1.04); }
+  25%  { transform: translate(calc(-28px * var(--blob-scale, 1)), calc(20px * var(--blob-scale, 1))) scale(1.03); }
+  50%  { transform: translate(calc(20px * var(--blob-scale, 1)), calc(-32px * var(--blob-scale, 1))) scale(0.98); }
+  75%  { transform: translate(calc(24px * var(--blob-scale, 1)), calc(12px * var(--blob-scale, 1))) scale(1.04); }
   100% { transform: translate(0px, 0px) scale(1); }
 }
 

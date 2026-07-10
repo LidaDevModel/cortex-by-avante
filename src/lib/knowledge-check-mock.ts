@@ -58,6 +58,9 @@ export type KCMatchingAnswer = { type: "matching"; matches: Record<string, strin
 export type KCBranchingAnswer = { type: "branching"; decisions: Record<string, string>; isCompleted: boolean };
 export type KCAnswer = KCMCAnswer | KCMatchingAnswer | KCBranchingAnswer;
 
+/** Which dashboard/start preset produced an attempt, when it came from one. */
+export type KCPreset = "daily5" | "weak" | "examSim" | "custom";
+
 export type KCAttempt = {
   id: string;
   date: string;
@@ -67,6 +70,9 @@ export type KCAttempt = {
   total: number;
   questions: KCQuestion[];
   answers: Record<string, KCAnswer>;
+  /** The preset that launched this attempt, if any — lets the dashboard show
+      "Daily 5 done today" without fingerprinting question counts. */
+  preset?: KCPreset;
 };
 
 /* ─── Budget table ─── */
