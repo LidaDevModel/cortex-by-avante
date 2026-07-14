@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { Check, X, Flag, ArrowLeft } from "lucide-react";
+import { Check, X, Flag, ArrowLeft, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
@@ -9,6 +9,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SplitPanel } from "@/components/ui/split-panel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { SearchInput } from "@/components/ui/search-input";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
@@ -293,6 +294,8 @@ export default function ModuleDetailPage() {
 
   // Left panel — chapter title filter
   const [tocFilter, setTocFilter] = useState("");
+  // Mobile: the chapter stepper moves into a sheet (the rail is desktop-only).
+  const [chaptersSheetOpen, setChaptersSheetOpen] = useState(false);
 
   // Find in document
   const [findOpen, setFindOpen] = useState(false);
@@ -427,6 +430,26 @@ export default function ModuleDetailPage() {
 
   const nextLabel = isSecondToLast ? "Final Quiz" : "Next Chapter";
 
+  // Chapter list — shared by the desktop rail and the mobile "Chapters" sheet.
+  const renderChapters = (onSelect: (id: string) => void, searchPad: string, listPad: string) => (
+    <>
+      <div className={`${searchPad} py-3 shrink-0`}>
+        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter..." />
+      </div>
+      <div className={`flex-1 overflow-y-auto ${listPad} pb-6 scroll-thin`}>
+        <ChapterStepper
+          chapters={CHAPTERS}
+          currentId={currentId}
+          completedIds={completedIds}
+          skippedIds={skippedIds}
+          onSelect={onSelect}
+          tocFilter={tocFilter}
+          matchCounts={matchCountByChapterId}
+        />
+      </div>
+    </>
+  );
+
   if (!trainingModule) {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-surface">
@@ -451,7 +474,7 @@ export default function ModuleDetailPage() {
       ]} />
 
       {/* Module info bar */}
-      <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+      <div className="shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         <Link
           href="/training/modules"
           className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
@@ -477,31 +500,7 @@ export default function ModuleDetailPage() {
 
       <SplitPanel
         leftWidth={354}
-        left={
-          <>
-            {/* Chapter title filter */}
-            <div className="px-8 py-3 shrink-0">
-              <SearchInput
-                value={tocFilter}
-                onChange={setTocFilter}
-                placeholder="Jump to chapter..."
-              />
-            </div>
-
-            {/* Stepper */}
-            <div className="flex-1 overflow-y-auto px-8 pb-6 scroll-thin">
-              <ChapterStepper
-                chapters={CHAPTERS}
-                currentId={currentId}
-                completedIds={completedIds}
-                skippedIds={skippedIds}
-                onSelect={goTo}
-                tocFilter={tocFilter}
-                matchCounts={matchCountByChapterId}
-              />
-            </div>
-          </>
-        }
+        left={renderChapters(goTo, "px-8", "px-8")}
         right={
           <div className="relative flex flex-col flex-1 overflow-hidden">
             {/* Blob gradients on final quiz */}
@@ -526,6 +525,17 @@ export default function ModuleDetailPage() {
               findTotalCount={totalFindCount}
               findMatchIdx={findMatchIdx}
               findEntityLabel="chapters"
+              left={
+                // Mobile chapters trigger — the rail is desktop-only
+                <button
+                  type="button"
+                  onClick={() => setChaptersSheetOpen(true)}
+                  aria-label="Chapters"
+                  className="md:hidden shrink-0 flex items-center justify-center size-10 rounded-[10px] border border-border bg-surface text-foreground transition-colors duration-100 hover:bg-[var(--surface-raised)]"
+                >
+                  <ListChecks size={15} strokeWidth={1.5} />
+                </button>
+              }
             />
 
             <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
@@ -549,9 +559,14 @@ export default function ModuleDetailPage() {
                 {!currentChapter.isFinalQuiz ? (
                   <>
                     <div className="flex flex-col gap-3">
-                      <h2 className="text-[18px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
-                        {currentChapter.num}. {currentChapter.title}
-                      </h2>
+                      <div className="flex flex-col gap-1.5">
+                        <p className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground tabular-nums">
+                          Chapter {contentChapters.findIndex((c) => c.id === currentChapter.id) + 1} of {contentChapters.length}
+                        </p>
+                        <h2 className="text-[18px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
+                          {currentChapter.title}
+                        </h2>
+                      </div>
                       <div className="flex flex-col gap-4">
                         {currentChapter.body.split("\n\n").map((para, i) => (
                           <p key={i} className="text-[15px] leading-[26px]" style={{ color: "var(--foreground)" }}>
@@ -619,6 +634,19 @@ export default function ModuleDetailPage() {
           </div>
         }
       />
+
+      {/* Mobile chapters sheet — same recipe as the library file viewer's contents */}
+      <Sheet open={chaptersSheetOpen} onOpenChange={setChaptersSheetOpen}>
+        <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
+          <SheetHeader className="px-4 pt-4 pb-0">
+            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+              <ListChecks size={16} strokeWidth={1.5} />
+              Chapters
+            </SheetTitle>
+          </SheetHeader>
+          {renderChapters((id) => { goTo(id); setChaptersSheetOpen(false); }, "px-4", "px-3")}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

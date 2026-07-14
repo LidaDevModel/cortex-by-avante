@@ -3,12 +3,13 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { PageHeader } from "@/components/ui/page-header";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { getPersona } from "@/lib/demo-persona";
 
 /* ─── Types ─── */
 
@@ -101,8 +102,11 @@ export default function InProgressPage() {
     scrollTimerRef.current = setTimeout(() => scrollRef.current?.classList.remove("is-scrolling"), 800);
   }, []);
 
+  // A new guard has nothing in progress; Mike sees his real list.
+  const sourceModules = useMemo(() => (getPersona() === "new" ? [] : IN_PROGRESS_MODULES), []);
+
   const filtered = useMemo(() => {
-    let list = IN_PROGRESS_MODULES;
+    let list = sourceModules;
     if (requirementFilter === "required") list = list.filter((m) => m.required);
     else if (requirementFilter === "optional") list = list.filter((m) => !m.required);
     if (categoryFilter) list = list.filter((m) => m.category === categoryFilter);
@@ -111,22 +115,19 @@ export default function InProgressPage() {
       list = list.filter((m) => m.title.toLowerCase().includes(q));
     }
     return list;
-  }, [requirementFilter, categoryFilter, search]);
+  }, [sourceModules, requirementFilter, categoryFilter, search]);
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "var(--surface)" }}>
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Training</Link>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <Link href="/training/modules" className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100">Modules</Link>
-          <span className="text-muted-foreground shrink-0">/</span>
-          <span className="font-medium text-foreground truncate">In progress</span>
-        </div>
-      </header>
+      {/* Header — shared PageHeader (breadcrumb on desktop, quiet on mobile) */}
+      <PageHeader
+        crumbs={[
+          { label: "Training", href: "/training/modules" },
+          { label: "Modules", href: "/training/modules" },
+          { label: "In progress" },
+        ]}
+      />
 
       {/* Scrollable canvas */}
       <ScrollCanvas ref={scrollRef} onScroll={handleScroll}>
@@ -145,7 +146,7 @@ export default function InProgressPage() {
                 In progress
               </h1>
               <p className="text-[13px] leading-[20px] text-muted-foreground">
-                {IN_PROGRESS_MODULES.length} module{IN_PROGRESS_MODULES.length !== 1 ? "s" : ""} in progress
+                {sourceModules.length} module{sourceModules.length !== 1 ? "s" : ""} in progress
               </p>
             </div>
 

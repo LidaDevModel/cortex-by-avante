@@ -250,7 +250,7 @@ export function MobileTabBar() {
 
           {/* Tab pill */}
           <div
-            className="pointer-events-auto flex-1 flex items-stretch h-16 rounded-full border border-border bg-surface"
+            className="pointer-events-auto flex-1 flex items-stretch h-16 px-2 rounded-full border border-border bg-surface"
             style={{ boxShadow: "var(--shadow-floating)" }}
           >
             {TABS.map((tab) => {
@@ -260,24 +260,15 @@ export function MobileTabBar() {
                   key={tab.href}
                   href={tab.href}
                   aria-current={isActive ? "page" : undefined}
-                  className="flex-1 flex flex-col items-center justify-center gap-0.5"
+                  // Active state is colour only — no pill behind the icon. (The
+                  // pill stays the desktop sidebar's active treatment.)
+                  className={cn(
+                    "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}
                 >
-                  <span
-                    className={cn(
-                      "flex items-center justify-center px-3 py-0.5 rounded-full transition-colors duration-150",
-                      isActive ? "bg-[var(--sidebar-active)] text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    <tab.icon size={20} strokeWidth={1.5} />
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[11px] leading-[14px] font-medium",
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {tab.label}
-                  </span>
+                  <tab.icon size={20} strokeWidth={1.5} />
+                  <span className="text-[11px] leading-[14px] font-medium">{tab.label}</span>
                 </Link>
               );
             })}
@@ -290,16 +281,12 @@ export function MobileTabBar() {
               aria-haspopup="menu"
               aria-controls="training-dial"
               onClick={() => toggleDial("training")}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5"
+              className={cn(
+                "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150",
+                trainingActive || trainingDialShown ? "text-primary" : "text-muted-foreground"
+              )}
             >
-              <span
-                className={cn(
-                  "relative flex items-center justify-center px-3 py-0.5 rounded-full transition-colors duration-150",
-                  trainingActive || trainingDialShown
-                    ? "bg-[var(--sidebar-active)] text-primary"
-                    : "text-muted-foreground"
-                )}
-              >
+              <span className="relative flex items-center justify-center">
                 <BookOpen
                   size={20}
                   strokeWidth={1.5}
@@ -317,14 +304,7 @@ export function MobileTabBar() {
                   )}
                 />
               </span>
-              <span
-                className={cn(
-                  "text-[11px] leading-[14px] font-medium",
-                  trainingActive || trainingDialShown ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                Training
-              </span>
+              <span className="text-[11px] leading-[14px] font-medium">Training</span>
             </button>
           </div>
         </div>
