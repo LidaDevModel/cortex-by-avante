@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,27 +49,31 @@ export function ExamProgress({
 
   return (
     <div
-      className="shrink-0 border-b border-border bg-[var(--surface)] h-14 relative flex items-center px-6"
+      className="shrink-0 border-b border-border bg-[var(--surface)] h-14 relative flex items-center gap-2 px-4 sm:px-6"
       style={{ zIndex: 10 }}
     >
       <button
         onClick={onExit}
-        className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
+        className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer shrink-0"
       >
         <X size={14} />
-        Exit
+        {/* Label is a pointer nicety; the icon carries it on mobile where the
+            row is tight. */}
+        <span className="hidden sm:inline">Exit</span>
       </button>
-      <span className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 text-[13px] text-muted-foreground pointer-events-none">
-        {isSimulation ? "Exam simulation" : "Certification exam"}
+      {/* Title — inline-centered in the flex row on mobile, viewport-centered
+          via absolute positioning on desktop (unchanged there). */}
+      <span className="flex-1 min-w-0 flex items-center justify-center gap-2 text-[13px] text-muted-foreground pointer-events-none sm:flex-none sm:absolute sm:left-1/2 sm:-translate-x-1/2">
+        <span className="truncate">{isSimulation ? "Exam simulation" : "Certification exam"}</span>
         {isSimulation && (
-          <span className="px-2 py-[1px] rounded-full text-[11px] font-medium bg-[var(--sidebar-active)] text-primary">
+          <span className="shrink-0 px-2 py-[1px] rounded-full text-[11px] font-medium bg-[var(--sidebar-active)] text-primary">
             Practice
           </span>
         )}
       </span>
       <span
         className={cn(
-          "ml-auto inline-flex items-center px-[10px] py-[2px] rounded-full text-[12px] font-medium tabular-nums transition-colors duration-300",
+          "shrink-0 sm:ml-auto inline-flex items-center px-[10px] py-[2px] rounded-full text-[12px] font-medium tabular-nums transition-colors duration-300",
           isLowTime
             ? "bg-[color-mix(in_srgb,var(--destructive)_15%,transparent)] text-destructive"
             : "bg-[var(--sidebar-active)] text-foreground"
@@ -87,8 +92,24 @@ type SectionNavProps = {
 };
 
 export function SectionNav({ activeSection, completedSections, onSectionClick }: SectionNavProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLButtonElement>(null);
+
+  // Keep the active pill in the visible scroll window as the section advances.
+  // The active pill is disabled (non-jumpable), so the browser would otherwise
+  // scroll the first *focusable* pill into view and push the current one off
+  // the left edge on mobile.
+  useEffect(() => {
+    const c = scrollRef.current;
+    const a = activeRef.current;
+    if (!c || !a) return;
+    c.scrollTo({ left: Math.max(0, a.offsetLeft - 16), behavior: "smooth" });
+  }, [activeSection]);
+
   return (
-    <div className="flex items-center gap-2">
+    // Scrolls edge-to-edge on mobile where the five section pills don't fit;
+    // resets inside the column on desktop. Matches the KC section-tabs strip.
+    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {SECTIONS.map((s) => {
         const isActive = activeSection === s.id;
         const isDone = completedSections.has(s.id);
@@ -97,10 +118,11 @@ export function SectionNav({ activeSection, completedSections, onSectionClick }:
         return (
           <button
             key={s.id}
+            ref={isActive ? activeRef : undefined}
             onClick={() => isClickable && onSectionClick(s.id)}
             disabled={!isClickable}
             className={cn(
-              "flex items-center gap-1.5 px-3 h-7 rounded-full text-[12px] font-medium transition-all duration-150",
+              "flex items-center gap-1.5 px-3 h-7 rounded-full text-[12px] font-medium transition-all duration-150 shrink-0",
               isActive
                 ? "bg-[var(--primary)] text-[var(--primary-foreground)] cursor-default"
                 : isDone

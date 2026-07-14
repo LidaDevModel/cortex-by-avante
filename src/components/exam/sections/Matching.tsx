@@ -26,6 +26,22 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
   const dragNode = useRef<EventTarget | null>(null);
+  // Tap-to-connect: the touch-friendly path that also works with a mouse —
+  // tap a term to arm it, then tap a definition to link. Drag stays as a
+  // pointer enhancement. HTML5 drag events don't fire on touch, so without
+  // this the exercise would be unsolvable on a phone.
+  const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
+
+  const handleTermTap = useCallback((termId: string) => {
+    setSelectedTerm((prev) => (prev === termId ? null : termId));
+  }, []);
+
+  const handleDefTap = useCallback((defId: string) => {
+    if (selectedTerm) {
+      onMatch(selectedTerm, defId);
+      setSelectedTerm(null);
+    }
+  }, [selectedTerm, onMatch]);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const termEls = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -88,7 +104,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
       }}
     >
       <div
-        className="max-w-[720px] mx-auto px-8 py-12 flex flex-col gap-8 animate-in fade-in duration-200"
+        className="max-w-[720px] mx-auto px-4 sm:px-8 py-12 flex flex-col gap-8 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         {/* Header */}
@@ -101,7 +117,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
               {exercise.instruction}
             </h2>
             <p className="text-[13px] text-muted-foreground mt-1">
-              Drag a term to its matching definition.
+              Tap a term, then its definition to match.
             </p>
           </div>
           <button
@@ -113,7 +129,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
         </div>
 
         {/* Two-column grid with SVG connector overlay */}
-        <div ref={gridRef} className="relative grid grid-cols-[2fr_3fr] gap-8">
+        <div ref={gridRef} className="relative grid grid-cols-[2fr_3fr] gap-3 sm:gap-8">
           {/* Connector lines */}
           {connectors.length > 0 && (
             <svg
@@ -152,10 +168,16 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
               const isMatched = pairIdx >= 0;
               const color = isMatched ? PAIR_COLORS[pairIdx % PAIR_COLORS.length] : null;
 
+              const isSelected = selectedTerm === pair.id;
               return (
                 <div
                   key={pair.id}
                   ref={setTermRef(pair.id)}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  onClick={() => handleTermTap(pair.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleTermTap(pair.id); } }}
                   draggable
                   onDragStart={(e) => {
                     setDragging(pair.id);
@@ -167,9 +189,10 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
                     setDragOver(null);
                   }}
                   className={cn(
-                    "px-4 rounded-[10px] border text-[14px] leading-[20px] cursor-grab active:cursor-grabbing transition-all duration-150 select-none flex items-center",
-                    "h-[80px]",
+                    "px-4 rounded-[10px] border text-[14px] leading-[20px] cursor-pointer transition-all duration-150 select-none flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                    "min-h-[80px] py-3",
                     dragging === pair.id ? "opacity-50 scale-95" : "opacity-100",
+                    isSelected && "ring-2 ring-[var(--ring)]",
                     isMatched
                       ? "border-l-[3px]"
                       : "border-border bg-[var(--surface-raised)] hover:border-[color-mix(in_srgb,var(--primary)_40%,transparent)]"
@@ -194,10 +217,16 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
               const color = isMatched ? PAIR_COLORS[pairIdx % PAIR_COLORS.length] : null;
               const isOver = dragOver === pair.id;
 
+              // Highlight as a drop target while a term is armed for tapping.
+              const isTapTarget = !!selectedTerm && !isMatched;
               return (
                 <div
                   key={pair.id}
                   ref={setDefRef(pair.id)}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleDefTap(pair.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleDefTap(pair.id); } }}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(pair.id); }}
                   onDragLeave={() => setDragOver(null)}
                   onDrop={(e) => {
@@ -207,9 +236,9 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
                     setDragging(null);
                   }}
                   className={cn(
-                    "px-4 rounded-[10px] border text-[14px] leading-[20px] transition-all duration-150 flex items-center",
-                    "h-[80px]",
-                    isOver && !isMatched
+                    "px-4 rounded-[10px] border text-[14px] leading-[20px] transition-all duration-150 flex items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                    "min-h-[80px] py-3",
+                    (isOver || isTapTarget) && !isMatched
                       ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] scale-[1.01]"
                       : isMatched
                       ? "border-l-[3px]"

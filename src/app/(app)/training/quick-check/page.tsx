@@ -30,6 +30,7 @@ import { KCResults } from "@/components/knowledge-check/KCResults";
 import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useFocusedTask } from "@/hooks/use-mobile-nav";
 import { MODULES } from "@/lib/training-mock";
 
 /* ─── Types ─── */
@@ -225,7 +226,7 @@ function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onV
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="text-[12px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
           Previous checks
         </p>
@@ -236,14 +237,14 @@ function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onV
               onChange={setCategoryFilter}
               options={CATEGORY_OPTIONS}
               placeholder="All categories"
-              className="w-[168px]"
+              className="flex-1 sm:flex-none sm:w-[168px]"
             />
             <FilterSelect
               value={formatFilter}
               onChange={setFormatFilter}
               options={FORMAT_OPTIONS}
               placeholder="All formats"
-              className="w-[168px]"
+              className="flex-1 sm:flex-none sm:w-[168px]"
             />
           </div>
         )}
@@ -302,9 +303,32 @@ function HistoryTable({
     );
   }
 
+  const rows = paginated.map((attempt) => {
+    const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
+    const catLabel = (() => {
+      const cats = attempt.categories;
+      if (cats.length === ALL_CATEGORIES.length) return "All categories";
+      if (cats.length === 1) return CATEGORY_LABELS[cats[0]];
+      if (cats.length === 2) return `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`;
+      return `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
+    })();
+    const formatLabel = attempt.formats.length === ALL_FORMATS.length
+      ? "All formats"
+      : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ");
+    const scoreColor = pct === 100 ? "var(--primary)" : "var(--muted-foreground)";
+    return { attempt, pct, catLabel, formatLabel, scoreColor };
+  });
+
+  const emptyFiltered = (
+    <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
+      No checks match the selected filters.
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-3">
-      <Table>
+      {/* Desktop: sortable 4-column table */}
+      <Table className="hidden md:block">
         <TableHeader>
           <TableHead className="flex-1">Categories</TableHead>
           <TableHead className="flex-1">Formats</TableHead>
@@ -312,37 +336,46 @@ function HistoryTable({
           <TableHead className="w-[100px]" sortDir={sortCol === "score" ? sortDir : null} onSort={() => handleSort("score")}>Score</TableHead>
         </TableHeader>
         <TableBody>
-          {sorted.length === 0 ? (
-            <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
-              No checks match the selected filters.
-            </div>
-          ) : paginated.map((attempt) => {
-            const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
-            const catLabel = (() => {
-              const cats = attempt.categories;
-              if (cats.length === ALL_CATEGORIES.length) return "All categories";
-              if (cats.length === 1) return CATEGORY_LABELS[cats[0]];
-              if (cats.length === 2) return `${CATEGORY_LABELS[cats[0]]} & ${CATEGORY_LABELS[cats[1]]}`;
-              return `${CATEGORY_LABELS[cats[0]]} & ${cats.length - 1} more`;
-            })();
-            return (
-              <TableRow key={attempt.id} onClick={() => onViewDetail(attempt.id)}>
-                <TableCell className="flex-1 truncate pr-2">{catLabel} #{getAttemptOrdinal(attempt.id)}</TableCell>
-                <TableCell className="flex-1 text-muted-foreground truncate pr-2">
-                  {attempt.formats.length === ALL_FORMATS.length ? "All" : attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
-                </TableCell>
-                <TableCell className="w-[120px] text-muted-foreground">{formatDate(attempt.date)}</TableCell>
-                <TableCell
-                  className="w-[100px] font-semibold"
-                  style={{ fontVariantNumeric: "tabular-nums", color: pct === 100 ? "var(--primary)" : "var(--muted-foreground)" }}
-                >
-                  {attempt.score}/{attempt.total} · {pct}%
-                </TableCell>
-              </TableRow>
-            );
-          })}
+          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }) => (
+            <TableRow key={attempt.id} onClick={() => onViewDetail(attempt.id)}>
+              <TableCell className="flex-1 truncate pr-2">{catLabel} #{getAttemptOrdinal(attempt.id)}</TableCell>
+              <TableCell className="flex-1 text-muted-foreground truncate pr-2">{formatLabel === "All formats" ? "All" : formatLabel}</TableCell>
+              <TableCell className="w-[120px] text-muted-foreground">{formatDate(attempt.date)}</TableCell>
+              <TableCell
+                className="w-[100px] font-semibold"
+                style={{ fontVariantNumeric: "tabular-nums", color: scoreColor }}
+              >
+                {attempt.score}/{attempt.total} · {pct}%
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
+
+      {/* Mobile: the columns collapse into card rows — categories over a
+          formats · date meta line, score on the right. Sorted by the default
+          date-desc; the filters above carry the slicing. */}
+      <Table className="md:hidden">
+        <TableBody>
+          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }) => (
+            <TableRow key={attempt.id} className="py-3 items-start" onClick={() => onViewDetail(attempt.id)}>
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{catLabel} #{getAttemptOrdinal(attempt.id)}</span>
+                <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground truncate">
+                  {formatLabel} · {formatDate(attempt.date)}
+                </span>
+              </div>
+              <span
+                className="shrink-0 text-[13px] leading-[20px] font-semibold"
+                style={{ fontVariantNumeric: "tabular-nums", color: scoreColor }}
+              >
+                {attempt.score}/{attempt.total} · {pct}%
+              </span>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
       <Pagination page={page} totalPages={totalPages} onChange={setPage} className="px-1" />
     </div>
   );
@@ -366,6 +399,9 @@ function QuickCheckContent() {
   const { headerClassName, onScroll, reset: resetGlass } = useGlassHeader();
   // Phases swap canvases in and out — clear stale glass when that happens.
   useEffect(() => resetGlass(), [phase, resetGlass]);
+  // An active session is a focused task — the mobile nav yields for full
+  // height (app-shell protocol); listing and the config pickers keep it.
+  useFocusedTask(phase === "generating" || phase === "flow" || phase === "review" || phase === "results");
   const [selectedFormats, setSelectedFormats] = useState<KCFormat[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<KCCategory[]>([]);
   const [generatedQuestions, setGeneratedQuestions] = useState<KCQuestion[]>([]);
@@ -545,10 +581,10 @@ function QuickCheckContent() {
           {/* Listing */}
           {phase === "listing" && (
             <ScrollCanvas onScroll={onScroll}>
-              <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+              <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
                 <div className="flex flex-col gap-1">
-                  <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+                  <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
                     Knowledge check
                   </h1>
                   <p className="text-[14px] leading-[20px] text-muted-foreground">
@@ -617,9 +653,9 @@ function QuickCheckContent() {
           {/* Review */}
           {phase === "review" && (
             <div className="flex flex-col h-full overflow-hidden">
-              <div className="max-w-[920px] mx-auto w-full px-8 pt-8 pb-4 flex flex-col gap-4 shrink-0">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-[28px] leading-[36px] font-bold text-foreground capitalize">
+              <div className="max-w-[920px] mx-auto w-full px-4 sm:px-8 pt-8 pb-4 flex flex-col gap-4 shrink-0">
+                <div className="flex items-center justify-between gap-3">
+                  <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground capitalize min-w-0 truncate">
                     {selectedCategories.length === 0 || selectedCategories.length === ALL_CATEGORIES.length
                       ? "All categories check"
                       : selectedCategories.length === 1
@@ -628,7 +664,7 @@ function QuickCheckContent() {
                   </h1>
                   <button
                     onClick={resetToListing}
-                    className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+                    className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70 shrink-0 whitespace-nowrap"
                     style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
                   >
                     Quit check
@@ -645,7 +681,7 @@ function QuickCheckContent() {
                 />
               </div>
               <ScrollCanvas onScroll={onScroll}>
-                <div className="max-w-[920px] mx-auto px-8 pb-12">
+                <div className="max-w-[920px] mx-auto px-4 sm:px-8 pb-12">
                   <KCReview
                     questions={generatedQuestions}
                     answers={answers}
@@ -661,7 +697,7 @@ function QuickCheckContent() {
           {/* Results */}
           {phase === "results" && (
             <ScrollCanvas onScroll={onScroll}>
-              <div className="max-w-[920px] mx-auto px-8">
+              <div className="max-w-[920px] mx-auto px-4 sm:px-8">
                 <KCResults
                   questions={generatedQuestions}
                   answers={answers}

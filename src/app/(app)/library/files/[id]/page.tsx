@@ -2,10 +2,12 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText, LayoutGrid } from "lucide-react";
+import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText, LayoutGrid, TableOfContents as TableOfContentsIcon } from "lucide-react";
 import { PageHeader, DetailHeader } from "@/components/ui/page-header";
 import { SearchInput } from "@/components/ui/search-input";
 import { SplitPanel } from "@/components/ui/split-panel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { DocCallout } from "@/components/library/DocCallout";
@@ -291,11 +293,28 @@ function DocumentPage({
   const q = findQuery.trim().toLowerCase();
   const canvasBg = "var(--background-fileview)";
 
-  const scale = zoom / 100;
-  const scaledW = Math.round(PAGE_W * scale);
-  const scaledH = Math.round(PAGE_H * scale);
+  // On mobile the zoom control is hidden and the page fits the viewport
+  // width instead — a 560px page would otherwise force horizontal panning.
+  const isMobile = useIsMobile();
+  const [containerW, setContainerW] = useState(0);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setContainerW(el.clientWidth));
+    ro.observe(el);
+    setContainerW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  // 48 matches the column's minWidth allowance so the fitted page never
+  // introduces horizontal scroll of its own.
+  const fitScale = containerW > 0 ? Math.min(1, (containerW - 48) / PAGE_W) : null;
+  const scale = isMobile && fitScale !== null ? fitScale : zoom / 100;
+  const scaledW = Math.round(PAGE_W * scale);
+  const scaledH = Math.round(PAGE_H * scale);
   const pageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const suppressScrollRef = useRef(false);
   const suppressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -305,16 +324,28 @@ function DocumentPage({
     const el = pageRefs.current[activeId];
     const container = scrollRef.current;
     if (!el || !container) return;
-    // Suppress the scroll listener while the programmatic scroll animates
+    // Suppress the scroll listener while the programmatic scroll animates.
+    // Release on scrollend (i.e. when the animation actually settles) — a
+    // fixed short timer can expire mid-flight on long multi-page jumps and
+    // let the position watcher re-target a page the animation is passing,
+    // yanking the viewport back. The timeout stays as a generous fallback
+    // for scrolls that never fire the event (already at position).
     suppressScrollRef.current = true;
+    const release = () => {
+      suppressScrollRef.current = false;
+      container.removeEventListener("scrollend", release);
+      if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
+    };
+    container.addEventListener("scrollend", release);
     if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
-    suppressTimerRef.current = setTimeout(() => { suppressScrollRef.current = false; }, 600);
+    suppressTimerRef.current = setTimeout(release, 1500);
     // First positioning (e.g. a ?section= deep link) jumps instantly — a smooth
     // multi-page scroll can be canceled by the route entrance animation and
     // strand the viewport at the top; later TOC selections animate as usual.
     const behavior: ScrollBehavior = hasPositionedRef.current ? "smooth" : "auto";
     hasPositionedRef.current = true;
     container.scrollTo({ top: el.offsetTop - 32, behavior });
+    return () => container.removeEventListener("scrollend", release);
   }, [activeId]);
 
   useEffect(() => {
@@ -570,6 +601,7 @@ export default function FileViewPage() {
   const result = getDocById(id);
 
   const [tocFilter, setTocFilter] = useState("");
+  const [tocSheetOpen, setTocSheetOpen] = useState(false);
   const [zoom, setZoom] = useState(75);
   const [thumbSize, setThumbSize] = useState(DEFAULT_THUMB_W);
   const [viewMode, setViewMode] = useState<"single" | "grid">("single");
@@ -704,22 +736,24 @@ export default function FileViewPage() {
     return allPages.filter(p => (p.searchText ?? "").includes(q)).length;
   }, [allPages, findQuery]);
 
-  const leftPanel = (
+  // Shared between the desktop rail and the mobile contents sheet; selecting
+  // a section from the sheet also closes it.
+  const renderTocPanel = (searchPad: string, listPad: string, onSelect: (id: string) => void) => (
     <>
-      <div className="px-8 py-3 shrink-0">
+      <div className={`${searchPad} py-3 shrink-0`}>
         <SearchInput
           value={tocFilter}
           onChange={setTocFilter}
           placeholder="Jump to section..."
         />
       </div>
-      <div className="flex-1 overflow-y-auto px-6 pb-6 scroll-thin">
+      <div className={`flex-1 overflow-y-auto ${listPad} pb-6 scroll-thin`}>
         {filteredToc.length > 0 ? (
           <TableOfContents
             sections={filteredToc}
             allSections={sections}
             activeId={activeId}
-            onSelect={setActiveId}
+            onSelect={onSelect}
             matchCounts={matchCountBySectionId}
             pageNumbers={pageNumbers}
           />
@@ -731,6 +765,8 @@ export default function FileViewPage() {
       </div>
     </>
   );
+
+  const leftPanel = renderTocPanel("px-8", "px-6", setActiveId);
 
   const rightPanel = (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -747,12 +783,22 @@ export default function FileViewPage() {
         findMatchIdx={findMatchIdx}
         findEntityLabel="sections"
         findGridMode={viewMode === "grid"}
+        left={
+          /* Mobile contents trigger — the desktop rail is hidden below md */
+          <div className="md:hidden shrink-0">
+            <IconButton position="solo" onClick={() => setTocSheetOpen(true)} title="Contents">
+              <TableOfContentsIcon size={15} strokeWidth={1.5} className="text-foreground" />
+              <span className="sr-only">Contents</span>
+            </IconButton>
+          </div>
+        }
         right={
           <>
             {viewMode === "single" ? (
               <>
-                {/* Zoom */}
-                <div className="flex items-center gap-3">
+                {/* Zoom — pointer affordance; on mobile the page fits the
+                    viewport width instead */}
+                <div className="hidden sm:flex items-center gap-3">
                   <span className="text-[14px] text-muted-foreground tabular-nums w-10 text-right">
                     {zoom}%
                   </span>
@@ -773,7 +819,9 @@ export default function FileViewPage() {
                     <span className="text-[16px] text-foreground">{activePageNum}</span>
                     {" "}/ {totalPages}
                   </span>
-                  <div className="flex">
+                  {/* Prev/next are pointer affordances — mobile navigates by
+                      scroll and the contents sheet */}
+                  <div className="hidden sm:flex">
                     <IconButton position="left" onClick={() => canPrev && setActiveId(sections[activeIndex - 1].id)}>
                       <ChevronLeft size={15} strokeWidth={1.5} className={canPrev ? "text-foreground" : "text-muted-foreground"} />
                     </IconButton>
@@ -788,7 +836,7 @@ export default function FileViewPage() {
                 {/* Thumbnail size */}
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] text-muted-foreground">{totalPages} pages</span>
-                  <div className="flex">
+                  <div className="hidden sm:flex">
                     <IconButton position="left" onClick={() => setThumbSize(s => Math.max(120, s - 40))}>
                       <ZoomOut size={15} strokeWidth={1.5} className="text-foreground" />
                     </IconButton>
@@ -853,7 +901,7 @@ export default function FileViewPage() {
         }
       />
 
-      <div className="shrink-0 px-8 pt-6 pb-5 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
+      <div className="shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--border)" }}>
         <DetailHeader
           backHref={fromChat ? "/chat" : folder ? `/library/folders/${folder.id}` : "/library"}
           backLabel={fromChat ? "Back to conversation" : folder ? `Back to ${folder.name}` : "Back to Library"}
@@ -864,6 +912,19 @@ export default function FileViewPage() {
       </div>
 
       <SplitPanel leftWidth={280} left={leftPanel} right={rightPanel} />
+
+      {/* Mobile contents sheet — same shell recipe as the chat history sheet */}
+      <Sheet open={tocSheetOpen} onOpenChange={setTocSheetOpen}>
+        <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
+          <SheetHeader className="px-4 pt-4 pb-0">
+            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+              <TableOfContentsIcon size={16} strokeWidth={1.5} />
+              Contents
+            </SheetTitle>
+          </SheetHeader>
+          {renderTocPanel("px-4", "px-3", (id) => { setActiveId(id); setTocSheetOpen(false); })}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

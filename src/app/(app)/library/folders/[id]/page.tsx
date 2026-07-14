@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { FileText } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { PageHeader } from "@/components/ui/page-header";
 import { DetailHeader } from "@/components/ui/page-header";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
@@ -84,7 +85,7 @@ export default function FolderDetailPage() {
       />
 
       <ScrollCanvas>
-          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+          <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
             <DetailHeader
               backHref="/library"
               backLabel="Back to Library"
@@ -94,18 +95,44 @@ export default function FolderDetailPage() {
 
             {/* Search + Table */}
             <div className="flex flex-col gap-4">
-              <SearchInput
-                value={search}
-                onChange={handleSearch}
-                placeholder="Search documents"
-                className="w-full max-w-[400px]"
-              />
+              <div className="flex gap-2">
+                <SearchInput
+                  value={search}
+                  onChange={handleSearch}
+                  placeholder="Search documents"
+                  className="flex-1 min-w-0 sm:flex-none sm:w-full sm:max-w-[400px]"
+                />
+                {/* Mobile-only sort: the card list below has no sortable
+                    column headers (same pattern as the Library home list). */}
+                <FilterSelect
+                  value={sortCol === "name" ? (sortDir === "asc" ? "name-asc" : "name-desc") : (sortDir === "desc" ? "date-desc" : "date-asc")}
+                  onChange={(v) => {
+                    const map: Record<string, { col: SortCol; dir: SortDir }> = {
+                      "name-asc":  { col: "name",         dir: "asc"  },
+                      "name-desc": { col: "name",         dir: "desc" },
+                      "date-desc": { col: "lastModified", dir: "desc" },
+                      "date-asc":  { col: "lastModified", dir: "asc"  },
+                    };
+                    const t = map[v];
+                    if (t) { setSortCol(t.col); setSortDir(t.dir); setPage(1); }
+                  }}
+                  className="w-[140px] shrink-0 sm:hidden"
+                  options={[
+                    { value: "date-desc", label: "Newest first" },
+                    { value: "date-asc",  label: "Oldest first" },
+                    { value: "name-asc",  label: "Name A–Z" },
+                    { value: "name-desc", label: "Name Z–A" },
+                  ]}
+                />
+              </div>
 
             <div className="flex flex-col gap-4">
               {paged.length === 0 ? (
                 <p className="text-[14px] text-muted-foreground py-8 text-center">No documents available.</p>
               ) : (
-                <Table>
+                <>
+                {/* Desktop: full column table */}
+                <Table className="hidden md:block">
                   <TableHeader>
                     <TableHead
                       sortDir={sortCol === "name" ? sortDir : null}
@@ -140,6 +167,25 @@ export default function FolderDetailPage() {
                     ))}
                   </TableBody>
                 </Table>
+
+                {/* Mobile: stacked card rows — same collapse as the Library
+                    home list. Fixed-width columns don't shrink at 375px. */}
+                <Table className="md:hidden">
+                  <TableBody>
+                    {paged.map((doc) => (
+                      <TableRow key={doc.id} className="py-3" onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}>
+                        <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                          <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>{doc.name}</span>
+                          <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
+                            {formatDate(doc.lastModified)} · {doc.content}
+                          </span>
+                        </div>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                </>
               )}
 
               {totalPages > 1 && (

@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 export type Conversation = {
@@ -44,6 +45,16 @@ const MOCK_CONVERSATIONS: Conversation[] = [
 ];
 
 const GROUPS = ["Today", "Yesterday", "Last 7 days", "Last 30 days"] as const;
+
+/** Conversation list state, lifted so the desktop rail and the mobile sheet
+    (both mounted, breakpoint-swapped) share one source of truth. */
+export function useConversations() {
+  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+  const rename = (id: string, title: string) =>
+    setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
+  const remove = (id: string) => setConversations((prev) => prev.filter((c) => c.id !== id));
+  return { conversations, rename, remove };
+}
 
 function ConversationItem({
   conversation,
@@ -96,10 +107,11 @@ function ConversationItem({
       </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
+          {/* Visible by default (touch has no hover); hover-revealed on md+ */}
           <button
             aria-label="Conversation options"
             onClick={(e) => e.stopPropagation()}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-100 p-0.5 rounded hover:bg-foreground/5 shrink-0"
+            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-100 p-2 -my-1.5 rounded hover:bg-foreground/5 shrink-0"
           >
             <MoreHorizontal size={14} className="text-muted-foreground" />
           </button>
@@ -127,18 +139,16 @@ function ConversationItem({
   );
 }
 
-interface ChatHistoryPanelProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  /** Called when the user picks a past conversation to reopen. */
+type HistoryListProps = {
+  conversations: Conversation[];
   onSelect: (conversation: Conversation) => void;
-}
+  onRename: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
+};
 
-const SLIDE_EASING = "cubic-bezier(0.32, 0.72, 0, 1)";
-const SLIDE_DURATION = "220ms";
-
-export function ChatHistoryPanel({ isOpen, onToggle, onSelect }: ChatHistoryPanelProps) {
-  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+/** Search + grouped list with scroll-aware fade masks — shared by the desktop
+    rail and the mobile sheet. Expects a flex-column parent to fill. */
+function HistoryBody({ conversations, onSelect, onRename, onDelete }: HistoryListProps) {
   const [search, setSearch] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const [canScrollUp, setCanScrollUp] = useState(false);
@@ -157,18 +167,81 @@ export function ChatHistoryPanel({ isOpen, onToggle, onSelect }: ChatHistoryPane
 
   useEffect(() => {
     handleScroll();
-  }, [isOpen, filtered.length]);
+  }, [filtered.length]);
 
-  const handleRename = (id: string, title: string) => {
-    setConversations((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, title } : c))
-    );
-  };
+  return (
+    <>
+      {/* Search */}
+      <div className="px-3 pb-3 shrink-0">
+        <div className="p-[2px]">
+          <SearchInput value={search} onChange={setSearch} placeholder="Search..." />
+        </div>
+      </div>
 
-  const handleDelete = (id: string) => {
-    setConversations((prev) => prev.filter((c) => c.id !== id));
-  };
+      {/* Conversation list with scroll-aware fade overlays */}
+      <div className="relative flex-1 min-h-0">
+        <div
+          ref={listRef}
+          onScroll={handleScroll}
+          className="absolute inset-0 overflow-y-auto"
+          style={{
+            maskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
+            WebkitMaskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
+          }}
+        >
+          <div className="px-2 pb-4">
+            {filtered.length === 0 ? (
+              <p className="px-2 pt-3 text-[13px] text-muted-foreground">
+                {conversations.length === 0
+                  ? "No previous conversations."
+                  : "No conversations found."}
+              </p>
+            ) : (
+              GROUPS.map((group) => {
+                const items = filtered.filter((c) => c.group === group);
+                if (!items.length) return null;
+                return (
+                  <div key={group}>
+                    <p className="px-2 pt-3 pb-1 text-[13px] font-medium text-foreground/70">
+                      {group}
+                    </p>
+                    {items.map((conv) => (
+                      <ConversationItem
+                        key={conv.id}
+                        conversation={conv}
+                        onSelect={onSelect}
+                        onRename={onRename}
+                        onDelete={onDelete}
+                      />
+                    ))}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
+const SLIDE_EASING = "cubic-bezier(0.32, 0.72, 0, 1)";
+const SLIDE_DURATION = "220ms";
+
+type ChatHistoryPanelProps = HistoryListProps & {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+/** Desktop shell — the inline right-side rail (48px collapsed / 220px open). */
+export function ChatHistoryPanel({
+  isOpen,
+  onToggle,
+  conversations,
+  onSelect,
+  onRename,
+  onDelete,
+}: ChatHistoryPanelProps) {
   const fadeStyle: React.CSSProperties = {
     opacity: isOpen ? 1 : 0,
     transition: `opacity ${SLIDE_DURATION} ${SLIDE_EASING}`,
@@ -204,61 +277,50 @@ export function ChatHistoryPanel({ isOpen, onToggle, onSelect }: ChatHistoryPane
 
       {/* Content — always mounted, fades in sync with the width slide */}
       <div className="flex flex-col flex-1 overflow-hidden" style={fadeStyle}>
-        {/* Search */}
-        <div className="px-3 pb-3 shrink-0">
-          <div className="p-[2px]">
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Search..."
-            />
-          </div>
-        </div>
-
-        {/* Conversation list with scroll-aware fade overlays */}
-        <div className="relative flex-1 min-h-0">
-          <div
-            ref={listRef}
-            onScroll={handleScroll}
-            className="absolute inset-0 overflow-y-auto"
-            style={{
-              maskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
-              WebkitMaskImage: `linear-gradient(to bottom, transparent 0px, black ${canScrollUp ? "32px" : "0.001px"}, black calc(100% - ${canScrollDown ? "32px" : "0.001px"}), transparent 100%)`,
-            }}
-          >
-            <div className="px-2 pb-4">
-              {filtered.length === 0 ? (
-                <p className="px-2 pt-3 text-[13px] text-muted-foreground">
-                  {conversations.length === 0
-                    ? "No previous conversations."
-                    : "No conversations found."}
-                </p>
-              ) : (
-                GROUPS.map((group) => {
-                  const items = filtered.filter((c) => c.group === group);
-                  if (!items.length) return null;
-                  return (
-                    <div key={group}>
-                      <p className="px-2 pt-3 pb-1 text-[13px] font-medium text-foreground/70">
-                        {group}
-                      </p>
-                      {items.map((conv) => (
-                        <ConversationItem
-                          key={conv.id}
-                          conversation={conv}
-                          onSelect={onSelect}
-                          onRename={handleRename}
-                          onDelete={handleDelete}
-                        />
-                      ))}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
+        <HistoryBody
+          conversations={conversations}
+          onSelect={onSelect}
+          onRename={onRename}
+          onDelete={onDelete}
+        />
       </div>
     </div>
+  );
+}
+
+type ChatHistorySheetProps = HistoryListProps & {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+/** Mobile shell — the same history list in a right-side sheet (the inline rail
+    would eat the chat column on narrow screens). */
+export function ChatHistorySheet({
+  open,
+  onOpenChange,
+  conversations,
+  onSelect,
+  onRename,
+  onDelete,
+}: ChatHistorySheetProps) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
+        <SheetHeader className="px-4 pt-4 pb-3">
+          <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+            <History size={15} className="shrink-0" />
+            Old conversations
+          </SheetTitle>
+        </SheetHeader>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <HistoryBody
+            conversations={conversations}
+            onSelect={onSelect}
+            onRename={onRename}
+            onDelete={onDelete}
+          />
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

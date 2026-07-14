@@ -52,7 +52,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
           WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)",
         }}
       >
-        <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <DetailHeader
             backHref="/training/quick-check"
             backLabel="Back to knowledge check"

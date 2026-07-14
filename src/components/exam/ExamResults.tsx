@@ -140,7 +140,7 @@ export function ExamResults({
       }}
     >
       <div
-        className="max-w-[640px] mx-auto px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
+        className="max-w-[640px] mx-auto px-4 sm:px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         {/* Heading + score */}
@@ -165,19 +165,19 @@ export function ExamResults({
             </div>
           )}
           <h1
-            className="text-[36px] leading-[44px] font-bold"
+            className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
             style={{ color: passed ? "var(--primary)" : "var(--foreground)" }}
           >
             {heading}
           </h1>
           <div className="flex items-baseline gap-3">
             <span
-              className="text-[48px] leading-none font-bold tabular-nums"
+              className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
               style={{ color: passed ? "var(--primary)" : "var(--destructive)" }}
             >
               {total}
             </span>
-            <span className="text-[20px] text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
+            <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
           </div>
           {isSimulation ? (
             <p className="text-[14px] text-muted-foreground">

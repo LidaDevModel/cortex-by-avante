@@ -154,11 +154,14 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
                   const matchedId = matches[pair.id];
                   const matchedDef = q.pairs.find((p) => p.id === matchedId);
                   return (
-                    <div key={pair.id} className="flex items-start gap-2">
-                      <span className="text-[12px] text-muted-foreground shrink-0 w-[180px]">{pair.term}</span>
+                    // Term over matched definition — same stacked shape as the
+                    // MC and branching review rows, so all three read alike and
+                    // the definition gets full width on narrow screens.
+                    <div key={pair.id} className="flex flex-col gap-0.5">
+                      <span className="text-[12px] text-muted-foreground">{pair.term}</span>
                       <span
                         className={cn(
-                          "text-[13px] font-medium pl-2 border-l-2 min-w-0",
+                          "text-[13px] font-medium pl-2 border-l-2",
                           matchedDef
                             ? "text-[var(--primary)] border-[var(--primary)]"
                             : "text-muted-foreground border-[var(--border)]"

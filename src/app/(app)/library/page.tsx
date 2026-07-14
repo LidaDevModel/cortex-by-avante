@@ -23,8 +23,8 @@ export default function LibraryPage() {
       <PageHeader crumbs={[{ label: "Library" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
-            <h1 className="text-[28px] leading-[36px] font-bold text-foreground">Library</h1>
+          <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
+            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
 
             {/* Recently Viewed */}
             <section className="flex flex-col gap-0">
@@ -33,7 +33,10 @@ export default function LibraryPage() {
               >
                 Recently viewed
               </p>
-              <div className="flex gap-2 px-2 -mx-2">
+              {/* Bleeds to the viewport edge on mobile so the row swipes
+                  edge-to-edge; the partially visible next card is the scroll
+                  affordance (same scroller recipe as CertificationsShelf). */}
+              <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x px-4 -mx-4 scroll-px-4 sm:px-2 sm:-mx-2 sm:scroll-px-2">
                 {RECENTLY_VIEWED.map((item) => (
                   <RecentlyViewedCard
                     key={item.id}
