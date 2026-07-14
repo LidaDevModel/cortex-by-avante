@@ -9,4 +9,6 @@ export const USER = {
   initials: "MM",
   email: "mike.martinez@avante.security",
   role: "Field Agent",
+  /** Provisioned by Avante — the hire date shown on the internal profile. */
+  memberSince: "2026-03-02",
 } as const;
