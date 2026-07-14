@@ -11,7 +11,7 @@ import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { MODULES, getRequiredModules, getCertifiedModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
+import { getModules, getRequiredModules, getCertifiedModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
 import { getRecentDocuments } from "@/lib/library-mock";
 import { USER } from "@/lib/user-mock";
 
@@ -40,7 +40,7 @@ export default function DashboardPage() {
   // Header turns glass once the canvas scrolls (shared canvas-glow behavior).
   const { headerClassName, onScroll } = useGlassHeader();
 
-  const inProgress = MODULES.filter((m) => m.status === "in-progress");
+  const inProgress = getModules().filter((m) => m.status === "in-progress");
 
   // ─── Reusable section blocks (placed per state) ───
 

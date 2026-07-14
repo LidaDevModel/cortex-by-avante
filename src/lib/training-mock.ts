@@ -1,5 +1,6 @@
 import { PASS_MARK } from "./exam-mock";
 import { daysSince } from "./utils";
+import { getPersona } from "./demo-persona";
 
 export type ModuleStatus = "not-started" | "in-progress" | "completed";
 export type ModuleCategory = "first-aid" | "escalations" | "clients" | "incidents";
@@ -51,8 +52,28 @@ export const MODULES: Module[] = [
   { id: "11", title: "Workplace Safety Basics", chapters: 5, hours: 2, progress: 100, status: "completed", required: false, category: "first-aid", assignedDate: "2026-03-05", certification: { score: 100, date: "2026-05-12" } },
 ];
 
+/**
+ * The modules as the current session should see them. The returning persona
+ * (sign-in) gets MODULES as authored — Mike's real progress. The "new" persona
+ * (sign-up) gets a blank slate: every module reset to not-started, no progress,
+ * no certification. The module catalog itself (titles, chapters, assignments)
+ * is identical either way — only the personal progress differs. Every reader
+ * (accessors below + screens) goes through this rather than MODULES directly.
+ */
+export function getModules(): Module[] {
+  if (getPersona() === "new") {
+    return MODULES.map((m) => ({
+      ...m,
+      status: "not-started" as const,
+      progress: 0,
+      certification: undefined,
+    }));
+  }
+  return MODULES;
+}
+
 export function getModuleById(id: string): Module | undefined {
-  return MODULES.find((m) => m.id === id);
+  return getModules().find((m) => m.id === id);
 }
 
 /* ─── Certification & shift-readiness ───
@@ -83,20 +104,20 @@ export function getRequirementState(m: Module): RequirementState {
 
 /** Every required module for the role. */
 export function getRequiredModules(): Module[] {
-  return MODULES.filter((m) => m.required);
+  return getModules().filter((m) => m.required);
 }
 
 /** Every module with a certification — required or optional — most recent first.
     Powers the certifications shelf, which shows all earned certs regardless of
     whether the module counts toward shift readiness. */
 export function getCertifiedModules(): Module[] {
-  return MODULES.filter(isCertified).sort((a, b) =>
+  return getModules().filter(isCertified).sort((a, b) =>
     b.certification!.date.localeCompare(a.certification!.date)
   );
 }
 
 /** True when every required module is certified — i.e. the agent is cleared for shift. */
-export function isShiftReady(modules: Module[] = MODULES): boolean {
+export function isShiftReady(modules: Module[] = getModules()): boolean {
   return modules.filter((m) => m.required).every(isCertified);
 }
 
@@ -107,7 +128,9 @@ export function getRemainingMinutes(m: Module): number {
 
 /** Modules assigned within the last `days` days — the module half of the recency feed. */
 export function getRecentModules(days = 14): Module[] {
-  return MODULES.filter((m) => {
+  // Assignments are real for a new hire too — a fresh guard genuinely has
+  // modules waiting — so this reads getModules() (blank progress, dates intact).
+  return getModules().filter((m) => {
     const d = daysSince(m.assignedDate);
     return d >= 0 && d <= days;
   }).sort((a, b) => daysSince(a.assignedDate) - daysSince(b.assignedDate));

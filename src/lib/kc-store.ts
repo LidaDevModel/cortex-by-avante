@@ -1,5 +1,6 @@
 import type { KCAttempt, KCCategory } from "./knowledge-check-mock";
 import { MOCK_ATTEMPTS } from "./knowledge-check-mock";
+import { getPersona } from "./demo-persona";
 
 // Module-level store so attempts created during the session survive navigation
 const sessionAttempts: KCAttempt[] = [];
@@ -9,11 +10,14 @@ export function addAttempt(attempt: KCAttempt) {
 }
 
 export function getAllAttempts(): KCAttempt[] {
+  // A new guard has no seeded history — only whatever they complete live in the
+  // demo. Mike (returning) keeps the seeded MOCK_ATTEMPTS.
+  if (getPersona() === "new") return [...sessionAttempts];
   return [...sessionAttempts, ...MOCK_ATTEMPTS];
 }
 
 export function findAttempt(id: string): KCAttempt | undefined {
-  return sessionAttempts.find((a) => a.id === id) ?? MOCK_ATTEMPTS.find((a) => a.id === id);
+  return getAllAttempts().find((a) => a.id === id);
 }
 
 function categoryKey(cats: string[]) {
