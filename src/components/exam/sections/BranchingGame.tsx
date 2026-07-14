@@ -296,20 +296,20 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
       <div className="flex-1 flex flex-col overflow-hidden">
         {isCard ? (
           <div className="shrink-0 w-full">
-            <div className="max-w-[640px] mx-auto px-8 pt-6">
+            <div className="max-w-[640px] mx-auto px-4 sm:px-8 pt-6">
               <div style={{ width: "100%", height: 84 }}>
                   <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
                 </div>
             </div>
           </div>
         ) : (
-          <div className="shrink-0 max-w-[640px] mx-auto w-full px-8">
+          <div className="shrink-0 max-w-[640px] mx-auto w-full px-4 sm:px-8">
             <div style={{ width: "100%", height: 84 }}>
               <DecisionMap scenario={scenario} currentNodeId={endNode?.id ?? ""} decisions={decisions} animatingEdge={null} />
             </div>
           </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8">
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-4 sm:px-8">
           <p className="text-[14px] font-medium text-[var(--primary)]">Scenario completed</p>
           <p className="text-[13px] text-muted-foreground text-center max-w-[400px]">
             Your decisions have been recorded and cannot be changed.
@@ -323,7 +323,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Decision map — plain variant stays fixed outside scroll */}
       {!isCard && (
-        <div className="shrink-0 max-w-[640px] mx-auto w-full px-8">
+        <div className="shrink-0 max-w-[640px] mx-auto w-full px-4 sm:px-8">
           <div style={{ width: "100%", height: 84 }}>
             <DecisionMap scenario={scenario} currentNodeId={currentNodeId} decisions={decisions} animatingEdge={animatingEdge} />
           </div>
@@ -332,7 +332,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
 
       {/* Decision zone */}
       <div className="flex-1 overflow-y-auto scroll-thin" style={isCard ? { maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" } : {}}>
-        <div className={`max-w-[640px] mx-auto px-8 flex flex-col gap-6 ${isCard ? "py-8" : "pt-4 pb-8"}`}>
+        <div className={`max-w-[640px] mx-auto px-4 sm:px-8 flex flex-col gap-6 ${isCard ? "py-8" : "pt-4 pb-8"}`}>
           {/* Card variant map — inside scroll so alignment matches options exactly */}
           {isCard && (
             <div style={{ width: "100%", height: 84 }}>

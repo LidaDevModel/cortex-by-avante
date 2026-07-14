@@ -118,7 +118,7 @@ export function ReviewSubmit({
   return (
     <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
       <div
-        className="max-w-[640px] mx-auto px-8 py-12 flex flex-col gap-6 animate-in fade-in duration-200"
+        className="max-w-[640px] mx-auto px-4 sm:px-8 py-12 flex flex-col gap-6 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         <div className="flex flex-col gap-1">
@@ -171,11 +171,13 @@ export function ReviewSubmit({
             const matchedDefId = matchAnswers[pair.id];
             const matchedDef = matchingExercise.pairs.find((p) => p.id === matchedDefId);
             return (
-              <div key={pair.id} className="flex items-start gap-2">
-                <span className="text-[12px] text-muted-foreground shrink-0 w-[200px]">{pair.term}</span>
+              // Term over matched definition — same stacked shape as the MC and
+              // branching rows, so the definition gets full width on mobile.
+              <div key={pair.id} className="flex flex-col gap-0.5">
+                <span className="text-[12px] text-muted-foreground">{pair.term}</span>
                 <span
                   className={cn(
-                    "text-[13px] font-medium pl-2 border-l-2 min-w-0",
+                    "text-[13px] font-medium pl-2 border-l-2",
                     matchedDef
                       ? "text-[var(--primary)] border-[var(--primary)]"
                       : "text-muted-foreground border-[var(--card-border)]"
@@ -258,7 +260,7 @@ export function ReviewSubmit({
         <div className="flex flex-col gap-3 pt-2">
           {hasSkipped && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-[8px] bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] border border-[color-mix(in_srgb,var(--destructive)_20%,transparent)]">
-              <AlertCircle size={14} color="var(--destructive)" />
+              <AlertCircle size={14} color="var(--destructive)" className="shrink-0" />
               <p className="text-[13px] text-destructive">
                 You have unanswered questions.
               </p>

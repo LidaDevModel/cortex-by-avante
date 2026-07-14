@@ -263,7 +263,10 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon-sm"
-      className={cn(className)}
+      // Desktop-only: the trigger toggles the rail on desktop, but below md the
+      // sidebar collapses to an off-canvas drawer whose nav duplicates the
+      // MobileTabBar. Hiding it here leaves the tab bar as the sole mobile nav.
+      className={cn("hidden md:inline-flex", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

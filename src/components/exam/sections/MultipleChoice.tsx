@@ -48,7 +48,7 @@ export function MultipleChoice({
       onClick={() => onSelect(null)}
     >
       <div
-        className="max-w-[640px] mx-auto px-8 py-12 flex flex-col gap-8 animate-in fade-in duration-200"
+        className="max-w-[640px] mx-auto px-4 sm:px-8 py-12 flex flex-col gap-8 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
         onClick={(e) => e.stopPropagation()}
       >

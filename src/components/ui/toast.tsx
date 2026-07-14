@@ -76,6 +76,9 @@ export function Toaster() {
   useEffect(() => {
     const listener: Listener = next => setItems(next);
     listeners.add(listener);
+    // Sync with toasts already in the store — a toast fired right before a
+    // navigation must survive into the next layout's Toaster.
+    listener([...toasts]);
     return () => { listeners.delete(listener); };
   }, []);
 

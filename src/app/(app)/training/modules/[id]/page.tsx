@@ -533,8 +533,8 @@ export default function ModuleDetailPage() {
                 key={currentChapter.id}
                 style={{ animation: "msg-in 200ms ease-out both" }}
                 className={currentChapter.isFinalQuiz
-                  ? "h-full flex items-center justify-center px-8 -mt-10"
-                  : "max-w-[640px] mx-auto px-8 pt-8 pb-24 flex flex-col gap-6"
+                  ? "h-full flex items-center justify-center px-4 sm:px-8 -mt-10"
+                  : "max-w-[640px] mx-auto px-4 sm:px-8 pt-8 pb-24 flex flex-col gap-6"
                 }>
                 {/* Illustration — first chapter only */}
                 {currentIndex === 0 && (

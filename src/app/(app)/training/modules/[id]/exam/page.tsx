@@ -387,7 +387,7 @@ export default function ExamPage() {
       />
 
       {/* Section nav strip */}
-      <div className="shrink-0 px-8 pt-3 pb-3">
+      <div className="shrink-0 px-4 sm:px-8 pt-3 pb-3">
         <SectionNav
           activeSection={phase as ExamSection}
           completedSections={completedSections}
@@ -433,7 +433,7 @@ export default function ExamPage() {
 
       {phase === "branching" && (
         <div className="flex flex-col flex-1 overflow-hidden gap-0 pt-12">
-          <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-8">
+          <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
             <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
             <div className="flex flex-col gap-1">
               <p className="text-[20px] leading-[28px] font-semibold text-foreground">{exam.branching.title}</p>

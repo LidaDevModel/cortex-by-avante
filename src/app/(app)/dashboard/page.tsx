@@ -56,10 +56,10 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Dashboard" }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Home" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{greeting}, {USER.firstName}</h1>

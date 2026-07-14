@@ -161,13 +161,13 @@ export function DocumentsSection() {
       {/* Section label + toolbar */}
       <div className="flex flex-col gap-4">
         <p className="section-label">Documents</p>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
           <SearchInput
             value={search}
             onChange={handleSearch}
             placeholder="Search documents..."
-            className="w-[280px] shrink-0"
+            className="w-full sm:w-[280px] sm:shrink-0"
           />
 
           {/* Right controls */}
@@ -176,26 +176,26 @@ export function DocumentsSection() {
               value={kindFilter}
               onChange={handleKind}
               placeholder="All types"
-              className="w-[120px]"
+              className="flex-1 sm:flex-none sm:w-[120px]"
               options={[
                 { value: "document", label: "Documents" },
                 { value: "folder", label: "Folders" },
               ]}
             />
-            {view === "grid" && (
-              <FilterSelect
-                value={gridSort}
-                onChange={handleGridSort}
-
-                className="w-[140px]"
-                options={[
-                  { value: "date-desc", label: "Newest first" },
-                  { value: "date-asc",  label: "Oldest first" },
-                  { value: "name-asc",  label: "Name A–Z" },
-                  { value: "name-desc", label: "Name Z–A" },
-                ]}
-              />
-            )}
+            {/* Sort select: always available on mobile, where the card list
+                has no sortable column headers; desktop list view sorts via
+                the table header, so there it only appears alongside the grid. */}
+            <FilterSelect
+              value={gridSort}
+              onChange={handleGridSort}
+              className={cn("flex-1 sm:flex-none sm:w-[140px]", view === "list" && "sm:hidden")}
+              options={[
+                { value: "date-desc", label: "Newest first" },
+                { value: "date-asc",  label: "Oldest first" },
+                { value: "name-asc",  label: "Name A–Z" },
+                { value: "name-desc", label: "Name Z–A" },
+              ]}
+            />
             <ViewToggle view={view} onChange={handleView} />
           </div>
         </div>
@@ -208,30 +208,52 @@ export function DocumentsSection() {
             <p className="text-[15px] leading-[24px] text-muted-foreground">No documents available.</p>
           </div>
         ) : view === "list" ? (
-          <Table>
-            <TableHeader>
-              <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
-              <TableHead className="w-[140px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-              <TableHead className="w-[110px]">Kind</TableHead>
-              <TableHead className="w-[90px]">Content</TableHead>
-            </TableHeader>
-            <TableBody>
-              {paginated.map((doc) => (
-                <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
-                  <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--primary)" }}>
-                    <span className="truncate">{doc.name}</span>
-                  </TableCell>
-                  <TableCell className="w-[140px] text-muted-foreground">{formatDate(doc.lastModified)}</TableCell>
-                  <TableCell className="w-[110px]">
+          <>
+            {/* Desktop: full column table */}
+            <Table className="hidden md:block">
+              <TableHeader>
+                <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
+                <TableHead className="w-[140px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
+                <TableHead className="w-[110px]">Kind</TableHead>
+                <TableHead className="w-[90px]">Content</TableHead>
+              </TableHeader>
+              <TableBody>
+                {paginated.map((doc) => (
+                  <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
+                    <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--primary)" }}>
+                      <span className="truncate">{doc.name}</span>
+                    </TableCell>
+                    <TableCell className="w-[140px] text-muted-foreground">{formatDate(doc.lastModified)}</TableCell>
+                    <TableCell className="w-[110px]">
+                      <KindPill kind={doc.kind} />
+                    </TableCell>
+                    <TableCell className="w-[90px] text-muted-foreground">{doc.content}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            {/* Mobile: the columns collapse into stacked card rows — name over
+                a date · content meta line, kind pill on the right. Fixed-width
+                columns don't shrink gracefully at 375px. */}
+            <Table className="md:hidden">
+              <TableBody>
+                {paginated.map((doc) => (
+                  <TableRow key={doc.id} className="py-3" onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
+                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                      <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>{doc.name}</span>
+                      <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
+                        {formatDate(doc.lastModified)} · {doc.content}
+                      </span>
+                    </div>
                     <KindPill kind={doc.kind} />
-                  </TableCell>
-                  <TableCell className="w-[90px] text-muted-foreground">{doc.content}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </>
         ) : (
-          <div className="grid grid-cols-6 gap-x-2 gap-y-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-x-2 gap-y-8">
             {paginated.map((doc) => (
               <DocGridCard
                 key={doc.id}

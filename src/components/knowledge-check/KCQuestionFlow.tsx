@@ -99,7 +99,10 @@ export function KCSectionTabs({
   const activeSection = isReviewActive ? null : getSectionForIndex(sections, currentIndex);
 
   return (
-    <div className="flex items-center gap-2">
+    // Bleeds to the viewport edge on mobile so the pill row scrolls
+    // edge-to-edge when the sections don't fit; resets inside the column on
+    // desktop where they do.
+    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {sections.map((s) => {
         const isActive = !isReviewActive && s.startIndex === activeSection?.startIndex;
         const isDone = !isActive && isSectionComplete(s, questions, answers);
@@ -108,7 +111,7 @@ export function KCSectionTabs({
           <button
             key={s.startIndex}
             onClick={() => onJumpTo(s.startIndex)}
-            className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150"
+            className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150 shrink-0"
             style={
               isActive
                 ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -133,7 +136,7 @@ export function KCSectionTabs({
       {/* Review tab — always shown at the end */}
       <button
         onClick={onReview}
-        className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150"
+        className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150 shrink-0"
         style={
           isReviewActive
             ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -472,7 +475,7 @@ function BranchingQuestion({
 
   return (
     <div className="flex flex-col w-full flex-1 gap-0 pt-12" style={{ minHeight: 500 }}>
-      <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-8">
+      <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
         <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
         <div className="flex flex-col gap-1">
           <p className="text-[20px] leading-[28px] font-semibold text-foreground">{question.title}</p>
@@ -576,16 +579,16 @@ export function KCQuestionFlow({
 
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto scroll-thin">
-          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-4">
+          <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-4">
 
             {/* Title row */}
-            <div className="flex items-center justify-between">
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground capitalize">
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground capitalize min-w-0 truncate">
                 {title}
               </h1>
               <button
                 onClick={() => setExitOpen(true)}
-                className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+                className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70 shrink-0 whitespace-nowrap"
                 style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
               >
                 Quit check

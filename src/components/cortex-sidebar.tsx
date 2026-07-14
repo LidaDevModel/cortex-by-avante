@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -20,18 +20,30 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  LayoutDashboard,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  House,
   MessageCircle,
   Library,
   BookOpen,
   ChevronDown,
   ChevronRight,
+  LogOut,
+  Settings,
+  UserRound,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { USER } from "@/lib/user-mock";
+import { getAuthProfile, signOut } from "@/lib/auth-mock";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  // "Home" everywhere (tab bar, sidebar, breadcrumb) — the route stays /dashboard.
+  { label: "Home", icon: House, href: "/dashboard" },
   { label: "AI Chat", icon: MessageCircle, href: "/chat" },
   { label: "Library", icon: Library, href: "/library" },
 ];
@@ -43,6 +55,9 @@ const trainingSubItems = [
 
 export function CortexSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  // Read once per mount — the shell renders post-AuthGate, so localStorage is safe.
+  const avatarUrl = getAuthProfile().avatarUrl;
   return (
     <Sidebar collapsible="icon" variant="inset" className="border-none bg-transparent">
       <SidebarHeader className="px-4 pt-5 pb-4">
@@ -105,23 +120,50 @@ export function CortexSidebar() {
       <SidebarFooter className="px-2 pb-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip={`${USER.fullName} · ${USER.role}`}
-              className="gap-3 h-auto py-2 rounded-lg"
-            >
-              <Avatar className="h-7 w-7 rounded-lg shrink-0">
-                <AvatarFallback className="rounded-lg bg-secondary text-primary font-semibold text-xs">
-                  {USER.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col items-start min-w-0 group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium leading-tight truncate">{USER.fullName}</span>
-                <span className="text-xs text-muted-foreground leading-tight truncate">
-                  {USER.role}
-                </span>
-              </div>
-              <ChevronRight size={14} className="ml-auto text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  tooltip={`${USER.fullName} · ${USER.role}`}
+                  className="gap-3 h-auto py-2 rounded-lg"
+                >
+                  <Avatar className="h-7 w-7 rounded-lg shrink-0">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
+                    <AvatarFallback className="rounded-lg bg-secondary text-primary font-semibold text-xs">
+                      {USER.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start min-w-0 group-data-[collapsible=icon]:hidden">
+                    <span className="text-sm font-medium leading-tight truncate">{USER.fullName}</span>
+                    <span className="text-xs text-muted-foreground leading-tight truncate">
+                      {USER.role}
+                    </span>
+                  </div>
+                  <ChevronRight size={14} className="ml-auto text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-[200px]">
+                {/* Destinations only — editing launches from the profile page
+                    itself. Mirrors the mobile avatar dial (Profile · Settings). */}
+                <DropdownMenuItem onSelect={() => router.push("/profile")}>
+                  <UserRound size={16} strokeWidth={1.5} />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push("/settings")}>
+                  <Settings size={16} strokeWidth={1.5} />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => {
+                    signOut();
+                    router.push("/sign-in");
+                  }}
+                >
+                  <LogOut size={16} strokeWidth={1.5} />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

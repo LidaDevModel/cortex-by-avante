@@ -51,7 +51,7 @@ export default function ModulesPage() {
       <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="relative max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="relative max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
           <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
             Modules

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { NotificationsBell } from "@/components/notifications-bell";
 import { cn } from "@/lib/utils";
 
 /* ─── PageHeader ────────────────────────────────────────────────────────────
@@ -43,6 +44,11 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
             </span>
           );
         })}
+      </div>
+      {/* Actions slot — shell-owned; the bell hides itself on focused-task
+          screens (do-not-disturb during exams and reading). */}
+      <div className="ml-auto flex items-center">
+        <NotificationsBell />
       </div>
     </header>
   );

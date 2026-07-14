@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Search, X, ChevronUp, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Props = {
   findOpen: boolean;
@@ -16,6 +17,7 @@ type Props = {
   findMatchIdx: number;
   findEntityLabel?: string;
   findGridMode?: boolean;
+  left?: React.ReactNode;
   right?: React.ReactNode;
 };
 
@@ -32,6 +34,7 @@ export function DocumentToolbar({
   findMatchIdx,
   findEntityLabel = "sections",
   findGridMode = false,
+  left,
   right,
 }: Props) {
   const findInputRef = useRef<HTMLInputElement>(null);
@@ -55,9 +58,11 @@ export function DocumentToolbar({
 
   return (
     <div
-      className="flex items-center gap-3 px-6 py-3 shrink-0 border-b border-border"
+      className="flex items-center gap-3 px-4 sm:px-6 py-3 shrink-0 border-b border-border"
       style={{ background: "var(--surface)" }}
     >
+      {/* Left slot — e.g. the mobile contents-sheet trigger */}
+      {left}
       {/* Find region — always flex-1 so the right controls never shift. The
           field expands from a compact pill via a grid 0fr→1fr track (the modern
           "animate to auto width" technique), its content fading in as it opens;
@@ -149,9 +154,11 @@ export function DocumentToolbar({
           }}
         >
           <Search size={14} strokeWidth={1.5} />
-          <span>Find</span>
+          {/* Label + shortcut are pointer/keyboard affordances — the pill
+              collapses to an icon square on touch widths. */}
+          <span className="hidden sm:inline">Find</span>
           <span
-            className="text-[11px] px-1 rounded-[3px] ml-0.5"
+            className="hidden sm:inline text-[11px] px-1 rounded-[3px] ml-0.5"
             style={{ background: "var(--surface-raised)", color: "var(--muted-foreground)" }}
           >
             ⌘F
@@ -159,8 +166,9 @@ export function DocumentToolbar({
         </button>
       </div>
 
-      {/* Right slot */}
-      {right && <div className="flex items-center gap-4 shrink-0">{right}</div>}
+      {/* Right slot — yields to the expanded find field on mobile, where
+          both don't fit side by side. */}
+      {right && <div className={cn("flex items-center gap-4 shrink-0", findOpen && "max-sm:hidden")}>{right}</div>}
     </div>
   );
 }

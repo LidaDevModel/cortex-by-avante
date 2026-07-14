@@ -21,25 +21,25 @@ export function KCResults({
 
   return (
     <div
-      className="max-w-[640px] mx-auto px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
+      className="max-w-[640px] mx-auto py-16 flex flex-col gap-10 animate-in fade-in duration-200"
       style={{ animationTimingFunction: "ease-out" }}
     >
       {/* Heading + score */}
       <div className="flex flex-col gap-3">
         <h1
-          className="text-[36px] leading-[44px] font-bold"
+          className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
           style={{ color: pct === 100 ? "var(--primary)" : "var(--foreground)" }}
         >
           {pct === 100 ? "Perfect score" : "Knowledge check complete"}
         </h1>
         <div className="flex items-baseline gap-3">
           <span
-            className="text-[48px] leading-none font-bold tabular-nums"
+            className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
             style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
           >
             {pct}%
           </span>
-          <span className="text-[20px] text-muted-foreground font-medium">
+          <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">
             {totalCorrect} of {totalPoints} correct
           </span>
         </div>

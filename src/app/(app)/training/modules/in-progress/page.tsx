@@ -130,7 +130,7 @@ export default function InProgressPage() {
 
       {/* Scrollable canvas */}
       <ScrollCanvas ref={scrollRef} onScroll={handleScroll}>
-          <div className="max-w-[920px] mx-auto px-8 pt-8 pb-12 flex flex-col gap-8">
+          <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
 
             {/* Title */}
             <div className="flex flex-col gap-1">

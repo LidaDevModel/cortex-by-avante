@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowDown, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowDown, ChevronDown, ChevronLeft, History, Pencil, Trash2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ChatHistoryPanel, type Conversation } from "@/components/chat-history-panel";
+import { ChatHistoryPanel, ChatHistorySheet, useConversations, type Conversation } from "@/components/chat-history-panel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,9 @@ function loadPersistedChat(): { messages: Message[]; title: string | null } {
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
+  // Mobile: history lives in a sheet (the inline rail would eat the chat column).
+  const [historySheetOpen, setHistorySheetOpen] = useState(false);
+  const { conversations, rename: renameConversation, remove: removeConversation } = useConversations();
   const [isAiResponding, setIsAiResponding] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -265,6 +269,16 @@ export default function ChatPage() {
         {/* Header */}
         <header className="sticky top-0 z-10 flex items-center gap-2 px-4 h-14 shrink-0" style={{ background: "color-mix(in srgb, var(--surface) 30%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
           <SidebarTrigger className="-ml-1" />
+          {/* Chat is a focused-task screen — the mobile nav yields, so the way
+              back is explicit: chevron + destination, always Home (one
+              guaranteed exit, regardless of how the user arrived). */}
+          <Link
+            href="/dashboard"
+            className="md:hidden -ml-2 flex items-center gap-0.5 h-11 pl-1 pr-2 text-[14px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 shrink-0"
+          >
+            <ChevronLeft size={18} strokeWidth={2} />
+            Home
+          </Link>
 
           {conversationTitle && (
             isRenamingTitle ? (
@@ -282,7 +296,7 @@ export default function ChatPage() {
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
+                  <button className="flex items-center gap-1 min-w-0 text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
                     <span className="truncate">{conversationTitle}</span>
                     <ChevronDown size={14} className="text-muted-foreground shrink-0" />
                   </button>
@@ -305,6 +319,16 @@ export default function ChatPage() {
               </DropdownMenu>
             )
           )}
+
+          {/* Mobile-only history trigger — the desktop rail is hidden below md */}
+          <button
+            type="button"
+            onClick={() => setHistorySheetOpen(true)}
+            aria-label="Old conversations"
+            className="md:hidden ml-auto flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
+          >
+            <History size={16} strokeWidth={1.5} />
+          </button>
         </header>
 
         {/* Screen-reader announcement for response state */}
@@ -359,7 +383,7 @@ export default function ChatPage() {
               }}
             >
               <div ref={messagesContentRef} className="min-h-full flex flex-col">
-                <div className="flex-1 px-6 pt-8 pb-4">
+                <div className="flex-1 px-4 sm:px-6 pt-8 pb-4">
                   <div className="max-w-[560px] mx-auto flex flex-col gap-8">
                     {messages.map(msg =>
                       msg.role === "user"
@@ -369,8 +393,10 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                {/* Sticky input — same centering as messages above */}
-                <div className="sticky bottom-0 px-6 pb-6 pt-2 flex flex-col items-center gap-2 bg-surface">
+                {/* Sticky input — same centering as messages above. Bottom
+                    padding clears the home-indicator safe area now that the
+                    mobile nav yields on chat (nothing sits below the composer). */}
+                <div className="sticky bottom-0 px-4 sm:px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-2 flex flex-col items-center gap-2 bg-surface">
                   <div className="w-full max-w-[560px] relative">
                     <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
                   </div>
@@ -384,7 +410,7 @@ export default function ChatPage() {
         ) : (
           /* ── Empty state ── */
           <div
-            className="relative flex-1 flex flex-col items-center justify-start overflow-hidden px-6 pt-[30vh]"
+            className="relative flex-1 flex flex-col items-center justify-start overflow-hidden px-4 sm:px-6 pt-[30vh]"
           >
             <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center text-center gap-8" style={{ animation: "msg-in 200ms ease-out both" }}>
               <div className="flex flex-col items-center gap-2">
@@ -404,13 +430,29 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="relative z-10 flex shrink-0">
+      {/* Desktop: inline history rail. Mobile: sheet (below). */}
+      <div className="relative z-10 hidden md:flex shrink-0">
       <ChatHistoryPanel
         isOpen={showHistory}
         onToggle={() => setShowHistory(v => !v)}
         onSelect={handleSelectConversation}
+        conversations={conversations}
+        onRename={renameConversation}
+        onDelete={removeConversation}
       />
       </div>
+
+      <ChatHistorySheet
+        open={historySheetOpen}
+        onOpenChange={setHistorySheetOpen}
+        onSelect={(c) => {
+          handleSelectConversation(c);
+          setHistorySheetOpen(false);
+        }}
+        conversations={conversations}
+        onRename={renameConversation}
+        onDelete={removeConversation}
+      />
     </div>
   );
 }
