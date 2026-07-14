@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { MODULES } from "@/lib/training-mock";
+import { getModules } from "@/lib/training-mock";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 
 /* ─── Page ─── */
@@ -19,15 +19,17 @@ export default function ModulesPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
 
+  const allModules = useMemo(() => getModules(), []);
+
   const inProgress = useMemo(
-    () => MODULES.filter((m) => m.status === "in-progress").slice(0, 3),
-    []
+    () => allModules.filter((m) => m.status === "in-progress").slice(0, 3),
+    [allModules]
   );
 
-  const totalInProgress = MODULES.filter((m) => m.status === "in-progress").length;
+  const totalInProgress = allModules.filter((m) => m.status === "in-progress").length;
 
   const filteredModules = useMemo(() => {
-    let list = MODULES;
+    let list = allModules;
 
     if (requirementFilter === "required") list = list.filter((m) => m.required);
     else if (requirementFilter === "optional") list = list.filter((m) => !m.required);
@@ -44,7 +46,7 @@ export default function ModulesPage() {
     }
 
     return list;
-  }, [requirementFilter, statusFilter, categoryFilter, search]);
+  }, [allModules, requirementFilter, statusFilter, categoryFilter, search]);
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -82,23 +84,25 @@ export default function ModulesPage() {
             </section>
           )}
 
-          {/* Search + filter row */}
-          <div className="flex items-center gap-2">
+          {/* Search + filter row — stacks on mobile (search on its own line,
+              dropdowns two-per-row), single horizontal line on desktop.
+              Mirrors the library Documents toolbar's responsive reflow. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
             {/* Search */}
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search modules..."
-              className="flex-1"
+              className="w-full sm:flex-1"
             />
 
-            {/* Filter pills */}
-            <div className="flex items-center gap-1 shrink-0">
+            {/* Filter pills — two-per-row grid on mobile, fixed widths inline on desktop */}
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-1 sm:shrink-0">
               <FilterSelect
                 value={categoryFilter}
                 onChange={setCategoryFilter}
                 placeholder="All categories"
-                className="w-[148px]"
+                className="w-full sm:w-[148px]"
                 options={[
                   { value: "first-aid", label: "First aid" },
                   { value: "escalations", label: "Escalations" },
@@ -110,7 +114,7 @@ export default function ModulesPage() {
                 value={requirementFilter}
                 onChange={setRequirementFilter}
                 placeholder="Show all"
-                className="w-[110px]"
+                className="w-full sm:w-[110px]"
                 options={[
                   { value: "required", label: "Required" },
                   { value: "optional", label: "Optional" },
@@ -120,7 +124,7 @@ export default function ModulesPage() {
                 value={statusFilter}
                 onChange={setStatusFilter}
                 placeholder="All statuses"
-                className="w-[132px]"
+                className="w-full col-span-2 sm:col-span-1 sm:w-[132px]"
                 options={[
                   { value: "in-progress", label: "In progress" },
                   { value: "completed", label: "Completed" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PinInput } from "@/components/ui/pin-input";
 import { showToast } from "@/components/ui/toast";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { verifyPin, completeActivation, getLastEmail } from "@/lib/auth-mock";
+import { completeActivation } from "@/lib/auth-mock";
 import { USER } from "@/lib/user-mock";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -27,43 +27,30 @@ export default function ActivatePage() {
   // Step 1 — verify PIN
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [pinError, setPinError] = useState(false);
-  const [shakeCount, setShakeCount] = useState(0);
 
   // Step 2 — create password
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const passwordOk = password.length >= MIN_PASSWORD_LENGTH;
 
-  useEffect(() => {
-    setEmail((current) => current || getLastEmail());
-  }, []);
+  // Presentation gating: each step's button enables once its fields are filled
+  // in a valid shape (email has "@", PIN is 6 digits, password meets the length
+  // rule) — but any dummy values pass. The PIN/email aren't checked against a
+  // real account; the flow just advances.
+  const emailLooksValid = email.includes("@");
+  const emailError = email.length > 0 && !emailLooksValid;
+  const step1Valid = emailLooksValid && pin.length === 6;
 
   function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    const result =
-      email.trim() && pin.length === 6 ? verifyPin(email, pin) : ({ ok: false, reason: "invalid" } as const);
-    if (!result.ok) {
-      if (result.reason === "already-activated") {
-        showToast({
-          title: "Account already active",
-          description: "This account has been activated. Sign in with your password instead.",
-        });
-        return;
-      }
-      setEmailError(true);
-      setPinError(true);
-      setShakeCount((n) => n + 1);
-      showToast({ title: "Couldn't verify your PIN", description: "Check your email and PIN and try again." });
-      return;
-    }
+    if (!step1Valid) return;
     setStep(2);
   }
 
   function handleSetPassword(e: React.FormEvent) {
     e.preventDefault();
     if (!passwordOk) return;
+    // Establish the session so the app opens after profile setup.
     completeActivation(password);
     setStep(3);
   }
@@ -136,32 +123,25 @@ export default function ActivatePage() {
               autoComplete="email"
               autoFocus
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setEmailError(false);
-              }}
+              onChange={(e) => setEmail(e.target.value)}
               className={`h-10 bg-surface ${emailError ? "field-error" : ""}`}
             />
+            {emailError && (
+              <p className="text-[12px] leading-[16px] text-destructive">
+                Enter a valid email address.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[14px] leading-[20px] font-semibold text-foreground">PIN</label>
-            <span key={shakeCount} style={shakeCount ? { animation: "quiz-shake 250ms ease-out" } : undefined}>
-              <PinInput
-                value={pin}
-                onChange={(next) => {
-                  setPin(next);
-                  setPinError(false);
-                }}
-                error={pinError}
-              />
-            </span>
+            <PinInput value={pin} onChange={setPin} />
             <p className="text-[12px] leading-[16px] text-muted-foreground">
               Your PIN was issued by Avante — ask your manager if you don&apos;t have one.
             </p>
           </div>
 
-          <Button type="submit" size="cta" className="w-full mt-1">
+          <Button type="submit" size="cta" className="w-full mt-1" disabled={!step1Valid}>
             Verify PIN
           </Button>
 

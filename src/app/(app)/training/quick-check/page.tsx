@@ -31,7 +31,7 @@ import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useFocusedTask } from "@/hooks/use-mobile-nav";
-import { MODULES } from "@/lib/training-mock";
+import { getModules } from "@/lib/training-mock";
 
 /* ─── Types ─── */
 
@@ -414,7 +414,7 @@ function QuickCheckContent() {
   // dashboard can detect "Daily 5 done today". null for plain/custom starts.
   const [activePreset, setActivePreset] = useState<KCPreset | null>(null);
   // Modules eligible for exam simulation — the ones actively being worked on.
-  const inProgressModules = useMemo(() => MODULES.filter((m) => m.status === "in-progress"), []);
+  const inProgressModules = useMemo(() => getModules().filter((m) => m.status === "in-progress"), []);
   const searchParams = useSearchParams();
 
   // Weakest category label for the "Weak areas" preset; null disables it.

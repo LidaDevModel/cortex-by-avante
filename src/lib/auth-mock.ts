@@ -1,4 +1,5 @@
 import { USER } from "./user-mock";
+import { setPersona } from "./demo-persona";
 
 /**
  * Mock auth for the demo — one Avante-provisioned account (Mike), activated
@@ -89,6 +90,15 @@ export function getLastEmail(): string {
 
 /* ─── Sign in (returning users) ─── */
 
+/** Presentation bypass: the sign-in screen goes straight to the app without
+    validating (or requiring) credentials, so the flow can be demoed with one
+    click. `signIn` below stays as the real-validation seam for later. */
+export function demoSignIn() {
+  // Sign-in → Mike's lived-in account (progress, certifications, history).
+  setPersona("returning");
+  startSession(PROVISIONED.email);
+}
+
 export function signIn(email: string, password: string): { ok: true } | { ok: false } {
   const record = readRecord();
   const match =
@@ -96,6 +106,7 @@ export function signIn(email: string, password: string): { ok: true } | { ok: fa
     email.trim().toLowerCase() === PROVISIONED.email.toLowerCase() &&
     password === record.password;
   if (!match) return { ok: false };
+  setPersona("returning");
   startSession(PROVISIONED.email);
   return { ok: true };
 }
@@ -113,6 +124,8 @@ export function verifyPin(email: string, pin: string): ActivateResult {
 
 /** Finishes activation: stores the personal password and signs the user in. */
 export function completeActivation(password: string) {
+  // Sign-up → a brand-new guard: the app opens on a blank slate.
+  setPersona("new");
   writeRecord({ ...readRecord(), activated: true, password, activatedAt: new Date().toISOString() });
   startSession(PROVISIONED.email);
 }

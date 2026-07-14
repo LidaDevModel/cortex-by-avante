@@ -119,20 +119,13 @@ export function ProfileForm({
         </span>
       </div>
 
-      {/* Actions */}
+      {/* Actions — the identity is already provisioned and the description is
+          optional, so "Save and continue" proceeds on its own. No separate
+          skip: it would do the same thing as saving the prefilled form. */}
       <div className="flex flex-col gap-2">
         <Button type="button" size="cta" className="w-full" onClick={handleSave}>
           {mode === "onboarding" ? "Save and continue" : "Save changes"}
         </Button>
-        {mode === "onboarding" && (
-          <button
-            type="button"
-            onClick={onDone}
-            className="text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
-          >
-            Skip for now
-          </button>
-        )}
       </div>
     </div>
   );

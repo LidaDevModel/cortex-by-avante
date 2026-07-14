@@ -6,36 +6,30 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { showToast } from "@/components/ui/toast";
-import { signIn, getLastEmail, isSignedIn } from "@/lib/auth-mock";
+import { demoSignIn, isSignedIn } from "@/lib/auth-mock";
 
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
 
   // Already signed in → straight to the app.
   useEffect(() => {
     if (isSignedIn()) router.replace("/dashboard");
   }, [router]);
 
-  // Prefill the last email used on this device (set post-mount: localStorage).
-  useEffect(() => {
-    setEmail((current) => current || getLastEmail());
-  }, []);
+  // Presentation gating: both fields must be filled and the email must look
+  // like one (contain "@") to enable the button — but any dummy values pass.
+  // We never check the credentials themselves; the button just opens the app.
+  const emailLooksValid = email.includes("@");
+  const emailError = email.length > 0 && !emailLooksValid;
+  const canSubmit = emailLooksValid && password.length > 0;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const result = email.trim() && password ? signIn(email, password) : { ok: false as const };
-    if (!result.ok) {
-      setEmailError(true);
-      setPasswordError(true);
-      showToast({ title: "Couldn't sign in", description: "Check your credentials and try again." });
-      return;
-    }
+    if (!canSubmit) return;
+    demoSignIn();
     router.push("/dashboard");
   }
 
@@ -66,12 +60,14 @@ export default function SignInPage() {
             autoComplete="email"
             autoFocus
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailError(false);
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             className={`h-10 bg-surface ${emailError ? "field-error" : ""}`}
           />
+          {emailError && (
+            <p className="text-[12px] leading-[16px] text-destructive">
+              Enter a valid email address.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -84,11 +80,8 @@ export default function SignInPage() {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError(false);
-              }}
-              className={`h-10 bg-surface pr-11 ${passwordError ? "field-error" : ""}`}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-10 bg-surface pr-11"
             />
             <button
               type="button"
@@ -99,9 +92,16 @@ export default function SignInPage() {
               {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
             </button>
           </div>
+          <Link
+            href="/forgot-password"
+            className="self-end text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+            style={{ color: "var(--primary)" }}
+          >
+            Forgot your password?
+          </Link>
         </div>
 
-        <Button type="submit" size="cta" className="w-full mt-1">
+        <Button type="submit" size="cta" className="w-full mt-1" disabled={!canSubmit}>
           Sign in
         </Button>
       </form>
@@ -114,9 +114,6 @@ export default function SignInPage() {
         >
           First time here? Activate your account
         </Link>
-        <p className="text-[12px] leading-[16px] text-muted-foreground">
-          Forgot your password? Contact your manager to reset.
-        </p>
       </div>
     </div>
   );

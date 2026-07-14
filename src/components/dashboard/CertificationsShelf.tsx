@@ -82,7 +82,7 @@ export function CertificationsShelf() {
             </div>
           )}
           <Link
-            href="/training/modules"
+            href="/profile#certifications"
             className="text-[13px] leading-[20px] font-medium whitespace-nowrap transition-opacity duration-100 hover:opacity-70"
             style={{ color: "var(--primary)" }}
           >

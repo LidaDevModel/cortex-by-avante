@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
 import { cn } from "@/lib/utils";
 
 /* ─── PageHeader ────────────────────────────────────────────────────────────
@@ -13,12 +16,21 @@ import { cn } from "@/lib/utils";
 type Crumb = { label: string; href?: string };
 
 export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?: string }) {
+  // The breadcrumb is a desktop pattern. On phones the screen name lives in the
+  // page body (its big title / detail-header), so the top bar shows only the
+  // bell — and collapses entirely on focused-task screens (where the bell also
+  // hides), so there's no empty strip. Desktop keeps the full breadcrumb.
+  const browse = useMobileNavVisible();
   return (
     <header
-      className={cn("relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-surface", className)}
+      className={cn(
+        "relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-surface",
+        !browse && "max-md:hidden",
+        className
+      )}
     >
       <SidebarTrigger className="-ml-1" />
-      <div className="flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
+      <div className="hidden md:flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
         {crumbs.map((crumb, i) => {
           const isLast = i === crumbs.length - 1;
           return (
