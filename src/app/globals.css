@@ -417,6 +417,21 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Mobile nav speed dial — options grow out of the Training tab (origin is set
+   bottom-right on the element); scrim fades at the modal-backdrop timing. */
+@keyframes dial-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dial-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(8px) scale(0.95); }
+}
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* Drift amplitude is scaled by --blob-scale (default 1) so the same blobs can
    run gentler on smaller surfaces like the dashboard Ask Cortex card. */
 @keyframes blob-1 {
