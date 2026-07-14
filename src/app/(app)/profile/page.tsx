@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { UserRoundPen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LogOut, UserRoundPen } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,15 +12,16 @@ import { HonorCard } from "@/components/training/HonorCard";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInView } from "@/hooks/use-in-view";
-import { getAuthProfile } from "@/lib/auth-mock";
+import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
 import {
-  MODULES,
+  getModules,
   type ModuleCategory,
   getCertifiedModules,
   getRequiredModules,
   isShiftReady,
 } from "@/lib/training-mock";
+import { getPersona } from "@/lib/demo-persona";
 import { USER } from "@/lib/user-mock";
 
 function memberSinceLabel(iso: string) {
@@ -33,12 +36,15 @@ function memberSinceLabel(iso: string) {
  * is a route addition, not a redesign.
  */
 export default function ProfilePage() {
+  const router = useRouter();
   const { headerClassName, onScroll } = useGlassHeader();
   const profile = getAuthProfile();
 
   const certified = getCertifiedModules();
   const cleared = isShiftReady();
-  const completedModules = MODULES.filter((m) => m.status === "completed").length;
+  const completedModules = getModules().filter((m) => m.status === "completed").length;
+  // A brand-new guard joined just now; Mike carries his provisioned start date.
+  const memberSince = getPersona() === "new" ? new Date().toISOString() : USER.memberSince;
 
   // Skill areas — the categories the user holds certifications in.
   const skillAreas = [...new Set(certified.map((m) => m.category))].map((category) => ({
@@ -47,6 +53,16 @@ export default function ProfilePage() {
   }));
 
   const { ref: certsRef, inView } = useInView<HTMLElement>();
+
+  // Deep link from the dashboard's "View all" (/profile#certifications) — bring
+  // the certifications section to the top of the scroll canvas after paint.
+  useEffect(() => {
+    if (window.location.hash !== "#certifications") return;
+    const raf = requestAnimationFrame(() => {
+      document.getElementById("certifications")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -95,16 +111,33 @@ export default function ProfilePage() {
               <span className="font-semibold text-foreground">{completedModules}</span> modules completed ·{" "}
               <span className="font-semibold text-foreground">{certified.length}</span> certification
               {certified.length !== 1 ? "s" : ""} ·{" "}
-              member since {memberSinceLabel(USER.memberSince)}
+              member since {memberSinceLabel(memberSince)}
             </p>
 
             <p className="text-[12px] leading-[16px] text-muted-foreground">Visible to Avante staff.</p>
+
+            {/* Full-bleed divider, then sign out — the account exit lives on
+                the profile card (not tucked in settings). */}
+            <div className="-mx-6 h-px bg-border" />
+            <button
+              type="button"
+              onClick={() => {
+                signOut();
+                router.push("/sign-in");
+              }}
+              className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+            >
+              <LogOut size={14} strokeWidth={1.5} />
+              Sign out
+            </button>
           </section>
 
-          {/* Certifications — the credentials, front and center */}
+          {/* Certifications — the credentials, front and center. id + scroll-mt
+              are the deep-link target for the dashboard's "View all". */}
           <section
+            id="certifications"
             ref={certsRef}
-            className="rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
+            className="scroll-mt-8 rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
             <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">

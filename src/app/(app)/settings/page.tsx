@@ -1,20 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { LogOut, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/theme-context";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { signOut } from "@/lib/auth-mock";
 import {
   type NotificationPrefs,
   getNotificationPrefs,
   setNotificationPref,
   useNotificationsVersion,
 } from "@/lib/notifications-mock";
-import { USER } from "@/lib/user-mock";
 
 const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: string }[] = [
   {
@@ -40,7 +37,6 @@ const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: st
  * public showcase colleagues can see.
  */
 export default function SettingsPage() {
-  const router = useRouter();
   const { headerClassName, onScroll } = useGlassHeader();
   const { isDark, setDark } = useTheme();
   // Version subscription re-renders the toggles when prefs change.
@@ -120,31 +116,6 @@ export default function SettingsPage() {
                   />
                 </label>
               ))}
-            </div>
-          </section>
-
-          {/* Account */}
-          <section
-            className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised"
-            style={{ border: "1px solid var(--border)" }}
-          >
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Account</h2>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{USER.fullName}</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground truncate">{USER.email}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  signOut();
-                  router.push("/sign-in");
-                }}
-                className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-[8px] border text-[13px] leading-[20px] font-semibold border-border text-muted-foreground transition-colors duration-100 hover:text-foreground hover:bg-[var(--surface-lifted)]"
-              >
-                <LogOut size={14} strokeWidth={1.5} />
-                Sign out
-              </button>
             </div>
           </section>
         </div>
