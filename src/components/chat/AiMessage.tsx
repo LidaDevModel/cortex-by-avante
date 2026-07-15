@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ThumbsUp, ThumbsDown, Volume2, ArrowUpRight, Library } from "lucide-react";
-import { type AiParagraph, getStreamTextFor } from "@/lib/chat-mock";
+import { ThumbsUp, ThumbsDown, Volume2, ArrowUpRight, Library, Copy, Check, Workflow } from "lucide-react";
+import { type ResponseBlock, type DiagramBlock as DiagramBlockData, getStreamTextFor } from "@/lib/chat-mock";
 import { ThinkingIndicator, StreamingCaret } from "@/components/chat/ThinkingIndicator";
 import { ShareFeedbackModal } from "@/components/chat/ShareFeedbackModal";
 import { CitationChip } from "@/components/chat/CitationChip";
+import { DiagramBlock } from "@/components/chat/DiagramBlock";
+import { type Attachment } from "@/components/chat/AttachmentChip";
 
 export type FeedbackState = null | "up" | "down";
 
@@ -14,14 +16,20 @@ export type Message = {
   id: string;
   role: "user" | "assistant";
   content?: string;
+  /** Files/photos the user attached to this message (user messages only). */
+  attachments?: Attachment[];
   streamText?: string;
   isStreaming?: boolean;
   isError?: boolean;
-  paragraphs?: AiParagraph[];
+  /** The settled response as ordered blocks (text · diagram). */
+  blocks?: ResponseBlock[];
   /** Citation labels for the thinking indicator's status lines. */
   sources?: string[];
   /** Present on a `not-found` deflection — renders a "Browse the Library" link. */
   browseLibraryHref?: string;
+  /** The diagram available for this answer — shows "Show me a diagram" until
+      it's revealed into this message's blocks. */
+  diagram?: DiagramBlockData;
   feedback?: FeedbackState;
 };
 
@@ -54,13 +62,25 @@ export function AiMessage({
   message,
   onFeedback,
   onRetry,
+  onShowDiagram,
 }: {
   message: Message;
   onFeedback: (id: string, value: FeedbackState) => void;
   onRetry: (id: string) => void;
+  /** Reveal the topic's diagram into this message. */
+  onShowDiagram?: (id: string) => void;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    const text = message.blocks ? getStreamTextFor(message.blocks) : message.streamText ?? "";
+    if (!text) return;
+    try { navigator.clipboard?.writeText(text); } catch { /* best-effort */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
 
   // Stop read-aloud if the message unmounts mid-speech.
   useEffect(() => {
@@ -77,7 +97,7 @@ export function AiMessage({
       setIsSpeaking(false);
       return;
     }
-    const text = message.paragraphs ? getStreamTextFor(message.paragraphs) : message.streamText ?? "";
+    const text = message.blocks ? getStreamTextFor(message.blocks) : message.streamText ?? "";
     if (!text) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.onend = () => setIsSpeaking(false);
@@ -135,16 +155,24 @@ export function AiMessage({
   return (
     <>
       <div className="flex flex-col gap-3 w-full">
-        <div className="space-y-4 text-[15px] leading-[24px] text-foreground">
-          {(message.paragraphs ?? []).map((para, i) => (
-            <p key={i}>
-              {para.segments.map((seg, j) =>
-                seg.type === "text"
-                  ? <span key={j}>{seg.text}</span>
-                  : <CitationChip key={j} docId={seg.docId} sectionId={seg.sectionId} label={seg.label} delayMs={chipIndex++ * 60} />
-              )}
-            </p>
-          ))}
+        {/* Walk the response blocks by type. Text blocks render their segments
+            (with inline citation chips); diagram blocks are rendered by the
+            sandboxed renderer in Stage 2. */}
+        <div className="flex flex-col gap-4">
+          {(message.blocks ?? []).map((block, i) => {
+            if (block.type === "text") {
+              return (
+                <p key={i} className="text-[15px] leading-[24px] text-foreground">
+                  {block.segments.map((seg, j) =>
+                    seg.type === "text"
+                      ? <span key={j}>{seg.text}</span>
+                      : <CitationChip key={j} docId={seg.docId} sectionId={seg.sectionId} label={seg.label} delayMs={chipIndex++ * 60} />
+                  )}
+                </p>
+              );
+            }
+            return <DiagramBlock key={i} svg={block.svg} caption={block.caption} />;
+          })}
         </div>
         {message.browseLibraryHref && (
           <Link
@@ -156,6 +184,21 @@ export function AiMessage({
             Browse the Library
             <ArrowUpRight size={13} />
           </Link>
+        )}
+
+        {/* "Show me a diagram" — offered whenever the topic has a diagram that
+            wasn't already rendered into this message (covers the user who's
+            struggling, without relying on how they phrased it). */}
+        {message.diagram && !(message.blocks ?? []).some((b) => b.type === "diagram") && (
+          <button
+            type="button"
+            onClick={() => onShowDiagram?.(message.id)}
+            className="inline-flex items-center gap-1.5 self-start h-9 px-3 rounded-[8px] text-[13px] font-medium border transition-colors duration-100 hover:bg-[var(--surface-lifted)]"
+            style={{ borderColor: "var(--primary)", color: "var(--primary)", animation: "msg-in 200ms ease-out 150ms both" }}
+          >
+            <Workflow size={14} strokeWidth={1.5} />
+            Show me a diagram
+          </button>
         )}
         <div className="flex flex-col gap-1.5" style={{ animation: "msg-in 200ms ease-out 150ms both" }}>
           <div className="flex items-center gap-1">
@@ -183,6 +226,13 @@ export function AiMessage({
               }`}
             >
               <Volume2 size={14} />
+            </button>
+            <button
+              onClick={handleCopy}
+              aria-label={copied ? "Copied" : "Copy message"}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
+            >
+              {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
             </button>
           </div>
           {fb === "down" && (

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ChatComposer } from "@/components/chat/ChatComposer";
 import { BlobField } from "@/components/chat/BlobField";
+import { stashChatLaunch } from "@/lib/chat-launch";
 import { USER } from "@/lib/user-mock";
 
 /**
@@ -25,7 +26,14 @@ export function AskCortexCard() {
           How can I help you {USER.firstName}?
         </h2>
         <div className="w-full max-w-[600px]">
-          <ChatComposer onSubmit={(text) => router.push(`/chat?q=${encodeURIComponent(text)}`)} />
+          {/* Launcher: stash the message (text + any files) and hand off to the
+              full chat, which picks it up on mount — files ride along intact. */}
+          <ChatComposer
+            onSubmit={(text, attachments) => {
+              stashChatLaunch({ text, attachments });
+              router.push("/chat");
+            }}
+          />
         </div>
         <p className="text-[12px] leading-[16px] text-muted-foreground">
           Cortex AI can make mistakes. Please check important info.

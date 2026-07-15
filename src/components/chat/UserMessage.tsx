@@ -1,91 +1,65 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Pencil } from "lucide-react";
+import { useState } from "react";
+import { Pencil, Copy, Check } from "lucide-react";
+import { AttachmentChip, type Attachment } from "@/components/chat/AttachmentChip";
 
-export function UserMessage({ content, onEdit }: { content: string; onEdit: (newContent: string) => void }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(content);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+/**
+ * A sent user message. The pencil doesn't edit in place — it drops the text
+ * back into the composer as a fresh draft (no rewind; nothing is removed), so
+ * the user tweaks and re-sends from the input where they normally type.
+ */
+export function UserMessage({
+  content,
+  attachments,
+  onEdit,
+}: {
+  content: string;
+  attachments?: Attachment[];
+  /** Hand this message's text back to the composer. */
+  onEdit: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
 
-  function startEdit() {
-    setDraft(content);
-    setIsEditing(true);
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.selectionStart = textareaRef.current.value.length;
-        autoResize(textareaRef.current);
-      }
-    }, 0);
-  }
-
-  function autoResize(el: HTMLTextAreaElement) {
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-  }
-
-  function handleSave() {
-    const trimmed = draft.trim();
-    if (trimmed && trimmed !== content) onEdit(trimmed);
-    setIsEditing(false);
-  }
-
-  function handleCancel() {
-    setDraft(content);
-    setIsEditing(false);
-  }
-
-  if (isEditing) {
-    return (
-      <div className="flex justify-end">
-        <div className="w-[85%] rounded-2xl px-4 pt-3 pb-3 flex flex-col gap-3 bg-surface-raised">
-          <textarea
-            ref={textareaRef}
-            value={draft}
-            onChange={e => { setDraft(e.target.value); autoResize(e.target); }}
-            onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSave(); }
-              if (e.key === "Escape") handleCancel();
-            }}
-            rows={1}
-            className="w-full resize-none bg-transparent text-[15px] leading-[24px] text-foreground outline-none focus:ring-1 focus:ring-primary/30 rounded-lg px-1 -mx-1"
-            style={{ overflow: "hidden" }}
-          />
-          <div className="flex justify-end items-center gap-2">
-            <button
-              onClick={handleCancel}
-              className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-3 py-1"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!draft.trim()}
-              className="text-[13px] font-semibold bg-primary text-primary-foreground px-3 py-1 rounded-lg disabled:opacity-50 transition-opacity duration-100"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  function handleCopy() {
+    if (!content) return;
+    try { navigator.clipboard?.writeText(content); } catch { /* best-effort */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
     <div className="flex flex-col items-end gap-1 group" style={{ animation: "msg-in 200ms ease-out both" }}>
-      <div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words bg-surface-raised">
-        {content}
-      </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-        <button
-          onClick={startEdit}
-          aria-label="Edit message"
-          className="p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
-        >
-          <Pencil size={14} />
-        </button>
-      </div>
+      {attachments && attachments.length > 0 && (
+        <div className="flex flex-wrap justify-end gap-2 max-w-[85%] mb-0.5">
+          {attachments.map((a) => (
+            <AttachmentChip key={a.id} attachment={a} />
+          ))}
+        </div>
+      )}
+      {content && (
+        <div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words bg-surface-raised">
+          {content}
+        </div>
+      )}
+      {content && (
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+          <button
+            onClick={onEdit}
+            aria-label="Edit message"
+            className="p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+          >
+            <Pencil size={14} />
+          </button>
+          <button
+            onClick={handleCopy}
+            aria-label={copied ? "Copied" : "Copy message"}
+            className="p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+          >
+            {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
