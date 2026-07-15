@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ModuleIcon } from "@/components/training/ModuleIcon";
 import { useCountUp } from "@/hooks/use-count-up";
+import { cn } from "@/lib/utils";
 import {
   type Module,
   type ModuleCategory,
@@ -61,6 +62,10 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
   const examHref = `/training/modules/${m.id}/exam`;
 
   const highlight = isPrimary && state !== "certified";
+  // In-progress and not-started rows are whole-surface links with the Quick
+  // practice hover (lift + shadow in light; background step in dark). The
+  // ready-to-certify row keeps its own button; certified rows just show a score.
+  const clickable = state === "in-progress" || state === "not-started";
 
   return (
     <li
@@ -68,9 +73,13 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       // both modes (light: surface on surface-raised; dark: the lighter hover
       // token — dark surfaces elevate by lightness, so stepping down would read
       // as recessed wells while every other dashboard chip reads raised).
-      className={`relative overflow-hidden flex flex-wrap items-center gap-3 rounded-[10px] p-3 transition-colors duration-150 ${
-        !highlight ? "bg-surface-lifted" : ""
-      }`}
+      className={cn(
+        "relative overflow-hidden flex flex-wrap items-center gap-3 rounded-[10px] p-3",
+        clickable
+          ? "group cursor-pointer transition-[translate,scale,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
+          : "transition-colors duration-150",
+        !highlight && "bg-surface-lifted"
+      )}
       style={
         highlight
           ? {
@@ -88,6 +97,16 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           : { border: "1px solid transparent" }
       }
     >
+      {/* Stretched link — makes the whole row clickable (no other interactive
+          element lives in these rows, so no nested-interactive issue). */}
+      {clickable && (
+        <Link
+          href={detailHref}
+          aria-label={`${state === "in-progress" ? "Continue" : "Start"} ${m.title}`}
+          className="absolute inset-0 z-20 rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        />
+      )}
+
       <Tile state={state} category={m.category} delayMs={index * 80} />
 
       <div className="relative z-10 flex flex-col gap-1 min-w-0 flex-1">
@@ -126,7 +145,9 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
         )}
       </div>
 
-      {/* Right-side action */}
+      {/* Right-side action. Only the quickest win (ready-to-certify) keeps a
+          real button; every other row uses the quiet ghost-arrow affordance,
+          matching the Quick practice cards. Certified rows show their score. */}
       {state === "certified" ? (
         <span
           className="relative z-10 text-[15px] leading-[20px] font-bold tabular-nums shrink-0"
@@ -140,28 +161,54 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           className="relative z-10 w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold transition-opacity duration-100 hover:opacity-90"
           style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
         >
-          Take certification
-          <ArrowRight size={15} strokeWidth={2} />
-        </Link>
-      ) : isPrimary ? (
-        <Link
-          href={detailHref}
-          className="relative z-10 shrink-0 inline-flex items-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold transition-opacity duration-100 hover:opacity-90"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
-          {state === "in-progress" ? "Continue" : "Start"}
+          Get certified
           <ArrowRight size={15} strokeWidth={2} />
         </Link>
       ) : (
-        <Link
-          href={detailHref}
-          className="relative z-10 shrink-0 inline-flex items-center justify-center h-[36px] px-4 rounded-[8px] text-[13px] font-semibold border transition-colors duration-100 hover:bg-[var(--surface-raised)]"
-          style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
+        <span
+          aria-hidden
+          className="relative z-10 shrink-0 flex items-center justify-center w-10 h-10 text-muted-foreground transition-colors duration-150 group-hover:text-foreground"
         >
-          {state === "in-progress" ? "Continue" : "Start"}
-        </Link>
+          <ArrowRight
+            size={18}
+            strokeWidth={1.5}
+            className="transition-transform duration-150 group-hover:translate-x-0.5"
+          />
+        </span>
       )}
     </li>
+  );
+}
+
+/** Ring progress — the certified share as a percentage. The arc sweeps from 0
+    on mount; the centre reads the same percentage. Tokens only. */
+function ProgressDonut({ value, label, ariaLabel }: { value: number; label: string; ariaLabel: string }) {
+  const size = 76;
+  const stroke = 8;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(1, Math.max(0, value / 100)));
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={ariaLabel}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="var(--primary)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 400ms ease-out" }}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[15px] font-bold tabular-nums text-foreground">
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -185,7 +232,8 @@ export function ReadinessBoard({
   const remaining = total - certifiedCount;
   const primaryId = pickPrimary(requiredModules);
 
-  const shownCertified = useCountUp(certifiedCount);
+  const pct = total ? Math.round((certifiedCount / total) * 100) : 0;
+  const shownPct = useCountUp(pct);
   const [segmentsLive, setSegmentsLive] = useState(false);
   useEffect(() => {
     const raf = requestAnimationFrame(() => setSegmentsLive(true));
@@ -225,45 +273,33 @@ export function ReadinessBoard({
           </span>
         </div>
 
-        {/* Display numeral — the page's key datum owns the hierarchy; counts up
-            on mount via the existing hook. */}
-        <p className="flex items-baseline gap-2 tabular-nums">
-          <span className="text-[40px] leading-[44px] font-bold text-foreground">
-            {shownCertified}
-            <span className="text-[22px] leading-[28px] font-semibold text-muted-foreground"> / {total}</span>
-          </span>
-          <span className="text-[13px] leading-[18px] text-muted-foreground">
-            certified · {remaining} to go
-          </span>
-        </p>
-
-        {/* Segmented progress — generic count: fill the first N of M segments by
-            certified count. Segments are anonymous (no per-module mapping), so
-            this stays correct regardless of row order or the certified accordion. */}
-        <div
-          className="flex gap-1.5"
-          role="progressbar"
-          aria-valuenow={certifiedCount}
-          aria-valuemax={total}
-          aria-label={`${certifiedCount} of ${total} required certifications complete`}
-        >
-          {Array.from({ length: total }).map((_, i) => (
-            <div
-              key={i}
-              className="h-2 flex-1 rounded-full transition-colors duration-300"
-              style={{
-                background: segmentsLive && i < certifiedCount ? "var(--primary)" : "var(--border)",
-                transitionDelay: `${i * 80}ms`,
-              }}
-            />
-          ))}
+        {/* Ring + progress summary — the ring reads the certified percentage;
+            the count line keeps the exact "N certified · M to go". */}
+        <div className="flex items-center gap-4">
+          <ProgressDonut
+            value={segmentsLive ? pct : 0}
+            label={`${shownPct}%`}
+            ariaLabel={`${certifiedCount} of ${total} required certifications complete`}
+          />
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <p className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">
+              {certifiedCount} certified · {remaining} to go
+            </p>
+            <h3 className="text-[18px] leading-[24px] font-semibold text-foreground">
+              Shift readiness
+            </h3>
+            <p className="text-[13px] leading-[18px] text-muted-foreground">
+              Earn every required certification to be cleared for duty.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Requirement rows */}
       <div className="flex flex-col gap-2">
-        {/* Always visible: what's left to do */}
-        <ul className="flex flex-col gap-2">
+        {/* Always visible: what's left to do. Two columns on desktop (auto rows),
+            single column on mobile. The row UI itself is unchanged. */}
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {activeRows.map((m, i) => (
             <RequirementRow key={m.id} module={m} index={i} isPrimary={m.id === primaryId} />
           ))}
@@ -285,7 +321,7 @@ export function ReadinessBoard({
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-              <ul className="flex flex-col gap-2 pt-2">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
                 {certifiedRows.map((m, i) => (
                   <RequirementRow key={m.id} module={m} index={i} isPrimary={false} />
                 ))}
