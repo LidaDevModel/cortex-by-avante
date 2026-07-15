@@ -62,18 +62,23 @@ export default function ActivatePage() {
 
   return (
     <div
-      className="w-full max-w-[400px] rounded-[12px] p-6 flex flex-col gap-6 bg-surface-raised"
-      style={{ border: "1px solid var(--border)", boxShadow: "var(--card-glow-shadow)" }}
+      className="w-full max-w-[400px] flex flex-col gap-6"
+      style={{ animation: "msg-in 200ms ease-out both" }}
     >
-      {/* Brand + stepper */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col">
-          <span className="text-[16px] leading-[22px] font-semibold tracking-tight" style={{ color: "var(--primary)" }}>
-            Cortex
-          </span>
-          <span className="text-[12px] leading-[16px] text-muted-foreground">Avante Security</span>
-        </div>
+      {/* Back to sign in — first row, above everything (step 1 only; the
+          stepper is forward-only once the PIN is verified) */}
+      {step === 1 && (
+        <Link
+          href="/sign-in"
+          className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+        >
+          <ArrowLeft size={14} strokeWidth={2} />
+          <span>Back to sign in</span>
+        </Link>
+      )}
 
+      {/* Stepper + title (the brand lives in the auth layout) */}
+      <div className="flex flex-col gap-4">
         {/* Step progress — same segmented idiom as the readiness board */}
         <div className="flex flex-col gap-2">
           <div
@@ -96,7 +101,7 @@ export default function ActivatePage() {
           </p>
         </div>
 
-        <h1 className="text-[22px] leading-[30px] font-bold text-foreground">
+        <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground">
           {step === 1 ? "Activate your account" : step === 2 ? "Create your password" : "Set up your profile"}
         </h1>
       </div>
@@ -109,7 +114,7 @@ export default function ActivatePage() {
         <form
           key="verify"
           onSubmit={handleVerify}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-1"
           style={{ animation: "msg-in 200ms ease-out both" }}
           noValidate
         >
@@ -122,15 +127,15 @@ export default function ActivatePage() {
               type="email"
               autoComplete="email"
               autoFocus
+              placeholder="name@avante.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`h-10 bg-surface ${emailError ? "field-error" : ""}`}
+              className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
             />
-            {emailError && (
-              <p className="text-[12px] leading-[16px] text-destructive">
-                Enter a valid email address.
-              </p>
-            )}
+            {/* Reserved message line — always present so the form never jumps */}
+            <p aria-live="polite" className="min-h-[16px] text-[12px] leading-[16px] text-destructive">
+              {emailError ? "Enter a valid email address." : ""}
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -141,17 +146,9 @@ export default function ActivatePage() {
             </p>
           </div>
 
-          <Button type="submit" size="cta" className="w-full mt-1" disabled={!step1Valid}>
+          <Button type="submit" size="cta" className="w-full mt-3" disabled={!step1Valid}>
             Verify PIN
           </Button>
-
-          <Link
-            href="/sign-in"
-            className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
-          >
-            <ArrowLeft size={14} strokeWidth={2} />
-            <span>Back to sign in</span>
-          </Link>
         </form>
       ) : (
         <form
@@ -171,9 +168,10 @@ export default function ActivatePage() {
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 autoFocus
+                placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-10 bg-surface pr-11"
+                className="h-12 bg-surface pr-11"
               />
               <button
                 type="button"

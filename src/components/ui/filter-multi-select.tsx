@@ -41,7 +41,7 @@ export function FilterMultiSelect({ values, onChange, options, placeholder, clas
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "relative h-[40px] pl-3 pr-8 flex items-center rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer",
+            "relative h-12 pl-3 pr-8 flex items-center rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer",
             className
           )}
           style={{

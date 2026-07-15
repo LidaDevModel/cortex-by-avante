@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, UserRoundPen } from "lucide-react";
@@ -53,6 +53,12 @@ export default function ProfilePage() {
   }));
 
   const { ref: certsRef, inView } = useInView<HTMLElement>();
+
+  // Category filter for the certifications grid — the pills double as the
+  // skill-area summary (the categories the user holds certs in) and a
+  // single-select filter, defaulting to "all".
+  const [catFilter, setCatFilter] = useState<ModuleCategory | "all">("all");
+  const shownCerts = catFilter === "all" ? certified : certified.filter((m) => m.category === catFilter);
 
   // Deep link from the dashboard's "View all" (/profile#certifications) — bring
   // the certifications section to the top of the scroll canvas after paint.
@@ -144,11 +150,58 @@ export default function ProfilePage() {
               Certifications ({certified.length})
             </h2>
             {certified.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {certified.map((m, i) => (
-                  <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} />
-                ))}
-              </div>
+              <>
+                {/* Category pills — the skill areas the user is certified in
+                    (icon · label · count), doubling as a single-select filter
+                    over the grid below. Defaults to All; only categories the
+                    user actually holds appear, so a filter never empties. */}
+                {skillAreas.length > 1 && (
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      aria-pressed={catFilter === "all"}
+                      onClick={() => setCatFilter("all")}
+                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                        catFilter === "all"
+                          ? "bg-[var(--sidebar-active)] text-primary"
+                          : "bg-surface-chip text-foreground hover:opacity-80"
+                      }`}
+                      style={{ border: "1px solid transparent" }}
+                    >
+                      All
+                    </button>
+                    {skillAreas.map(({ category, count }) => {
+                      const active = catFilter === category;
+                      return (
+                        <button
+                          key={category}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => setCatFilter(category)}
+                          className={`inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                            active
+                              ? "bg-[var(--sidebar-active)] text-primary"
+                              : "bg-surface-chip text-foreground hover:opacity-80"
+                          }`}
+                          style={{ border: "1px solid transparent" }}
+                        >
+                          <ModuleIllustration category={category} width={20} height={20} className="flex shrink-0" />
+                          {CATEGORY_LABELS[category]}
+                          <span className={`tabular-nums ${active ? "text-primary" : "text-muted-foreground"}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {shownCerts.map((m, i) => (
+                    <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} />
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="flex flex-col items-start gap-2 py-4">
                 <p className="text-[14px] leading-[20px] text-muted-foreground">
@@ -164,31 +217,6 @@ export default function ProfilePage() {
               </div>
             )}
           </section>
-
-          {/* Skill areas — derived from certifications, never self-claimed */}
-          {skillAreas.length > 0 && (
-            <section
-              className="rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
-              style={{ border: "1px solid var(--border)" }}
-            >
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Skill areas</h2>
-              <div className="flex flex-wrap gap-2">
-                {skillAreas.map(({ category, count }) => (
-                  <span
-                    key={category}
-                    className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-surface-chip"
-                    style={{ border: "1px solid transparent" }}
-                  >
-                    <ModuleIllustration category={category} width={20} height={20} className="flex shrink-0" />
-                    <span className="text-[13px] leading-[18px] font-medium text-foreground">
-                      {CATEGORY_LABELS[category]}
-                    </span>
-                    <span className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">{count}</span>
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </ScrollCanvas>
     </div>

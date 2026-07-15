@@ -81,7 +81,7 @@ export function PinInput({
           onFocus={(e) => e.target.select()}
           disabled={disabled}
           aria-label={`PIN digit ${i + 1}`}
-          className={`h-10 w-10 rounded-[8px] border border-input bg-surface text-center text-[16px] font-semibold tabular-nums text-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`h-12 w-12 rounded-[8px] border border-input bg-surface text-center text-[16px] font-semibold tabular-nums text-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${
             error ? "field-error" : ""
           }`}
         />

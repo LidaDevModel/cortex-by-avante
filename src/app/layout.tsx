@@ -27,7 +27,7 @@ export default function RootLayout({
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('cortex-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(s===null&&d))document.documentElement.classList.add('dark')}catch(e){}})()`,
+            __html: `(function(){try{var s=localStorage.getItem('cortex-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||((s===null||s==='system')&&d))document.documentElement.classList.add('dark')}catch(e){}})()`,
           }}
         />
       </head>

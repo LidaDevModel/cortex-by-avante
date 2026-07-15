@@ -2,19 +2,19 @@
 
 import { useSyncExternalStore } from "react";
 import { getRecentDocuments } from "@/lib/library-mock";
-import { getCertifiedModules, getRecentModules } from "@/lib/training-mock";
+import { getRecentModules } from "@/lib/training-mock";
 import { getTodaysDailyAttempt } from "@/lib/kc-store";
 
 /*
  * Notifications — the time-sensitive layer over the recency feed's events:
- * new assignments, certification expiry (shift-readiness stakes), and the
- * Daily 5 nudge. Mock seam: a real backend replaces the builders below; the
+ * new assignments and the Daily 5 nudge. Mock seam: a real backend replaces
+ * the builders below; the
  * store shape (items · unread · prefs) is the contract the UI consumes.
  * Everything here derives from role-gated sources, so the list inherits the
  * role boundary.
  */
 
-export type NotificationCategory = "assignment" | "certification" | "practice";
+export type NotificationCategory = "assignment" | "practice";
 
 export type CortexNotification = {
   id: string;
@@ -28,7 +28,6 @@ export type CortexNotification = {
 
 export type NotificationPrefs = {
   assignments: boolean;
-  certifications: boolean;
   practice: boolean;
 };
 
@@ -36,7 +35,6 @@ const PREFS_KEY = "cortex-notification-prefs";
 const READ_KEY = "cortex-notifications-read";
 const DEFAULT_PREFS: NotificationPrefs = {
   assignments: true,
-  certifications: true,
   practice: true,
 };
 
@@ -128,26 +126,6 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
         meta: `Library · ${d.content}`,
         date: d.lastModified,
         href: `/library/files/${d.id}`,
-      });
-    }
-  }
-
-  if (prefs.certifications) {
-    // Mock expiry notice on the earliest-certified module — production swaps
-    // in real expiry windows.
-    const certified = getCertifiedModules();
-    const oldest = [...certified].sort(
-      (a, b) => new Date(a.certification!.date).getTime() - new Date(b.certification!.date).getTime()
-    )[0];
-    if (oldest) {
-      const noticeDate = new Date(Date.now() - 2 * 86400000).toISOString();
-      items.push({
-        id: `cert-${oldest.id}`,
-        category: "certification",
-        title: `${oldest.title} certification expires soon`,
-        meta: "Renew within 14 days to stay cleared for duty",
-        date: noticeDate,
-        href: `/training/modules/${oldest.id}`,
       });
     }
   }

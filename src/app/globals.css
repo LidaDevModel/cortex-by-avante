@@ -500,6 +500,15 @@ label[for] {
   cursor: pointer;
 }
 
+/* Disabled interactive elements aren't clickable — override the pointer above.
+   Unlayered (like the rule above) so it beats Tailwind's disabled:cursor-*
+   utility, which a layered rule couldn't. Matches VISION's disabled state. */
+button:disabled,
+[role="button"][aria-disabled="true"],
+select:disabled {
+  cursor: not-allowed;
+}
+
 /* Reduced motion — collapse all animation/transition to imperceptible durations.
    Keyframe-driven states still land on their final frame. */
 @media (prefers-reduced-motion: reduce) {

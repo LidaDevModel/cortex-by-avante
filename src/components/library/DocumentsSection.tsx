@@ -76,7 +76,7 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
       <button
         onClick={() => onChange("list")}
         className={cn(
-          "flex items-center justify-center w-10 h-10 transition-colors duration-100",
+          "flex items-center justify-center w-12 h-12 transition-colors duration-100",
           view === "list" ? "bg-[var(--accent-subtle)]" : "bg-[var(--surface)]"
         )}
         aria-label="List view"
@@ -86,7 +86,7 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
       <button
         onClick={() => onChange("grid")}
         className={cn(
-          "flex items-center justify-center w-10 h-10 border-l border-border transition-colors duration-100",
+          "flex items-center justify-center w-12 h-12 border-l border-border transition-colors duration-100",
           view === "grid" ? "bg-[var(--accent-subtle)]" : "bg-[var(--surface)]"
         )}
         aria-label="Grid view"

@@ -15,12 +15,15 @@ import { ChatComposer } from "@/components/chat/ChatComposer";
 import { BlobField } from "@/components/chat/BlobField";
 import { UserMessage } from "@/components/chat/UserMessage";
 import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
+import { type Attachment } from "@/components/chat/AttachmentChip";
+import { takeChatLaunch } from "@/lib/chat-launch";
 import {
   type ChatResponse,
-  resolveResponse,
+  type DetailLevel,
   getStreamTextFor,
   getSourceLabelsFor,
 } from "@/lib/chat-mock";
+import { chatProvider, type ProviderMessage } from "@/lib/chat-provider";
 import { USER } from "@/lib/user-mock";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 
@@ -49,6 +52,20 @@ export default function ChatPage() {
   const [historySheetOpen, setHistorySheetOpen] = useState(false);
   const { conversations, rename: renameConversation, remove: removeConversation } = useConversations();
   const [isAiResponding, setIsAiResponding] = useState(false);
+
+  // How explanatory answers should be — a lasting per-device preference.
+  const [detailLevel, setDetailLevelState] = useState<DetailLevel>("standard");
+  useEffect(() => {
+    const saved = localStorage.getItem("cortex-chat-detail");
+    if (saved === "concise" || saved === "standard" || saved === "detailed") setDetailLevelState(saved);
+  }, []);
+  const setDetailLevel = (level: DetailLevel) => {
+    setDetailLevelState(level);
+    localStorage.setItem("cortex-chat-detail", level);
+  };
+
+  // A composer prefill request (from editing a past message).
+  const [draft, setDraft] = useState<{ text: string; token: number } | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
@@ -81,6 +98,13 @@ export default function ChatPage() {
   // question; otherwise restore the persisted conversation so returning from a
   // citation source lands you back where you were.
   useEffect(() => {
+    // A launch from the dashboard "Ask Cortex" box (text + any files) takes
+    // priority; then a ?q= text-only entry; otherwise restore the persisted chat.
+    const launch = takeChatLaunch();
+    if (launch && (launch.text.trim() || launch.attachments?.length)) {
+      handleSubmit(launch.text.trim(), launch.attachments ?? []);
+      return;
+    }
     const q = new URLSearchParams(window.location.search).get("q");
     if (q && q.trim()) {
       handleSubmit(q.trim());
@@ -116,8 +140,8 @@ export default function ChatPage() {
 
   function startStreaming(msgId: string, response: ChatResponse) {
     currentResponseRef.current = response;
-    const { paragraphs, browseLibraryHref } = response;
-    const fullText = getStreamTextFor(paragraphs);
+    const { blocks, browseLibraryHref } = response;
+    const fullText = getStreamTextFor(blocks);
     let idx = 0;
     responseCountRef.current += 1;
     const errorAt = responseCountRef.current === 3
@@ -140,7 +164,7 @@ export default function ChatPage() {
         if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
         setMessages(prev => prev.map(m =>
           m.id === msgId
-            ? { ...m, streamText: fullText, isStreaming: false, paragraphs, browseLibraryHref }
+            ? { ...m, streamText: fullText, isStreaming: false, blocks, browseLibraryHref, diagram: response.diagram }
             : m
         ));
         setIsAiResponding(false);
@@ -160,7 +184,7 @@ export default function ChatPage() {
         role: "assistant",
         isStreaming: true,
         streamText: "",
-        sources: getSourceLabelsFor(response.paragraphs),
+        sources: getSourceLabelsFor(response.blocks),
       }]);
       setTimeout(() => startStreaming(aiId, response), 1400);
     }, 80);
@@ -171,24 +195,40 @@ export default function ChatPage() {
     setIsAiResponding(true);
     const msgIdx = messages.findIndex(m => m.id === msgId);
     const precedingUserMsg = [...messages.slice(0, msgIdx)].reverse().find(m => m.role === "user");
-    const response = resolveResponse(precedingUserMsg?.content ?? "");
+    const response = chatProvider.getResponse(
+      [{ role: "user", text: precedingUserMsg?.content ?? "" }],
+      { detail: detailLevel }
+    );
     setMessages(prev => prev.map(m =>
       m.id === msgId
-        ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(response.paragraphs) }
+        ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(response.blocks) }
         : m
     ));
     setTimeout(() => startStreaming(msgId, response), 800);
   }
 
-  function handleSubmit(text: string) {
+  function handleSubmit(text: string, attachments: Attachment[] = []) {
     setIsAiResponding(true);
 
-    if (messages.length === 0) setConversationTitle(generateTitle(text));
+    if (messages.length === 0) {
+      setConversationTitle(generateTitle(text || attachments[0]?.name || "Shared files"));
+    }
 
-    const userMsg: Message = { id: `u${Date.now()}`, role: "user", content: text };
+    const userMsg: Message = {
+      id: `u${Date.now()}`,
+      role: "user",
+      content: text || undefined,
+      attachments: attachments.length > 0 ? attachments : undefined,
+    };
+    // Build the conversation for the provider (API-shaped) and answer.
+    const convo: ProviderMessage[] = [
+      ...messages.map((m) => ({ role: m.role, text: m.content ?? getStreamTextFor(m.blocks ?? []) })),
+      { role: "user" as const, text },
+    ];
     setMessages(prev => [...prev, userMsg]);
     jumpToBottom();
-    queueAiResponse(resolveResponse(text));
+
+    queueAiResponse(chatProvider.getResponse(convo, { detail: detailLevel }));
   }
 
   function handleStopResponse() {
@@ -201,32 +241,35 @@ export default function ChatPage() {
         return [...prev.slice(0, -1), {
           ...last,
           isStreaming: false,
-          paragraphs: resp?.paragraphs ?? [],
+          blocks: resp?.blocks ?? [],
           browseLibraryHref: resp?.browseLibraryHref,
+          diagram: resp?.diagram,
         }];
       }
       return prev;
     });
   }
 
-  function handleEditMessage(msgId: string, newContent: string) {
-    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
-    setIsAiResponding(true);
-    const response = resolveResponse(newContent);
-    setMessages(prev => {
-      const idx = prev.findIndex(m => m.id === msgId);
-      if (idx === -1) return prev;
-      return prev.slice(0, idx + 1).map(m =>
-        m.id === msgId ? { ...m, content: newContent } : m
-      );
-    });
-    queueAiResponse(response);
+  // Editing a message copies its text back into the composer as a fresh draft
+  // (no rewind — the original stays; re-sending appends a new message).
+  function handleEditToInput(content: string) {
+    setDraft({ text: content, token: Date.now() });
   }
 
   function handleFeedback(msgId: string, value: FeedbackState) {
     setMessages(prev => prev.map(m =>
       m.id === msgId ? { ...m, feedback: value } : m
     ));
+  }
+
+  // Reveal this answer's diagram (the "Show me a diagram" affordance). No-op if
+  // there's none or one is already shown.
+  function handleShowDiagram(msgId: string) {
+    setMessages(prev => prev.map(m => {
+      if (m.id !== msgId || !m.diagram) return m;
+      if ((m.blocks ?? []).some(b => b.type === "diagram")) return m;
+      return { ...m, blocks: [...(m.blocks ?? []), m.diagram] };
+    }));
   }
 
   function handleDeleteConversation() {
@@ -240,16 +283,20 @@ export default function ChatPage() {
   function handleSelectConversation(conversation: Conversation) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(false);
-    const response = resolveResponse(conversation.title);
+    const response = chatProvider.getResponse(
+      [{ role: "user", text: conversation.title }],
+      { detail: detailLevel }
+    );
     setConversationTitle(conversation.title);
     setMessages([
       { id: `u-restored-${conversation.id}`, role: "user", content: conversation.title },
       {
         id: `a-restored-${conversation.id}`,
         role: "assistant",
-        paragraphs: response.paragraphs,
+        blocks: response.blocks,
         browseLibraryHref: response.browseLibraryHref,
-        streamText: getStreamTextFor(response.paragraphs),
+        diagram: response.diagram,
+        streamText: getStreamTextFor(response.blocks),
       },
     ]);
     jumpToBottom();
@@ -387,8 +434,8 @@ export default function ChatPage() {
                   <div className="max-w-[560px] mx-auto flex flex-col gap-8">
                     {messages.map(msg =>
                       msg.role === "user"
-                        ? <UserMessage key={msg.id} content={msg.content!} onEdit={newContent => handleEditMessage(msg.id, newContent)} />
-                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} />
+                        ? <UserMessage key={msg.id} content={msg.content ?? ""} attachments={msg.attachments} onEdit={() => handleEditToInput(msg.content ?? "")} />
+                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onShowDiagram={handleShowDiagram} />
                     )}
                   </div>
                 </div>
@@ -398,7 +445,7 @@ export default function ChatPage() {
                     mobile nav yields on chat (nothing sits below the composer). */}
                 <div className="sticky bottom-0 px-4 sm:px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-2 flex flex-col items-center gap-2 bg-surface">
                   <div className="w-full max-w-[560px] relative">
-                    <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
+                    <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
                   </div>
                   <p className="text-[12px] text-muted-foreground">
                     Cortex AI can make mistakes. Please check important info.
@@ -419,7 +466,7 @@ export default function ChatPage() {
                 </h1>
               </div>
               <div className="w-full relative">
-                <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} />
+                <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
               </div>
               <p className="text-[12px] text-muted-foreground -mt-4">
                 Cortex AI can make mistakes. Please check important info.

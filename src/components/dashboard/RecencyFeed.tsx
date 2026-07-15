@@ -6,6 +6,7 @@ import { RequiredPill } from "@/components/training/ModuleCard";
 import { ModuleIcon } from "@/components/training/ModuleIcon";
 import { FileIllustration } from "@/components/library/RecentlyViewedCard";
 import { useTheme } from "@/components/theme-context";
+import { Segmented } from "@/components/ui/segmented";
 import { daysSince } from "@/lib/utils";
 import { type LibraryDoc, getRecentDocuments } from "@/lib/library-mock";
 import { type Module, getRecentModules } from "@/lib/training-mock";
@@ -23,34 +24,6 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "modules", label: "Modules" },
   { value: "documents", label: "Documents" },
 ];
-
-/** All/Modules/Documents content-type split — informational, defaults to All.
-    Active segment reads raised via a lighter background (dark) or subtle shadow
-    (light), following the app's elevation convention. */
-function SegmentedFilter({ value, onChange }: { value: Filter; onChange: (f: Filter) => void }) {
-  return (
-    <div className="inline-flex gap-0.5 p-0.5 rounded-[8px] bg-surface-raised border border-border">
-      {FILTERS.map((o) => {
-        const active = o.value === value;
-        return (
-          <button
-            key={o.value}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(o.value)}
-            className={`px-3 h-8 rounded-[6px] text-[13px] font-medium transition-[background-color,color] duration-150 ${
-              active
-                ? "bg-surface-lifted text-foreground shadow-[var(--shadow-thumb)] dark:shadow-none"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {o.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 function DocRow({ doc }: { doc: LibraryDoc }) {
   // The library's own document illustration (doc-on-tray), scaled to row size.
@@ -141,7 +114,7 @@ export function RecencyFeed() {
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">New for your role</h2>
-        <SegmentedFilter value={filter} onChange={setFilter} />
+        <Segmented options={FILTERS} value={filter} onChange={setFilter} ariaLabel="Filter by type" />
       </div>
 
       {filtered.length > 0 ? (

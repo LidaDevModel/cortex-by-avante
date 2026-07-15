@@ -465,6 +465,61 @@ export default function ModuleDetailPage() {
     );
   }
 
+  // Module identity (back · title · sub-details · progress) — shared by the
+  // mobile top band and the desktop rail.
+  const identityInner = (
+    <>
+      <Link
+        href="/training/modules"
+        className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+      >
+        <ArrowLeft size={14} strokeWidth={2} />
+        <span>Back to modules</span>
+      </Link>
+      <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
+        {trainingModule.title}
+      </h1>
+      <p className="text-[13px] leading-[20px] text-muted-foreground">
+        {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
+      </p>
+      <div className="flex items-center gap-3 mt-1">
+        <div className="flex-1">
+          <ProgressBar value={progress} height={8} />
+        </div>
+        <span className="text-[12px] leading-[16px] font-medium shrink-0" style={{ color: "var(--primary)" }}>
+          {progress}% Complete
+        </span>
+      </div>
+    </>
+  );
+
+  // Desktop rail — identity folded in above the chapter list, the whole rail one
+  // scroll area (Option A: identity scrolls away with the list, so a long list
+  // is never trapped). Freed the full content height on the right.
+  const desktopRail = (
+    // scrollbarGutter:auto (overriding scroll-thin's `stable`) so the full-bleed
+    // divider reaches the right edge instead of stopping at a reserved gutter.
+    <div className="flex flex-col h-full overflow-y-auto scroll-thin" style={{ scrollbarGutter: "auto" }}>
+      <div className="px-8 pt-6 flex flex-col gap-2 shrink-0">{identityInner}</div>
+      {/* Full-width rule (reaches both edges), equal 20px above and below */}
+      <div className="h-px my-5 shrink-0" style={{ background: "var(--border)" }} />
+      <div className="px-8 pb-3 shrink-0">
+        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter..." />
+      </div>
+      <div className="px-8 pb-6 shrink-0">
+        <ChapterStepper
+          chapters={CHAPTERS}
+          currentId={currentId}
+          completedIds={completedIds}
+          skippedIds={skippedIds}
+          onSelect={goTo}
+          tocFilter={tocFilter}
+          matchCounts={matchCountByChapterId}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader crumbs={[
@@ -473,34 +528,15 @@ export default function ModuleDetailPage() {
         { label: trainingModule.title },
       ]} />
 
-      {/* Module info bar */}
-      <div className="shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
-        <Link
-          href="/training/modules"
-          className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
-        >
-          <ArrowLeft size={14} strokeWidth={2} />
-          <span>Back to modules</span>
-        </Link>
-        <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
-          {trainingModule.title}
-        </h1>
-        <p className="text-[13px] leading-[20px] text-muted-foreground">
-          {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
-        </p>
-        <div className="flex items-center gap-3 mt-1">
-          <div className="flex-1">
-            <ProgressBar value={progress} height={8} />
-          </div>
-          <span className="text-[12px] leading-[16px] font-medium shrink-0" style={{ color: "var(--primary)" }}>
-            {progress}% Complete
-          </span>
-        </div>
+      {/* Module identity — mobile only. The desktop rail carries it; on phones
+          there's no rail, so it sits as a band above the content. */}
+      <div className="md:hidden shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+        {identityInner}
       </div>
 
       <SplitPanel
         leftWidth={354}
-        left={renderChapters(goTo, "px-8", "px-8")}
+        left={desktopRail}
         right={
           <div className="relative flex flex-col flex-1 overflow-hidden">
             {/* Blob gradients on final quiz */}
