@@ -87,7 +87,7 @@ export function ProfileForm({
           <div key={label} className="flex flex-col gap-1">
             <span className="text-[12px] leading-[16px] font-medium text-muted-foreground">{label}</span>
             <div
-              className="flex items-center justify-between gap-2 h-10 px-2.5 rounded-[8px] bg-surface-lifted"
+              className="flex items-center justify-between gap-2 h-12 px-3 rounded-[8px] bg-surface-lifted"
               style={{ border: "1px solid transparent" }}
             >
               <span className="text-[14px] leading-[20px] text-foreground truncate">{value}</span>
@@ -112,7 +112,7 @@ export function ProfileForm({
           value={profile.description ?? ""}
           onChange={(e) => setProfile((p) => ({ ...p, description: e.target.value }))}
           placeholder="e.g. Night-shift field agent, Harbor site"
-          className="w-full resize-none rounded-[8px] border border-input bg-surface px-2.5 py-2 text-[14px] leading-[20px] text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="w-full resize-none rounded-[8px] border border-input bg-surface px-3 py-2.5 text-[14px] leading-[20px] text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         />
         <span className="self-end text-[12px] leading-[16px] text-muted-foreground tabular-nums">
           {descriptionLength}/{MAX_DESCRIPTION}

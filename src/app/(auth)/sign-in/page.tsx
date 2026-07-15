@@ -35,21 +35,19 @@ export default function SignInPage() {
 
   return (
     <div
-      className="w-full max-w-[400px] rounded-[12px] p-6 flex flex-col gap-6 bg-surface-raised"
-      style={{ border: "1px solid var(--border)", boxShadow: "var(--card-glow-shadow)" }}
+      className="w-full max-w-[400px] flex flex-col gap-6"
+      style={{ animation: "msg-in 200ms ease-out both" }}
     >
-      {/* Brand + title */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col">
-          <span className="text-[16px] leading-[22px] font-semibold tracking-tight" style={{ color: "var(--primary)" }}>
-            Cortex
-          </span>
-          <span className="text-[12px] leading-[16px] text-muted-foreground">Avante Security</span>
-        </div>
-        <h1 className="text-[22px] leading-[30px] font-bold text-foreground">Sign in</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground">
+          Sign in
+        </h1>
+        <p className="text-[14px] leading-[20px] text-muted-foreground">
+          Welcome back — enter your details to continue.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-1" noValidate>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="email" className="text-[14px] leading-[20px] font-semibold text-foreground">
             Email
@@ -59,29 +57,40 @@ export default function SignInPage() {
             type="email"
             autoComplete="email"
             autoFocus
+            placeholder="name@avante.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`h-10 bg-surface ${emailError ? "field-error" : ""}`}
+            className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
           />
-          {emailError && (
-            <p className="text-[12px] leading-[16px] text-destructive">
-              Enter a valid email address.
-            </p>
-          )}
+          {/* Reserved message line — always present so the form never jumps */}
+          <p aria-live="polite" className="min-h-[16px] text-[12px] leading-[16px] text-destructive">
+            {emailError ? "Enter a valid email address." : ""}
+          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-[14px] leading-[20px] font-semibold text-foreground">
-            Password
-          </label>
+          {/* Label row — the forgot link sits opposite the label */}
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="password" className="text-[14px] leading-[20px] font-semibold text-foreground">
+              Password
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+              style={{ color: "var(--primary)" }}
+            >
+              Forgot your password?
+            </Link>
+          </div>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
+              placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-10 bg-surface pr-11"
+              className="h-12 bg-surface pr-11"
             />
             <button
               type="button"
@@ -92,29 +101,25 @@ export default function SignInPage() {
               {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
             </button>
           </div>
-          <Link
-            href="/forgot-password"
-            className="self-end text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
-            style={{ color: "var(--primary)" }}
-          >
-            Forgot your password?
-          </Link>
+          {/* Reserved message line — keeps field rhythm identical to email */}
+          <p aria-live="polite" className="min-h-[16px] text-[12px] leading-[16px] text-destructive" />
         </div>
 
-        <Button type="submit" size="cta" className="w-full mt-1" disabled={!canSubmit}>
+        <Button type="submit" size="cta" className="w-full mt-3" disabled={!canSubmit}>
           Sign in
         </Button>
       </form>
 
-      <div className="flex flex-col gap-2">
+      <p className="text-[13px] leading-[20px] text-muted-foreground">
+        First time here?{" "}
         <Link
           href="/activate"
-          className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+          className="font-medium transition-opacity duration-100 hover:opacity-70"
           style={{ color: "var(--primary)" }}
         >
-          First time here? Activate your account
+          Activate your account
         </Link>
-      </div>
+      </p>
     </div>
   );
 }
