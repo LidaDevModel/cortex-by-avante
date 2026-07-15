@@ -2,35 +2,70 @@
 
 import { createContext, useCallback, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext<{ isDark: boolean; setDark: (dark: boolean) => void }>({
+export type ThemePreference = "light" | "dark" | "system";
+
+const STORAGE_KEY = "cortex-theme";
+
+/** The stored value can be a legacy "light"/"dark" or the newer "system". */
+function readPreference(): ThemePreference {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+}
+
+const ThemeContext = createContext<{
+  /** What the user chose. "system" follows the device. */
+  preference: ThemePreference;
+  /** The resolved theme — what's actually painted right now. */
+  isDark: boolean;
+  setPreference: (preference: ThemePreference) => void;
+}>({
+  preference: "system",
   isDark: false,
-  setDark: () => {},
+  setPreference: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [preference, setPreferenceState] = useState<ThemePreference>("system");
   const [isDark, setIsDark] = useState(false);
 
+  // Bootstrap once: read the saved preference (defaulting to "system" so a
+  // first visit follows the device), apply the resolved theme, and — while on
+  // "system" — track OS changes live. The provider owns this so every surface
+  // (including auth, which has no control) starts on the right theme.
   useEffect(() => {
     const el = document.documentElement;
-    // Bootstrap: apply the saved preference (system default on first visit).
-    // This lived in the floating DarkModeToggle before the control moved to
-    // Profile → Appearance; the provider now owns it so every surface
-    // (including auth, which has no toggle) starts on the right theme.
-    const saved = localStorage.getItem("cortex-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    el.classList.toggle("dark", saved ? saved === "dark" : prefersDark);
-    setIsDark(el.classList.contains("dark"));
-    const obs = new MutationObserver(() => setIsDark(el.classList.contains("dark")));
-    obs.observe(el, { attributeFilter: ["class"] });
-    return () => obs.disconnect();
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const apply = (pref: ThemePreference) => {
+      const dark = pref === "system" ? mql.matches : pref === "dark";
+      el.classList.toggle("dark", dark);
+      setIsDark(dark);
+    };
+
+    const pref = readPreference();
+    setPreferenceState(pref);
+    apply(pref);
+
+    // Only react to OS changes while the user is following the system.
+    const onSystemChange = () => {
+      if (readPreference() === "system") apply("system");
+    };
+    mql.addEventListener("change", onSystemChange);
+    return () => mql.removeEventListener("change", onSystemChange);
   }, []);
 
-  const setDark = useCallback((dark: boolean) => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("cortex-theme", dark ? "dark" : "light");
+  const setPreference = useCallback((pref: ThemePreference) => {
+    const el = document.documentElement;
+    localStorage.setItem(STORAGE_KEY, pref);
+    setPreferenceState(pref);
+    const dark = pref === "system" ? window.matchMedia("(prefers-color-scheme: dark)").matches : pref === "dark";
+    el.classList.toggle("dark", dark);
+    setIsDark(dark);
   }, []);
 
-  return <ThemeContext.Provider value={{ isDark, setDark }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ preference, isDark, setPreference }}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

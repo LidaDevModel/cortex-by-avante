@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, FileText, Target, TimerReset } from "lucide-react";
+import { Bell, BookOpen, FileText, Target } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,6 @@ import {
 } from "@/lib/notifications-mock";
 
 function itemIcon(n: CortexNotification) {
-  if (n.category === "certification") return TimerReset;
   if (n.category === "practice") return Target;
   return n.href.startsWith("/library") ? FileText : BookOpen;
 }

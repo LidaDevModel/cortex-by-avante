@@ -1,10 +1,11 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/components/theme-context";
+import { Segmented, type SegmentedOption } from "@/components/ui/segmented";
+import { type ThemePreference, useTheme } from "@/components/theme-context";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import {
   type NotificationPrefs,
@@ -13,16 +14,17 @@ import {
   useNotificationsVersion,
 } from "@/lib/notifications-mock";
 
+const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+];
+
 const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: string }[] = [
   {
     key: "assignments",
     label: "New assignments",
     meta: "Modules and documents added for your role",
-  },
-  {
-    key: "certifications",
-    label: "Certification reminders",
-    meta: "When a certification is close to expiry",
   },
   {
     key: "practice",
@@ -38,7 +40,7 @@ const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: st
  */
 export default function SettingsPage() {
   const { headerClassName, onScroll } = useGlassHeader();
-  const { isDark, setDark } = useTheme();
+  const { preference, setPreference } = useTheme();
   // Version subscription re-renders the toggles when prefs change.
   useNotificationsVersion();
   const prefs = getNotificationPrefs();
@@ -62,33 +64,18 @@ export default function SettingsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[14px] leading-[20px] font-medium text-foreground">Theme</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Applies on this device.</span>
+                <span className="text-[12px] leading-[16px] text-muted-foreground">
+                  System follows your device. Applies on this device.
+                </span>
               </div>
-              {/* Same segmented recipe as the recency feed's filter */}
-              <div className="inline-flex gap-0.5 p-0.5 rounded-[8px] bg-surface border border-border">
-                {([
-                  { dark: false, label: "Light", icon: Sun },
-                  { dark: true, label: "Dark", icon: Moon },
-                ] as const).map((o) => {
-                  const active = isDark === o.dark;
-                  return (
-                    <button
-                      key={o.label}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setDark(o.dark)}
-                      className={`inline-flex items-center gap-1.5 px-4 h-10 rounded-[6px] text-[13px] font-medium transition-[background-color,color] duration-150 ${
-                        active
-                          ? "bg-surface-lifted text-foreground shadow-[var(--shadow-thumb)] dark:shadow-none"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <o.icon size={14} strokeWidth={1.5} />
-                      {o.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Shared Segmented primitive — same control as the home feed
+                  filter, with icons for this case. */}
+              <Segmented
+                options={THEME_OPTIONS}
+                value={preference}
+                onChange={setPreference}
+                ariaLabel="Theme"
+              />
             </div>
           </section>
 
