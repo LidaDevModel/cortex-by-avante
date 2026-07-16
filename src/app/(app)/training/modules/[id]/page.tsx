@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { SearchInput } from "@/components/ui/search-input";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
+import { RequiredPill } from "@/components/training/ModuleCard";
 import { Button } from "@/components/ui/button";
 import { getModuleById, MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
 
@@ -490,6 +491,7 @@ export default function ModuleDetailPage() {
       <p className="text-[13px] leading-[20px] text-muted-foreground">
         {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
       </p>
+      <RequiredPill required={trainingModule.required} />
       <div className="flex items-center gap-3 mt-1">
         <div className="flex-1">
           <ProgressBar value={progress} height={8} />
@@ -572,6 +574,7 @@ export default function ModuleDetailPage() {
               findTotalCount={totalFindCount}
               findMatchIdx={findMatchIdx}
               findEntityLabel="chapters"
+              findRegionClass="sm:max-w-[50%]"
               left={
                 // Mobile chapters trigger — the rail is desktop-only
                 <button

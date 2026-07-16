@@ -61,7 +61,30 @@ export function CertificationsShelf() {
     el.scrollTo({ left: clamped * (CARD_W + GAP), behavior: "smooth" });
   };
 
-  if (items.length === 0) return null;
+  // Empty state (new hire, nothing earned yet) — a full widget so the dashboard
+  // grid stays whole. Motivates earning the first certification.
+  if (items.length === 0) {
+    return (
+      <section
+        className="h-full rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
+        style={{ border: "1px solid var(--border)" }}
+      >
+        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Certifications</h2>
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-6">
+          <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[260px]">
+            Complete a module and pass its exam to earn your first Avante Certification!
+          </p>
+          <Link
+            href="/training/modules"
+            className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+            style={{ color: "var(--primary)" }}
+          >
+            Browse modules
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -100,7 +123,7 @@ export function CertificationsShelf() {
               className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory"
             >
               {items.map((m, i) => (
-                <HonorCard key={m.id} module={m} carousel start={inView} index={i} />
+                <HonorCard key={m.id} module={m} carousel start={inView} index={i} returnTo="/dashboard" />
               ))}
             </div>
             {/* Scroll-edge fades — same recipe as the composer's scroll fades:
@@ -150,7 +173,7 @@ export function CertificationsShelf() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {items.map((m, i) => (
-            <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} />
+            <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} returnTo="/dashboard" />
           ))}
         </div>
       )}

@@ -21,6 +21,12 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        // Search fields must not be auto-corrected/capitalized — the mobile
+        // keyboard otherwise fights the controlled value and scrambles input.
+        autoCapitalize="none"
+        autoCorrect="off"
+        autoComplete="off"
+        spellCheck={false}
         className="w-full h-12 pl-9 pr-8 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
         style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
       />

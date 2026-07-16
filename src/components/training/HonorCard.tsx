@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Star } from "lucide-react";
 import { useCountUp } from "@/hooks/use-count-up";
 import { type CertificationTier, type Module, getTier } from "@/lib/training-mock";
@@ -44,6 +45,7 @@ export function HonorCard({
   carousel,
   start,
   index,
+  returnTo = "/profile",
 }: {
   module: Module;
   /** Fixed-width snap item (carousel) vs fluid grid cell. */
@@ -52,12 +54,15 @@ export function HonorCard({
   start: boolean;
   /** Stagger position for the entrance animation. */
   index: number;
+  /** Where the certification detail page's back link should return to. */
+  returnTo?: string;
 }) {
   const tier = getTier(m)!;
   const score = useCountUp(m.certification!.score, start);
   return (
-    <div
-      className={`flex flex-col gap-3 rounded-[12px] p-4 bg-surface-chip ${carousel ? "snap-start shrink-0" : "w-full"}`}
+    <Link
+      href={`/profile/certifications/${m.id}?from=${encodeURIComponent(returnTo)}`}
+      className={`group flex flex-col gap-3 rounded-[12px] p-4 bg-surface-chip transition-[translate,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-none dark:hover:bg-surface-chip-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 ${carousel ? "snap-start shrink-0" : "w-full"}`}
       style={{
         border: "1px solid transparent",
         width: carousel ? HONOR_CARD_W : undefined,
@@ -71,6 +76,6 @@ export function HonorCard({
         <span className="text-[15px] leading-[20px] font-semibold text-foreground truncate">{m.title}</span>
       </div>
       <span className="text-[12px] leading-[16px] text-muted-foreground">Certified {formatDate(m.certification!.date)}</span>
-    </div>
+    </Link>
   );
 }
