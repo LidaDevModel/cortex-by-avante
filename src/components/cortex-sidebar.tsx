@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -40,6 +41,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { USER } from "@/lib/user-mock";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
+import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 
 const navItems = [
   // "Home" everywhere (tab bar, sidebar, breadcrumb) — the route stays /dashboard.
@@ -56,9 +58,12 @@ const trainingSubItems = [
 export function CortexSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [signOutOpen, setSignOutOpen] = useState(false);
   // Read once per mount — the shell renders post-AuthGate, so localStorage is safe.
   const avatarUrl = getAuthProfile().avatarUrl;
   return (
+    <>
+    {/* fragment: sidebar + the sign-out confirm */}
     <Sidebar collapsible="icon" variant="inset" className="border-none bg-transparent">
       <SidebarHeader className="px-4 pt-5 pb-4">
         {/* Collapsed: "C" placeholder. Expanded: "Cortex" */}
@@ -153,12 +158,7 @@ export function CortexSidebar() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={() => {
-                    signOut();
-                    router.push("/sign-in");
-                  }}
-                >
+                <DropdownMenuItem onSelect={() => setSignOutOpen(true)}>
                   <LogOut size={16} strokeWidth={1.5} />
                   Sign out
                 </DropdownMenuItem>
@@ -168,5 +168,19 @@ export function CortexSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+
+    <ExitConfirmDialog
+      open={signOutOpen}
+      onOpenChange={setSignOutOpen}
+      title="Sign out?"
+      description="You'll need to sign in again to continue."
+      exitLabel="Sign out"
+      cancelLabel="Stay signed in"
+      onExit={() => {
+        signOut();
+        router.push("/sign-in");
+      }}
+    />
+    </>
   );
 }
