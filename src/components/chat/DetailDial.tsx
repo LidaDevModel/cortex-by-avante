@@ -80,9 +80,8 @@ export function DetailDial({
             animation: "msg-in 150ms ease-out both",
           }}
         >
-          <div className="flex items-baseline justify-between mb-3">
+          <div className="mb-2">
             <span className="text-[13px] font-semibold text-foreground">Answer detail</span>
-            <span className="text-[12px] font-medium text-primary">{current.label}</span>
           </div>
 
           <div
@@ -96,7 +95,7 @@ export function DetailDial({
             onKeyDown={onKeyDown}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
-            className="relative h-9 flex items-center cursor-pointer rounded-[8px] outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--primary)_25%,transparent)]"
+            className="relative h-6 flex items-center cursor-pointer rounded-[8px] outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--primary)_25%,transparent)]"
           >
             <div ref={railRef} className="relative w-full h-1.5 rounded-full" style={{ background: "var(--progress-track)" }}>
               <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${pct}%`, background: "var(--primary)" }} />
@@ -106,23 +105,27 @@ export function DetailDial({
                   <span
                     key={l.value}
                     className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full"
-                    style={{ left: `${p}%`, background: i <= index ? "var(--primary)" : "var(--border)" }}
+                    style={{ left: `${p}%`, background: i <= index ? "var(--primary)" : "var(--control-border)" }}
                   />
                 );
               })}
               <span
                 className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-surface"
-                style={{ left: `${pct}%`, border: "1px solid var(--border)", boxShadow: "var(--shadow-thumb)" }}
+                style={{ left: `${pct}%`, border: "1px solid var(--control-border)", boxShadow: "var(--shadow-thumb)" }}
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center justify-between mt-1">
             <span className="text-[11px] leading-[14px] text-muted-foreground">Shorter</span>
             <span className="text-[11px] leading-[14px] text-muted-foreground">More detail</span>
           </div>
 
-          <p className="mt-3 text-[12px] leading-[16px] text-muted-foreground">{current.description}</p>
+          <p className="mt-4 text-[12px] leading-[16px] text-muted-foreground">
+            <span className="font-medium text-primary">{current.label}</span>
+            {" — "}
+            {current.description.charAt(0).toLowerCase() + current.description.slice(1)}
+          </p>
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
