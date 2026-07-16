@@ -270,7 +270,7 @@ export function ChatComposer({
 
   return (
     <div
-      className="w-full rounded-2xl flex flex-col gap-2 p-3"
+      className="chat-input-shimmer relative w-full rounded-2xl flex flex-col gap-2 p-3"
       style={{
         background: "var(--surface)",
         border: `1px solid ${isDragging ? "var(--ring)" : "var(--input-border)"}`,

@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { House, MessageCircle, Library, BookOpen, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
-import { getAuthProfile } from "@/lib/auth-mock";
+import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { USER } from "@/lib/user-mock";
 import { cn } from "@/lib/utils";
 
@@ -18,13 +19,16 @@ const TABS = [
 
 /* Speed dials — the cluster's disclosure idiom. Training is the only tab with
    children; the satellite avatar is the account menu (mirrors the desktop
-   sidebar footer dropdown: Profile · Settings). Two taps, accepted trade. */
+   sidebar footer dropdown: Profile · Settings · Sign out). Two taps, accepted
+   trade. Sign out is an action item (not a link) — it opens a confirm. */
+type DialOption = { label: string; href?: string; action?: "signout" };
+
 const DIALS = {
   training: {
     options: [
       { label: "Modules", href: "/training/modules" },
       { label: "Knowledge Check", href: "/training/quick-check" },
-    ],
+    ] as DialOption[],
     // Anchored over the Training tab (right edge); options grow bottom-up.
     align: "right" as const,
   },
@@ -32,7 +36,8 @@ const DIALS = {
     options: [
       { label: "Profile", href: "/profile" },
       { label: "Settings", href: "/settings" },
-    ],
+      { label: "Sign out", action: "signout" },
+    ] as DialOption[],
     // Anchored over the avatar (left edge).
     align: "left" as const,
   },
@@ -50,9 +55,11 @@ type DialState = { id: DialId; closing: boolean } | null;
  */
 export function MobileTabBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const visible = useMobileNavVisible();
 
   const [dial, setDial] = useState<DialState>(null);
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const trainingTriggerRef = useRef<HTMLButtonElement>(null);
   const avatarTriggerRef = useRef<HTMLButtonElement>(null);
@@ -109,7 +116,7 @@ export function MobileTabBar() {
     const trigger = triggerFor(dial.id);
     function focusables(): HTMLElement[] {
       const opts = dialRef.current
-        ? [...dialRef.current.querySelectorAll<HTMLElement>("a")]
+        ? [...dialRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]')]
         : [];
       return trigger ? [...opts, trigger] : opts;
     }
@@ -138,7 +145,7 @@ export function MobileTabBar() {
     document.addEventListener("keydown", onKeyDown);
     // Focus moves into the dial on open.
     const raf = requestAnimationFrame(() => {
-      dialRef.current?.querySelector<HTMLElement>("a")?.focus();
+      dialRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
     });
     return () => {
       document.removeEventListener("keydown", onKeyDown);
@@ -191,29 +198,44 @@ export function MobileTabBar() {
               )}
             >
               {activeDial.options.map((opt, i) => {
-                const active = pathname.startsWith(opt.href);
+                const active = opt.href ? pathname.startsWith(opt.href) : false;
+                const className = cn(
+                  "flex items-center h-11 px-5 rounded-full border text-[14px] leading-[20px] font-semibold",
+                  active
+                    ? "bg-[var(--sidebar-active)] text-primary border-transparent"
+                    : "bg-surface text-foreground border-border"
+                );
+                const style = {
+                  boxShadow: "var(--shadow-floating)",
+                  transformOrigin:
+                    activeDial.align === "right" ? "bottom right" : "bottom left",
+                  // Bottom-up stagger on entry (the lower pill is closest
+                  // to the thumb); exits run together, 20% faster.
+                  animation: dial.closing
+                    ? "dial-out 120ms ease-out both"
+                    : `dial-in 150ms ease-out ${(activeDial.options.length - 1 - i) * 60}ms both`,
+                };
+                // Sign out is an action, not a destination — close the dial and
+                // open the confirm (a session-ending action gets a guard).
+                if (opt.action === "signout") {
+                  return (
+                    <button
+                      key="signout"
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        closeDial(true);
+                        setSignOutOpen(true);
+                      }}
+                      className={className}
+                      style={style}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                }
                 return (
-                  <Link
-                    key={opt.href}
-                    href={opt.href}
-                    role="menuitem"
-                    className={cn(
-                      "flex items-center h-11 px-5 rounded-full border text-[14px] leading-[20px] font-semibold",
-                      active
-                        ? "bg-[var(--sidebar-active)] text-primary border-transparent"
-                        : "bg-surface text-foreground border-border"
-                    )}
-                    style={{
-                      boxShadow: "var(--shadow-floating)",
-                      transformOrigin:
-                        activeDial.align === "right" ? "bottom right" : "bottom left",
-                      // Bottom-up stagger on entry (the lower pill is closest
-                      // to the thumb); exits run together, 20% faster.
-                      animation: dial.closing
-                        ? "dial-out 120ms ease-out both"
-                        : `dial-in 150ms ease-out ${(activeDial.options.length - 1 - i) * 60}ms both`,
-                    }}
-                  >
+                  <Link key={opt.href} href={opt.href!} role="menuitem" className={className} style={style}>
                     {opt.label}
                   </Link>
                 );
@@ -309,6 +331,19 @@ export function MobileTabBar() {
           </div>
         </div>
       </nav>
+
+      <ExitConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        title="Sign out?"
+        description="You'll need to sign in again to continue."
+        exitLabel="Sign out"
+        cancelLabel="Stay signed in"
+        onExit={() => {
+          signOut();
+          router.push("/sign-in");
+        }}
+      />
     </>
   );
 }

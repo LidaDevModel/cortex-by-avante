@@ -21,6 +21,8 @@ type Props = {
   description: string;
   exitLabel: string;
   onExit: () => void;
+  /** Safe/cancel action label. Defaults to the focused-task wording. */
+  cancelLabel?: string;
 };
 
 /**
@@ -37,6 +39,7 @@ export function ExitConfirmDialog({
   description,
   exitLabel,
   onExit,
+  cancelLabel = "Keep going",
 }: Props) {
   const isMobile = useIsMobile();
 
@@ -63,7 +66,7 @@ export function ExitConfirmDialog({
               {exitLabel}
             </Button>
             <Button size="cta" className="w-full" onClick={() => onOpenChange(false)}>
-              Keep going
+              {cancelLabel}
             </Button>
           </div>
         </SheetContent>
@@ -83,7 +86,7 @@ export function ExitConfirmDialog({
             {exitLabel}
           </AlertDialogCancel>
           <AlertDialogAction onClick={() => onOpenChange(false)}>
-            Keep going
+            {cancelLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

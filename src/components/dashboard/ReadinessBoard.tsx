@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { ProgressDonut } from "@/components/ui/progress-donut";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ModuleIcon } from "@/components/training/ModuleIcon";
 import { useCountUp } from "@/hooks/use-count-up";
@@ -190,38 +191,6 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
         </span>
       )}
     </li>
-  );
-}
-
-/** Ring progress — the certified share as a percentage. The arc sweeps from 0
-    on mount; the centre reads the same percentage. Tokens only. */
-function ProgressDonut({ value, label, ariaLabel }: { value: number; label: string; ariaLabel: string }) {
-  const size = 76;
-  const stroke = 8;
-  const r = (size - stroke) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - Math.min(1, Math.max(0, value / 100)));
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={ariaLabel}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke} />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="var(--primary)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          style={{ transition: "stroke-dashoffset 400ms ease-out" }}
-        />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-[15px] font-bold tabular-nums text-foreground">
-        {label}
-      </span>
-    </div>
   );
 }
 

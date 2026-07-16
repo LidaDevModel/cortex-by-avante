@@ -14,6 +14,7 @@ export function PinInput({
   onChange,
   error = false,
   disabled = false,
+  className,
 }: {
   length?: number;
   /** Current digits, e.g. "48" while partially entered. */
@@ -22,6 +23,8 @@ export function PinInput({
   /** Paints the field-error ring on every box. */
   error?: boolean;
   disabled?: boolean;
+  /** Extra classes on the boxes row — e.g. `justify-center`. */
+  className?: string;
 }) {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -63,7 +66,7 @@ export function PinInput({
   }
 
   return (
-    <div className="flex gap-2" onPaste={handlePaste}>
+    <div className={`flex gap-2 ${className ?? ""}`} onPaste={handlePaste}>
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
@@ -81,7 +84,7 @@ export function PinInput({
           onFocus={(e) => e.target.select()}
           disabled={disabled}
           aria-label={`PIN digit ${i + 1}`}
-          className={`h-12 w-12 rounded-[8px] border border-input bg-surface text-center text-[16px] font-semibold tabular-nums text-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`h-12 w-12 rounded-[8px] border border-input bg-surface dark:bg-input/30 text-center text-[16px] font-semibold tabular-nums text-foreground outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${
             error ? "field-error" : ""
           }`}
         />
