@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { Check, X, Flag, ArrowLeft, ListChecks } from "lucide-react";
+import { Check, X, Flag, ArrowLeft, ListChecks, Brain } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
@@ -184,9 +184,17 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
       className="rounded-[10px] flex flex-col gap-4 p-5"
       style={{ background: "color-mix(in srgb, var(--primary) 6%, var(--surface))" }}
     >
-      <p className="text-[14px] leading-[22px] font-semibold" style={{ color: "var(--foreground)" }}>
-        {quiz.question}
-      </p>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-primary">
+          <Brain size={16} strokeWidth={1.5} />
+          <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider">
+            Knowledge check
+          </span>
+        </div>
+        <p className="text-[14px] leading-[22px] font-semibold" style={{ color: "var(--foreground)" }}>
+          {quiz.question}
+        </p>
+      </div>
 
       <div className="flex flex-col gap-2">
         {quiz.options.map((opt) => {
@@ -522,11 +530,14 @@ export default function ModuleDetailPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <PageHeader crumbs={[
-        { label: "Training", href: "/training/modules" },
-        { label: "Modules", href: "/training/modules" },
-        { label: trainingModule.title },
-      ]} />
+      <PageHeader
+        className="border-b border-border"
+        crumbs={[
+          { label: "Training", href: "/training/modules" },
+          { label: "Modules", href: "/training/modules" },
+          { label: trainingModule.title },
+        ]}
+      />
 
       {/* Module identity — mobile only. The desktop rail carries it; on phones
           there's no rail, so it sits as a band above the content. */}

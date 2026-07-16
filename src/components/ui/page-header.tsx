@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
@@ -21,6 +22,38 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
   // bell — and collapses entirely on focused-task screens (where the bell also
   // hides), so there's no empty strip. Desktop keeps the full breadcrumb.
   const browse = useMobileNavVisible();
+
+  // Deep paths collapse the middle behind an expandable ellipsis, keeping the
+  // root and the current page. Only worth it with ≥2 hidden middles, so we
+  // collapse at 4+ crumbs. The trail re-collapses whenever the route changes.
+  const [expanded, setExpanded] = useState(false);
+  const trailKey = crumbs.map((c) => c.label).join(" / ");
+  useEffect(() => setExpanded(false), [trailKey]);
+
+  const collapsed = !expanded && crumbs.length >= 4;
+  const shown: (Crumb | "ellipsis")[] = collapsed
+    ? [crumbs[0], "ellipsis", crumbs[crumbs.length - 1]]
+    : crumbs;
+
+  const renderCrumb = (crumb: Crumb, isLast: boolean) =>
+    isLast || !crumb.href ? (
+      <span
+        className={cn(
+          "shrink-0",
+          isLast ? "font-medium text-foreground truncate" : "text-muted-foreground"
+        )}
+      >
+        {crumb.label}
+      </span>
+    ) : (
+      <Link
+        href={crumb.href}
+        className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100"
+      >
+        {crumb.label}
+      </Link>
+    );
+
   return (
     <header
       className={cn(
@@ -31,31 +64,29 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
     >
       <SidebarTrigger className="-ml-1" />
       <div className="hidden md:flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
-        {crumbs.map((crumb, i) => {
-          const isLast = i === crumbs.length - 1;
-          return (
-            <span key={i} className="flex items-center gap-1.5 min-w-0">
-              {i > 0 && <span className="text-muted-foreground shrink-0">/</span>}
-              {isLast || !crumb.href ? (
-                <span
-                  className={cn(
-                    "shrink-0",
-                    isLast ? "font-medium text-foreground truncate" : "text-muted-foreground"
-                  )}
-                >
-                  {crumb.label}
-                </span>
-              ) : (
-                <Link
-                  href={crumb.href}
-                  className="text-muted-foreground shrink-0 hover:text-foreground transition-colors duration-100"
-                >
-                  {crumb.label}
-                </Link>
-              )}
-            </span>
-          );
-        })}
+        {shown.map((item, i) => (
+          <span key={i} className="flex items-center gap-1.5 min-w-0">
+            {i > 0 && (
+              <ChevronRight
+                size={14}
+                strokeWidth={1.5}
+                className="shrink-0 text-muted-foreground opacity-60"
+              />
+            )}
+            {item === "ellipsis" ? (
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                aria-label="Show full path"
+                className="shrink-0 px-0.5 text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
+              >
+                …
+              </button>
+            ) : (
+              renderCrumb(item, i === shown.length - 1)
+            )}
+          </span>
+        ))}
       </div>
       {/* Actions slot — shell-owned; the bell hides itself on focused-task
           screens (do-not-disturb during exams and reading). */}
