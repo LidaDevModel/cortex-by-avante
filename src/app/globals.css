@@ -47,6 +47,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -85,6 +86,7 @@
   --accent: oklch(0.93 0.06 145);            /* glow color #d1f0d1 */
   --accent-foreground: oklch(0.30 0.09 150);
   --destructive: oklch(0.577 0.245 27.325);
+  --warning: oklch(0.55 0.14 52);            /* amber — medium password strength; AA text on light surfaces */
   --border: oklch(0.922 0.004 250);          /* #e5e7eb */
   --input: oklch(0.922 0.004 250);
   --ring: oklch(0.30 0.09 150);
@@ -193,6 +195,7 @@
   --accent: oklch(0.36 0 0);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --warning: oklch(0.82 0.15 78);           /* amber — medium password strength (brighter on dark) */
   --border: oklch(0.38 0 0);                /* neutral gray border — matches light mode contrast */
   --input: oklch(0.38 0 0);
   --ring: oklch(0.75 0.07 170);             /* #7fc3af — lighter teal ring */
@@ -448,6 +451,38 @@
   50%  { transform: translate(calc(20px * var(--blob-scale, 1)), calc(-32px * var(--blob-scale, 1))) scale(0.98); }
   75%  { transform: translate(calc(24px * var(--blob-scale, 1)), calc(12px * var(--blob-scale, 1))) scale(1.04); }
   100% { transform: translate(0px, 0px) scale(1); }
+}
+
+/* AI chat input shimmer — a faint animated sheen that always drifts along the
+   input's border (not tied to focus). Painted only on the 1px border via
+   mask-exclude, so the centre stays transparent and nothing covers or clips the
+   textarea or send button. Tokens only (adapts to both modes); kept subtle with
+   a thin ring + low opacity, on VISION's 2200ms linear shimmer timing. */
+.chat-input-shimmer::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    110deg,
+    var(--ring) 0%,
+    var(--ring) 38%,
+    var(--accent-subtle) 50%,
+    var(--ring) 62%,
+    var(--ring) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 0% 0;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.22;
+  pointer-events: none;
+  animation: chat-input-shimmer 6500ms linear infinite;
+}
+@keyframes chat-input-shimmer {
+  to { background-position: -220% 0; }
 }
 
 /* Global webkit scrollbar — transparent track so no white/light bar bleeds through */

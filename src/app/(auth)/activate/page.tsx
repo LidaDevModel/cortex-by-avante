@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PinInput } from "@/components/ui/pin-input";
+import { ProgressDonut } from "@/components/ui/progress-donut";
 import { showToast } from "@/components/ui/toast";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { completeActivation } from "@/lib/auth-mock";
@@ -28,10 +29,29 @@ export default function ActivatePage() {
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
 
-  // Step 2 — create password
+  // Step 2 — create password. Requirements are shown up front (not hidden in a
+  // tooltip) so the user knows exactly what "strong" needs — NIST 800-63B leans
+  // on clear guidance + length; we additionally require the composition below
+  // because activation issues a shared-device credential. The meter/word carry
+  // the strength colour; the field itself stays neutral (red = real error only).
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const passwordOk = password.length >= MIN_PASSWORD_LENGTH;
+  const passwordRules = [
+    { label: `${MIN_PASSWORD_LENGTH}+ characters`, ok: password.length >= MIN_PASSWORD_LENGTH },
+    { label: "Upper & lowercase", ok: /[a-z]/.test(password) && /[A-Z]/.test(password) },
+    { label: "1 number", ok: /[0-9]/.test(password) },
+    { label: "1 symbol", ok: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const metCount = passwordRules.filter((r) => r.ok).length;
+  const strength: "weak" | "medium" | "strong" =
+    metCount === passwordRules.length ? "strong" : metCount >= 2 ? "medium" : "weak";
+  const STRENGTH = {
+    weak: { label: "Weak", color: "var(--destructive)", segments: 1 },
+    medium: { label: "Medium", color: "var(--warning)", segments: 2 },
+    strong: { label: "Strong", color: "var(--primary)", segments: 3 },
+  } as const;
+  // "Strong" (all requirements) is required to continue.
+  const passwordOk = strength === "strong";
 
   // Presentation gating: each step's button enables once its fields are filled
   // in a valid shape (email has "@", PIN is 6 digits, password meets the length
@@ -77,33 +97,21 @@ export default function ActivatePage() {
         </Link>
       )}
 
-      {/* Stepper + title (the brand lives in the auth layout) */}
-      <div className="flex flex-col gap-4">
-        {/* Step progress — same segmented idiom as the readiness board */}
-        <div className="flex flex-col gap-2">
-          <div
-            className="flex gap-1.5"
-            role="progressbar"
-            aria-valuenow={step}
-            aria-valuemax={TOTAL_STEPS}
-            aria-label={`Step ${step} of ${TOTAL_STEPS}`}
-          >
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <div
-                key={i}
-                className="h-1.5 flex-1 rounded-full transition-colors duration-300"
-                style={{ background: i < step ? "var(--primary)" : "var(--border)" }}
-              />
-            ))}
-          </div>
-          <p className="text-[12px] leading-[16px] text-muted-foreground tabular-nums">
-            Step {step} of {TOTAL_STEPS}
-          </p>
-        </div>
-
-        <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground">
+      {/* Progress + title (the brand lives in the auth layout). The step count
+          reads from the same ring indicator as the dashboard readiness board,
+          with "[x] of [y]" in the centre instead of a percentage. */}
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground min-w-0">
           {step === 1 ? "Activate your account" : step === 2 ? "Create your password" : "Set up your profile"}
         </h1>
+        <ProgressDonut
+          value={(step / TOTAL_STEPS) * 100}
+          label={`${step} of ${TOTAL_STEPS}`}
+          ariaLabel={`Step ${step} of ${TOTAL_STEPS}`}
+          size={52}
+          stroke={4}
+          labelClassName="text-[11px] font-semibold"
+        />
       </div>
 
       {step === 3 ? (
@@ -154,7 +162,7 @@ export default function ActivatePage() {
         <form
           key="password"
           onSubmit={handleSetPassword}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-1"
           style={{ animation: "msg-in 200ms ease-out both" }}
           noValidate
         >
@@ -168,7 +176,7 @@ export default function ActivatePage() {
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 autoFocus
-                placeholder="At least 8 characters"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-12 bg-surface pr-11"
@@ -182,23 +190,59 @@ export default function ActivatePage() {
                 {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
               </button>
             </div>
-            {/* The rule lives up front, not in an error message */}
-            <p
-              className={`flex items-center gap-1.5 text-[12px] leading-[16px] transition-colors duration-100 ${
-                passwordOk ? "font-medium" : "text-muted-foreground"
-              }`}
-              style={passwordOk ? { color: "var(--primary)" } : undefined}
+            {/* Strength meter + word — always rendered (its height is reserved)
+                so nothing jumps when the assessment appears. Fill and word show
+                only once typing starts; the meter/word carry the colour, the
+                field stays neutral. */}
+            <div
+              className="flex items-center gap-3"
+              style={{ visibility: password.length > 0 ? "visible" : "hidden" }}
             >
-              {passwordOk && <Check size={13} strokeWidth={2.5} />}
-              At least {MIN_PASSWORD_LENGTH} characters
-            </p>
+              <div className="flex-1 flex gap-1.5" aria-hidden>
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="h-1.5 flex-1 rounded-full transition-colors duration-150"
+                    style={{
+                      background: i < STRENGTH[strength].segments ? STRENGTH[strength].color : "var(--progress-track)",
+                    }}
+                  />
+                ))}
+              </div>
+              <span
+                aria-live="polite"
+                className="text-[12px] leading-[16px] font-semibold shrink-0 tabular-nums text-right min-w-[3.5rem]"
+                style={{ color: STRENGTH[strength].color }}
+              >
+                {STRENGTH[strength].label}
+              </span>
+            </div>
+
+            {/* Requirements — all four are required for "strong". Read-only
+                status tags: ring-outlined, no fill (so dark shows no background
+                and light gets a visible ring). Short + borderless-fill so they
+                don't read as inputs or tappable filter pills. Met = green ring +
+                check; unmet = neutral ring, muted text. */}
+            <ul className="grid grid-cols-2 gap-2 pt-0.5">
+              {passwordRules.map((r) => (
+                <li
+                  key={r.label}
+                  aria-label={`${r.label} — ${r.ok ? "met" : "not met"}`}
+                  className="flex items-center justify-between gap-2 h-8 px-2.5 rounded-[8px] border text-[12px] leading-[16px] font-medium transition-colors duration-150"
+                  style={
+                    r.ok
+                      ? { borderColor: "color-mix(in srgb, var(--primary) 45%, transparent)", color: "var(--primary)" }
+                      : { borderColor: "var(--border)", color: "var(--muted-foreground)" }
+                  }
+                >
+                  <span className="truncate">{r.label}</span>
+                  {r.ok && <Check size={14} strokeWidth={2.5} className="shrink-0" />}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <p className="text-[12px] leading-[16px] text-muted-foreground">
-            You&apos;ll use this password to sign in from now on.
-          </p>
-
-          <Button type="submit" size="cta" className="w-full mt-1" disabled={!passwordOk}>
+          <Button type="submit" size="cta" className="w-full mt-3" disabled={!passwordOk}>
             Set password
           </Button>
         </form>
