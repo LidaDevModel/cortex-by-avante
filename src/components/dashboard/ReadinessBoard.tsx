@@ -62,10 +62,17 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
   const examHref = `/training/modules/${m.id}/exam`;
 
   const highlight = isPrimary && state !== "certified";
-  // In-progress and not-started rows are whole-surface links with the Quick
-  // practice hover (lift + shadow in light; background step in dark). The
-  // ready-to-certify row keeps its own button; certified rows just show a score.
+  // In-progress and not-started rows are whole-surface links to the module;
+  // certified rows are whole-surface links to the certification detail page
+  // (Home → readiness board entry point). Both get the Quick-practice hover
+  // (lift + shadow in light; background step in dark). The ready-to-certify row
+  // keeps its own "Get certified" button, so it is not a stretched link.
   const clickable = state === "in-progress" || state === "not-started";
+  const navigates = clickable || state === "certified";
+  const rowHref =
+    state === "certified"
+      ? `/profile/certifications/${m.id}?from=${encodeURIComponent("/dashboard")}`
+      : detailHref;
 
   return (
     <li
@@ -75,7 +82,7 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       // as recessed wells while every other dashboard chip reads raised).
       className={cn(
         "relative overflow-hidden flex flex-wrap items-center gap-3 rounded-[10px] p-3",
-        clickable
+        navigates
           ? "group cursor-pointer transition-[translate,scale,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
           : "transition-colors duration-150",
         !highlight && "bg-surface-lifted"
@@ -97,12 +104,18 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           : { border: "1px solid transparent" }
       }
     >
-      {/* Stretched link — makes the whole row clickable (no other interactive
-          element lives in these rows, so no nested-interactive issue). */}
-      {clickable && (
+      {/* Stretched link — makes the whole row clickable. In-progress/not-started
+          go to the module; certified goes to the certification detail page. The
+          ready-to-certify row is excluded (it owns a "Get certified" button, so
+          a stretched link would nest interactives). */}
+      {navigates && (
         <Link
-          href={detailHref}
-          aria-label={`${state === "in-progress" ? "Continue" : "Start"} ${m.title}`}
+          href={rowHref}
+          aria-label={
+            state === "certified"
+              ? `View ${m.title} certification`
+              : `${state === "in-progress" ? "Continue" : "Start"} ${m.title}`
+          }
           className="absolute inset-0 z-20 rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         />
       )}

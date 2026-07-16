@@ -11,7 +11,7 @@ import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { getModules, getRequiredModules, getCertifiedModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
+import { getModules, getRequiredModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
 import { getRecentDocuments } from "@/lib/library-mock";
 import { USER } from "@/lib/user-mock";
 
@@ -46,7 +46,9 @@ export default function DashboardPage() {
 
   const continueLearning = <ContinueLearning modules={inProgress} />;
   const quickPractice = <QuickPractice />;
-  const certifications = getCertifiedModules().length > 0 ? <CertificationsShelf /> : null;
+  // Always rendered — the shelf carries its own empty state, so a new hire sees
+  // a motivated widget instead of a hole in the grid.
+  const certifications = <CertificationsShelf />;
   // RecencyFeed self-hides when empty (14-day window = the lib defaults) —
   // mirrored here so a lone sibling isn't stranded in a half-width column.
   const hasRecent = getRecentDocuments().length > 0 || getRecentModules().length > 0;

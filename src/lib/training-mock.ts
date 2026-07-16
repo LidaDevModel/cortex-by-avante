@@ -12,9 +12,16 @@ export type ModuleCategory = "first-aid" | "escalations" | "clients" | "incident
  * The two are deliberately independent — a completed-but-uncertified module is
  * the "quickest win" on the readiness board.
  */
+/** The four exam sections, in order — the certification detail breakdown zips
+    these labels against a certification's `sectionScores`. Matches the exam
+    engine's four parts (see MOCK_EXAM). */
+export const EXAM_SECTIONS = ["Multiple choice", "Matching", "Short answer", "Scenario"] as const;
+
 export type Certification = {
   score: number; // 0-100, always ≥ PASS_MARK when present
   date: string; // ISO date the certification was issued
+  /** Per-section results, aligned to EXAM_SECTIONS. Their mean is `score`. */
+  sectionScores: number[];
 };
 
 /** Two-stage requirement state, derived from status + certification. */
@@ -41,15 +48,15 @@ export type Module = {
 export const MODULES: Module[] = [
   { id: "1", title: "Escalation Procedures 1", chapters: 6, hours: 2, progress: 33, status: "in-progress", required: true, category: "escalations", assignedDate: "2026-05-12" },
   { id: "2", title: "First Aid Awareness 1", chapters: 6, hours: 2, progress: 90, status: "in-progress", required: false, category: "first-aid", assignedDate: "2026-04-20" },
-  { id: "3", title: "Incident Response 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "incidents", assignedDate: "2026-05-01", certification: { score: 92, date: "2026-06-22" } },
+  { id: "3", title: "Incident Response 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "incidents", assignedDate: "2026-05-01", certification: { score: 92, date: "2026-06-22", sectionScores: [95, 92, 88, 93] } },
   { id: "4", title: "Client Protocols 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "clients", assignedDate: "2026-04-28" },
   { id: "5", title: "Security Protocols 1", chapters: 6, hours: 2, progress: 0, status: "not-started", required: true, category: "incidents", assignedDate: "2026-07-05" },
   { id: "6", title: "Guard Duty Fundamentals", chapters: 4, hours: 1, progress: 60, status: "in-progress", required: true, category: "clients", assignedDate: "2026-05-18" },
   { id: "7", title: "Emergency Procedures 1", chapters: 5, hours: 2, progress: 0, status: "not-started", required: false, category: "escalations", assignedDate: "2026-06-30" },
-  { id: "8", title: "First Aid Awareness 2", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "first-aid", assignedDate: "2026-03-15", certification: { score: 100, date: "2026-06-10" } },
-  { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-04-10", certification: { score: 88, date: "2026-05-28" } },
-  { id: "10", title: "Radio Communications", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "incidents", assignedDate: "2026-03-20", certification: { score: 95, date: "2026-05-20" } },
-  { id: "11", title: "Workplace Safety Basics", chapters: 5, hours: 2, progress: 100, status: "completed", required: false, category: "first-aid", assignedDate: "2026-03-05", certification: { score: 100, date: "2026-05-12" } },
+  { id: "8", title: "First Aid Awareness 2", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "first-aid", assignedDate: "2026-03-15", certification: { score: 100, date: "2026-06-10", sectionScores: [100, 100, 100, 100] } },
+  { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-04-10", certification: { score: 88, date: "2026-05-28", sectionScores: [92, 88, 84, 88] } },
+  { id: "10", title: "Radio Communications", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "incidents", assignedDate: "2026-03-20", certification: { score: 95, date: "2026-05-20", sectionScores: [98, 96, 90, 96] } },
+  { id: "11", title: "Workplace Safety Basics", chapters: 5, hours: 2, progress: 100, status: "completed", required: false, category: "first-aid", assignedDate: "2026-03-05", certification: { score: 100, date: "2026-05-12", sectionScores: [100, 100, 100, 100] } },
 ];
 
 /**

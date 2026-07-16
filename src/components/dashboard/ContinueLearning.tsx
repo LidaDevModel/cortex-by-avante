@@ -67,7 +67,15 @@ function AccordionItem({
   return (
     <li
       // In-card chip: surface on the raised widget card (light) / lifted 0.34 (dark).
-      className="relative overflow-hidden rounded-[12px] bg-surface-lifted transition-[height] duration-200 ease-out"
+      // Collapsed rows carry the shared item hover (lift + shadow in light; a
+      // background step in dark) — matching the readiness/quick-practice lists.
+      // The expanded card doesn't lift (it owns a Resume button). overflow-hidden
+      // clips the cross-fading children, not the li's own outset shadow.
+      className={`relative overflow-hidden rounded-[12px] bg-surface-lifted ease-out transition-[height,translate,box-shadow,background-color] duration-200 ${
+        expanded
+          ? ""
+          : "cursor-pointer hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
+      }`}
       style={{ height, border: "1px solid transparent" }}
     >
       {/* Expanded card — in flow, defines the expanded height */}
@@ -139,7 +147,31 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
   const items = [...modules].sort((a, b) => b.progress - a.progress);
   const [expandedId, setExpandedId] = useState(items[0]?.id ?? "");
 
-  if (items.length === 0) return null;
+  // Empty state (new hire, nothing started yet) — kept as a full widget so the
+  // dashboard grid stays whole instead of dropping a cell. Motivates the first
+  // step rather than showing an apologetic blank.
+  if (items.length === 0) {
+    return (
+      <section
+        className="h-full rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
+        style={{ border: "1px solid var(--border)" }}
+      >
+        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-6">
+          <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[260px]">
+            Start your first module!
+          </p>
+          <Link
+            href="/training/modules"
+            className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+            style={{ color: "var(--primary)" }}
+          >
+            Browse modules
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

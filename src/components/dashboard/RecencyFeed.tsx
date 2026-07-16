@@ -35,9 +35,9 @@ function DocRow({ doc }: { doc: LibraryDoc }) {
   return (
     <Link
       href={`/library/files/${doc.id}`}
-      // No bloom on doc rows, so the bg does the work: the chip tone matches the
-      // bloomed module rows' effective luminance. Hover steps once more.
-      className="group flex items-center gap-3 px-4 py-3 border-t border-border first:border-t-0 bg-surface-chip transition-[background-color,scale] duration-100 hover:bg-surface-chip-hover active:scale-[0.99]"
+      // Spaced chip carrying the shared item hover (lift + shadow in light;
+      // background step in dark), matching the readiness/quick-practice lists.
+      className="group relative flex items-center gap-3 rounded-[10px] p-3 bg-surface-lifted transition-[translate,scale,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
     >
       <span className="shrink-0" style={{ width: 40 }}>
         <FileIllustration uid={uid} shadowOpacity={shadowOpacity} />
@@ -56,7 +56,7 @@ function ModuleRow({ module: m }: { module: Module }) {
   return (
     <Link
       href={`/training/modules/${m.id}`}
-      className="relative overflow-hidden flex items-center gap-3 px-4 py-3 border-t border-border first:border-t-0 transition-[background-color,scale] duration-100 hover:bg-surface-chip-hover dark:hover:bg-surface-chip active:scale-[0.99]"
+      className="relative overflow-hidden flex items-center gap-3 rounded-[10px] p-3 bg-surface-lifted transition-[translate,scale,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
     >
       <ModuleIcon category={m.category} size={36} />
       <span className="relative z-10 flex flex-col min-w-0 flex-1">
@@ -118,9 +118,9 @@ export function RecencyFeed() {
       </div>
 
       {filtered.length > 0 ? (
-        // In-card list block on the lifted tone; hairline dividers keep the list
-        // structure; row hover steps once more (raised in light, --accent in dark).
-        <div className="flex flex-col rounded-[12px] overflow-hidden bg-surface-lifted">
+        // Spaced chips (no connecting wrapper) so each row can lift with its own
+        // shadow on hover — same item treatment as the other dashboard widgets.
+        <div className="flex flex-col gap-2">
           {filtered.map((r) =>
             r.kind === "doc" ? <DocRow key={r.key} doc={r.doc} /> : <ModuleRow key={r.key} module={r.module} />
           )}

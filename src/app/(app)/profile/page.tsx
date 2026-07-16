@@ -146,17 +146,16 @@ export default function ProfilePage() {
             className="scroll-mt-8 rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
-              Certifications ({certified.length})
-            </h2>
-            {certified.length > 0 ? (
-              <>
-                {/* Category pills — the skill areas the user is certified in
-                    (icon · label · count), doubling as a single-select filter
-                    over the grid below. Defaults to All; only categories the
-                    user actually holds appear, so a filter never empties. */}
-                {skillAreas.length > 1 && (
-                  <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+                Certifications ({certified.length})
+              </h2>
+              {/* Category pills — same row as the title, right-aligned. The skill
+                  areas the user is certified in (icon · label · count), doubling
+                  as a single-select filter over the grid below. Only categories
+                  the user holds appear, so a filter never empties. */}
+              {certified.length > 0 && skillAreas.length > 1 && (
+                <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       aria-pressed={catFilter === "all"}
@@ -193,15 +192,16 @@ export default function ProfilePage() {
                         </button>
                       );
                     })}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {shownCerts.map((m, i) => (
-                    <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} />
-                  ))}
                 </div>
-              </>
+              )}
+            </div>
+
+            {certified.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {shownCerts.map((m, i) => (
+                  <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} returnTo="/profile#certifications" />
+                ))}
+              </div>
             ) : (
               <div className="flex flex-col items-start gap-2 py-4">
                 <p className="text-[14px] leading-[20px] text-muted-foreground">
