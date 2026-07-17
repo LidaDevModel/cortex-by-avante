@@ -6,6 +6,7 @@ import { FileText } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { PageHeader } from "@/components/ui/page-header";
+import { NotFoundState } from "@/components/ui/not-found-state";
 import { DetailHeader } from "@/components/ui/page-header";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
@@ -67,9 +68,12 @@ export default function FolderDetailPage() {
     return (
       <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
         <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: "Folder" }]} />
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground text-[14px]">Folder not found.</p>
-        </div>
+        <NotFoundState
+          title="Folder not found"
+          description="This folder may have been moved or removed from the Library."
+          actionLabel="Back to Library"
+          actionHref="/library"
+        />
       </div>
     );
   }

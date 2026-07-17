@@ -315,17 +315,23 @@
   .cortex-card-border {
     position: relative;
   }
-  .cortex-card-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 0.75rem;
-    box-shadow: inset 0 0 0 1px var(--card-border);
-    pointer-events: none;
-    z-index: 20;
-  }
-  .dark .cortex-card-border::before {
-    box-shadow: inset 0 0 0 1px var(--card-border);
+  /* Desktop-only card frame. Below md the sidebar is hidden and the content
+     goes full-bleed, so this rounded inset border would just wrap the whole
+     viewport like a stray modal frame. Only draw it where the sidebar + card
+     layout actually exists (the same breakpoint the sidebar appears at). */
+  @media (min-width: 768px) {
+    .cortex-card-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 0.75rem;
+      box-shadow: inset 0 0 0 1px var(--card-border);
+      pointer-events: none;
+      z-index: 20;
+    }
+    .dark .cortex-card-border::before {
+      box-shadow: inset 0 0 0 1px var(--card-border);
+    }
   }
 }
 
