@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, FileText, Target } from "lucide-react";
+import { Bell, BookOpen, FileText, Target, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
 import { daysSince } from "@/lib/utils";
@@ -63,23 +63,38 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
     <div className="flex flex-col min-h-0">
       {/* The sheet carries its own title, so the label is desktop-only —
           say it once. */}
-      {(showTitle || unread > 0) && (
-        <div className={`flex items-center gap-3 px-4 pt-3 pb-2 ${showTitle ? "justify-between" : "justify-end"}`}>
+      {(showTitle || items.length > 0) && (
+        <div
+          className={`flex items-center gap-3 px-4 ${
+            showTitle
+              ? "pt-3 pb-2 justify-between"
+              : // Mobile: title/close live in the sheet header above. Push
+                // "Mark all as read" well clear of that row (no corner mis-taps)
+                // and hug it to the list it acts on.
+                "pt-6 pb-1 justify-end"
+          }`}
+        >
           {showTitle && (
             <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
               Notifications
             </span>
           )}
-          {unread > 0 && (
-            <button
-              type="button"
-              onClick={() => markAllRead()}
-              className="text-[12px] leading-[16px] font-medium transition-opacity duration-100 hover:opacity-70 cursor-pointer"
-              style={{ color: "var(--primary)" }}
-            >
-              Mark all as read
-            </button>
-          )}
+          {/* Always rendered so its spot is predictable — fades to invisible
+              (and inert: no pointer, not focusable) when nothing's unread,
+              rather than disappearing and shifting the layout. */}
+          <button
+            type="button"
+            onClick={() => markAllRead()}
+            disabled={unread === 0}
+            aria-hidden={unread === 0}
+            tabIndex={unread === 0 ? -1 : 0}
+            className={`text-[12px] leading-[16px] font-medium transition-opacity duration-100 ${
+              unread > 0 ? "opacity-100 hover:opacity-70 cursor-pointer" : "opacity-0 pointer-events-none"
+            }`}
+            style={{ color: "var(--primary)" }}
+          >
+            Mark all as read
+          </button>
         </div>
       )}
 
@@ -166,6 +181,10 @@ export function NotificationsBell() {
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent
             side="right"
+            // showCloseButton off: the default sheet "×" is absolutely floated
+            // into the corner, so it never shares the title's row. We render our
+            // own close inside the header row instead (aligned with the title).
+            showCloseButton={false}
             className="w-[320px] bg-surface p-0 gap-0 flex flex-col"
             // Initial focus must not land on "Mark all as read" (Radix's
             // first-focusable default) — an accidental activation would wipe
@@ -176,10 +195,22 @@ export function NotificationsBell() {
             }}
           >
             <SheetHeader className="px-4 pt-4 pb-0">
-              <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
-                <Bell size={16} strokeWidth={1.5} />
-                Notifications
-              </SheetTitle>
+              {/* Title + close share one row, vertically centered. */}
+              <div className="flex items-center justify-between gap-2">
+                <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+                  <Bell size={16} strokeWidth={1.5} />
+                  Notifications
+                </SheetTitle>
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    className="-mr-1.5 flex items-center justify-center w-10 h-10 rounded-lg text-muted-foreground transition-colors duration-100 hover:text-foreground hover:bg-foreground/5 cursor-pointer"
+                  >
+                    <X size={18} strokeWidth={1.5} />
+                  </button>
+                </SheetClose>
+              </div>
             </SheetHeader>
             <PanelBody onOpen={openItem} showTitle={false} />
           </SheetContent>
