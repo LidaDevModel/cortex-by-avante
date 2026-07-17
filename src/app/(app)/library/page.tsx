@@ -74,7 +74,7 @@ export default function LibraryPage() {
                   CertificationsShelf). */}
               <EdgeFadeScroller
                 wrapperClassName="-mx-4 sm:-mx-2"
-                className="flex gap-2 snap-x px-4 scroll-px-4 sm:px-2 sm:scroll-px-2"
+                className="flex gap-2 snap-x px-4 scroll-px-4 sm:px-2 sm:scroll-px-2 py-3"
               >
                 {RECENTLY_VIEWED.map((item) => (
                   <RecentlyViewedCard
