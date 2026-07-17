@@ -115,14 +115,16 @@ export default function ActivatePage() {
       </div>
 
       {step === 3 ? (
-        <div key="profile" style={{ animation: "msg-in 200ms ease-out both" }}>
+        // mt-2 lifts title→content to 32px visible — the runway sign-in's muted
+        // subtitle line creates before its form (visual parity, not measured).
+        <div key="profile" className="mt-2" style={{ animation: "msg-in 200ms ease-out both" }}>
           <ProfileForm mode="onboarding" onDone={finishOnboarding} />
         </div>
       ) : step === 1 ? (
         <form
           key="verify"
           onSubmit={handleVerify}
-          className="flex flex-col gap-1"
+          className="flex flex-col gap-1 mt-2"
           style={{ animation: "msg-in 200ms ease-out both" }}
           noValidate
         >
@@ -154,7 +156,9 @@ export default function ActivatePage() {
             </p>
           </div>
 
-          <Button type="submit" size="cta" className="w-full mt-3" disabled={!step1Valid}>
+          {/* mt-8: the PIN helper above is visible content (no invisible reserved
+              line), so the CTA needs the air explicitly to match sign-in's look. */}
+          <Button type="submit" size="cta" className="w-full mt-8" disabled={!step1Valid}>
             Verify PIN
           </Button>
         </form>
@@ -162,7 +166,7 @@ export default function ActivatePage() {
         <form
           key="password"
           onSubmit={handleSetPassword}
-          className="flex flex-col gap-1"
+          className="flex flex-col gap-1 mt-2"
           style={{ animation: "msg-in 200ms ease-out both" }}
           noValidate
         >
@@ -223,7 +227,7 @@ export default function ActivatePage() {
                 and light gets a visible ring). Short + borderless-fill so they
                 don't read as inputs or tappable filter pills. Met = green ring +
                 check; unmet = neutral ring, muted text. */}
-            <ul className="grid grid-cols-2 gap-2 pt-0.5">
+            <ul className="grid grid-cols-2 gap-2">
               {passwordRules.map((r) => (
                 <li
                   key={r.label}
@@ -242,7 +246,9 @@ export default function ActivatePage() {
             </ul>
           </div>
 
-          <Button type="submit" size="cta" className="w-full mt-3" disabled={!passwordOk}>
+          {/* mt-8: same rule as step 1 — the requirement chips are visible, so
+              the CTA carries the sign-in-equivalent air itself. */}
+          <Button type="submit" size="cta" className="w-full mt-8" disabled={!passwordOk}>
             Set password
           </Button>
         </form>

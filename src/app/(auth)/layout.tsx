@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-context";
 import { Toaster } from "@/components/ui/toast";
 import { BlobField } from "@/components/chat/BlobField";
+import { AuthCursorGlow } from "@/components/auth/AuthCursorGlow";
 
 /**
  * Auth surface — no app shell. Desktop: a split screen — the brand panel on
@@ -16,6 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Brand panel — desktop only */}
         <aside className="relative hidden lg:flex w-1/2 shrink-0 flex-col justify-between gap-8 p-10 overflow-hidden canvas-glow border-r border-border">
           <BlobField />
+          <AuthCursorGlow />
 
           <div className="relative z-10 flex flex-col gap-0.5">
             <span className="text-[22px] leading-[30px] font-bold tracking-tight" style={{ color: "var(--primary)" }}>
