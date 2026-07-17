@@ -5,6 +5,7 @@ import { Mic, ArrowUp, Square, X, Check, Paperclip } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { showToast } from "@/components/ui/toast";
 import { AttachmentChip, type Attachment } from "@/components/chat/AttachmentChip";
+import { EdgeFadeScroller } from "@/components/ui/edge-fade-scroller";
 import { DetailDial } from "@/components/chat/DetailDial";
 import { type DetailLevel } from "@/lib/chat-mock";
 
@@ -14,6 +15,7 @@ const DEFAULT_PLACEHOLDER = "Ask anything about protocols, procedures, or guidel
 const DEFAULT_DICTATION = "What are the standard patrol protocols for the night shift?";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_ATTACHMENTS = 10; // per message — images + files combined
 const DOC_TYPES = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"];
 
 // ─── Waveform ────────────────────────────────────────────────────────────────
@@ -118,6 +120,7 @@ export function ChatComposer({
 
   const hasText = inputValue.trim().length > 0;
   const canSend = hasText || attachments.length > 0;
+  const attachmentsFull = attachments.length >= MAX_ATTACHMENTS;
   const isScrollable = textareaHeight >= MAX_HEIGHT;
 
   const updateTaScroll = () => {
@@ -171,7 +174,15 @@ export function ChatComposer({
   function addFiles(files: FileList | File[]) {
     const incoming = Array.from(files);
     if (incoming.length === 0) return;
+    // Combined image+file ceiling per message (mirrors a real multimodal
+    // backend's cap). Already full → say so and take nothing.
+    const remaining = MAX_ATTACHMENTS - attachments.length;
+    if (remaining <= 0) {
+      showToast({ title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
+      return;
+    }
     const accepted: Attachment[] = [];
+    let hitLimit = false;
     for (const file of incoming) {
       const isImage = file.type.startsWith("image/");
       const isDoc = DOC_TYPES.includes(file.type);
@@ -183,15 +194,26 @@ export function ChatComposer({
         showToast({ title: "Couldn't attach file", description: "Files must be under 10 MB." });
         continue;
       }
+      // Partial accept: fill the remaining slots, flag the overflow once.
+      if (accepted.length >= remaining) {
+        hitLimit = true;
+        break;
+      }
       accepted.push({
         id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         name: file.name,
         size: file.size,
         kind: isImage ? "image" : "file",
-        url: isImage ? URL.createObjectURL(file) : undefined,
+        type: file.type,
+        // Object URL for both kinds now — the sent tile/card opens it in the
+        // viewer (images inline, PDF/text via the browser). Revoked on remove.
+        url: URL.createObjectURL(file),
       });
     }
-    if (accepted.length > 0) setAttachments((prev) => [...prev, ...accepted]);
+    if (hitLimit) {
+      showToast({ title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
+    }
+    if (accepted.length > 0) setAttachments((prev) => [...prev, ...accepted].slice(0, MAX_ATTACHMENTS));
   }
 
   function removeAttachment(id: string) {
@@ -327,13 +349,15 @@ export function ChatComposer({
         )}
       </div>
 
-      {/* Attachment tray — between the text and the toolbar */}
+      {/* Attachment tray — between the text and the toolbar. A single rail
+          with scroll-edge fades (house pattern) instead of wrapping rows;
+          fade color matches the composer's surface. */}
       {attachments.length > 0 && !isRecording && (
-        <div className="flex flex-wrap gap-2 px-1">
+        <EdgeFadeScroller className="flex gap-2 px-1 py-0.5">
           {attachments.map((a) => (
             <AttachmentChip key={a.id} attachment={a} onRemove={() => removeAttachment(a.id)} />
           ))}
-        </div>
+        </EdgeFadeScroller>
       )}
 
       {/* Row 2 — toolbar. Recording: the waveform fills the row with cancel (X)
@@ -371,15 +395,16 @@ export function ChatComposer({
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className={`${iconBtn} text-muted-foreground hover:text-foreground`}
+                    className={`${iconBtn} text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-muted-foreground`}
                     aria-label="Attach files"
-                    onClick={() => fileInputRef.current?.click()}
+                    disabled={attachmentsFull}
+                    onClick={() => { if (!attachmentsFull) fileInputRef.current?.click(); }}
                   >
                     <Paperclip size={16} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
-                  Attach files
+                  {attachmentsFull ? `Up to ${MAX_ATTACHMENTS} per message` : "Attach files"}
                 </TooltipContent>
               </Tooltip>
             )}

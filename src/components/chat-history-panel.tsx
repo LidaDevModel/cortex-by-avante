@@ -46,14 +46,56 @@ const MOCK_CONVERSATIONS: Conversation[] = [
 
 const GROUPS = ["Today", "Yesterday", "Last 7 days", "Last 30 days"] as const;
 
+// Conversations the user has left (archived from the chat screen) live in
+// localStorage so they survive navigating away and back, and appear under
+// "Today" ahead of the mock defaults. Archived ids are prefixed so rename/delete
+// can write the change back to the store.
+const ARCHIVE_KEY = "cortex-chat-archived";
+
+function loadArchived(): Conversation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const arr = JSON.parse(localStorage.getItem(ARCHIVE_KEY) ?? "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+function persistArchived(list: Conversation[]) {
+  try {
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list.slice(0, 50)));
+  } catch {
+    /* storage full / unavailable — non-fatal */
+  }
+}
+
 /** Conversation list state, lifted so the desktop rail and the mobile sheet
     (both mounted, breakpoint-swapped) share one source of truth. */
 export function useConversations() {
-  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
-  const rename = (id: string, title: string) =>
+  const [conversations, setConversations] = useState<Conversation[]>(MOCK_CONVERSATIONS);
+  // Merge archived conversations in after mount (they're client-only storage).
+  useEffect(() => {
+    const archived = loadArchived();
+    if (archived.length) setConversations([...archived, ...MOCK_CONVERSATIONS]);
+  }, []);
+  const rename = (id: string, title: string) => {
     setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
-  const remove = (id: string) => setConversations((prev) => prev.filter((c) => c.id !== id));
-  return { conversations, rename, remove };
+    if (id.startsWith("arch-")) persistArchived(loadArchived().map((c) => (c.id === id ? { ...c, title } : c)));
+  };
+  const remove = (id: string) => {
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    if (id.startsWith("arch-")) persistArchived(loadArchived().filter((c) => c.id !== id));
+  };
+  // Record a just-left conversation into history (most recent first) — updates
+  // the live list AND the store, so it shows under "Today" on this same return.
+  const archive = (title: string) => {
+    const t = title.trim();
+    if (!t) return;
+    const convo: Conversation = { id: `arch-${Date.now()}`, title: t, group: "Today" };
+    setConversations((prev) => [convo, ...prev]);
+    persistArchived([convo, ...loadArchived()]);
+  };
+  return { conversations, rename, remove, archive };
 }
 
 function ConversationItem({

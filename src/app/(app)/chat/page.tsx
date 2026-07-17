@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowDown, ChevronDown, ChevronLeft, History, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ChevronDown, ChevronLeft, History, Pencil, SquarePen, Trash2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ChatHistoryPanel, ChatHistorySheet, useConversations, type Conversation } from "@/components/chat-history-panel";
 import {
@@ -48,9 +48,10 @@ function loadPersistedChat(): { messages: Message[]; title: string | null } {
 
 export default function ChatPage() {
   const [showHistory, setShowHistory] = useState(false);
+  const historyRailRef = useRef<HTMLDivElement>(null);
   // Mobile: history lives in a sheet (the inline rail would eat the chat column).
   const [historySheetOpen, setHistorySheetOpen] = useState(false);
-  const { conversations, rename: renameConversation, remove: removeConversation } = useConversations();
+  const { conversations, rename: renameConversation, remove: removeConversation, archive: archiveConversation } = useConversations();
   const [isAiResponding, setIsAiResponding] = useState(false);
 
   // How explanatory answers should be — a lasting per-device preference.
@@ -83,6 +84,22 @@ export default function ChatPage() {
 
   const hasConversation = messages.length > 0;
 
+  // The sticky input bar's height drives the bottom fade + scroll-to-bottom
+  // button so they float just above the composer at ANY height — it grows with
+  // attachments and multi-line drafts. Default (112) matches the one-line bar so
+  // the first paint is right before the observer measures. Measured, not a magic
+  // per-element offset.
+  const inputBarRef = useRef<HTMLDivElement>(null);
+  const [inputBarH, setInputBarH] = useState(112);
+  useEffect(() => {
+    const el = inputBarRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setInputBarH(el.offsetHeight));
+    ro.observe(el);
+    setInputBarH(el.offsetHeight);
+    return () => ro.disconnect();
+  }, [hasConversation]);
+
   useEffect(() => {
     if (isRenamingTitle) titleInputRef.current?.focus();
   }, [isRenamingTitle]);
@@ -94,12 +111,11 @@ export default function ChatPage() {
     };
   }, []);
 
-  // On mount: a ?q= (e.g. from the dashboard "Ask Cortex" entry) starts a fresh
-  // question; otherwise restore the persisted conversation so returning from a
-  // citation source lands you back where you were.
+  // On mount: a launch/?q= starts a fresh question; otherwise the conversation
+  // persists — restore it so navigating away and back (including a citation
+  // round-trip) lands you where you were. Starting fresh is the explicit "New
+  // conversation" action, never an automatic side effect of navigating.
   useEffect(() => {
-    // A launch from the dashboard "Ask Cortex" box (text + any files) takes
-    // priority; then a ?q= text-only entry; otherwise restore the persisted chat.
     const launch = takeChatLaunch();
     if (launch && (launch.text.trim() || launch.attachments?.length)) {
       handleSubmit(launch.text.trim(), launch.attachments ?? []);
@@ -132,6 +148,24 @@ export default function ChatPage() {
       /* storage full / unavailable — non-fatal */
     }
   }, [messages, conversationTitle, isAiResponding]);
+
+  // Desktop history rail: collapse on an outside click (the mobile sheet already
+  // dismisses on outside tap). The rail's own toggle lives inside the ref, so it
+  // still opens/closes normally.
+  useEffect(() => {
+    if (!showHistory) return;
+    function onPointerDown(e: PointerEvent) {
+      const node = e.target as Node;
+      if (historyRailRef.current?.contains(node)) return;
+      // The per-item rename/delete menus render in a Radix portal outside the
+      // rail — don't treat interacting with those as an outside click.
+      const el = node instanceof Element ? node : node.parentElement;
+      if (el?.closest('[data-radix-popper-content-wrapper],[role="menu"]')) return;
+      setShowHistory(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [showHistory]);
 
   function generateTitle(text: string) {
     const t = text.trim();
@@ -279,6 +313,24 @@ export default function ChatPage() {
     setIsAiResponding(false);
   }
 
+  // Explicit "New conversation" — file the current exchange under history (so
+  // it's never lost) and reset to a fresh chat. The only way a conversation
+  // ends; navigating away just leaves it be.
+  function handleNewConversation() {
+    if (!hasConversation) return;
+    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    setIsAiResponding(false);
+    const firstUser = messages.find((m) => m.role === "user");
+    archiveConversation(conversationTitle || firstUser?.content || "New conversation");
+    setMessages([]);
+    setConversationTitle(null);
+    try {
+      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      /* non-fatal */
+    }
+  }
+
   // Restore a past conversation from the history panel as a completed exchange.
   function handleSelectConversation(conversation: Conversation) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
@@ -367,15 +419,32 @@ export default function ChatPage() {
             )
           )}
 
-          {/* Mobile-only history trigger — the desktop rail is hidden below md */}
-          <button
-            type="button"
-            onClick={() => setHistorySheetOpen(true)}
-            aria-label="Old conversations"
-            className="md:hidden ml-auto flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
-          >
-            <History size={16} strokeWidth={1.5} />
-          </button>
+          <div className="ml-auto flex items-center gap-1.5">
+            {/* New conversation — an outlined action (not a ghost utility icon),
+                so it never reads as a twin of the history control. Only shown
+                inside a conversation; the empty screen is already a new chat. */}
+            {hasConversation && (
+              <button
+                type="button"
+                onClick={handleNewConversation}
+                aria-label="New conversation"
+                className="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
+                style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
+              >
+                <SquarePen size={15} strokeWidth={1.75} />
+                <span className="hidden sm:inline">New chat</span>
+              </button>
+            )}
+            {/* Mobile-only history trigger — the desktop rail is hidden below md */}
+            <button
+              type="button"
+              onClick={() => setHistorySheetOpen(true)}
+              aria-label="Old conversations"
+              className="md:hidden flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
+            >
+              <History size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         </header>
 
         {/* Screen-reader announcement for response state */}
@@ -392,7 +461,7 @@ export default function ChatPage() {
               className="absolute left-0 h-20 pointer-events-none z-10 transition-opacity duration-200"
               style={{
                 right: 12,
-                bottom: 112,
+                bottom: inputBarH,
                 background: "linear-gradient(to top, var(--surface) 30%, transparent)",
                 opacity: msgsCanScrollDown ? 1 : 0,
               }}
@@ -401,7 +470,7 @@ export default function ChatPage() {
             <div
               className="absolute left-1/2 -translate-x-1/2 z-20 transition-all duration-200"
               style={{
-                bottom: 120,
+                bottom: inputBarH + 8,
                 opacity: msgsCanScrollDown ? 1 : 0,
                 pointerEvents: msgsCanScrollDown ? "auto" : "none",
               }}
@@ -443,7 +512,7 @@ export default function ChatPage() {
                 {/* Sticky input — same centering as messages above. Bottom
                     padding clears the home-indicator safe area now that the
                     mobile nav yields on chat (nothing sits below the composer). */}
-                <div className="sticky bottom-0 px-4 sm:px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-2 flex flex-col items-center gap-2 bg-surface">
+                <div ref={inputBarRef} className="sticky bottom-0 px-4 sm:px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-2 flex flex-col items-center gap-2 bg-surface">
                   <div className="w-full max-w-[560px] relative">
                     <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
                   </div>
@@ -478,11 +547,11 @@ export default function ChatPage() {
       </div>
 
       {/* Desktop: inline history rail. Mobile: sheet (below). */}
-      <div className="relative z-10 hidden md:flex shrink-0">
+      <div ref={historyRailRef} className="relative z-10 hidden md:flex shrink-0">
       <ChatHistoryPanel
         isOpen={showHistory}
         onToggle={() => setShowHistory(v => !v)}
-        onSelect={handleSelectConversation}
+        onSelect={(c) => { handleSelectConversation(c); setShowHistory(false); }}
         conversations={conversations}
         onRename={renameConversation}
         onDelete={removeConversation}
