@@ -262,9 +262,13 @@ export function MobileTabBar() {
             )}
             style={{ boxShadow: "var(--shadow-floating)" }}
           >
-            <Avatar className="h-11 w-11">
+            {/* Fill the wrapper — the button's own border is the single outline
+                (matches the tab pill), so suppress the Avatar's default border
+                to avoid a double line; the fill covers the surface so no padding
+                "ring" shows. */}
+            <Avatar className="h-full w-full border-0">
               {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-              <AvatarFallback className="bg-secondary text-primary font-semibold text-[13px]">
+              <AvatarFallback className="bg-secondary text-primary font-semibold text-[15px]">
                 {USER.initials}
               </AvatarFallback>
             </Avatar>
@@ -282,15 +286,19 @@ export function MobileTabBar() {
                   key={tab.href}
                   href={tab.href}
                   aria-current={isActive ? "page" : undefined}
-                  // Active state is colour only — no pill behind the icon. (The
-                  // pill stays the desktop sidebar's active treatment.)
+                  // Active state = colour + weight (no pill behind the icon; the
+                  // pill stays the desktop sidebar's treatment). The heavier
+                  // stroke + semibold label give a "you are here" cue that reads
+                  // in light mode, where the colour shift alone under-reads.
                   className={cn(
                     "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150",
                     isActive ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  <tab.icon size={20} strokeWidth={1.5} />
-                  <span className="text-[11px] leading-[14px] font-medium">{tab.label}</span>
+                  <tab.icon size={20} strokeWidth={isActive ? 2.25 : 1.5} />
+                  <span className={cn("text-[11px] leading-[14px]", isActive ? "font-semibold" : "font-medium")}>
+                    {tab.label}
+                  </span>
                 </Link>
               );
             })}
@@ -311,7 +319,7 @@ export function MobileTabBar() {
               <span className="relative flex items-center justify-center">
                 <BookOpen
                   size={20}
-                  strokeWidth={1.5}
+                  strokeWidth={trainingActive || trainingDialShown ? 2.25 : 1.5}
                   className={cn(
                     "transition-[opacity,rotate] duration-150",
                     trainingDialShown ? "opacity-0 rotate-90" : "opacity-100 rotate-0"
@@ -319,14 +327,21 @@ export function MobileTabBar() {
                 />
                 <X
                   size={20}
-                  strokeWidth={1.5}
+                  strokeWidth={trainingActive || trainingDialShown ? 2.25 : 1.5}
                   className={cn(
                     "absolute transition-[opacity,rotate] duration-150",
                     trainingDialShown ? "opacity-100 rotate-0" : "opacity-0 -rotate-90"
                   )}
                 />
               </span>
-              <span className="text-[11px] leading-[14px] font-medium">Training</span>
+              <span
+                className={cn(
+                  "text-[11px] leading-[14px]",
+                  trainingActive || trainingDialShown ? "font-semibold" : "font-medium"
+                )}
+              >
+                Training
+              </span>
             </button>
           </div>
         </div>

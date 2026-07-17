@@ -131,9 +131,9 @@ export function CortexSidebar() {
                   tooltip={`${USER.fullName} · ${USER.role}`}
                   className="gap-3 h-auto py-2 rounded-lg"
                 >
-                  <Avatar className="h-7 w-7 rounded-lg shrink-0">
+                  <Avatar className="h-7 w-7 rounded-full shrink-0">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-                    <AvatarFallback className="rounded-lg bg-secondary text-primary font-semibold text-xs">
+                    <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-xs">
                       {USER.initials}
                     </AvatarFallback>
                   </Avatar>
