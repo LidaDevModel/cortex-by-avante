@@ -91,8 +91,12 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       style={
         highlight
           ? {
+              // Tint only — the emphasis now lives in the explicit "Start module"
+              // CTA on this row, not an outline (a border reads as "selected",
+              // not "do this"). Transparent border keeps sizing identical to the
+              // other rows so the same component doesn't shift.
               background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-              border: "1px solid color-mix(in srgb, var(--primary) 30%, transparent)",
+              border: "1px solid transparent",
             }
           : state === "certified"
           ? {
@@ -178,6 +182,19 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           Get certified
           <ArrowRight size={15} strokeWidth={2} />
         </Link>
+      ) : highlight ? (
+        // Primary (next) row: an explicit filled CTA names the action, so the
+        // eye catches it and the user knows what to do. Visual only — the
+        // stretched row link above is the real control (avoids nested links);
+        // its aria-label already reads "Start/Continue {title}".
+        <span
+          aria-hidden
+          className="relative z-10 pointer-events-none w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold"
+          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+        >
+          {state === "in-progress" ? "Continue" : "Start module"}
+          <ArrowRight size={15} strokeWidth={2} />
+        </span>
       ) : (
         <span
           aria-hidden

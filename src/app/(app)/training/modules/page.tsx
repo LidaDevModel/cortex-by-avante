@@ -7,13 +7,16 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 import { getModules } from "@/lib/training-mock";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* ─── Page ─── */
 
 export default function ModulesPage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("modules");
   const [requirementFilter, setRequirementFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -59,6 +62,35 @@ export default function ModulesPage() {
             Modules
           </h1>
 
+          {loading ? (
+            <>
+              {/* In progress — skeleton */}
+              <section className="flex flex-col gap-4">
+                <Skeleton className="h-3 w-24 rounded" />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton key={i} className="h-28 w-full rounded-[12px]" />
+                  ))}
+                </div>
+              </section>
+              {/* Toolbar — skeleton */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+                <Skeleton className="h-12 w-full sm:flex-1 rounded-[8px]" />
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-1">
+                  <Skeleton className="h-12 w-full sm:w-[148px] rounded-[8px]" />
+                  <Skeleton className="h-12 w-full sm:w-[110px] rounded-[8px]" />
+                  <Skeleton className="h-12 w-full col-span-2 sm:col-span-1 sm:w-[132px] rounded-[8px]" />
+                </div>
+              </div>
+              {/* Module grid — skeleton */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} className="h-40 w-full rounded-[12px]" />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
           {/* In Progress section */}
           {inProgress.length > 0 && (
             <section className="flex flex-col gap-4">
@@ -147,6 +179,8 @@ export default function ModulesPage() {
                 No modules found. Try a different search or filter.
               </p>
             </div>
+          )}
+            </>
           )}
         </div>
       </ScrollCanvas>
