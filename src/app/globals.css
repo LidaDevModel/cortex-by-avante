@@ -119,6 +119,7 @@
   --input-border: oklch(0.910 0.040 150);     /* #d4f3e8 mint — chat input widget border */
   --blob-1: rgba(247,255,226,0.55);
   --blob-2: rgba(239,255,235,0.55);
+  --auth-cursor-glow: oklch(0.90 0.14 112);   /* warm yellow-lime — auth panel cursor glow; harmonises with the cream/mint blobs (softer than the hard primary green) */
   --card-glow-shadow: 0 0 50px 1px rgba(184,214,96,0.20), 0 0 20px -6px rgba(151,215,198,0.30);
   --illustration-glow: radial-gradient(ellipse 85% 80% at 50% 40%, rgba(255,255,255,0.92) 0%, transparent 100%);
   --illustration-glow-side: radial-gradient(ellipse 95% 75% at 50% 50%, rgba(255,255,255,0.92) 0%, transparent 100%);
@@ -227,6 +228,7 @@
   --input-border: oklch(0.37 0.05 160);     /* chat input widget border */
   --blob-1: rgba(113,183,162,0.18);
   --blob-2: rgba(53,94,80,0.28);
+  --auth-cursor-glow: oklch(0.72 0.08 160);   /* soft mint — matches the dark teal blobs (yellow-lime reads wrong on the dark panel) */
   --card-glow-shadow: none;
   --illustration-glow: radial-gradient(ellipse 85% 80% at 50% 40%, rgba(72,72,72,1) 0%, rgba(43,43,43,1) 100%);
   --illustration-glow-side: radial-gradient(ellipse 95% 75% at 50% 50%, rgba(72,72,72,1) 0%, rgba(43,43,43,1) 100%);
@@ -313,17 +315,23 @@
   .cortex-card-border {
     position: relative;
   }
-  .cortex-card-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 0.75rem;
-    box-shadow: inset 0 0 0 1px var(--card-border);
-    pointer-events: none;
-    z-index: 20;
-  }
-  .dark .cortex-card-border::before {
-    box-shadow: inset 0 0 0 1px var(--card-border);
+  /* Desktop-only card frame. Below md the sidebar is hidden and the content
+     goes full-bleed, so this rounded inset border would just wrap the whole
+     viewport like a stray modal frame. Only draw it where the sidebar + card
+     layout actually exists (the same breakpoint the sidebar appears at). */
+  @media (min-width: 768px) {
+    .cortex-card-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 0.75rem;
+      box-shadow: inset 0 0 0 1px var(--card-border);
+      pointer-events: none;
+      z-index: 20;
+    }
+    .dark .cortex-card-border::before {
+      box-shadow: inset 0 0 0 1px var(--card-border);
+    }
   }
 }
 

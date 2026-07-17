@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Pencil, Copy, Check } from "lucide-react";
 import { AttachmentChip, type Attachment } from "@/components/chat/AttachmentChip";
+import { AttachmentLightbox } from "@/components/chat/AttachmentLightbox";
 
 /**
  * A sent user message. The pencil doesn't edit in place — it drops the text
@@ -20,6 +21,9 @@ export function UserMessage({
   onEdit: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  // The image tapped open in the full-size viewer (session images only — a
+  // tile with no live URL isn't openable, so it stays static).
+  const [viewing, setViewing] = useState<Attachment | null>(null);
 
   function handleCopy() {
     if (!content) return;
@@ -33,10 +37,16 @@ export function UserMessage({
       {attachments && attachments.length > 0 && (
         <div className="flex flex-wrap justify-end gap-2 max-w-[85%] mb-0.5">
           {attachments.map((a) => (
-            <AttachmentChip key={a.id} attachment={a} />
+            <AttachmentChip
+              key={a.id}
+              attachment={a}
+              onOpen={a.url ? () => setViewing(a) : undefined}
+            />
           ))}
         </div>
       )}
+
+      {viewing && <AttachmentLightbox attachment={viewing} onClose={() => setViewing(null)} />}
       {content && (
         <div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words bg-surface-raised">
           {content}

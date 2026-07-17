@@ -5,6 +5,7 @@ import { Check, X, Flag, ArrowLeft, ListChecks, Brain } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
+import { NotFoundState } from "@/components/ui/not-found-state";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -467,9 +468,12 @@ export default function ModuleDetailPage() {
           { label: "Modules", href: "/training/modules" },
           { label: "Module" },
         ]} />
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[14px] text-muted-foreground">Module not found.</p>
-        </div>
+        <NotFoundState
+          title="Module not found"
+          description="This module may have been unassigned or moved. It isn't in your training anymore."
+          actionLabel="Back to modules"
+          actionHref="/training/modules"
+        />
       </div>
     );
   }

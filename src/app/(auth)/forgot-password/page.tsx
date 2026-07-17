@@ -52,12 +52,15 @@ export default function ForgotPasswordPage() {
             >
               <MailCheck size={20} strokeWidth={1.5} />
             </span>
-            <h1 className="text-[22px] leading-[30px] font-bold text-foreground">Check your email</h1>
-            <p className="text-[14px] leading-[20px] text-muted-foreground">
-              If an account exists for{" "}
-              <span className="text-foreground font-medium">{email.trim() || "that address"}</span>, we&apos;ve sent a
-              link to reset your password. It may take a few minutes to arrive.
-            </p>
+            {/* Title + text share the house 4px title rhythm (same as sign-in) */}
+            <div className="flex flex-col gap-1">
+              <h1 className="text-[22px] leading-[30px] font-bold text-foreground">Check your email</h1>
+              <p className="text-[14px] leading-[20px] text-muted-foreground">
+                If an account exists for{" "}
+                <span className="text-foreground font-medium">{email.trim() || "that address"}</span>, we&apos;ve sent a
+                link to reset your password. It may take a few minutes to arrive.
+              </p>
+            </div>
           </div>
         </div>
       ) : (

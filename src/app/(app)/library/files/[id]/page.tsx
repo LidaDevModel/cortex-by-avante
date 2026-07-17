@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText, LayoutGrid, TableOfContents as TableOfContentsIcon } from "lucide-react";
 import { PageHeader, DetailHeader } from "@/components/ui/page-header";
+import { NotFoundState } from "@/components/ui/not-found-state";
 import { SearchInput } from "@/components/ui/search-input";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -700,9 +701,12 @@ export default function FileViewPage() {
     return (
       <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
         <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: "File" }]} />
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[14px] text-muted-foreground">Document not found.</p>
-        </div>
+        <NotFoundState
+          title="Document not found"
+          description="This document may have been moved or removed from the Library."
+          actionLabel="Back to Library"
+          actionHref="/library"
+        />
       </div>
     );
   }

@@ -33,7 +33,7 @@ export function KCStartSection({
           title="Daily 5"
           meta="5 questions · mixed · ~4 min"
           onClick={onDaily5}
-          className="bg-surface-chip"
+          className="bg-surface-chip border-border"
         />
         <PresetCard
           icon={<Target size={20} strokeWidth={1.5} />}
@@ -41,7 +41,7 @@ export function KCStartSection({
           meta={weakestLabel ? `Targets your weakest area: ${weakestLabel}` : "Complete a check to unlock"}
           onClick={onWeakAreas}
           disabled={!weakestLabel}
-          className="bg-surface-chip"
+          className="bg-surface-chip border-border"
         />
         <PresetCard
           icon={<Timer size={20} strokeWidth={1.5} />}
@@ -49,14 +49,14 @@ export function KCStartSection({
           meta={examSimAvailable ? "Timed practice exam · by module" : "Start a module to unlock"}
           onClick={onExamSim}
           disabled={!examSimAvailable}
-          className="bg-surface-chip"
+          className="bg-surface-chip border-border"
         />
         <PresetCard
           icon={<SlidersHorizontal size={20} strokeWidth={1.5} />}
           title="Custom check"
           meta="Choose formats and categories"
           onClick={onCustom}
-          className="bg-surface-chip"
+          className="bg-surface-chip border-border"
         />
       </div>
     </section>

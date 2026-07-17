@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Lock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getAuthProfile, saveAuthProfile } from "@/lib/auth-mock";
 import { USER } from "@/lib/user-mock";
 
@@ -44,7 +45,10 @@ export function ProfileForm({
   const descriptionLength = profile.description?.length ?? 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    // gap-8 section boundaries: the locked trio stays a tight cluster (below),
+    // so the space BETWEEN sections is what signals the grouping — and the CTA
+    // picks up the same ~32px visible air as the other auth screens.
+    <div className="flex flex-col gap-8">
       {/* Photo */}
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16 rounded-full shrink-0">
@@ -75,29 +79,33 @@ export function ProfileForm({
         </div>
       </div>
 
-      {/* Locked identity */}
+      {/* Locked identity — the same Input component as everywhere, in its
+          read-only state (readOnly + lock icon), with the standard label style.
+          Deliberately tight 12px cluster: proximity says "one provisioned unit",
+          while the wider section boundaries around it carry the separation. */}
       <div className="flex flex-col gap-3">
         {(
           [
-            ["Full name", USER.fullName],
-            ["Email", USER.email],
-            ["Role", USER.role],
+            ["full-name", "Full name", USER.fullName],
+            ["profile-email", "Email", USER.email],
+            ["role", "Role", USER.role],
           ] as const
-        ).map(([label, value]) => (
-          <div key={label} className="flex flex-col gap-1">
-            <span className="text-[12px] leading-[16px] font-medium text-muted-foreground">{label}</span>
-            <div
-              className="flex items-center justify-between gap-2 h-12 px-3 rounded-[8px] bg-surface-lifted"
-              style={{ border: "1px solid transparent" }}
-            >
-              <span className="text-[14px] leading-[20px] text-foreground truncate">{value}</span>
-              <Lock size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" aria-label="Locked" />
+        ).map(([id, label, value]) => (
+          <div key={id} className="flex flex-col gap-1.5">
+            <label htmlFor={id} className="text-[14px] leading-[20px] font-semibold text-foreground">
+              {label}
+            </label>
+            <div className="relative">
+              <Input id={id} value={value} readOnly className="h-12 pr-10 truncate" />
+              <span
+                className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-muted-foreground pointer-events-none"
+                aria-hidden
+              >
+                <Lock size={14} strokeWidth={1.5} />
+              </span>
             </div>
           </div>
         ))}
-        <p className="text-[12px] leading-[16px] text-muted-foreground">
-          These details are managed by Avante — contact your manager to change them.
-        </p>
       </div>
 
       {/* Description */}
@@ -112,7 +120,7 @@ export function ProfileForm({
           value={profile.description ?? ""}
           onChange={(e) => setProfile((p) => ({ ...p, description: e.target.value }))}
           placeholder="e.g. Night-shift field agent, Harbor site"
-          className="w-full resize-none rounded-[8px] border border-input bg-surface px-3 py-2.5 text-[14px] leading-[20px] text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="w-full resize-none rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2.5 text-[14px] leading-[20px] text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         />
         <span className="self-end text-[12px] leading-[16px] text-muted-foreground tabular-nums">
           {descriptionLength}/{MAX_DESCRIPTION}
