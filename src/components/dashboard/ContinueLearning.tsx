@@ -86,7 +86,7 @@ function AccordionItem({
         className="flex flex-col gap-3 p-5 bg-surface-chip transition-opacity duration-150 ease-out"
         style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? "auto" : "none" }}
       >
-        <p className="section-label" style={{ color: "var(--primary)" }}>
+        <p className="section-label">
           Resume · Chapter {current} of {total}
         </p>
         <div className="flex flex-col gap-0.5">

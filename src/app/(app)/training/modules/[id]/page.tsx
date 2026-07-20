@@ -187,7 +187,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
       style={{ background: "color-mix(in srgb, var(--primary) 6%, var(--surface))" }}
     >
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-primary">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Brain size={16} strokeWidth={1.5} />
           <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider">
             Knowledge check
@@ -212,7 +212,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
               className="flex items-center gap-3 text-left rounded-[8px] px-3 py-2.5 transition-colors duration-100"
               style={{
                 background: showCorrect
-                  ? "color-mix(in srgb, var(--primary) 8%, transparent)"
+                  ? "color-mix(in srgb, var(--success) 8%, transparent)"
                   : showWrong
                   ? "color-mix(in srgb, var(--destructive) 6%, transparent)"
                   : isSelected && !submitted
@@ -233,10 +233,10 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                     : isSelected && !submitted
                     ? "2px solid var(--primary)"
                     : "1.5px solid var(--control-border)",
-                  background: showCorrect ? "var(--primary)" : "transparent",
+                  background: showCorrect ? "var(--success)" : "transparent",
                 }}
               >
-                {showCorrect && <Check size={10} strokeWidth={3} color="var(--primary-foreground)" />}
+                {showCorrect && <Check size={10} strokeWidth={3} color="var(--success-foreground)" />}
                 {showWrong && <X size={10} strokeWidth={3} className="text-destructive" />}
                 {isSelected && !submitted && (
                   <span className="rounded-full block" style={{ width: 8, height: 8, background: "var(--primary)" }} />
@@ -248,7 +248,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                 style={{
                   fontWeight: showCorrect ? 600 : 400,
                   color: showCorrect
-                    ? "var(--primary)"
+                    ? "var(--success)"
                     : showWrong
                     ? "var(--destructive)"
                     : "var(--foreground)",
@@ -693,7 +693,7 @@ export default function ModuleDetailPage() {
       <Sheet open={chaptersSheetOpen} onOpenChange={setChaptersSheetOpen}>
         <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
           <SheetHeader className="px-4 pt-4 pb-0">
-            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
               <ListChecks size={16} strokeWidth={1.5} />
               Chapters
             </SheetTitle>

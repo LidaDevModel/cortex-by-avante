@@ -43,7 +43,7 @@ function DocRow({ doc }: { doc: LibraryDoc }) {
         <FileIllustration uid={uid} shadowOpacity={shadowOpacity} />
       </span>
       <span className="flex flex-col min-w-0 flex-1">
-        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>
+        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>
           {doc.name}
         </span>
         <span className="text-[12px] leading-[16px] text-muted-foreground">Document · {doc.content}</span>
@@ -60,7 +60,7 @@ function ModuleRow({ module: m }: { module: Module }) {
     >
       <ModuleIcon category={m.category} size={36} />
       <span className="relative z-10 flex flex-col min-w-0 flex-1">
-        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>
+        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>
           {m.title}
         </span>
         <span className="text-[12px] leading-[16px] text-muted-foreground">

@@ -26,7 +26,7 @@ export function ProgressBar({ value, height = 6 }: Props) {
       style={{ height }}
     >
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+        className="h-full rounded-full bg-success transition-[width] duration-300 ease-out"
         style={{ width: `${displayValue}%` }}
       />
     </div>

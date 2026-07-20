@@ -310,7 +310,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
           </div>
         )}
         <div className="flex-1 flex flex-col items-center justify-center gap-3 px-4 sm:px-8">
-          <p className="text-[14px] font-medium text-[var(--primary)]">Scenario completed</p>
+          <p className="text-[14px] font-medium text-muted-foreground">Scenario completed</p>
           <p className="text-[13px] text-muted-foreground text-center max-w-[400px]">
             Your decisions have been recorded and cannot be changed.
           </p>

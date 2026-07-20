@@ -197,7 +197,7 @@ export function NotificationsBell() {
             <SheetHeader className="px-4 pt-4 pb-0">
               {/* Title + close share one row, vertically centered. */}
               <div className="flex items-center justify-between gap-2">
-                <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+                <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
                   <Bell size={16} strokeWidth={1.5} />
                   Notifications
                 </SheetTitle>

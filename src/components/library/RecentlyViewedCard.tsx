@@ -158,7 +158,7 @@ export function RecentlyViewedCard({ item, onClick }: Props) {
       </div>
 
       <div className="flex flex-col gap-0.5 text-center">
-        <span className="text-[14px] leading-[20px] font-medium text-[var(--primary)] truncate block">
+        <span className="text-[14px] leading-[20px] font-medium text-foreground truncate block">
           {item.name}
         </span>
       </div>

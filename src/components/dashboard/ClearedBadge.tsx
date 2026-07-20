@@ -15,11 +15,11 @@ export function ClearedBadge({ requiredCount }: { requiredCount: number }) {
     >
       <span
         className="flex items-center justify-center w-4 h-4 rounded-full"
-        style={{ background: "var(--primary)" }}
+        style={{ background: "var(--success)" }}
       >
-        <Check size={11} strokeWidth={3} style={{ color: "var(--primary-foreground)" }} />
+        <Check size={11} strokeWidth={3} style={{ color: "var(--success-foreground)" }} />
       </span>
-      <span className="text-[13px] leading-[18px] font-semibold" style={{ color: "var(--primary)" }}>
+      <span className="text-[13px] leading-[18px] font-semibold" style={{ color: "var(--success)" }}>
         Cleared for duty
       </span>
     </span>

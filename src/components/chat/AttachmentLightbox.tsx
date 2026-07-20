@@ -78,7 +78,7 @@ export function AttachmentLightbox({ attachment, onClose }: { attachment: Attach
             <iframe src={url} title={name} className="w-full h-full border-0" />
           ) : (
             <div className="flex flex-col items-center justify-center gap-3 h-full px-6 text-center">
-              <span className="flex items-center justify-center w-12 h-12 rounded-[10px] bg-surface-chip text-primary">
+              <span className="flex items-center justify-center w-12 h-12 rounded-[10px] bg-surface-chip text-muted-foreground">
                 <FileText size={22} strokeWidth={1.5} />
               </span>
               <p className="text-[14px] leading-[20px] font-medium text-foreground break-all max-w-full">{name}</p>

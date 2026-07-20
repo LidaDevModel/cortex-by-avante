@@ -220,7 +220,7 @@ export function DocumentsSection() {
               <TableBody>
                 {paginated.map((doc) => (
                   <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
-                    <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--primary)" }}>
+                    <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--foreground)" }}>
                       <span className="truncate">{doc.name}</span>
                     </TableCell>
                     <TableCell className="w-[140px] text-muted-foreground">{formatDate(doc.lastModified)}</TableCell>
@@ -241,7 +241,7 @@ export function DocumentsSection() {
                 {paginated.map((doc) => (
                   <TableRow key={doc.id} className="py-3" onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>{doc.name}</span>
+                      <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
                       <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
                         {formatDate(doc.lastModified)} · {doc.content}
                       </span>
