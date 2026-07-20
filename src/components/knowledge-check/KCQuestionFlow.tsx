@@ -428,7 +428,7 @@ function KCDecisionMap({ answered }: { answered: boolean }) {
 
       {/* Decision node */}
       <circle cx={nodes[1].x} cy={nodes[1].y} r={R}
-        fill={answered ? "color-mix(in srgb, var(--primary) 15%, var(--surface-raised))" : "var(--accent-subtle, #D4EC93)"}
+        fill={answered ? "color-mix(in srgb, var(--primary) 15%, var(--surface-raised))" : "var(--accent-subtle)"}
         stroke="var(--primary)" strokeWidth={answered ? 1.5 : 2.5}
         style={!answered ? { animation: "kc-node-pulse 2s ease-in-out infinite" } : {}}
       />
