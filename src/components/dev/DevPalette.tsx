@@ -245,47 +245,33 @@ export function DevPalette() {
     document.head.appendChild(style);
   }, []);
 
-  // "Display" panel (outside the per-mode Inner so it persists): a light/dark
-  // toggle + a "Show / hide dials" toggle for a clean live demo — hidden, only
-  // Display (mode) + Themes (version) remain. Demo state is sticky (localStorage)
-  // and re-applied across route changes via a MutationObserver.
+  // "Display" panel (outside the per-mode Inner so it persists): a single
+  // light/dark toggle next to the version switcher.
   const toggleThemeRef = useRef<() => void>(() => {});
   toggleThemeRef.current = () => {
     const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
     document.documentElement.classList.toggle("dark", next === "dark");
-    try { localStorage.setItem("cortex-theme", next); } catch {}
-  };
-  const demoRef = useRef(false);
-  const applyDemoRef = useRef<() => void>(() => {});
-  applyDemoRef.current = () => {
-    document.querySelectorAll<HTMLElement>(".dialkit-folder").forEach((f) => {
-      const t = f.querySelector(".dialkit-folder-title")?.textContent || "";
-      if (t.includes("Palette") || t.includes("Illustration")) f.style.display = demoRef.current ? "none" : "";
-    });
+    try { localStorage.setItem("cortex-theme", next); } catch { /* no-op */ }
   };
   useDialKitController(
     "Display",
-    {
-      toggleMode: { type: "action" as const, label: "Toggle light / dark" },
-      toggleDials: { type: "action" as const, label: "Show / hide dials" },
-    },
-    {
-      id: "display",
-      onAction: (a: string) => {
-        if (/mode|light|dark/i.test(a)) {
-          toggleThemeRef.current();
-        } else {
-          demoRef.current = !demoRef.current;
-          try { localStorage.setItem("dk-demo", demoRef.current ? "1" : "0"); } catch { /* no-op */ }
-          applyDemoRef.current();
-        }
-      },
-    }
+    { toggleMode: { type: "action" as const, label: "Toggle light / dark" } },
+    { id: "display", onAction: () => toggleThemeRef.current() }
   );
+
+  // Hide the Palette + Illustration colour dials, leaving only Display (mode) +
+  // Themes (version) — a clean switcher panel. The controllers stay registered
+  // (the theme loader still needs them); only the UI is hidden. Re-applied
+  // across route changes via a MutationObserver.
   useEffect(() => {
-    try { demoRef.current = localStorage.getItem("dk-demo") === "1"; } catch { /* no-op */ }
-    applyDemoRef.current();
-    const obs = new MutationObserver(() => applyDemoRef.current());
+    const apply = () => {
+      document.querySelectorAll<HTMLElement>(".dialkit-folder").forEach((f) => {
+        const t = f.querySelector(".dialkit-folder-title")?.textContent || "";
+        if (t.includes("Palette") || t.includes("Illustration")) f.style.display = "none";
+      });
+    };
+    apply();
+    const obs = new MutationObserver(apply);
     obs.observe(document.body, { childList: true, subtree: true });
     return () => obs.disconnect();
   }, []);
