@@ -41,7 +41,7 @@ export function InProgressCard({ module }: { module: Module }) {
 
       {/* Content — z-10 so it sits above the bleeding gradient */}
       <div className="relative z-10 flex flex-col gap-2 px-3 pt-3 pb-3">
-        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
+        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--foreground)" }}>
           {module.title}
         </p>
         <p className="text-[12px] leading-[16px] text-muted-foreground">
@@ -76,7 +76,7 @@ export function ModuleCard({ module }: { module: Module }) {
 
       {/* Right content — z-10 so it sits above the bleeding gradient */}
       <div className="relative z-10 flex flex-col gap-1.5 min-w-0 flex-1 px-3 py-3">
-        <p className="text-[14px] leading-[20px] font-semibold truncate" style={{ color: "var(--primary)" }}>
+        <p className="text-[14px] leading-[20px] font-semibold truncate" style={{ color: "var(--foreground)" }}>
           {module.title}
         </p>
         <p className="text-[12px] leading-[16px] text-muted-foreground whitespace-nowrap">

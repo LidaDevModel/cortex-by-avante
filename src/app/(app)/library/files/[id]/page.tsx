@@ -58,7 +58,7 @@ function TableOfContents({
             <button
               onClick={() => onSelect(s.id)}
               className="w-full flex items-center justify-between gap-3 px-2 py-[7px] rounded-[6px] text-left transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2"
-              style={{ background: isActive ? "var(--nav-active)" : "transparent" }}
+              style={{ background: isActive ? "var(--sidebar-active)" : "transparent" }}
             >
               {/* Number chip */}
               <span
@@ -106,7 +106,7 @@ function TableOfContents({
                       key={sub.id}
                       onClick={() => onSelect(sub.id)}
                       className="w-full flex items-center gap-2 px-2 py-[5px] rounded-[5px] text-left transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2"
-                      style={{ background: subActive ? "var(--nav-active)" : "transparent" }}
+                      style={{ background: subActive ? "var(--sidebar-active)" : "transparent" }}
                     >
                       <span
                         className="shrink-0 text-[10px] tabular-nums w-6 leading-[1]"
@@ -225,7 +225,7 @@ function buildAllPages(sections: TocSection[]): PageDescriptor[] {
       id: s.id,
       searchText: makeSearchText(s.num, s.title, s.body, ...(s.paragraphs ?? []), ...(s.points ?? []), s.note),
       heading: (
-        <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--primary)" }}>
+        <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--doc-text)" }}>
           {s.num}.  {s.title}
         </h2>
       ),
@@ -244,7 +244,7 @@ function buildAllPages(sections: TocSection[]): PageDescriptor[] {
             <p className="text-[11px] font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
               {s.num}. {s.title}
             </p>
-            <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--primary)" }}>
+            <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--doc-text)" }}>
               {subNum}  {sub.title}
             </h3>
           </>
@@ -402,7 +402,7 @@ function DocumentPage({
             pages.push(renderPage(s.id, {
               id: s.id,
               heading: (
-                <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--primary)" }}>
+                <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--doc-text)" }}>
                   <Highlight text={`${s.num}.  ${s.title}`} query={q} />
                 </h2>
               ),
@@ -418,7 +418,7 @@ function DocumentPage({
                     <p className="text-[11px] font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
                       {s.num}. {s.title}
                     </p>
-                    <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--primary)" }}>
+                    <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--doc-text)" }}>
                       <Highlight text={`${subNum}  ${sub.title}`} query={q} />
                     </h3>
                   </>
@@ -921,7 +921,7 @@ export default function FileViewPage() {
       <Sheet open={tocSheetOpen} onOpenChange={setTocSheetOpen}>
         <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
           <SheetHeader className="px-4 pt-4 pb-0">
-            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
               <TableOfContentsIcon size={16} strokeWidth={1.5} />
               Contents
             </SheetTitle>

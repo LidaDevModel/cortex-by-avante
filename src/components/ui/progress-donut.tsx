@@ -36,7 +36,7 @@ export function ProgressDonut({
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="var(--primary)"
+          stroke="var(--success)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circ}

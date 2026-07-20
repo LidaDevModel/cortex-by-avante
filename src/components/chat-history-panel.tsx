@@ -144,7 +144,7 @@ function ConversationItem({
       className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent transition-colors duration-100"
       onClick={() => onSelect(conversation)}
     >
-      <span className="flex-1 text-[13px] text-primary truncate min-w-0">
+      <span className="flex-1 text-[13px] text-foreground truncate min-w-0">
         {conversation.title}
       </span>
       <DropdownMenu>
@@ -349,7 +349,7 @@ export function ChatHistorySheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
         <SheetHeader className="px-4 pt-4 pb-3">
-          <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-primary">
+          <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
             <History size={15} className="shrink-0" />
             Old conversations
           </SheetTitle>

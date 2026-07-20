@@ -157,23 +157,23 @@ export function ExamResults({
                 }}
               />
               <span
-                className="relative flex items-center justify-center w-14 h-14 rounded-full bg-primary"
+                className="relative flex items-center justify-center w-14 h-14 rounded-full bg-success"
                 style={{ animation: "check-pop 300ms cubic-bezier(0.32, 0.72, 0, 1) 100ms both" }}
               >
-                <Check size={26} strokeWidth={2.5} style={{ color: "var(--primary-foreground)" }} />
+                <Check size={26} strokeWidth={2.5} style={{ color: "var(--success-foreground)" }} />
               </span>
             </div>
           )}
           <h1
             className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
-            style={{ color: passed ? "var(--primary)" : "var(--foreground)" }}
+            style={{ color: passed ? "var(--success)" : "var(--foreground)" }}
           >
             {heading}
           </h1>
           <div className="flex items-baseline gap-3">
             <span
               className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
-              style={{ color: passed ? "var(--primary)" : "var(--destructive)" }}
+              style={{ color: passed ? "var(--success)" : "var(--destructive)" }}
             >
               {total}
             </span>
@@ -224,7 +224,7 @@ export function ExamResults({
                     <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
                       Your answer: {userIdx !== null ? q.options[userIdx] : "Skipped"}
                     </span>
-                    <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                    <span className="text-[13px]" style={{ color: "var(--success)" }}>
                       Correct answer: {q.options[q.correctIndex]}
                     </span>
                   </WrongAnswerRow>
@@ -246,7 +246,7 @@ export function ExamResults({
                       <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                         Your match: {matchedDef ? matchedDef.definition : "Not matched"}
                       </span>
-                      <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                      <span className="text-[13px]" style={{ color: "var(--success)" }}>
                         Correct: {pair.definition}
                       </span>
                     </WrongAnswerRow>
@@ -284,7 +284,7 @@ export function ExamResults({
                       <span className={cn("text-[13px]", chosenOption ? "text-destructive" : "text-muted-foreground")}>
                         Your choice: {chosenOption?.text ?? "Not answered"}
                       </span>
-                      <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+                      <span className="text-[13px]" style={{ color: "var(--success)" }}>
                         Optimal choice: {optimalOption?.text}
                       </span>
                     </WrongAnswerRow>
@@ -299,7 +299,7 @@ export function ExamResults({
             <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
             <span
               className={cn("w-10 text-right text-[14px] font-bold tabular-nums", passed ? "" : "text-destructive")}
-              style={passed ? { color: "var(--primary)" } : undefined}
+              style={passed ? { color: "var(--success)" } : undefined}
             >
               {total}
             </span>

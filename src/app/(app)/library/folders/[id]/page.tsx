@@ -160,7 +160,7 @@ export default function FolderDetailPage() {
                         <TableCell className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 min-w-0">
                             <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-                            <span className="truncate" style={{ color: "var(--primary)" }}>{doc.name}</span>
+                            <span className="truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground" style={{ width: 90, minWidth: 90 }}>{doc.content}</TableCell>
@@ -180,7 +180,7 @@ export default function FolderDetailPage() {
                       <TableRow key={doc.id} className="py-3" onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}>
                         <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
                         <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                          <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--primary)" }}>{doc.name}</span>
+                          <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
                           <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
                             {formatDate(doc.lastModified)} · {doc.content}
                           </span>

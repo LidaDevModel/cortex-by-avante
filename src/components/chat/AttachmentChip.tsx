@@ -115,7 +115,7 @@ export function AttachmentChip({
   const fileBase = "inline-flex items-center gap-2.5 shrink-0 rounded-[10px] bg-surface-raised border border-border w-[200px]";
   const fileInner = (
     <>
-      <span className="flex items-center justify-center w-9 h-9 rounded-[8px] shrink-0 bg-surface-chip text-primary">
+      <span className="flex items-center justify-center w-9 h-9 rounded-[8px] shrink-0 bg-surface-chip text-muted-foreground">
         <FileText size={16} strokeWidth={1.5} />
       </span>
       <span className="flex flex-col gap-0.5 min-w-0 flex-1 text-left" title={name}>

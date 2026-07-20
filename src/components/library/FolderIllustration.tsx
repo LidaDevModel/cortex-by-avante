@@ -11,7 +11,7 @@ export function FolderIllustration({ uid, shadowOpacity }: Props) {
   const h = `h${uid}`;
 
   return (
-    <svg width="100%" viewBox="0 0 179 164" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
+    <svg width="100%" viewBox="0 0 179 164" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible" data-il-group="doc">
       {/* overflow-visible: on hover the sheets fan up to the viewBox top; let
           their edges/shadows spill rather than clip (the scroller's py gives
           the room). */}

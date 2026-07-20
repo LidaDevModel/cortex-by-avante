@@ -48,9 +48,9 @@ function Tile({ state, category, delayMs = 0 }: { state: RequirementState; categ
       <span
         className="flex items-center justify-center w-10 h-10 rounded-[10px] shrink-0"
         // Pops in to coincide with its segment filling — the board "settles in".
-        style={{ background: "var(--primary)", animation: `check-pop 250ms cubic-bezier(0.32,0.72,0,1) ${delayMs}ms both` }}
+        style={{ background: "var(--success)", animation: `check-pop 250ms cubic-bezier(0.32,0.72,0,1) ${delayMs}ms both` }}
       >
-        <Check size={18} strokeWidth={2.5} style={{ color: "var(--primary-foreground)" }} />
+        <Check size={18} strokeWidth={2.5} style={{ color: "var(--success-foreground)" }} />
       </span>
     );
   }
@@ -103,7 +103,7 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
               // Done-tint layered OVER the lifted base (backgroundImage sits on
               // the class bg-color) so certified rows share the chips' luminance.
               backgroundImage:
-                "linear-gradient(color-mix(in srgb, var(--primary) 6%, transparent), color-mix(in srgb, var(--primary) 6%, transparent))",
+                "linear-gradient(color-mix(in srgb, var(--success) 6%, transparent), color-mix(in srgb, var(--success) 6%, transparent))",
               border: "1px solid transparent",
             }
           : { border: "1px solid transparent" }
@@ -137,12 +137,12 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
 
         {state === "ready-to-certify" && (
           <span className="text-[12px] leading-[16px] font-medium">
-            <span style={{ color: "var(--primary)" }}>Completed</span>
+            <span style={{ color: "var(--success)" }}>Completed</span>
             <span className="text-muted-foreground"> · Not yet certified</span>
           </span>
         )}
         {state === "certified" && (
-          <span className="text-[12px] leading-[16px] font-medium" style={{ color: "var(--primary)" }}>
+          <span className="text-[12px] leading-[16px] font-medium" style={{ color: "var(--success)" }}>
             Completed · Certified
           </span>
         )}
@@ -169,7 +169,7 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       {state === "certified" ? (
         <span
           className="relative z-10 text-[15px] leading-[20px] font-bold tabular-nums shrink-0"
-          style={{ color: "var(--primary)" }}
+          style={{ color: "var(--success)" }}
         >
           {m.certification!.score}%
         </span>

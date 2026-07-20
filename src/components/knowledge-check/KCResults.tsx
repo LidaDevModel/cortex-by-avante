@@ -28,14 +28,14 @@ export function KCResults({
       <div className="flex flex-col gap-3">
         <h1
           className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
-          style={{ color: pct === 100 ? "var(--primary)" : "var(--foreground)" }}
+          style={{ color: pct === 100 ? "var(--success)" : "var(--foreground)" }}
         >
           {pct === 100 ? "Perfect score" : "Knowledge check complete"}
         </h1>
         <div className="flex items-baseline gap-3">
           <span
             className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
-            style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
+            style={{ color: pct >= 70 ? "var(--success)" : "var(--destructive)" }}
           >
             {pct}%
           </span>

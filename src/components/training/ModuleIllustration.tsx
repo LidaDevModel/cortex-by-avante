@@ -190,7 +190,7 @@ export function ModuleIllustration({
 }) {
   const Illustration = ILLUSTRATIONS[category];
   return (
-    <span className={className}>
+    <span className={className} data-il-group="module">
       <Illustration width={width} height={height} />
     </span>
   );

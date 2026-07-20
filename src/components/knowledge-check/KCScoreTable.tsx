@@ -42,7 +42,7 @@ function SectionRow({
         <TableCell className="flex-1 text-left">{label}</TableCell>
         <TableCell
           className="w-10 text-right font-medium tabular-nums"
-          style={{ color: correct === total ? "var(--primary)" : "var(--destructive)" } as React.CSSProperties}
+          style={{ color: correct === total ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
         >
           {correct}
         </TableCell>
@@ -76,7 +76,7 @@ function MCWrong({ question, answer }: {
         <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
           Your answer: {userIdx !== null ? question.options[userIdx] : "Skipped"}
         </span>
-        <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+        <span className="text-[13px]" style={{ color: "var(--success)" }}>
           Correct answer: {question.options[question.correctIndex]}
         </span>
       </WrongAnswerRow>
@@ -102,7 +102,7 @@ function MatchingWrong({ question, answer }: {
               <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                 Your match: {matchedDef ? matchedDef.definition : "Not matched"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+              <span className="text-[13px]" style={{ color: "var(--success)" }}>
                 Correct: {pair.definition}
               </span>
             </WrongAnswerRow>
@@ -139,7 +139,7 @@ function BranchingWrong({ question, answer }: {
               <span className={cn("text-[13px]", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
                 Your choice: {chosenOpt?.text ?? "Not answered"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+              <span className="text-[13px]" style={{ color: "var(--success)" }}>
                 Correct choice: {correctOpt?.text}
               </span>
             </WrongAnswerRow>
@@ -227,7 +227,7 @@ export function KCScoreTable({
         <TableCell className="flex-1 font-semibold">Total</TableCell>
         <TableCell
           className="w-10 text-right font-bold tabular-nums"
-          style={{ color: totalCorrect === totalPoints ? "var(--primary)" : "var(--destructive)" } as React.CSSProperties}
+          style={{ color: totalCorrect === totalPoints ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
         >
           {totalCorrect}
         </TableCell>

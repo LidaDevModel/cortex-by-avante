@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "dialkit/styles.css";
+import { DevTools } from "@/components/dev/DevTools";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -37,6 +39,10 @@ export default function RootLayout({
             {children}
           </SidebarProvider>
         </TooltipProvider>
+        {/* Design-time palette/theme explorer (dialkit). On in local dev; on a
+            deployed build it stays hidden unless the URL carries ?dials — see
+            DevTools. Sibling of the app content, not wrapping it. */}
+        <DevTools />
       </body>
     </html>
   );

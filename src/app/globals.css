@@ -38,11 +38,6 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -56,10 +51,10 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -73,12 +68,15 @@
   /* Cortex light mode — green-tinted, spacious, refined */
   --background: oklch(0.982 0.006 145);      /* near-white with subtle green tint */
   --foreground: oklch(0.16 0.012 250);       /* ink */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.012 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.16 0.012 250);
   --primary: oklch(0.30 0.09 150);           /* deep forest green #1a4a2e */
   --primary-foreground: oklch(1 0 0);
+  /* Achievement/positive family — split from --primary so "correct / pass /
+     certified / progress" can be tuned apart from "act here". Seeded identical
+     to primary (zero visual change) until deliberately diverged. */
+  --success: oklch(0.30 0.09 150);
+  --success-foreground: oklch(1 0 0);
   --secondary: oklch(0.96 0.03 145);         /* nav active pill / light green #e8f5e9 */
   --secondary-foreground: oklch(0.30 0.09 150);
   --muted: oklch(0.96 0.03 145);
@@ -88,23 +86,20 @@
   --destructive: oklch(0.577 0.245 27.325);
   --warning: oklch(0.55 0.14 52);            /* amber — medium password strength; AA text on light surfaces */
   --border: oklch(0.922 0.004 250);          /* #e5e7eb */
-  --input: oklch(0.922 0.004 250);
+  --input: var(--border);                    /* input border === default border */
   --ring: oklch(0.30 0.09 150);
-  --chart-1: oklch(0.30 0.09 150);
-  --chart-2: oklch(0.45 0.08 150);
-  --chart-3: oklch(0.60 0.07 150);
-  --chart-4: oklch(0.75 0.05 150);
-  --chart-5: oklch(0.88 0.03 150);
   --radius: 0.5rem;                          /* 8px — VISION.md radius.button/input */
+  /* Sidebar tokens that always mirror a core token reference it directly (one
+     source of truth); only sidebar-accent / -active / -border are independent. */
   --sidebar: var(--background);
-  --sidebar-foreground: oklch(0.16 0.012 250);
-  --sidebar-primary: oklch(0.30 0.09 150);
-  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: color-mix(in srgb, #ffffff 60%, #E0EEBA);
   --sidebar-accent-foreground: oklch(0.30 0.09 150);
   --sidebar-active: #E0EEBA;
   --sidebar-border: oklch(0.922 0.004 250);
-  --sidebar-ring: oklch(0.30 0.09 150);
+  --sidebar-ring: var(--ring);
   /* Cortex surface & glow tokens */
   --surface: oklch(0.992 0.004 145);
   --surface-raised: oklch(0.975 0.004 145);   /* module cards, modals, raised surfaces */
@@ -175,7 +170,6 @@
   --il-icon-shadow-from: #8FA091;
   --il-icon-shadow-to: #E9F5F0;
   --il-icon-shadow-opacity: 0.28;
-  --il-card-shadow-opacity: 0.07;
 }
 
 .dark {
@@ -183,12 +177,12 @@
   --progress-track: oklch(0.46 0 0);        /* neutral mid-gray track in dark mode */
   --background: oklch(0.17 0 0);             /* #1a1a1a — page bg, darker than cards */
   --foreground: oklch(1 0 0);               /* white */
-  --card: #1c1c1c;                          /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0) / #353535) */
-  --card-foreground: oklch(1 0 0);
   --popover: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
   --popover-foreground: oklch(1 0 0);
   --primary: oklch(0.69 0.07 175);          /* #71b7a2 — muted teal */
   --primary-foreground: oklch(0.10 0 0);
+  --success: oklch(0.69 0.07 175);          /* achievement family — seeded = primary */
+  --success-foreground: oklch(0.10 0 0);
   --secondary: oklch(0.32 0.04 160);        /* nav active pill bg */
   --secondary-foreground: oklch(1 0 0);
   --muted: #1c1c1c;                         /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
@@ -198,22 +192,17 @@
   --destructive: oklch(0.704 0.191 22.216);
   --warning: oklch(0.82 0.15 78);           /* amber — medium password strength (brighter on dark) */
   --border: oklch(0.38 0 0);                /* neutral gray border — matches light mode contrast */
-  --input: oklch(0.38 0 0);
+  --input: var(--border);                    /* input border === default border */
   --ring: oklch(0.75 0.07 170);             /* #7fc3af — lighter teal ring */
-  --chart-1: oklch(0.69 0.07 175);
-  --chart-2: oklch(0.65 0.06 170);
-  --chart-3: oklch(0.60 0.05 165);
-  --chart-4: oklch(0.55 0.04 160);
-  --chart-5: oklch(0.50 0.03 155);
   --sidebar: var(--background);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.69 0.07 175);
-  --sidebar-primary-foreground: oklch(0.10 0 0);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.30 0.02 160);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-active: oklch(0.32 0.04 160);   /* active nav pill */
   --sidebar-border: oklch(0.37 0.05 160);
-  --sidebar-ring: oklch(0.75 0.07 170);
+  --sidebar-ring: var(--ring);
   /* Cortex surface & glow tokens */
   --surface: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0) / #353535) */
   --surface-raised: oklch(0.30 0 0);        /* slightly elevated */
@@ -244,6 +233,9 @@
   --doc-text-faint: #707070;
   --doc-callout-bg: color-mix(in srgb, var(--accent-subtle) 20%, transparent);
   --doc-callout-border: var(--accent-subtle);
+  /* --match-pair-* are intentionally NOT redefined here: they are mode-agnostic
+     accents (hue-distinct mid-tone borders + low-opacity fills) designed to read
+     on both light and dark surfaces, with text always var(--foreground). */
   /* Illustration tokens */
   --il-tray: #6D6D6D;
   --il-doc-bg: #EBEBEB;
@@ -262,7 +254,6 @@
   --il-icon-shadow-from: #649080;
   --il-icon-shadow-to: #4A4A4A;
   --il-icon-shadow-opacity: 0.34;
-  --il-card-shadow-opacity: 0.16;
 }
 
 @layer components {
