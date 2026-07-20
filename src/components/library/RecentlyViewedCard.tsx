@@ -16,7 +16,7 @@ export function FileIllustration({ uid, shadowOpacity }: { uid: string; shadowOp
   const d = `d${uid}`;
 
   return (
-    <svg width="100%" viewBox="0 0 179 163" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
+    <svg width="100%" viewBox="0 0 179 163" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible" data-il-group="doc">
       {/* background tray — identical in both states */}
       <rect x="10" y="18" width="159.61" height="143.001" rx="11.3429" fill="var(--il-tray)" />
 

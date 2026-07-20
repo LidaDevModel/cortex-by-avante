@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "dialkit/styles.css";
+import { DialRoot } from "dialkit";
+import { DevPalette } from "@/components/dev/DevPalette";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -37,6 +40,15 @@ export default function RootLayout({
             {children}
           </SidebarProvider>
         </TooltipProvider>
+        {/* Design-time parameter tweaking (dialkit) — dev only, never shipped
+            to production users. Sibling of the app content, not wrapping it.
+            DevPalette registers the palette, illustration and version dials. */}
+        {process.env.NODE_ENV !== "production" && (
+          <>
+            <DialRoot />
+            <DevPalette />
+          </>
+        )}
       </body>
     </html>
   );
