@@ -27,7 +27,7 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
         autoCorrect="off"
         autoComplete="off"
         spellCheck={false}
-        className="w-full h-12 pl-9 pr-8 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
+        className="w-full h-12 pl-9 pr-8 rounded-[8px] border border-border bg-surface dark:bg-input/30 text-[14px] leading-[20px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 transition-shadow duration-100"
         style={{ "--tw-ring-color": "color-mix(in srgb, var(--primary) 25%, transparent)" } as React.CSSProperties}
       />
       {value && (

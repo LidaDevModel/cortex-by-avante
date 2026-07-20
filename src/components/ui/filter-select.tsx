@@ -26,7 +26,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={cn("relative h-12 pl-3 pr-8 flex items-center rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer", className)}
+          className={cn("relative h-12 pl-3 pr-8 flex items-center rounded-[8px] border border-border bg-surface dark:bg-input/30 text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer", className)}
           style={{
             color: selected ? "var(--foreground)" : "var(--muted-foreground)",
             ["--tw-ring-color" as string]: "color-mix(in srgb, var(--primary) 25%, transparent)",
