@@ -77,7 +77,9 @@ export function TableRow({
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-4 py-[10px] border-b border-border transition-colors duration-100",
+        // min-h matches a row carrying a 32px actions button (10px padding each
+        // side) so tables without one don't render shorter rows.
+        "flex items-center gap-2 px-4 py-[10px] min-h-[52px] border-b border-border transition-colors duration-100",
         onClick && "cursor-pointer hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)]",
         className
       )}

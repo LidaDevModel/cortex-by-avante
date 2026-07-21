@@ -150,11 +150,13 @@ export function getRecentModules(days = 14): Module[] {
 
 export type QuizOption = { id: string; text: string };
 export type Quiz = { question: string; options: QuizOption[]; correctId: string };
+export type Subchapter = { id: string; title: string; body: string };
 export type Chapter = {
   id: string;
   num: number;
   title: string;
   body: string;
+  subchapters?: Subchapter[];
   quiz?: Quiz;
   isFinalQuiz?: boolean;
 };

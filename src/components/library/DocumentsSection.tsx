@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Folder, LayoutList, LayoutGrid } from "lucide-react";
+import { LayoutList, LayoutGrid } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { DocGridCard } from "./DocGridCard";
+import { KindPill, type DocKind } from "./kind-pill";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -12,8 +13,6 @@ import { cn } from "@/lib/utils";
 import { FOLDERS, TOP_LEVEL_DOCS } from "@/lib/library-mock";
 
 /* ─── Types ─── */
-
-type DocKind = "document" | "folder";
 
 type Doc = {
   id: string;
@@ -53,22 +52,6 @@ function formatDate(iso: string) {
 }
 
 /* ─── Sub-components ─── */
-
-function KindPill({ kind }: { kind: DocKind }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 text-[12px] leading-[16px] font-medium px-2 py-0.5 rounded-full border",
-        kind === "document"
-          ? "border-[color-mix(in_srgb,var(--primary)_25%,transparent)] text-[var(--primary)]"
-          : "border-border text-muted-foreground"
-      )}
-    >
-      {kind === "document" ? <FileText size={11} strokeWidth={1.5} /> : <Folder size={11} strokeWidth={1.5} />}
-      {kind === "document" ? "Document" : "Folder"}
-    </span>
-  );
-}
 
 function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "list" | "grid") => void }) {
   return (
