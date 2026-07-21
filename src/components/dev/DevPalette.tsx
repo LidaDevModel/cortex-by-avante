@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDialKitController } from "dialkit";
 import { CORTEX_VERSIONS, VERSION_NAMES } from "./palette-versions";
+import { getCurrentRole, setCurrentRole } from "@/lib/current-role";
 
 /**
  * DEV-ONLY colour + illustration exploration (dialkit), unified so a named
@@ -255,8 +256,20 @@ export function DevPalette() {
   };
   useDialKitController(
     "Display",
-    { toggleMode: { type: "action" as const, label: "Toggle light / dark" } },
-    { id: "display", onAction: () => toggleThemeRef.current() }
+    {
+      toggleMode: { type: "action" as const, label: "Toggle light / dark" },
+      toggleRole: { type: "action" as const, label: "Toggle role (agent / admin)" },
+    },
+    {
+      id: "display",
+      onAction: (a: string) => {
+        if (/role/i.test(a)) {
+          setCurrentRole(getCurrentRole() === "admin" ? "field-agent" : "admin");
+        } else {
+          toggleThemeRef.current();
+        }
+      },
+    }
   );
 
   // Hide the Palette + Illustration colour dials, leaving only Display (mode) +
