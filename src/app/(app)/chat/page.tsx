@@ -17,6 +17,7 @@ import { UserMessage } from "@/components/chat/UserMessage";
 import { AiMessage, type Message, type FeedbackState } from "@/components/chat/AiMessage";
 import { type Attachment } from "@/components/chat/AttachmentChip";
 import { takeChatLaunch } from "@/lib/chat-launch";
+import { addFlag } from "@/lib/flags-store";
 import {
   type ChatResponse,
   type DetailLevel,
@@ -296,6 +297,27 @@ export default function ChatPage() {
     ));
   }
 
+  // Negative feedback files a flag for admin review: the answer plus the
+  // nearest preceding user question, the modal's reason, and the answer's
+  // first citation (so the admin can jump straight to the source content).
+  function handleFlag(msgId: string, reason: string, note?: string) {
+    const idx = messages.findIndex(m => m.id === msgId);
+    if (idx < 0) return;
+    const flagged = messages[idx];
+    const answer = getStreamTextFor(flagged.blocks ?? []) || flagged.streamText || "";
+    let question = "";
+    for (let i = idx - 1; i >= 0; i--) {
+      if (messages[i].role === "user") { question = messages[i].content ?? ""; break; }
+    }
+    let source: { docId: string; label: string } | undefined;
+    for (const block of flagged.blocks ?? []) {
+      if (block.type !== "text") continue;
+      const cit = block.segments.find(s => s.type === "source");
+      if (cit && cit.type === "source") { source = { docId: cit.docId, label: cit.label }; break; }
+    }
+    addFlag({ question, answer, reason, note, source });
+  }
+
   // Reveal this answer's diagram (the "Show me a diagram" affordance). No-op if
   // there's none or one is already shown.
   function handleShowDiagram(msgId: string) {
@@ -504,7 +526,7 @@ export default function ChatPage() {
                     {messages.map(msg =>
                       msg.role === "user"
                         ? <UserMessage key={msg.id} content={msg.content ?? ""} attachments={msg.attachments} onEdit={() => handleEditToInput(msg.content ?? "")} />
-                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onRetry={handleRetry} onShowDiagram={handleShowDiagram} />
+                        : <AiMessage key={msg.id} message={msg} onFeedback={handleFeedback} onFlag={handleFlag} onRetry={handleRetry} onShowDiagram={handleShowDiagram} />
                     )}
                   </div>
                 </div>

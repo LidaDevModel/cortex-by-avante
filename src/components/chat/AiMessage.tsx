@@ -61,11 +61,14 @@ function FeedbackBtn({
 export function AiMessage({
   message,
   onFeedback,
+  onFlag,
   onRetry,
   onShowDiagram,
 }: {
   message: Message;
   onFeedback: (id: string, value: FeedbackState) => void;
+  /** Negative feedback files a flag for admin review (reason + optional note). */
+  onFlag?: (id: string, reason: string, note?: string) => void;
   onRetry: (id: string) => void;
   /** Reveal the topic's diagram into this message. */
   onShowDiagram?: (id: string) => void;
@@ -244,7 +247,10 @@ export function AiMessage({
       {showModal && (
         <ShareFeedbackModal
           onClose={() => setShowModal(false)}
-          onSubmit={() => onFeedback(message.id, "down")}
+          onSubmit={(reason, note) => {
+            onFeedback(message.id, "down");
+            onFlag?.(message.id, reason, note);
+          }}
         />
       )}
     </>
