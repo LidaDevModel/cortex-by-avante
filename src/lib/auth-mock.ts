@@ -1,5 +1,6 @@
 import { USER } from "./user-mock";
 import { setPersona } from "./demo-persona";
+import { findInvite } from "./admin-store";
 
 /**
  * Mock auth for the demo — one Avante-provisioned account (Mike), activated
@@ -116,10 +117,14 @@ export function signIn(email: string, password: string): { ok: true } | { ok: fa
 export type ActivateResult = { ok: true } | { ok: false; reason: "invalid" | "already-activated" };
 
 export function verifyPin(email: string, pin: string): ActivateResult {
-  const emailOk = email.trim().toLowerCase() === PROVISIONED.email.toLowerCase();
-  if (!emailOk || pin !== PROVISIONED.pin) return { ok: false, reason: "invalid" };
-  if (readRecord().activated) return { ok: false, reason: "already-activated" };
-  return { ok: true };
+  // Provisioned demo account (Mike).
+  if (email.trim().toLowerCase() === PROVISIONED.email.toLowerCase() && pin === PROVISIONED.pin) {
+    if (readRecord().activated) return { ok: false, reason: "already-activated" };
+    return { ok: true };
+  }
+  // A user invited through the admin People screen carries a per-invite PIN.
+  if (findInvite(email, pin)) return { ok: true };
+  return { ok: false, reason: "invalid" };
 }
 
 /** Finishes activation: stores the personal password and signs the user in. */
