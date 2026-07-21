@@ -11,7 +11,8 @@ export function ShareFeedbackModal({
   onSubmit,
 }: {
   onClose: () => void;
-  onSubmit: () => void;
+  /** Called with the chosen reason and the free text (when "Other"). */
+  onSubmit: (reason: FeedbackOption, note?: string) => void;
 }) {
   const [selected, setSelected] = useState<FeedbackOption | null>(null);
   const [otherText, setOtherText] = useState("");
@@ -21,7 +22,8 @@ export function ShareFeedbackModal({
   }
 
   function handleSubmit() {
-    onSubmit();
+    if (!selected) return;
+    onSubmit(selected, selected === "Other" ? otherText : undefined);
     onClose();
   }
 

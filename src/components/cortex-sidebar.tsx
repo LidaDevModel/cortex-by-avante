@@ -37,9 +37,16 @@ import {
   LogOut,
   Settings,
   UserRound,
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  Folder,
+  Flag,
+  History,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { USER } from "@/lib/user-mock";
+import { USER, ROLE_LABEL } from "@/lib/user-mock";
+import { useCurrentRole } from "@/lib/current-role";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 
@@ -55,10 +62,27 @@ const trainingSubItems = [
   { label: "Knowledge Check", href: "/training/quick-check" },
 ];
 
+// Content authoring — Library documents and training Modules.
+const contentSubItems = [
+  { label: "Library", href: "/admin/content" },
+  { label: "Modules", href: "/admin/content/training" },
+];
+
+// The admin's own learning surfaces, grouped under "Learning". Training and
+// Knowledge Check sit flat here to avoid a group inside a group.
+const learningSubItems = [
+  { label: "Home", href: "/dashboard" },
+  { label: "AI Chat", href: "/chat" },
+  { label: "Library", href: "/library" },
+  { label: "Training", href: "/training/modules" },
+  { label: "Knowledge Check", href: "/training/quick-check" },
+];
+
 export function CortexSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const role = useCurrentRole();
   // Read once per mount — the shell renders post-AuthGate, so localStorage is safe.
   const avatarUrl = getAuthProfile().avatarUrl;
   return (
@@ -77,48 +101,151 @@ export function CortexSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname.startsWith(item.href)}
-                tooltip={item.label}
-                className="gap-3 rounded-lg"
-              >
-                <Link href={item.href}>
-                  <item.icon size={16} />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-
-          {/* Training — collapsible sub-menu, icon-only when sidebar is collapsed */}
-          <Collapsible defaultOpen={pathname.startsWith("/training")}>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip="Training" className="gap-3 rounded-lg">
-                  <BookOpen size={16} />
-                  <span>Training</span>
-                  <ChevronDown
-                    size={14}
-                    className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
-                  />
+          {role === "admin" ? (
+            <>
+              {/* Manage — the admin's primary work, top-level. (Content and
+                  Reports arrive with their phases.) */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/admin"} tooltip="Overview" className="gap-3 rounded-lg">
+                  <Link href="/admin">
+                    <LayoutDashboard size={16} />
+                    <span>Overview</span>
+                  </Link>
                 </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-                <SidebarMenuSub>
-                  {trainingSubItems.map((sub) => (
-                    <SidebarMenuSubItem key={sub.label}>
-                      <SidebarMenuSubButton asChild isActive={pathname.startsWith(sub.href)}>
-                        <Link href={sub.href}>{sub.label}</Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
+              </SidebarMenuItem>
+              <Collapsible defaultOpen={pathname.startsWith("/admin/content")}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Content" className="gap-3 rounded-lg">
+                      <Folder size={16} />
+                      <span>Content</span>
+                      <ChevronDown
+                        size={14}
+                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                    <SidebarMenuSub>
+                      {contentSubItems.map((sub) => (
+                        <SidebarMenuSubItem key={sub.label}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={sub.href === "/admin/content" ? pathname === "/admin/content" : pathname.startsWith(sub.href)}
+                          >
+                            <Link href={sub.href}>{sub.label}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* Flagged responses and the activity log are different jobs —
+                  each stands alone, like People. */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname.startsWith("/admin/reports/flagged")} tooltip="Flagged responses" className="gap-3 rounded-lg">
+                  <Link href="/admin/reports/flagged">
+                    <Flag size={16} />
+                    <span>Flagged responses</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname.startsWith("/admin/reports/activity")} tooltip="Activity log" className="gap-3 rounded-lg">
+                  <Link href="/admin/reports/activity">
+                    <History size={16} />
+                    <span>Activity log</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname.startsWith("/admin/people")} tooltip="People" className="gap-3 rounded-lg">
+                  <Link href="/admin/people">
+                    <Users size={16} />
+                    <span>People</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Learning — the admin's own training surfaces, grouped and
+                  demoted below Manage. Opens by default on a learner route. */}
+              <Collapsible defaultOpen={!pathname.startsWith("/admin")}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Learning" className="gap-3 rounded-lg">
+                      <GraduationCap size={16} />
+                      <span>Learning</span>
+                      <ChevronDown
+                        size={14}
+                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                    <SidebarMenuSub>
+                      {learningSubItems.map((sub) => (
+                        <SidebarMenuSubItem key={sub.label}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={sub.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(sub.href)}
+                          >
+                            <Link href={sub.href}>{sub.label}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </>
+          ) : (
+            <>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={item.label}
+                    className="gap-3 rounded-lg"
+                  >
+                    <Link href={item.href}>
+                      <item.icon size={16} />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+
+              {/* Training — collapsible sub-menu, icon-only when sidebar is collapsed */}
+              <Collapsible defaultOpen={pathname.startsWith("/training")}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Training" className="gap-3 rounded-lg">
+                      <BookOpen size={16} />
+                      <span>Training</span>
+                      <ChevronDown
+                        size={14}
+                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                    <SidebarMenuSub>
+                      {trainingSubItems.map((sub) => (
+                        <SidebarMenuSubItem key={sub.label}>
+                          <SidebarMenuSubButton asChild isActive={pathname.startsWith(sub.href)}>
+                            <Link href={sub.href}>{sub.label}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </>
+          )}
         </SidebarMenu>
       </SidebarContent>
 
@@ -128,7 +255,7 @@ export function CortexSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  tooltip={`${USER.fullName} · ${USER.role}`}
+                  tooltip={`${USER.fullName} · ${ROLE_LABEL[role]}`}
                   className="gap-3 h-auto py-2 rounded-lg"
                 >
                   <Avatar className="h-7 w-7 rounded-full shrink-0">
@@ -140,7 +267,7 @@ export function CortexSidebar() {
                   <div className="flex flex-col items-start min-w-0 group-data-[collapsible=icon]:hidden">
                     <span className="text-sm font-medium leading-tight truncate">{USER.fullName}</span>
                     <span className="text-xs text-muted-foreground leading-tight truncate">
-                      {USER.role}
+                      {ROLE_LABEL[role]}
                     </span>
                   </div>
                   <ChevronRight size={14} className="ml-auto text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />

@@ -1,4 +1,8 @@
 import { daysSince, isWithinDays } from "./utils";
+import type { Role } from "./user-mock";
+
+/** An embedded image with an optional caption/title. src is a URL or data-URL. */
+export type DocImage = { src: string; caption?: string };
 
 export type SubSection = {
   id: string;
@@ -24,6 +28,7 @@ export type TocSection = {
   paragraphs?: string[];
   points?: string[];
   note?: string;
+  image?: DocImage;
   subsections?: SubSection[];
   continuationPages?: PageContent[];
 };
@@ -36,6 +41,10 @@ export type LibraryDoc = {
   lastModified: string;
   /** Flagged as newly added/updated for the user's role since they last looked. */
   isNew?: boolean;
+  /** Which roles this document is for. Absent = visible to all (legacy seed). */
+  roles?: Role[];
+  /** Whether this document is live for learners. Absent = published (seed). */
+  published?: boolean;
   toc?: TocSection[];
 };
 

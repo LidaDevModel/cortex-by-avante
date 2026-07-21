@@ -14,6 +14,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { getModules, getRequiredModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
 import { getRecentDocuments } from "@/lib/library-mock";
 import { USER } from "@/lib/user-mock";
+import { useCurrentRole } from "@/lib/current-role";
 
 /** Two dashboard cards side by side on desktop, stacked below lg. Children
     stretch (each widget card is h-full) so paired cards match heights. */
@@ -28,6 +29,7 @@ export default function DashboardPage() {
 
   // Time-aware greeting + date meta, set after mount (client clock ≠ prerender
   // clock, so deriving in render would mismatch hydration).
+  const isAdmin = useCurrentRole() === "admin";
   const [greeting, setGreeting] = useState("Welcome back");
   const [dateMeta, setDateMeta] = useState<string | null>(null);
   useEffect(() => {
@@ -64,10 +66,10 @@ export default function DashboardPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{greeting}, {USER.firstName}</h1>
+              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{isAdmin ? "Learning" : `${greeting}, ${USER.firstName}`}</h1>
               {cleared && <ClearedBadge requiredCount={requiredModules.length} />}
             </div>
-            {dateMeta && (
+            {!isAdmin && dateMeta && (
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
             )}
           </div>
