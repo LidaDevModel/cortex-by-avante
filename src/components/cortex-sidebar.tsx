@@ -68,13 +68,13 @@ const contentSubItems = [
   { label: "Modules", href: "/admin/content/training" },
 ];
 
-// The admin's own learning surfaces, grouped under "Learning". Training and
+// The admin's own learning surfaces, grouped under "Learning". Modules and
 // Knowledge Check sit flat here to avoid a group inside a group.
 const learningSubItems = [
-  { label: "Home", href: "/dashboard" },
+  { label: "Overview", href: "/dashboard" },
   { label: "AI Chat", href: "/chat" },
   { label: "Library", href: "/library" },
-  { label: "Training", href: "/training/modules" },
+  { label: "Modules", href: "/training/modules" },
   { label: "Knowledge Check", href: "/training/quick-check" },
 ];
 
@@ -106,10 +106,10 @@ export function CortexSidebar() {
               {/* Manage — the admin's primary work, top-level. (Content and
                   Reports arrive with their phases.) */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/admin"} tooltip="Overview" className="gap-3 rounded-lg">
+                <SidebarMenuButton asChild isActive={pathname === "/admin"} tooltip="Home" className="gap-3 rounded-lg">
                   <Link href="/admin">
                     <LayoutDashboard size={16} />
-                    <span>Overview</span>
+                    <span>Home</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
