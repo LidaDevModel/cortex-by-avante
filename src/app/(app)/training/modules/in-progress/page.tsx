@@ -151,12 +151,12 @@ export default function InProgressPage() {
             </div>
 
             {/* Search + filters */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
               <SearchInput
                 value={search}
                 onChange={setSearch}
                 placeholder="Search in progress modules..."
-                className="flex-1"
+                className="w-full sm:w-[280px]"
               />
               <div className="flex items-center gap-1 shrink-0">
                 <FilterSelect

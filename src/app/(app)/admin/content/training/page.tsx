@@ -74,12 +74,14 @@ export default function AdminTrainingPage() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={setQuery} placeholder="Search modules" className="w-full sm:w-[280px]" />
-            <FilterSelect value={categoryFilter} onChange={setCategoryFilter} options={CATEGORY_OPTIONS} placeholder="All categories" />
-            <FilterSelect value={requirementFilter} onChange={setRequirementFilter} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
-            <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
-            <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <FilterSelect value={categoryFilter} onChange={setCategoryFilter} options={CATEGORY_OPTIONS} placeholder="All categories" />
+              <FilterSelect value={requirementFilter} onChange={setRequirementFilter} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
+              <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
+              <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+            </div>
           </div>
 
           {rows.length === 0 ? (

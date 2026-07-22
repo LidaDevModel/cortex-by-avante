@@ -119,13 +119,13 @@ export default function ModulesPage() {
           {/* Search + filter row — stacks on mobile (search on its own line,
               dropdowns two-per-row), single horizontal line on desktop.
               Mirrors the library Documents toolbar's responsive reflow. */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             {/* Search */}
             <SearchInput
               value={search}
               onChange={setSearch}
               placeholder="Search modules..."
-              className="w-full sm:flex-1"
+              className="w-full sm:w-[280px]"
             />
 
             {/* Filter pills — two-per-row grid on mobile, fixed widths inline on desktop */}
