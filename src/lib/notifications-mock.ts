@@ -4,17 +4,23 @@ import { useSyncExternalStore } from "react";
 import { getRecentDocuments } from "@/lib/library-mock";
 import { getRecentModules } from "@/lib/training-mock";
 import { getTodaysDailyAttempt } from "@/lib/kc-store";
+import { getCurrentRole } from "@/lib/current-role";
+import { listFlags } from "@/lib/flags-store";
+import { listUsers } from "@/lib/admin-store";
+import { ROLE_LABEL } from "@/lib/user-mock";
 
 /*
- * Notifications — the time-sensitive layer over the recency feed's events:
- * new assignments and the Daily 5 nudge. Mock seam: a real backend replaces
- * the builders below; the
- * store shape (items · unread · prefs) is the contract the UI consumes.
- * Everything here derives from role-gated sources, so the list inherits the
- * role boundary.
+ * Notifications — the time-sensitive layer over each role's events. Field
+ * agents get the learner feed (new assignments + the Daily 5 nudge); admins
+ * get that same learner feed (they have a Learning group too) plus the
+ * operational feed — a response flagged for review, a staff invite still
+ * awaiting activation. Mock seam: a real backend replaces the builders below;
+ * the store shape (items · unread · prefs) is the contract the UI consumes.
+ * Everything derives from role-gated sources, so the list inherits the role
+ * boundary.
  */
 
-export type NotificationCategory = "assignment" | "practice";
+export type NotificationCategory = "assignment" | "practice" | "flag" | "invite";
 
 export type CortexNotification = {
   id: string;
@@ -29,6 +35,10 @@ export type CortexNotification = {
 export type NotificationPrefs = {
   assignments: boolean;
   practice: boolean;
+  /** Admin-only: a guard flagged an AI answer for review. */
+  flags: boolean;
+  /** Admin-only: an invited user hasn't activated their account yet. */
+  invites: boolean;
 };
 
 const PREFS_KEY = "cortex-notification-prefs";
@@ -36,6 +46,8 @@ const READ_KEY = "cortex-notifications-read";
 const DEFAULT_PREFS: NotificationPrefs = {
   assignments: true,
   practice: true,
+  flags: true,
+  invites: true,
 };
 
 /* ── Reactivity: version counter store (same idiom as the toast store) ── */
@@ -102,11 +114,17 @@ export function markAllRead() {
 /* ── Items ── */
 const RECENCY_DAYS = 14;
 
+/** Trim a flagged question to a single-line notification meta. */
+function trimQuestion(q: string): string {
+  return q.length > 64 ? `${q.slice(0, 63).trimEnd()}…` : q;
+}
+
 export function getNotifications(): (CortexNotification & { unread: boolean })[] {
   const prefs = getNotificationPrefs();
   const read = getReadIds();
   const items: CortexNotification[] = [];
 
+  /* ── Learner feed — field agents and admins alike (admins have a Learning group too) ── */
   if (prefs.assignments) {
     for (const m of getRecentModules(RECENCY_DAYS)) {
       items.push({
@@ -139,6 +157,36 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
       date: new Date().toISOString(),
       href: "/training/quick-check?start=daily5",
     });
+  }
+
+  /* ── Operational feed — admins only ── */
+  if (getCurrentRole() === "admin") {
+    if (prefs.flags) {
+      for (const f of listFlags()) {
+        if (f.status !== "open") continue;
+        items.push({
+          id: `flagged-${f.id}`,
+          category: "flag",
+          title: "Response flagged for review",
+          meta: trimQuestion(f.question),
+          date: f.date,
+          href: `/admin/reports/flagged/${f.id}`,
+        });
+      }
+    }
+    if (prefs.invites) {
+      for (const u of listUsers()) {
+        if (u.status !== "invited") continue;
+        items.push({
+          id: `invite-${u.id}`,
+          category: "invite",
+          title: "Invite awaiting activation",
+          meta: `${u.fullName} · ${ROLE_LABEL[u.role]}`,
+          date: u.memberSince,
+          href: "/admin/people",
+        });
+      }
+    }
   }
 
   return items

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, FileText, Target, X } from "lucide-react";
+import { Bell, BookOpen, FileText, Flag, Mail, Target, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
+import { useCurrentRole } from "@/lib/current-role";
 import { daysSince } from "@/lib/utils";
 import {
   type CortexNotification,
@@ -22,8 +23,12 @@ import {
 } from "@/lib/notifications-mock";
 
 function itemIcon(n: CortexNotification) {
-  if (n.category === "practice") return Target;
-  return n.href.startsWith("/library") ? FileText : BookOpen;
+  switch (n.category) {
+    case "practice": return Target;
+    case "flag": return Flag;
+    case "invite": return Mail;
+    default: return n.href.startsWith("/library") ? FileText : BookOpen;
+  }
 }
 
 function Row({ n, onOpen }: { n: CortexNotification & { unread: boolean }; onOpen: (n: CortexNotification) => void }) {
@@ -54,6 +59,7 @@ function Row({ n, onOpen }: { n: CortexNotification & { unread: boolean }; onOpe
 }
 
 function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotification) => void; showTitle?: boolean }) {
+  const role = useCurrentRole();
   const items = getNotifications();
   const unread = items.filter((n) => n.unread).length;
   const today = items.filter((n) => daysSince(n.date) <= 0);
@@ -102,7 +108,9 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
         <div className="flex flex-col gap-1 px-4 py-8 text-center">
           <p className="text-[14px] leading-[20px] font-medium text-foreground">No new notifications.</p>
           <p className="text-[12px] leading-[16px] text-muted-foreground">
-            Updates about your modules and documents will appear here.
+            {role === "admin"
+              ? "Flagged responses, pending invites, and content updates will appear here."
+              : "Updates about your modules and documents will appear here."}
           </p>
         </div>
       ) : (
@@ -142,6 +150,8 @@ export function NotificationsBell() {
   const browseScreen = useMobileNavVisible();
   const [sheetOpen, setSheetOpen] = useState(false);
   useNotificationsVersion();
+  // Re-render on role switch so the unread dot reflects the admin feed.
+  useCurrentRole();
 
   // Unread state lives in localStorage — show the dot only after mount so the
   // server render (which can't read it) never mismatches.
