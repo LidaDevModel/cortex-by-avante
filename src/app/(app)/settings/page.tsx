@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Segmented, type SegmentedOption } from "@/components/ui/segmented";
 import { type ThemePreference, useTheme } from "@/components/theme-context";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useCurrentRole } from "@/lib/current-role";
 import {
   type NotificationPrefs,
   getNotificationPrefs,
@@ -20,7 +21,10 @@ const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
   { value: "system", label: "System", icon: Monitor },
 ];
 
-const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: string }[] = [
+type NotificationRow = { key: keyof NotificationPrefs; label: string; meta: string };
+
+// Everyone has a learning side (admins included, via the Learning group).
+const LEARNER_ROWS: NotificationRow[] = [
   {
     key: "assignments",
     label: "New assignments",
@@ -33,6 +37,20 @@ const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: st
   },
 ];
 
+// Operational alerts — only relevant to admins.
+const ADMIN_ROWS: NotificationRow[] = [
+  {
+    key: "flags",
+    label: "Flagged responses",
+    meta: "When a guard flags an AI answer for review",
+  },
+  {
+    key: "invites",
+    label: "Pending activations",
+    meta: "When an invited user hasn't activated yet",
+  },
+];
+
 /**
  * Settings — the private account surface (device preferences, notification
  * choices, session). Deliberately separate from /profile, which stays the
@@ -41,9 +59,11 @@ const NOTIFICATION_ROWS: { key: keyof NotificationPrefs; label: string; meta: st
 export default function SettingsPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const { preference, setPreference } = useTheme();
+  const role = useCurrentRole();
   // Version subscription re-renders the toggles when prefs change.
   useNotificationsVersion();
   const prefs = getNotificationPrefs();
+  const notificationRows = role === "admin" ? [...LEARNER_ROWS, ...ADMIN_ROWS] : LEARNER_ROWS;
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -86,7 +106,7 @@ export default function SettingsPage() {
           >
             <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Notifications</h2>
             <div className="flex flex-col gap-1">
-              {NOTIFICATION_ROWS.map((row) => (
+              {notificationRows.map((row) => (
                 // The whole row is the label, so the full width toggles.
                 <label
                   key={row.key}
