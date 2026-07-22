@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UserPlus, MoreHorizontal, KeyRound, Send, Ban, UserCheck, Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -43,6 +43,10 @@ export default function AdminPeoplePage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [deactivateTarget, setDeactivateTarget] = useState<StaffMember | null>(null);
+
+  // Deep link from the Home quick actions: /admin/people?invite=1 opens the modal.
+  const inviteParam = useSearchParams().get("invite");
+  useEffect(() => { if (inviteParam === "1") setInviteOpen(true); }, [inviteParam]);
 
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
