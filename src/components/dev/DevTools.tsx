@@ -5,13 +5,13 @@ import { DialRoot } from "dialkit";
 import { DevPalette } from "./DevPalette";
 
 /**
- * Gate for the DialKit dev tooling.
+ * Gate for the DialKit demo tooling (the deployed build shows only the trimmed
+ * Display + Themes panel — palette/illustration dials are hidden in DevPalette).
  *
- * - Local dev (`NODE_ENV !== "production"`): always on, as before.
- * - Deployed build: OFF by default so real users never see it — EXCEPT when the
- *   URL carries `?dials` (sticky via localStorage). This lets the palette/theme
- *   explorer be revealed on a deployed link for a demo without shipping it to
- *   everyone. Append `?dials=0` to turn it back off.
+ * - ON by default, everywhere — the shared demo needs its light/dark, role, and
+ *   theme switchers visible without a special link.
+ * - `?dials=0` turns it OFF (sticky via localStorage) for clean screenshots;
+ *   `?dials` / `?dials=1` turns it back on.
  *
  * Renders nothing on the server / first paint; reveals only after the client
  * checks the flag, so there's no hydration mismatch.
@@ -19,14 +19,11 @@ import { DevPalette } from "./DevPalette";
 export function DevTools() {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    let enabled = process.env.NODE_ENV !== "production";
+    let enabled = true;
     try {
       const p = new URLSearchParams(window.location.search);
-      if (p.has("dials")) {
-        if (p.get("dials") !== "0") localStorage.setItem("dk-dials", "1");
-        else localStorage.removeItem("dk-dials");
-      }
-      enabled = enabled || localStorage.getItem("dk-dials") === "1";
+      if (p.has("dials")) localStorage.setItem("dk-dials", p.get("dials") === "0" ? "0" : "1");
+      if (localStorage.getItem("dk-dials") === "0") enabled = false;
     } catch { /* no-op */ }
     setShow(enabled);
   }, []);
