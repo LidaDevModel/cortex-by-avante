@@ -82,7 +82,7 @@ export function createModule(title: string): string {
     authoredChapters: [],
   };
   save([m, ...load()]);
-  logActivity(`Created module “${m.title}”`);
+  logActivity("created", `Created module “${m.title}”`);
   return id;
 }
 function moduleTitle(id: string): string {
@@ -95,17 +95,17 @@ export function updateModule(id: string, patch: Partial<Pick<AdminModule, "title
 export function setModulePublished(id: string, published: boolean) {
   const title = moduleTitle(id);
   save(load().map((m) => (m.id === id ? { ...m, published, lastModified: today() } : m)));
-  logActivity(`${published ? "Published" : "Unpublished"} module “${title}”`);
+  logActivity("edited", `${published ? "Published" : "Unpublished"} module “${title}”`);
 }
 // updateModule + updateChapters always fire together on a save — log once here.
 export function updateChapters(id: string, chapters: Chapter[]) {
   save(load().map((m) => (m.id === id ? { ...m, authoredChapters: chapters, chapters: chapters.length, lastModified: today() } : m)));
-  logActivity(`Updated module “${moduleTitle(id)}”`);
+  logActivity("edited", `Updated module “${moduleTitle(id)}”`);
 }
 export function deleteModule(id: string) {
   const title = moduleTitle(id);
   save(load().filter((m) => m.id !== id));
-  logActivity(`Deleted module “${title}”`);
+  logActivity("deleted", `Deleted module “${title}”`);
 }
 
 /* ─── Reactivity ─── */

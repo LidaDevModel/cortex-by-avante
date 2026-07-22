@@ -72,12 +72,12 @@ export function getUser(id: string): StaffMember | undefined {
 export function updateUserRole(id: string, role: Role) {
   const name = load().find((u) => u.id === id)?.fullName ?? "user";
   save(load().map((u) => (u.id === id ? { ...u, role } : u)));
-  logActivity(`Changed ${name}'s role to ${ROLE_LABEL[role]}`);
+  logActivity("edited", `Changed ${name}'s role to ${ROLE_LABEL[role]}`);
 }
 export function setUserStatus(id: string, status: StaffStatus) {
   const name = load().find((u) => u.id === id)?.fullName ?? "user";
   save(load().map((u) => (u.id === id ? { ...u, status } : u)));
-  logActivity(status === "deactivated" ? `Deactivated ${name}'s account` : status === "active" ? `Reactivated ${name}'s account` : `Set ${name}'s account to ${status}`);
+  logActivity("edited", status === "deactivated" ? `Deactivated ${name}'s account` : status === "active" ? `Reactivated ${name}'s account` : `Set ${name}'s account to ${status}`);
 }
 
 function genPin(): string {
@@ -107,7 +107,7 @@ export function inviteUser(input: { email: string; role: Role; fullName?: string
     pin,
   };
   save([user, ...list]);
-  logActivity(`Invited ${user.email} as ${ROLE_LABEL[input.role]}`);
+  logActivity("invited", `Invited ${user.email} as ${ROLE_LABEL[input.role]}`);
   return { id, pin };
 }
 
