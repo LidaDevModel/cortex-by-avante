@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MoreHorizontal, FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -37,6 +37,10 @@ export default function AdminTrainingPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [newOpen, setNewOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // Deep link from the Home quick actions: ?new=1 opens the name prompt.
+  const newParam = useSearchParams().get("new");
+  useEffect(() => { if (newParam === "1") setNewOpen(true); }, [newParam]);
 
   function handleSort(col: "title" | "lastModified") {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));

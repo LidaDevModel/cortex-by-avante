@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Pencil, Eye, EyeOff, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -31,8 +31,11 @@ export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
   const lib = useLibrary();
-  const folderId = useSearchParams().get("folder") ?? undefined;
+  const searchParams = useSearchParams();
+  const folderId = searchParams.get("folder") ?? undefined;
   const folder = folderId ? getContentFolder(folderId) : undefined;
+
+  const newParam = searchParams.get("new");
 
   const [query, setQuery] = useState("");
   const [kindFilter, setKindFilter] = useState("");
@@ -42,6 +45,9 @@ export default function AdminContentPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+
+  // Deep link from the Home quick actions: /admin/content?new=1 opens the prompt.
+  useEffect(() => { if (newParam === "1") setPrompt({ mode: "new-doc" }); }, [newParam]);
 
   function handleSort(col: "name" | "lastModified") {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));

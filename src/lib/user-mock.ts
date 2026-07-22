@@ -38,6 +38,11 @@ export type StaffMember = {
   memberSince: string;
   /** Count of certifications the person holds (summary for the People list). */
   certifications: number;
+  /** Issue dates of recent certifications (≤90 days), for time-based views.
+      Older certifications predate the tracked window and carry no date. */
+  certDates?: string[];
+  /** True when every required module is certified — cleared for duty. */
+  shiftReady: boolean;
   /** ISO date of last activity, or undefined for an invited/never-active user. */
   lastActive?: string;
 };
@@ -47,11 +52,11 @@ export type StaffMember = {
  * replaces this list; the admin overlay store edits it for the demo.
  */
 export const STAFF: StaffMember[] = [
-  { id: "u-mike", fullName: "Mike Martinez", initials: "MM", email: "mike.martinez@avante.security", role: "field-agent", status: "active", memberSince: "2026-03-02", certifications: 6, lastActive: "2026-07-20" },
-  { id: "u-sara", fullName: "Sara Okafor", initials: "SO", email: "sara.okafor@avante.security", role: "admin", status: "active", memberSince: "2025-11-14", certifications: 9, lastActive: "2026-07-21" },
-  { id: "u-david", fullName: "David Chen", initials: "DC", email: "david.chen@avante.security", role: "field-agent", status: "active", memberSince: "2026-01-08", certifications: 4, lastActive: "2026-07-19" },
-  { id: "u-amara", fullName: "Amara Diallo", initials: "AD", email: "amara.diallo@avante.security", role: "field-agent", status: "active", memberSince: "2026-05-20", certifications: 2, lastActive: "2026-07-18" },
-  { id: "u-tom", fullName: "Tom Whitfield", initials: "TW", email: "tom.whitfield@avante.security", role: "field-agent", status: "invited", memberSince: "2026-07-19", certifications: 0 },
-  { id: "u-lena", fullName: "Lena Novak", initials: "LN", email: "lena.novak@avante.security", role: "field-agent", status: "active", memberSince: "2025-09-02", certifications: 8, lastActive: "2026-07-15" },
-  { id: "u-raj", fullName: "Raj Patel", initials: "RP", email: "raj.patel@avante.security", role: "field-agent", status: "deactivated", memberSince: "2025-06-11", certifications: 5, lastActive: "2026-04-30" },
+  { id: "u-mike", fullName: "Mike Martinez", initials: "MM", email: "mike.martinez@avante.security", role: "field-agent", status: "active", memberSince: "2026-03-02", certifications: 6, certDates: ["2026-06-22", "2026-05-20"], shiftReady: false, lastActive: "2026-07-20" },
+  { id: "u-sara", fullName: "Sara Okafor", initials: "SO", email: "sara.okafor@avante.security", role: "admin", status: "active", memberSince: "2025-11-14", certifications: 9, certDates: ["2026-07-10"], shiftReady: true, lastActive: "2026-07-21" },
+  { id: "u-david", fullName: "David Chen", initials: "DC", email: "david.chen@avante.security", role: "field-agent", status: "active", memberSince: "2026-01-08", certifications: 4, certDates: ["2026-06-30"], shiftReady: true, lastActive: "2026-07-19" },
+  { id: "u-amara", fullName: "Amara Diallo", initials: "AD", email: "amara.diallo@avante.security", role: "field-agent", status: "active", memberSince: "2026-05-20", certifications: 2, certDates: ["2026-07-02"], shiftReady: false, lastActive: "2026-07-18" },
+  { id: "u-tom", fullName: "Tom Whitfield", initials: "TW", email: "tom.whitfield@avante.security", role: "field-agent", status: "invited", memberSince: "2026-07-19", certifications: 0, shiftReady: false },
+  { id: "u-lena", fullName: "Lena Novak", initials: "LN", email: "lena.novak@avante.security", role: "field-agent", status: "active", memberSince: "2025-09-02", certifications: 8, certDates: ["2026-05-12"], shiftReady: true, lastActive: "2026-07-15" },
+  { id: "u-raj", fullName: "Raj Patel", initials: "RP", email: "raj.patel@avante.security", role: "field-agent", status: "deactivated", memberSince: "2025-06-11", certifications: 5, shiftReady: false, lastActive: "2026-04-30" },
 ];
