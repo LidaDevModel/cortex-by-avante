@@ -105,11 +105,13 @@ export default function AdminContentPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={setQuery} placeholder="Search this level" className="w-full sm:w-[280px]" />
-            {!folder && <FilterSelect value={kindFilter} onChange={setKindFilter} options={[{ value: "document", label: "Files" }, { value: "folder", label: "Folders" }]} placeholder="All kinds" />}
-            <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
-            <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+            <div className="flex items-center gap-2 flex-wrap">
+              {!folder && <FilterSelect value={kindFilter} onChange={setKindFilter} options={[{ value: "document", label: "Files" }, { value: "folder", label: "Folders" }]} placeholder="All kinds" />}
+              <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
+              <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+            </div>
           </div>
 
           {shown.length === 0 ? (

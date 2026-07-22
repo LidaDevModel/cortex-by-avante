@@ -182,6 +182,7 @@ export default function AdminDocumentEditorPage() {
               <PublishBadge published={found.doc.published !== false} />
             </div>
             <div className="flex items-center gap-2">
+              <Button size="cta" variant="ghost" onClick={handleCancel}>Cancel</Button>
               <Button
                 size="cta"
                 variant="outline"
@@ -195,7 +196,6 @@ export default function AdminDocumentEditorPage() {
               >
                 {found.doc.published !== false ? "Unpublish" : "Publish"}
               </Button>
-              <Button size="cta" variant="outline" onClick={handleCancel}>Cancel</Button>
               <Button size="cta" onClick={saveAll}>Save changes</Button>
             </div>
           </div>

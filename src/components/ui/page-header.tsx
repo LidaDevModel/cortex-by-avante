@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, ChevronRight } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ArrowLeft, ChevronRight, Menu } from "lucide-react";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
+import { useCurrentRole } from "@/lib/current-role";
 import { cn } from "@/lib/utils";
 
 /* ─── PageHeader ────────────────────────────────────────────────────────────
@@ -22,6 +23,8 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
   // bell — and collapses entirely on focused-task screens (where the bell also
   // hides), so there's no empty strip. Desktop keeps the full breadcrumb.
   const browse = useMobileNavVisible();
+  const { toggleSidebar } = useSidebar();
+  const isAdmin = useCurrentRole() === "admin";
 
   // Deep paths collapse the middle behind an expandable ellipsis, keeping the
   // root and the current page. Only worth it with ≥2 hidden middles, so we
@@ -62,7 +65,19 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
         className
       )}
     >
-      <SidebarTrigger className="-ml-1" />
+      {/* Desktop: the sidebar collapse toggle. Mobile: admins get a burger that
+          opens the nav drawer; field agents keep a quiet header (the floating
+          pill is their nav), so no trigger there. */}
+      <SidebarTrigger className="-ml-1 max-md:hidden" />
+      {isAdmin && (
+        <button
+          onClick={toggleSidebar}
+          aria-label="Open menu"
+          className="md:hidden -ml-1 w-9 h-9 flex items-center justify-center rounded-lg text-foreground hover:bg-foreground/5 transition-colors duration-100"
+        >
+          <Menu size={20} strokeWidth={1.75} />
+        </button>
+      )}
       <div className="hidden md:flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
         {shown.map((item, i) => (
           <span key={i} className="flex items-center gap-1.5 min-w-0">

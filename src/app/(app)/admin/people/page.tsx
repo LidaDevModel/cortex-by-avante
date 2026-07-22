@@ -71,10 +71,12 @@ export default function AdminPeoplePage() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={setQuery} placeholder="Search name or email" className="w-full sm:w-[280px]" />
-            <FilterSelect value={roleFilter} onChange={setRoleFilter} options={ROLE_FILTER} placeholder="All roles" />
-            <FilterSelect value={statusFilter} onChange={setStatusFilter} options={STATUS_FILTER} placeholder="All statuses" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <FilterSelect value={roleFilter} onChange={setRoleFilter} options={ROLE_FILTER} placeholder="All roles" />
+              <FilterSelect value={statusFilter} onChange={setStatusFilter} options={STATUS_FILTER} placeholder="All statuses" />
+            </div>
           </div>
 
           {rows.length === 0 ? (

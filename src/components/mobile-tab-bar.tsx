@@ -7,6 +7,7 @@ import { House, MessageCircle, Library, BookOpen, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
+import { useCurrentRole } from "@/lib/current-role";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { USER } from "@/lib/user-mock";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,9 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const router = useRouter();
   const visible = useMobileNavVisible();
+  // Admins navigate via the burger + sidebar drawer on mobile, not this
+  // field-agent pill (their IA is too broad for four thumb tabs).
+  const isAdmin = useCurrentRole() === "admin";
 
   const [dial, setDial] = useState<DialState>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
@@ -153,7 +157,7 @@ export function MobileTabBar() {
     };
   }, [dial, closeDial, triggerFor]);
 
-  if (!visible) return null;
+  if (!visible || isAdmin) return null;
 
   const trainingDialShown = dial?.id === "training";
   const profileDialShown = dial?.id === "profile";
