@@ -13,13 +13,9 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInView } from "@/hooks/use-in-view";
 import { getAuthProfile } from "@/lib/auth-mock";
 import { CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
-import {
-  getModules,
-  type ModuleCategory,
-  getCertifiedModules,
-  getRequiredModules,
-  isShiftReady,
-} from "@/lib/training-mock";
+import { type ModuleCategory, isShiftReady } from "@/lib/training-mock";
+import { learnerModules, getLearnerCertified, getLearnerRequired } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 import { getPersona } from "@/lib/demo-persona";
 import { USER } from "@/lib/user-mock";
 
@@ -37,10 +33,11 @@ function memberSinceLabel(iso: string) {
 export default function ProfilePage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const profile = getAuthProfile();
+  const role = useCurrentRole();
 
-  const certified = getCertifiedModules();
-  const cleared = isShiftReady();
-  const completedModules = getModules().filter((m) => m.status === "completed").length;
+  const certified = getLearnerCertified(role);
+  const cleared = isShiftReady(learnerModules(role));
+  const completedModules = learnerModules(role).filter((m) => m.status === "completed").length;
   // A brand-new guard joined just now; Mike carries his provisioned start date.
   const memberSince = getPersona() === "new" ? new Date().toISOString() : USER.memberSince;
 
@@ -92,7 +89,7 @@ export default function ProfilePage() {
                   <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
                     {USER.fullName}
                   </h1>
-                  {cleared && <ClearedBadge requiredCount={getRequiredModules().length} />}
+                  {cleared && <ClearedBadge requiredCount={getLearnerRequired(role).length} />}
                 </div>
                 <p className="text-[14px] leading-[20px] text-muted-foreground">{USER.role}</p>
                 {profile.description && (

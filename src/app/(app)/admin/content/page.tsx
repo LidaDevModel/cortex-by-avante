@@ -158,7 +158,7 @@ export default function AdminContentPage() {
             <Table>
               <TableHeader>
                 <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
-                <TableHead className="w-[140px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
+                <TableHead className="w-[124px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
                 <TableHead className="w-[104px]">Kind</TableHead>
                 <TableHead className="w-[104px]">Status</TableHead>
                 <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
@@ -169,7 +169,7 @@ export default function AdminContentPage() {
                     <TableCell className="flex-1 min-w-0 font-medium">
                       <span className="block truncate">{r.name}</span>
                     </TableCell>
-                    <TableCell className="w-[140px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
+                    <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
                     <TableCell className="w-[104px]">
                       <KindPill kind={r.type} />
                     </TableCell>

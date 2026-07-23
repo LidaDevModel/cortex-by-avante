@@ -8,7 +8,9 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInitialLoad } from "@/hooks/use-initial-load";
-import { getModules } from "@/lib/training-mock";
+import { useLearnerModules } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
+import { useRowStagger } from "@/hooks/use-entrance";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -22,7 +24,8 @@ export default function ModulesPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
 
-  const allModules = useMemo(() => getModules(), []);
+  const allModules = useLearnerModules(useCurrentRole());
+  const gridRow = useRowStagger("learner-modules-grid");
 
   const inProgress = useMemo(
     () => allModules.filter((m) => m.status === "in-progress").slice(0, 3),
@@ -169,8 +172,8 @@ export default function ModulesPage() {
           {/* Module grid */}
           {filteredModules.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredModules.map((m) => (
-                <ModuleCard key={m.id} module={m} />
+              {filteredModules.map((m, i) => (
+                <ModuleCard key={m.id} module={m} style={gridRow(i)} />
               ))}
             </div>
           ) : (

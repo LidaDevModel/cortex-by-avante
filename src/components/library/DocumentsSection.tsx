@@ -10,7 +10,9 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type Sor
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { cn } from "@/lib/utils";
-import { FOLDERS, TOP_LEVEL_DOCS } from "@/lib/library-mock";
+import { useLearnerLibrary } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
+import { useRowStagger } from "@/hooks/use-entrance";
 
 /* ─── Types ─── */
 
@@ -21,25 +23,6 @@ type Doc = {
   content: string;
   lastModified: string;
 };
-
-/* ─── Data — derived live from the shared library data, never hand-duplicated ─── */
-
-const DOCUMENTS: Doc[] = [
-  ...FOLDERS.map((f): Doc => ({
-    id: f.id,
-    name: f.name,
-    kind: "folder",
-    content: `${f.documents.length} file${f.documents.length !== 1 ? "s" : ""}`,
-    lastModified: f.lastModified,
-  })),
-  ...TOP_LEVEL_DOCS.map((d): Doc => ({
-    id: d.id,
-    name: d.name,
-    kind: "document",
-    content: d.content,
-    lastModified: d.lastModified,
-  })),
-];
 
 const LIST_PAGE_SIZE = 8;
 const GRID_PAGE_SIZE = 12; // 6 cols × 2 rows
@@ -85,6 +68,27 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
 
 export function DocumentsSection() {
   const router = useRouter();
+  // Learner view of the content overlay: published, role-visible items only, so
+  // admin publishes/edits reach the guard. Folders show their visible file count.
+  const role = useCurrentRole();
+  const rowStyle = useRowStagger("library-docs");
+  const lib = useLearnerLibrary(role);
+  const documents: Doc[] = useMemo(() => [
+    ...lib.folders.map((f): Doc => ({
+      id: f.id,
+      name: f.name,
+      kind: "folder",
+      content: `${f.documents.length} file${f.documents.length !== 1 ? "s" : ""}`,
+      lastModified: f.lastModified,
+    })),
+    ...lib.topLevel.map((d): Doc => ({
+      id: d.id,
+      name: d.name,
+      kind: "document",
+      content: d.content,
+      lastModified: d.lastModified,
+    })),
+  ], [lib]);
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -104,7 +108,7 @@ export function DocumentsSection() {
   }
 
   const filtered = useMemo(() => {
-    let list = DOCUMENTS;
+    let list = documents;
     if (kindFilter) list = list.filter((d) => d.kind === kindFilter);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
@@ -116,7 +120,7 @@ export function DocumentsSection() {
       return mul * (new Date(a.lastModified).getTime() - new Date(b.lastModified).getTime());
     });
     return list;
-  }, [search, sortCol, sortDir, kindFilter]);
+  }, [documents, search, sortCol, sortDir, kindFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -201,8 +205,8 @@ export function DocumentsSection() {
                 <TableHead className="w-[90px]">Content</TableHead>
               </TableHeader>
               <TableBody>
-                {paginated.map((doc) => (
-                  <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
+                {paginated.map((doc, i) => (
+                  <TableRow key={doc.id} onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)} style={rowStyle(i)}>
                     <TableCell className="flex-1 font-medium truncate" style={{ color: "var(--foreground)" }}>
                       <span className="truncate">{doc.name}</span>
                     </TableCell>
@@ -221,8 +225,8 @@ export function DocumentsSection() {
                 columns don't shrink gracefully at 375px. */}
             <Table className="md:hidden">
               <TableBody>
-                {paginated.map((doc) => (
-                  <TableRow key={doc.id} className="py-3" onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}>
+                {paginated.map((doc, i) => (
+                  <TableRow key={doc.id} className="py-3" onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)} style={rowStyle(i)}>
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                       <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
                       <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
@@ -237,12 +241,13 @@ export function DocumentsSection() {
           </>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-x-2 gap-y-8">
-            {paginated.map((doc) => (
+            {paginated.map((doc, i) => (
               <DocGridCard
                 key={doc.id}
                 name={doc.name}
                 kind={doc.kind}
                 lastModified={doc.lastModified}
+                style={rowStyle(i)}
                 onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}
               />
             ))}

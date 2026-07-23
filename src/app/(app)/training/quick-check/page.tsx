@@ -31,7 +31,9 @@ import { KCStartSection } from "@/components/knowledge-check/KCStartSection";
 import { KCExamSimConfig } from "@/components/knowledge-check/KCExamSimConfig";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useFocusedTask } from "@/hooks/use-mobile-nav";
-import { getModules } from "@/lib/training-mock";
+import { learnerModules } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
+import { useRowStagger } from "@/hooks/use-entrance";
 
 /* ─── Types ─── */
 
@@ -266,6 +268,7 @@ function HistoryTable({
   const [sortCol, setSortCol] = useState<SortCol>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
+  const rowStyle = useRowStagger("kc-attempts");
 
   function handleSort(col: SortCol) {
     if (sortCol === col) {
@@ -336,8 +339,8 @@ function HistoryTable({
           <TableHead className="w-[100px]" sortDir={sortCol === "score" ? sortDir : null} onSort={() => handleSort("score")}>Score</TableHead>
         </TableHeader>
         <TableBody>
-          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }) => (
-            <TableRow key={attempt.id} onClick={() => onViewDetail(attempt.id)}>
+          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }, i) => (
+            <TableRow key={attempt.id} onClick={() => onViewDetail(attempt.id)} style={rowStyle(i)}>
               <TableCell className="flex-1 truncate pr-2">{catLabel} #{getAttemptOrdinal(attempt.id)}</TableCell>
               <TableCell className="flex-1 text-muted-foreground truncate pr-2">{formatLabel === "All formats" ? "All" : formatLabel}</TableCell>
               <TableCell className="w-[120px] text-muted-foreground">{formatDate(attempt.date)}</TableCell>
@@ -357,8 +360,8 @@ function HistoryTable({
           date-desc; the filters above carry the slicing. */}
       <Table className="md:hidden">
         <TableBody>
-          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }) => (
-            <TableRow key={attempt.id} className="py-3 items-start" onClick={() => onViewDetail(attempt.id)}>
+          {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }, i) => (
+            <TableRow key={attempt.id} className="py-3 items-start" onClick={() => onViewDetail(attempt.id)} style={rowStyle(i)}>
               <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                 <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{catLabel} #{getAttemptOrdinal(attempt.id)}</span>
                 <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground truncate">
@@ -414,7 +417,8 @@ function QuickCheckContent() {
   // dashboard can detect "Daily 5 done today". null for plain/custom starts.
   const [activePreset, setActivePreset] = useState<KCPreset | null>(null);
   // Modules eligible for exam simulation — the ones actively being worked on.
-  const inProgressModules = useMemo(() => getModules().filter((m) => m.status === "in-progress"), []);
+  const role = useCurrentRole();
+  const inProgressModules = useMemo(() => learnerModules(role).filter((m) => m.status === "in-progress"), [role]);
   const searchParams = useSearchParams();
 
   // Weakest category label for the "Weak areas" preset; null disables it.

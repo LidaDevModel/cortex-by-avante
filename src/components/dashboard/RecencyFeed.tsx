@@ -8,8 +8,11 @@ import { FileIllustration } from "@/components/library/RecentlyViewedCard";
 import { useTheme } from "@/components/theme-context";
 import { Segmented } from "@/components/ui/segmented";
 import { daysSince } from "@/lib/utils";
-import { type LibraryDoc, getRecentDocuments } from "@/lib/library-mock";
-import { type Module, getRecentModules } from "@/lib/training-mock";
+import { type LibraryDoc } from "@/lib/library-mock";
+import { getLearnerRecent, useLibrary } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
+import { type Module } from "@/lib/training-mock";
+import { getLearnerRecentModules } from "@/lib/training-store";
 
 const RECENCY_DAYS = 14;
 
@@ -84,15 +87,17 @@ function ModuleRow({ module: m }: { module: Module }) {
  */
 export function RecencyFeed() {
   const [filter, setFilter] = useState<Filter>("all");
+  const role = useCurrentRole();
+  useLibrary(); // reflect published/edited docs in the recency feed
 
   const rows: Row[] = [
-    ...getRecentDocuments(RECENCY_DAYS).map((doc) => ({
+    ...getLearnerRecent(role, RECENCY_DAYS).map((doc) => ({
       kind: "doc" as const,
       key: `doc-${doc.id}`,
       sortDays: daysSince(doc.lastModified),
       doc,
     })),
-    ...getRecentModules(RECENCY_DAYS).map((m) => ({
+    ...getLearnerRecentModules(role, RECENCY_DAYS).map((m) => ({
       kind: "module" as const,
       key: `mod-${m.id}`,
       sortDays: daysSince(m.assignedDate),

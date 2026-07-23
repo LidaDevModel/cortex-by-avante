@@ -10,7 +10,9 @@ import { NotFoundState } from "@/components/ui/not-found-state";
 import { DetailHeader } from "@/components/ui/page-header";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
-import { getFolderById } from "@/lib/library-mock";
+import { getLearnerFolder, useLibrary } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
+import { useRowStagger } from "@/hooks/use-entrance";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 
 const PAGE_SIZE = 8;
@@ -24,7 +26,10 @@ type SortCol = "name" | "lastModified";
 export default function FolderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const folder = getFolderById(id);
+  const role = useCurrentRole();
+  useLibrary(); // subscribe so publishes/edits re-render the folder
+  const folder = getLearnerFolder(id, role);
+  const rowStyle = useRowStagger(`library-folder-${id}`);
 
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<SortCol>("lastModified");
@@ -155,8 +160,8 @@ export default function FolderDetailPage() {
                     </TableHead>
                   </TableHeader>
                   <TableBody>
-                    {paged.map((doc) => (
-                      <TableRow key={doc.id} onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}>
+                    {paged.map((doc, i) => (
+                      <TableRow key={doc.id} onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined} style={rowStyle(i)}>
                         <TableCell className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 min-w-0">
                             <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
@@ -176,8 +181,8 @@ export default function FolderDetailPage() {
                     home list. Fixed-width columns don't shrink at 375px. */}
                 <Table className="md:hidden">
                   <TableBody>
-                    {paged.map((doc) => (
-                      <TableRow key={doc.id} className="py-3" onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}>
+                    {paged.map((doc, i) => (
+                      <TableRow key={doc.id} className="py-3" onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined} style={rowStyle(i)}>
                         <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
                         <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                           <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>

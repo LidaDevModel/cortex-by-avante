@@ -1,21 +1,22 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { MODULES, type Module, type ModuleCategory, type Chapter } from "./training-mock";
+import { MODULES, isCertified, type Module, type ModuleCategory, type Chapter } from "./training-mock";
+import { getPersona } from "./demo-persona";
+import { daysSince } from "./utils";
 import type { Role } from "./user-mock";
 import { logActivity } from "./activity-log";
 
 /**
- * Admin training overlay. Starts from the seeded modules and overlays admin
- * edits — new modules, metadata (category, required, roles), chapters, and each
- * chapter's quiz. Persists to localStorage.
+ * Training overlay. Starts from the seeded modules and overlays admin edits —
+ * new modules, metadata (category, required, roles), chapters, publish state.
+ * Persists to localStorage. Single source of truth a real backend replaces.
  *
- * Two authoring additions on top of the base Module:
- *   - roles: which roles the module is for (no role targeting existed before).
- *   - authoredChapters: per-module chapters (the seed shares one chapter set and
- *     stores only a count). The learner reader still uses the seed until wired.
- *
- * Drives the ADMIN screens. Same backend seam as the other stores.
+ * Two views over the same overlay:
+ *   - ADMIN authoring reads everything (useModules / listModules / getAdminModule).
+ *   - The LEARNER reads only published, role-visible modules (the learner*
+ *     helpers below), with the same new-hire persona blanking getModules() does,
+ *     so an admin's publish/edit reaches field agents and drafts stay hidden.
  */
 
 export type AdminModule = Module & { roles: Role[]; published?: boolean; lastModified?: string; authoredChapters?: Chapter[] };
@@ -55,12 +56,44 @@ function uid(): string {
   return `m-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/* ─── Read seams ─── */
+/* ─── Read seams (admin: everything) ─── */
 export function listModules(): AdminModule[] {
   return load();
 }
 export function getAdminModule(id: string): AdminModule | undefined {
   return load().find((m) => m.id === id);
+}
+
+/* ─── Learner reads: published + role-visible view of the overlay ───
+   Mirrors training-mock's getters but sources the overlay (so publishes/edits
+   reach guards) and keeps the new-hire persona blanking. Pure helpers
+   (isCertified, getTier, isShiftReady, getRequirementState) still come from
+   training-mock — they operate on a Module, not the data source. */
+function visibleToLearner(m: AdminModule, role: Role): boolean {
+  return m.published !== false && (!m.roles || m.roles.includes(role));
+}
+function personaAdjust(m: AdminModule): Module {
+  if (getPersona() === "new") return { ...m, status: "not-started", progress: 0, certification: undefined };
+  return m;
+}
+/** Published, role-visible modules for the learner, persona-adjusted. */
+export function learnerModules(role: Role): Module[] {
+  return load().filter((m) => visibleToLearner(m, role)).map(personaAdjust);
+}
+export function getLearnerModule(id: string, role: Role): Module | undefined {
+  const m = load().find((x) => x.id === id);
+  return m && visibleToLearner(m, role) ? personaAdjust(m) : undefined;
+}
+export function getLearnerRequired(role: Role): Module[] {
+  return learnerModules(role).filter((m) => m.required);
+}
+export function getLearnerCertified(role: Role): Module[] {
+  return learnerModules(role).filter(isCertified).sort((a, b) => b.certification!.date.localeCompare(a.certification!.date));
+}
+export function getLearnerRecentModules(role: Role, days = 14): Module[] {
+  return learnerModules(role)
+    .filter((m) => { const d = daysSince(m.assignedDate); return d >= 0 && d <= days; })
+    .sort((a, b) => daysSince(a.assignedDate) - daysSince(b.assignedDate));
 }
 
 /* ─── Write seams ─── */
@@ -115,6 +148,11 @@ function subscribe(cb: () => void) {
 }
 export function useModules(): AdminModule[] {
   return useSyncExternalStore(subscribe, load, () => SEED);
+}
+/** Subscribe to the learner module view so publishes/edits re-render the guard. */
+export function useLearnerModules(role: Role): Module[] {
+  useSyncExternalStore(subscribe, load, () => SEED);
+  return learnerModules(role);
 }
 
 export const CATEGORY_OPTIONS: { value: ModuleCategory; label: string }[] = [

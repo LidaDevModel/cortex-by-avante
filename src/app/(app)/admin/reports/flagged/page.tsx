@@ -96,21 +96,21 @@ export default function AdminFlaggedPage() {
             <Table>
               <TableHeader>
                 <TableHead className="w-[92px]">Status</TableHead>
-                <TableHead className="w-[110px]">Reason</TableHead>
+                <TableHead className="w-[104px]">Reason</TableHead>
                 <TableHead className="flex-1">Based on</TableHead>
-                <TableHead className="w-[120px]">Date</TableHead>
-                <TableHead className="w-[140px]">Flagged by</TableHead>
+                <TableHead className="w-[108px]">Date</TableHead>
+                <TableHead className="w-[112px]">Flagged by</TableHead>
               </TableHeader>
               <TableBody>
                 {sorted.map((f, i) => (
                   <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)} style={rowStyle(i)}>
                     <TableCell className="w-[92px]"><FlagPill status={f.status} /></TableCell>
-                    <TableCell className="w-[110px] text-muted-foreground">{f.reason}</TableCell>
+                    <TableCell className="w-[104px] text-muted-foreground">{f.reason}</TableCell>
                     <TableCell className="flex-1 min-w-0 text-foreground">
                       <span className="block truncate">{f.source?.label ?? "Not grounded"}</span>
                     </TableCell>
-                    <TableCell className="w-[120px] text-muted-foreground">{formatDate(f.date)}</TableCell>
-                    <TableCell className="w-[140px] min-w-0 text-muted-foreground">
+                    <TableCell className="w-[108px] text-muted-foreground">{formatDate(f.date)}</TableCell>
+                    <TableCell className="w-[112px] min-w-0 text-muted-foreground">
                       <span className="block truncate">{f.flaggedBy}</span>
                     </TableCell>
                   </TableRow>

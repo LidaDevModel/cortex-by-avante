@@ -12,7 +12,7 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { useEntranceOnce } from "@/hooks/use-entrance";
+import { useEntranceOnce, useRowStagger } from "@/hooks/use-entrance";
 import { useAdminUsers } from "@/lib/admin-store";
 import { useLibrary } from "@/lib/content-store";
 import { useModules } from "@/lib/training-store";
@@ -70,6 +70,10 @@ export default function AdminHomePage() {
   const router = useRouter();
   // Stat numbers count up once per session on the first visit to Home.
   const animateStats = useEntranceOnce("admin-home-stats");
+  // Row cascade — shared with every list table, one key per Home table.
+  const attnRow = useRowStagger("home-attention");
+  const contentRow = useRowStagger("home-content");
+  const activityRow = useRowStagger("home-activity");
   const users = useAdminUsers();
   const flags = useFlags();
   const activity = useActivity();
@@ -143,8 +147,8 @@ export default function AdminHomePage() {
             ) : (
               <Table>
                 <TableBody>
-                  {attention.map((item) => (
-                    <TableRow key={item.href} onClick={() => router.push(item.href)}>
+                  {attention.map((item, i) => (
+                    <TableRow key={item.href} onClick={() => router.push(item.href)} style={attnRow(i)}>
                       <TableCell className="flex-1 min-w-0">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <item.icon size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
@@ -181,8 +185,8 @@ export default function AdminHomePage() {
                 {([
                   { label: "Files", published: filesPublished, draft: filesDraft, href: "/admin/content" },
                   { label: "Modules", published: modulesPublished, draft: modulesDraft, href: "/admin/content/training" },
-                ]).map((row) => (
-                  <TableRow key={row.label} onClick={() => router.push(row.href)}>
+                ]).map((row, i) => (
+                  <TableRow key={row.label} onClick={() => router.push(row.href)} style={contentRow(i)}>
                     <TableCell className="flex-1 min-w-0 font-medium">{row.label}</TableCell>
                     <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.published}</TableCell>
                     <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.draft}</TableCell>
@@ -214,8 +218,8 @@ export default function AdminHomePage() {
                   <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
                 </TableHeader>
                 <TableBody>
-                  {recentActivity.map((e) => (
-                    <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined}>
+                  {recentActivity.map((e, i) => (
+                    <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined} style={activityRow(i)}>
                       <TableCell className="flex-1 min-w-0"><span className="block truncate">{e.action}</span></TableCell>
                       <TableCell className="w-[140px] min-w-0 text-muted-foreground"><span className="block truncate">{e.actor}</span></TableCell>
                       <TableCell className="w-[120px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
