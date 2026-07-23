@@ -748,7 +748,7 @@ export default function FileViewPage() {
         <SearchInput
           value={tocFilter}
           onChange={setTocFilter}
-          placeholder="Jump to section..."
+          placeholder="Jump to section"
         />
       </div>
       <div className={`flex-1 overflow-y-auto ${listPad} pb-6 scroll-thin`}>

@@ -149,7 +149,7 @@ export function DocumentsSection() {
           <SearchInput
             value={search}
             onChange={handleSearch}
-            placeholder="Search documents..."
+            placeholder="Search documents"
             className="w-full sm:w-[280px] sm:shrink-0"
           />
 

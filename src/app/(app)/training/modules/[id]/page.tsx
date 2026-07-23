@@ -444,7 +444,7 @@ export default function ModuleDetailPage() {
   const renderChapters = (onSelect: (id: string) => void, searchPad: string, listPad: string) => (
     <>
       <div className={`${searchPad} py-3 shrink-0`}>
-        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter..." />
+        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter" />
       </div>
       <div className={`flex-1 overflow-y-auto ${listPad} pb-6 scroll-thin`}>
         <ChapterStepper
@@ -518,7 +518,7 @@ export default function ModuleDetailPage() {
       {/* Full-width rule (reaches both edges), equal 20px above and below */}
       <div className="h-px my-5 shrink-0" style={{ background: "var(--border)" }} />
       <div className="px-8 pb-3 shrink-0">
-        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter..." />
+        <SearchInput value={tocFilter} onChange={setTocFilter} placeholder="Jump to chapter" />
       </div>
       <div className="px-8 pb-6 shrink-0">
         <ChapterStepper

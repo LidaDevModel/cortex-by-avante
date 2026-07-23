@@ -43,13 +43,15 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
       <DropdownMenuContent
         align="start"
         sideOffset={6}
-        className="min-w-[var(--radix-dropdown-menu-trigger-width)] p-1"
+        // Grow to fit the longest option (e.g. "Field Agent"), never narrower
+        // than the trigger.
+        className="w-auto min-w-[var(--radix-dropdown-menu-trigger-width)] p-1"
       >
         {placeholder && (
           <DropdownMenuItem
             onClick={() => onChange("")}
             className={cn(
-              "text-[14px] leading-[20px] cursor-pointer",
+              "text-[14px] leading-[20px] whitespace-nowrap cursor-pointer",
               !value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
             )}
           >
@@ -62,7 +64,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
             key={o.value}
             onClick={() => onChange(o.value)}
             className={cn(
-              "text-[14px] leading-[20px] cursor-pointer",
+              "text-[14px] leading-[20px] whitespace-nowrap cursor-pointer",
               value === o.value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
             )}
           >

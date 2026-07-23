@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Check, Copy } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { showToast } from "@/components/ui/toast";
+import { PinCode } from "@/components/admin/PinDialog";
 import { inviteUser } from "@/lib/admin-store";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
 
@@ -70,15 +71,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
                 Share this PIN with {result.email}. They activate at the sign-in screen. A live system emails it.
               </p>
             </div>
-            <div className="flex items-center justify-between gap-3 rounded-[8px] px-4 py-3 bg-surface-chip" style={{ border: "1px solid var(--border)" }}>
-              <span className="text-[22px] leading-[28px] font-bold tracking-[0.2em] tabular-nums text-foreground">{result.pin}</span>
-              <button
-                onClick={() => { navigator.clipboard?.writeText(result.pin); showToast({ title: "PIN copied" }); }}
-                className="flex items-center gap-1.5 text-[13px] font-medium text-primary hover:opacity-70 transition-opacity duration-100"
-              >
-                <Copy size={14} /> Copy
-              </button>
-            </div>
+            <PinCode pin={result.pin} />
             <div className="flex justify-end">
               <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90">
                 Done

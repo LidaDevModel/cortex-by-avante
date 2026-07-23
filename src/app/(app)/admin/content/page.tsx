@@ -2,30 +2,40 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Pencil, Eye, EyeOff, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Pencil, EyeOff, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { KindPill } from "@/components/library/kind-pill";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { NamePromptModal } from "@/components/admin/NamePromptModal";
 import { BackLink } from "@/components/admin/back-link";
+import { useRowStagger } from "@/hooks/use-entrance";
+import { resolveBack } from "@/lib/admin-nav";
 import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished } from "@/lib/content-store";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
 
-type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[] };
+type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
+
+/** A document is publishable only if it has real section content. */
+function docHasContent(toc?: { title: string; body: string; points?: string[]; image?: unknown; subsections?: unknown[] }[]): boolean {
+  return (toc ?? []).some((s) => !!(s.title.trim() || s.body.trim() || s.points?.length || s.image || s.subsections?.length));
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 type Prompt = { mode: "new-folder" | "new-doc" | "rename"; id?: string; initial?: string };
+
+const PER_PAGE = 8;
 
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
@@ -45,20 +55,29 @@ export default function AdminContentPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [unpublishTarget, setUnpublishTarget] = useState<Row | null>(null);
+  const [page, setPage] = useState(1);
 
   // Deep link from the Home quick actions: /admin/content?new=1 opens the prompt.
   useEffect(() => { if (newParam === "1") setPrompt({ mode: "new-doc" }); }, [newParam]);
+  // Entering or leaving a folder is a fresh listing — start at page one.
+  useEffect(() => { setPage(1); }, [folderId]);
 
+  // Any filter/search/sort change resets to the first page so results stay in view.
+  function resetPage<T>(set: (v: T) => void) {
+    return (v: T) => { set(v); setPage(1); };
+  }
   function handleSort(col: "name" | "lastModified") {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortCol(col); setSortDir("asc"); }
+    setPage(1);
   }
 
   const rows: Row[] = folder
-    ? folder.documents.map((d) => ({ id: d.id, name: d.name, type: "document", lastModified: d.lastModified, published: d.published !== false, roles: d.roles }))
+    ? folder.documents.map((d) => ({ id: d.id, name: d.name, type: "document", lastModified: d.lastModified, published: d.published !== false, roles: d.roles, hasContent: docHasContent(d.toc) }))
     : [
         ...lib.folders.map((f) => ({ id: f.id, name: f.name, type: "folder" as const, lastModified: f.lastModified })),
-        ...lib.topLevel.map((d) => ({ id: d.id, name: d.name, type: "document" as const, lastModified: d.lastModified, published: d.published !== false, roles: d.roles })),
+        ...lib.topLevel.map((d) => ({ id: d.id, name: d.name, type: "document" as const, lastModified: d.lastModified, published: d.published !== false, roles: d.roles, hasContent: docHasContent(d.toc) })),
       ];
 
   const q = query.trim().toLowerCase();
@@ -79,9 +98,20 @@ export default function AdminContentPage() {
     return list;
   }, [rows, q, kindFilter, roleFilter, statusFilter, sortCol, sortDir]);
 
+  const totalPages = Math.ceil(shown.length / PER_PAGE);
+  const safePage = Math.min(page, totalPages || 1);
+  const paginated = shown.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rowStyle = useRowStagger(folder ? `admin-library-${folder.id}` : "admin-library");
+
+  // Dropdown "Open" (folder) / "Edit" (document): folder opens, document edits.
   function openRow(r: Row) {
     if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
     else router.push(`/admin/content/${r.id}`);
+  }
+  // Row click: a folder opens; a document previews (the learner view, new tab).
+  function handleRowClick(r: Row) {
+    if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
+    else window.open(`/admin/content/${r.id}/preview`, "_blank");
   }
 
   const crumbs = folder
@@ -94,7 +124,7 @@ export default function AdminContentPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
-          {folder && <BackLink href="/admin/content" label="Back to Library" />}
+          {folder && <BackLink {...resolveBack(searchParams.get("return"), { href: "/admin/content", label: "Back to Library" })} />}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
               {folder ? folder.name : "Library"}
@@ -112,17 +142,17 @@ export default function AdminContentPage() {
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <SearchInput value={query} onChange={setQuery} placeholder="Search this level" className="w-full sm:w-[280px]" />
+            <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
             <div className="flex items-center gap-2 flex-wrap">
-              {!folder && <FilterSelect value={kindFilter} onChange={setKindFilter} options={[{ value: "document", label: "Files" }, { value: "folder", label: "Folders" }]} placeholder="All kinds" />}
-              <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
-              <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+              {!folder && <FilterSelect value={kindFilter} onChange={resetPage(setKindFilter)} options={[{ value: "document", label: "Files" }, { value: "folder", label: "Folders" }]} placeholder="All kinds" />}
+              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
+              <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
           </div>
 
           {shown.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet."}</p>
+              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet. Add one with New document."}</p>
             </div>
           ) : (
             <Table>
@@ -134,8 +164,8 @@ export default function AdminContentPage() {
                 <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
               </TableHeader>
               <TableBody>
-                {shown.map((r) => (
-                  <TableRow key={r.id}>
+                {paginated.map((r, i) => (
+                  <TableRow key={r.id} onClick={() => handleRowClick(r)} style={rowStyle(i)}>
                     <TableCell className="flex-1 min-w-0 font-medium">
                       <span className="block truncate">{r.name}</span>
                     </TableCell>
@@ -162,12 +192,11 @@ export default function AdminContentPage() {
                               </>
                             ) : (
                               <>
-                                <DropdownMenuItem onSelect={() => window.open(`/admin/content/${r.id}/preview`, "_blank")}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => openRow(r)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
                                 {r.published !== false ? (
-                                  <DropdownMenuItem onSelect={() => { setDocPublished(r.id, false); showToast({ title: "Moved to draft", description: `"${r.name}" is no longer visible to learners.` }); }}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+                                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onSelect={() => { setDocPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.` }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+                                  <DropdownMenuItem disabled={!r.hasContent} onSelect={() => { setDocPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setDocPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
                                 )}
                               </>
                             )}
@@ -181,6 +210,8 @@ export default function AdminContentPage() {
               </TableBody>
             </Table>
           )}
+
+          <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
         </div>
       </ScrollCanvas>
 
@@ -210,6 +241,23 @@ export default function AdminContentPage() {
         exitLabel="Delete"
         cancelLabel="Cancel"
         onExit={() => { if (deleteTarget) deleteItem(deleteTarget.id); setDeleteTarget(null); }}
+      />
+
+      <ExitConfirmDialog
+        open={!!unpublishTarget}
+        onOpenChange={(o) => !o && setUnpublishTarget(null)}
+        title={`Unpublish "${unpublishTarget?.name ?? "this document"}"?`}
+        description="It will no longer be visible to learners until you publish it again."
+        exitLabel="Unpublish"
+        cancelLabel="Cancel"
+        onExit={() => {
+          if (unpublishTarget) {
+            const t = unpublishTarget;
+            setDocPublished(t.id, false);
+            showToast({ title: "Moved to draft", description: `"${t.name}" is no longer visible to learners.`, action: { label: "Undo", onClick: () => setDocPublished(t.id, true) } });
+          }
+          setUnpublishTarget(null);
+        }}
       />
     </div>
   );

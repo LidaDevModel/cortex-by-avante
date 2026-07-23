@@ -67,15 +67,18 @@ export function TableBody({ className, children }: { className?: string; childre
 export function TableRow({
   className,
   onClick,
+  style,
   children,
 }: {
   className?: string;
   onClick?: () => void;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }) {
   return (
     <div
       onClick={onClick}
+      style={style}
       className={cn(
         // min-h matches a row carrying a 32px actions button (10px padding each
         // side) so tables without one don't render shorter rows.

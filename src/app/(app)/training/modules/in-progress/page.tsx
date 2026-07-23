@@ -155,7 +155,7 @@ export default function InProgressPage() {
               <SearchInput
                 value={search}
                 onChange={setSearch}
-                placeholder="Search in progress modules..."
+                placeholder="Search modules"
                 className="w-full sm:w-[280px]"
               />
               <div className="flex items-center gap-1 shrink-0">

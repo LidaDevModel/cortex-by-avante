@@ -78,7 +78,7 @@ export function ShareFeedbackModal({
               autoFocus
               value={otherText}
               onChange={e => setOtherText(e.target.value)}
-              placeholder="Tell us more..."
+              placeholder="Tell us more…"
               className="w-full h-10 rounded-lg border border-border bg-surface-raised px-3 text-[13px] text-foreground outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors duration-100"
             />
           )}

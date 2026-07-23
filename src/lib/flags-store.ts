@@ -123,7 +123,7 @@ export function addFlag(input: { question: string; answer: string; reason: strin
 export function resolveFlag(id: string) {
   const flag = load().find((f) => f.id === id);
   save(load().map((f) => (f.id === id ? { ...f, status: "resolved" as const, resolvedBy: USER.fullName, resolvedDate: today() } : f)));
-  if (flag) logActivity("resolved", `Resolved a flagged response: “${flag.question.slice(0, 60)}${flag.question.length > 60 ? "…" : ""}”`);
+  if (flag) logActivity("resolved", `Resolved a flagged response: “${flag.question.slice(0, 60)}${flag.question.length > 60 ? "…" : ""}”`, `/admin/reports/flagged/${id}`);
 }
 
 /* ─── Reactivity ─── */

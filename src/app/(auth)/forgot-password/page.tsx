@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
                 type="email"
                 autoComplete="email"
                 autoFocus
-                placeholder="name@avante.com"
+                placeholder="name@avante.security"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-surface"

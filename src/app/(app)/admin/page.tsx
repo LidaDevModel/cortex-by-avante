@@ -5,27 +5,58 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   UserCheck, ShieldCheck, Award, Flag, Mail, FileText,
-  CheckCircle2, ChevronRight, UserPlus, FilePlus2, BookOpen, type LucideIcon,
+  CheckCircle2, ArrowUpRight, UserPlus, FilePlus2, BookOpen, type LucideIcon,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useEntranceOnce } from "@/hooks/use-entrance";
 import { useAdminUsers } from "@/lib/admin-store";
 import { useLibrary } from "@/lib/content-store";
 import { useModules } from "@/lib/training-store";
 import { useFlags } from "@/lib/flags-store";
 import { useActivity } from "@/lib/activity-log";
+import { withReturn } from "@/lib/admin-nav";
 
-function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: string | number; label: string }) {
+/** Ease a whole number 0 → target once, when `run` flips true. Honors
+ *  reduced-motion (jumps straight to the value). transform/opacity-free —
+ *  it only sets text, so it's cheap and can't shift layout. */
+function useCountUp(target: number, run: boolean, ms = 500): number {
+  const [v, setV] = useState(run ? 0 : target);
+  useEffect(() => {
+    if (!run) { setV(target); return; }
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setV(target);
+      return;
+    }
+    let raf = 0;
+    let start = 0;
+    const tick = (now: number) => {
+      if (!start) start = now;
+      const p = Math.min(1, (now - start) / ms);
+      setV(Math.round(target * (1 - Math.pow(1 - p, 3)))); // easeOutCubic
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, run, ms]);
+  return v;
+}
+
+function StatCard({ icon: Icon, value, label, animate = false }: { icon: LucideIcon; value: string | number; label: string; animate?: boolean }) {
+  // Count up the leading integer; keep any suffix (e.g. the "/7" in "5/7").
+  const parts = String(value).match(/^(\d+)(.*)$/);
+  const counted = useCountUp(parts ? parseInt(parts[1], 10) : 0, animate && !!parts);
+  const display = parts ? `${counted}${parts[2]}` : String(value);
   return (
     <div className="flex-1 min-w-[150px] rounded-[12px] p-4 sm:p-5 flex flex-col gap-2 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
       <div className="flex items-center gap-1.5">
         <Icon size={15} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
         <span className="text-[13px] leading-[18px] text-muted-foreground">{label}</span>
       </div>
-      <span className="text-[26px] leading-[32px] font-bold tabular-nums text-foreground">{value}</span>
+      <span className="text-[26px] leading-[32px] font-bold tabular-nums text-foreground">{display}</span>
     </div>
   );
 }
@@ -37,6 +68,8 @@ function formatWhen(iso: string) {
 export default function AdminHomePage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
+  // Stat numbers count up once per session on the first visit to Home.
+  const animateStats = useEntranceOnce("admin-home-stats");
   const users = useAdminUsers();
   const flags = useFlags();
   const activity = useActivity();
@@ -118,8 +151,8 @@ export default function AdminHomePage() {
                           <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{item.text}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="w-8">
-                        <ChevronRight size={15} strokeWidth={1.5} className="text-muted-foreground" />
+                      <TableCell className="w-8 flex items-center justify-end">
+                        <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -130,33 +163,32 @@ export default function AdminHomePage() {
 
           {/* Team pulse — point-in-time snapshot of the workforce. */}
           <div className="flex gap-3 flex-wrap">
-            <StatCard icon={UserCheck} value={`${active}/${users.length}`} label="Active staff" />
-            <StatCard icon={ShieldCheck} value={`${ready}/${active}`} label="Shift-ready staff" />
-            <StatCard icon={Award} value={certs} label="Certifications held" />
+            <StatCard icon={UserCheck} value={`${active}/${users.length}`} label="Active staff" animate={animateStats} />
+            <StatCard icon={ShieldCheck} value={`${ready}/${active}`} label="Shift-ready staff" animate={animateStats} />
+            <StatCard icon={Award} value={certs} label="Certifications held" animate={animateStats} />
           </div>
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
-              <Link href="/admin/content" className="text-[13px] leading-[20px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
-                Manage content
-              </Link>
-            </div>
+            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
             <Table>
               <TableHeader>
                 <TableHead className="flex-1">Type</TableHead>
                 <TableHead className="w-[120px] text-right">Published</TableHead>
                 <TableHead className="w-[120px] text-right">Draft</TableHead>
+                <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
               </TableHeader>
               <TableBody>
                 {([
-                  { label: "Files", published: filesPublished, draft: filesDraft },
-                  { label: "Modules", published: modulesPublished, draft: modulesDraft },
+                  { label: "Files", published: filesPublished, draft: filesDraft, href: "/admin/content" },
+                  { label: "Modules", published: modulesPublished, draft: modulesDraft, href: "/admin/content/training" },
                 ]).map((row) => (
-                  <TableRow key={row.label}>
+                  <TableRow key={row.label} onClick={() => router.push(row.href)}>
                     <TableCell className="flex-1 min-w-0 font-medium">{row.label}</TableCell>
                     <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.published}</TableCell>
                     <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.draft}</TableCell>
+                    <TableCell className="w-8 flex items-center justify-end">
+                      <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -168,7 +200,7 @@ export default function AdminHomePage() {
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Recent activity</h2>
               <Link href="/admin/reports/activity" className="text-[13px] leading-[20px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
-                View activity log
+                View all
               </Link>
             </div>
             {recentActivity.length === 0 ? (
@@ -179,13 +211,17 @@ export default function AdminHomePage() {
                   <TableHead className="flex-1">Action</TableHead>
                   <TableHead className="w-[140px]">Admin</TableHead>
                   <TableHead className="w-[120px]">When</TableHead>
+                  <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
                 </TableHeader>
                 <TableBody>
                   {recentActivity.map((e) => (
-                    <TableRow key={e.id}>
+                    <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined}>
                       <TableCell className="flex-1 min-w-0"><span className="block truncate">{e.action}</span></TableCell>
                       <TableCell className="w-[140px] min-w-0 text-muted-foreground"><span className="block truncate">{e.actor}</span></TableCell>
                       <TableCell className="w-[120px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
+                      <TableCell className="w-8 flex items-center justify-end">
+                        {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

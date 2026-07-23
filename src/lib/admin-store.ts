@@ -72,12 +72,12 @@ export function getUser(id: string): StaffMember | undefined {
 export function updateUserRole(id: string, role: Role) {
   const name = load().find((u) => u.id === id)?.fullName ?? "user";
   save(load().map((u) => (u.id === id ? { ...u, role } : u)));
-  logActivity("edited", `Changed ${name}'s role to ${ROLE_LABEL[role]}`);
+  logActivity("edited", `Changed ${name}'s role to ${ROLE_LABEL[role]}`, `/admin/people/${id}`);
 }
 export function setUserStatus(id: string, status: StaffStatus) {
   const name = load().find((u) => u.id === id)?.fullName ?? "user";
   save(load().map((u) => (u.id === id ? { ...u, status } : u)));
-  logActivity("edited", status === "deactivated" ? `Deactivated ${name}'s account` : status === "active" ? `Reactivated ${name}'s account` : `Set ${name}'s account to ${status}`);
+  logActivity("edited", status === "deactivated" ? `Deactivated ${name}'s account` : status === "active" ? `Reactivated ${name}'s account` : `Set ${name}'s account to ${status}`, `/admin/people/${id}`);
 }
 
 function genPin(): string {
@@ -108,7 +108,7 @@ export function inviteUser(input: { email: string; role: Role; fullName?: string
     pin,
   };
   save([user, ...list]);
-  logActivity("invited", `Invited ${user.email} as ${ROLE_LABEL[input.role]}`);
+  logActivity("invited", `Invited ${user.email} as ${ROLE_LABEL[input.role]}`, `/admin/people/${id}`);
   return { id, pin };
 }
 
@@ -127,6 +127,20 @@ export function getUserPin(id: string): string | undefined {
     return pin;
   }
   return u.pin;
+}
+
+/**
+ * Resend an invite: rotates the PIN (the old one stops working) and returns
+ * the new one so the admin can share it. A real backend emails it instead.
+ */
+export function regeneratePin(id: string): string | undefined {
+  const list = load();
+  const u = list.find((x) => x.id === id);
+  if (!u || u.status !== "invited") return undefined;
+  const pin = genPin();
+  save(list.map((x) => (x.id === id ? { ...x, pin } : x)));
+  logActivity("invited", `Resent the invite for ${u.email}`, `/admin/people/${id}`);
+  return pin;
 }
 
 /** Used by auth-mock: does this email have a pending invite with this PIN? */
