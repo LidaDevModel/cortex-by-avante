@@ -42,7 +42,14 @@ export default function AdminDocumentEditorPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const isNew = useSearchParams().get("new") === "1";
+  const searchParams = useSearchParams();
+  const isNew = searchParams.get("new") === "1";
+  // When launched from a flagged response ("Review content"), return there
+  // after Cancel / Save / (Un)publish instead of the content list. Validated
+  // as an internal path (leading single slash), same as the exam `return`.
+  const returnParam = searchParams.get("return");
+  const returnTo = returnParam && returnParam.startsWith("/") && !returnParam.startsWith("//") ? returnParam : null;
+  const backHref = returnTo ?? "/admin/content";
   useLibrary(); // subscribe so a delete elsewhere reflects here
   const found = getContentDoc(id);
 
@@ -52,6 +59,7 @@ export default function AdminDocumentEditorPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [sections, setSections] = useState<Draft[]>([]);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [confirmUnpublish, setConfirmUnpublish] = useState(false);
   const initialRef = useRef("");
 
   useEffect(() => setMounted(true), []);
@@ -98,7 +106,7 @@ export default function AdminDocumentEditorPage() {
     const idx = sections.findIndex((x) => x.key === s.key);
     setSections((prev) => prev.filter((x) => x.key !== s.key));
     if (s.title.trim() || s.body.trim() || s.subs.length || s.note || s.points.length || s.image) {
-      showToast({ title: "Section removed", placement: "bottom-right", action: { label: "Undo", onClick: () => setSections((prev) => { const n = [...prev]; n.splice(idx, 0, s); return n; }) } });
+      showToast({ title: "Section removed", action: { label: "Undo", onClick: () => setSections((prev) => { const n = [...prev]; n.splice(idx, 0, s); return n; }) } });
     }
   }
   function edit(key: string, patch: Partial<Draft>) {
@@ -134,7 +142,7 @@ export default function AdminDocumentEditorPage() {
     const idx = sec ? sec.subs.findIndex((x) => x.key === sub.key) : -1;
     setSections((prev) => prev.map((s) => (s.key === sectionKey ? { ...s, subs: s.subs.filter((x) => x.key !== sub.key) } : s)));
     if (sub.title.trim() || sub.body.trim()) {
-      showToast({ title: "Subsection removed", placement: "bottom-right", action: { label: "Undo", onClick: () => setSections((prev) => prev.map((s) => (s.key === sectionKey ? { ...s, subs: (() => { const n = [...s.subs]; n.splice(idx, 0, sub); return n; })() } : s))) } });
+      showToast({ title: "Subsection removed", action: { label: "Undo", onClick: () => setSections((prev) => prev.map((s) => (s.key === sectionKey ? { ...s, subs: (() => { const n = [...s.subs]; n.splice(idx, 0, sub); return n; })() } : s))) } });
     }
   }
   function editSub(sectionKey: string, subKey: string, patch: Partial<SubDraft>) {
@@ -143,8 +151,13 @@ export default function AdminDocumentEditorPage() {
   function snapshot() {
     return JSON.stringify({ name, roles, sections });
   }
-  function handleCancel() {
-    if (snapshot() === initialRef.current) router.push("/admin/content");
+  // A saveable document needs a name and at least one section with real content.
+  const hasContent =
+    name.trim().length > 0 &&
+    sections.some((s) => s.title.trim() || s.body.trim() || s.points.some((p) => p.trim()) || !!s.image || s.subs.some((sub) => sub.title.trim() || sub.body.trim()));
+  function handleExit() {
+    // Nothing unsaved → leave straight away; otherwise confirm the discard.
+    if (snapshot() === initialRef.current) router.push(backHref);
     else setConfirmExit(true);
   }
   function saveAll() {
@@ -168,6 +181,22 @@ export default function AdminDocumentEditorPage() {
     });
     initialRef.current = snapshot();
     showToast({ title: "Saved", description: "The document was updated." });
+    leaveAfterWrite();
+  }
+  function applyPublish(next: boolean) {
+    setDocPublished(id, next);
+    const undo = { label: "Undo", onClick: () => setDocPublished(id, !next) };
+    showToast(next
+      ? { title: "Published", description: "This document is now visible to learners.", action: undo }
+      : { title: "Moved to draft", description: "This document is no longer visible to learners.", action: undo });
+    leaveAfterWrite();
+  }
+  // After a write: return to a flag review if we came from one, or send a
+  // brand-new document to the list (its folder, if created inside one). An
+  // existing edit stays on the editor.
+  function leaveAfterWrite() {
+    if (returnTo) router.push(returnTo);
+    else if (isNew) router.push(found!.folderId ? `/admin/content?folder=${found!.folderId}` : "/admin/content");
   }
 
   return (
@@ -182,21 +211,23 @@ export default function AdminDocumentEditorPage() {
               <PublishBadge published={found.doc.published !== false} />
             </div>
             <div className="flex items-center gap-2">
-              <Button size="cta" variant="ghost" onClick={handleCancel}>Cancel</Button>
+              {!hasContent && (
+                <span className="hidden md:inline text-[12px] leading-[16px] text-muted-foreground self-center mr-1">Add content to save or publish</span>
+              )}
+              <Button size="cta" variant="ghost" onClick={handleExit}>Exit</Button>
               <Button
                 size="cta"
                 variant="outline"
+                disabled={!hasContent}
                 onClick={() => {
-                  const next = found!.doc.published === false;
-                  setDocPublished(id, next);
-                  showToast(next
-                    ? { title: "Published", description: "This document is now visible to learners." }
-                    : { title: "Moved to draft", description: "This document is no longer visible to learners." });
+                  // Unpublish pulls live content from learners — confirm first.
+                  if (found!.doc.published !== false) setConfirmUnpublish(true);
+                  else applyPublish(true);
                 }}
               >
                 {found.doc.published !== false ? "Unpublish" : "Publish"}
               </Button>
-              <Button size="cta" onClick={saveAll}>Save changes</Button>
+              <Button size="cta" onClick={saveAll} disabled={!hasContent}>{isNew ? "Save" : "Save changes"}</Button>
             </div>
           </div>
 
@@ -330,11 +361,21 @@ export default function AdminDocumentEditorPage() {
       <ExitConfirmDialog
         open={confirmExit}
         onOpenChange={setConfirmExit}
-        title="Discard changes?"
-        description="Your changes haven't been saved. Leaving now will discard them."
-        exitLabel="Discard changes"
+        title="Exit without saving?"
+        description="Your changes haven't been saved and will be lost."
+        exitLabel="Exit without saving"
         cancelLabel="Keep editing"
-        onExit={() => { setConfirmExit(false); router.push("/admin/content"); }}
+        onExit={() => { setConfirmExit(false); router.push(backHref); }}
+      />
+
+      <ExitConfirmDialog
+        open={confirmUnpublish}
+        onOpenChange={setConfirmUnpublish}
+        title="Unpublish this document?"
+        description="It will no longer be visible to learners until you publish it again."
+        exitLabel="Unpublish"
+        cancelLabel="Cancel"
+        onExit={() => { setConfirmUnpublish(false); applyPublish(false); }}
       />
     </div>
   );

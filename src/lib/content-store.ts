@@ -78,12 +78,18 @@ function itemName(id: string): string {
   if (doc) return doc.name;
   return lib.folders.find((f) => f.id === id)?.name ?? "item";
 }
+/** Route to the item's editor (document) or folder view — for the activity log. */
+function itemHref(id: string): string {
+  const lib = load();
+  const isDoc = [...lib.folders.flatMap((f) => f.documents), ...lib.topLevel].some((d) => d.id === id);
+  return isDoc ? `/admin/content/${id}` : `/admin/content?folder=${id}`;
+}
 
 export function createFolder(name: string) {
   const lib = load();
   const folder: LibraryFolder = { id: uid("fld"), name: name.trim(), lastModified: today(), documents: [] };
   save({ ...lib, folders: [folder, ...lib.folders] });
-  logActivity("created", `Created folder “${folder.name}”`);
+  logActivity("created", `Created folder “${folder.name}”`, `/admin/content?folder=${folder.id}`);
 }
 export function createDoc(name: string, folderId?: string): string {
   const lib = load();
@@ -93,7 +99,7 @@ export function createDoc(name: string, folderId?: string): string {
   } else {
     save({ ...lib, topLevel: [doc, ...lib.topLevel] });
   }
-  logActivity("created", `Created document “${doc.name}”`);
+  logActivity("created", `Created document “${doc.name}”`, `/admin/content/${doc.id}`);
   return doc.id;
 }
 export function renameItem(id: string, name: string) {
@@ -106,7 +112,7 @@ export function renameItem(id: string, name: string) {
     ),
     topLevel: lib.topLevel.map((d) => (d.id === id ? { ...d, name: n, lastModified: today() } : d)),
   });
-  logActivity("edited", `Renamed “${was}” to “${n}”`);
+  logActivity("edited", `Renamed “${was}” to “${n}”`, itemHref(id));
 }
 export function deleteItem(id: string) {
   const was = itemName(id);
@@ -126,7 +132,7 @@ export function setDocPublished(id: string, published: boolean) {
     folders: lib.folders.map((f) => ({ ...f, documents: f.documents.map(apply) })),
     topLevel: lib.topLevel.map(apply),
   });
-  logActivity("edited", `${published ? "Published" : "Unpublished"} document “${name}”`);
+  logActivity("edited", `${published ? "Published" : "Unpublished"} document “${name}”`, `/admin/content/${id}`);
 }
 export function updateDoc(id: string, patch: { name?: string; roles?: Role[]; toc?: TocSection[] }) {
   const lib = load();
@@ -135,7 +141,7 @@ export function updateDoc(id: string, patch: { name?: string; roles?: Role[]; to
     folders: lib.folders.map((f) => ({ ...f, documents: f.documents.map((d) => (d.id === id ? apply(d) : d)) })),
     topLevel: lib.topLevel.map((d) => (d.id === id ? apply(d) : d)),
   });
-  logActivity("edited", `Updated document “${itemName(id)}”`);
+  logActivity("edited", `Updated document “${itemName(id)}”`, `/admin/content/${id}`);
 }
 
 /* ─── Reactivity ─── */

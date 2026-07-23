@@ -5,8 +5,9 @@ import { X } from "lucide-react";
 
 /**
  * The VISION error/notification helper. Screens call `showToast({ title,
- * description })`; the shell-mounted <Toaster /> renders them top-right
- * (desktop) / top (mobile) on a neutral surface with a close affordance.
+ * description })`; the shell-mounted <Toaster /> renders them bottom-right
+ * (desktop) / bottom (mobile, raised clear of the floating nav) on a neutral
+ * surface with a close affordance.
  */
 
 export type ToastInput = {
@@ -16,12 +17,6 @@ export type ToastInput = {
   durationMs?: number;
   /** Optional single action (e.g. Undo). Runs, then dismisses the toast. */
   action?: { label: string; onClick: () => void };
-  /**
-   * Where the toast docks. "top" (default) is the VISION notification slot —
-   * top-right desktop / top mobile. "bottom-right" is the undo-after-delete
-   * slot: out of the way of the content you just edited, near the thumb.
-   */
-  placement?: "top" | "bottom-right";
 };
 
 type Toast = ToastInput & { id: number };
@@ -100,21 +95,11 @@ export function Toaster() {
 
   if (items.length === 0) return null;
 
-  const top = items.filter(t => (t.placement ?? "top") === "top");
-  const bottom = items.filter(t => t.placement === "bottom-right");
-
+  // One slot: bottom-right on desktop, bottom-centre on mobile — raised
+  // (bottom-24) so it clears the floating nav cluster and the chat composer.
   return (
-    <>
-      {top.length > 0 && (
-        <div className="pointer-events-none fixed z-[60] flex flex-col gap-2 top-4 inset-x-4 items-center md:inset-x-auto md:right-6 md:top-6 md:items-end">
-          {top.map(t => <ToastCard key={t.id} toast={t} />)}
-        </div>
-      )}
-      {bottom.length > 0 && (
-        <div className="pointer-events-none fixed z-[60] flex flex-col gap-2 bottom-4 inset-x-4 items-center md:inset-x-auto md:right-6 md:bottom-6 md:items-end">
-          {bottom.map(t => <ToastCard key={t.id} toast={t} />)}
-        </div>
-      )}
-    </>
+    <div className="pointer-events-none fixed z-[60] flex flex-col gap-2 bottom-24 inset-x-4 items-center md:inset-x-auto md:right-6 md:bottom-6 md:items-end">
+      {items.map(t => <ToastCard key={t.id} toast={t} />)}
+    </div>
   );
 }

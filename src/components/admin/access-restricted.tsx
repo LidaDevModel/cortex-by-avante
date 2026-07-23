@@ -10,7 +10,7 @@ export function AccessRestricted() {
   return (
     <NotFoundState
       title="Access restricted"
-      description="This area isn't available for your role. Contact your manager if you think this is a mistake."
+      description="This content isn't available for your role. Contact your manager if you think this is a mistake."
       actionLabel="Back to home"
       actionHref="/dashboard"
     />

@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, FilePlus2, EyeOff, Pencil, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
+import { useRowStagger } from "@/hooks/use-entrance";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { showToast } from "@/components/ui/toast";
@@ -19,6 +21,8 @@ import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OP
 import { ROLE_LABEL } from "@/lib/user-mock";
 
 const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORY_OPTIONS.map((c) => [c.value, c.label]));
+
+const PER_PAGE = 8;
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -37,14 +41,22 @@ export default function AdminTrainingPage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [newOpen, setNewOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [unpublishId, setUnpublishId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const rowStyle = useRowStagger("admin-modules");
 
   // Deep link from the Home quick actions: ?new=1 opens the name prompt.
   const newParam = useSearchParams().get("new");
   useEffect(() => { if (newParam === "1") setNewOpen(true); }, [newParam]);
 
+  // Any filter/search/sort change resets to the first page so results stay in view.
+  function resetPage<T>(set: (v: T) => void) {
+    return (v: T) => { set(v); setPage(1); };
+  }
   function handleSort(col: "title" | "lastModified") {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortCol(col); setSortDir("asc"); }
+    setPage(1);
   }
 
   const q = query.trim().toLowerCase();
@@ -64,6 +76,11 @@ export default function AdminTrainingPage() {
     });
   }, [modules, q, categoryFilter, requirementFilter, roleFilter, statusFilter, sortCol, sortDir]);
   const deleting = modules.find((m) => m.id === deleteId);
+  const unpublishing = modules.find((m) => m.id === unpublishId);
+
+  const totalPages = Math.ceil(rows.length / PER_PAGE);
+  const safePage = Math.min(page, totalPages || 1);
+  const paginated = rows.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -79,18 +96,18 @@ export default function AdminTrainingPage() {
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <SearchInput value={query} onChange={setQuery} placeholder="Search modules" className="w-full sm:w-[280px]" />
+            <SearchInput value={query} onChange={resetPage(setQuery)} placeholder="Search modules" className="w-full sm:w-[280px]" />
             <div className="flex items-center gap-2 flex-wrap">
-              <FilterSelect value={categoryFilter} onChange={setCategoryFilter} options={CATEGORY_OPTIONS} placeholder="All categories" />
-              <FilterSelect value={requirementFilter} onChange={setRequirementFilter} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
-              <FilterSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
-              <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+              <FilterSelect value={categoryFilter} onChange={resetPage(setCategoryFilter)} options={CATEGORY_OPTIONS} placeholder="All categories" />
+              <FilterSelect value={requirementFilter} onChange={resetPage(setRequirementFilter)} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
+              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
+              <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
           </div>
 
           {rows.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "No modules match that search." : "No modules yet."}</p>
+              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "No modules match that search." : "No modules yet. Create one with New module."}</p>
             </div>
           ) : (
             <Table>
@@ -104,8 +121,8 @@ export default function AdminTrainingPage() {
                 <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
               </TableHeader>
               <TableBody>
-                {rows.map((m) => (
-                  <TableRow key={m.id}>
+                {paginated.map((m, i) => (
+                  <TableRow key={m.id} onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")} style={rowStyle(i)}>
                     <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
                     <TableCell className="w-[96px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
                     <TableCell className="w-[110px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
@@ -121,12 +138,11 @@ export default function AdminTrainingPage() {
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem onSelect={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
                             {m.published !== false ? (
-                              <DropdownMenuItem onSelect={() => { setModulePublished(m.id, false); showToast({ title: "Moved to draft", description: `"${m.title}" is no longer visible to learners.` }); }}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
                             ) : (
-                              <DropdownMenuItem onSelect={() => { setModulePublished(m.id, true); showToast({ title: "Published", description: `"${m.title}" is now visible to learners.` }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+                              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => { setModulePublished(m.id, true); showToast({ title: "Published", description: `"${m.title}" is now visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
                             )}
                             <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -138,6 +154,8 @@ export default function AdminTrainingPage() {
               </TableBody>
             </Table>
           )}
+
+          <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
         </div>
       </ScrollCanvas>
 
@@ -159,6 +177,23 @@ export default function AdminTrainingPage() {
         exitLabel="Delete"
         cancelLabel="Cancel"
         onExit={() => { if (deleteId) deleteModule(deleteId); setDeleteId(null); }}
+      />
+
+      <ExitConfirmDialog
+        open={!!unpublishId}
+        onOpenChange={(o) => !o && setUnpublishId(null)}
+        title={`Unpublish "${unpublishing?.title ?? "this module"}"?`}
+        description="It will no longer be visible to learners until you publish it again."
+        exitLabel="Unpublish"
+        cancelLabel="Cancel"
+        onExit={() => {
+          if (unpublishing) {
+            const m = unpublishing;
+            setModulePublished(m.id, false);
+            showToast({ title: "Moved to draft", description: `"${m.title}" is no longer visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, true) } });
+          }
+          setUnpublishId(null);
+        }}
       />
     </div>
   );

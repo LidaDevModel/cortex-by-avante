@@ -93,7 +93,7 @@ export function DocumentToolbar({
                   if (e.key === "Enter") { e.shiftKey ? onFindPrev() : onFindNext(); }
                   if (e.key === "Escape") onFindClose();
                 }}
-                placeholder="Find in document..."
+                placeholder="Find in document"
                 tabIndex={findOpen ? 0 : -1}
                 // A find field must not be "helped" by the mobile keyboard:
                 // autocorrect + auto-capitalize fight the controlled value and

@@ -29,7 +29,7 @@ export const ScrollCanvas = forwardRef<HTMLDivElement, Props>(
             navVisible && "pb-[calc(88px+env(safe-area-inset-bottom))] md:pb-0",
             innerClassName
           )}
-          style={{ maskImage: mask, WebkitMaskImage: mask }}
+          style={{ maskImage: mask, WebkitMaskImage: mask, animation: "screen-in 200ms ease-out both" }}
         >
           {children}
         </div>

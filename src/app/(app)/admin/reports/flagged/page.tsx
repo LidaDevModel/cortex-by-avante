@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
 
 function formatDate(iso: string) {
@@ -40,6 +41,7 @@ export default function AdminFlaggedPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [reasonFilter, setReasonFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
+  const rowStyle = useRowStagger("admin-flagged");
 
   // "Based on" options come from the flags themselves — one per source doc.
   const sourceOptions = useMemo(() => {
@@ -100,8 +102,8 @@ export default function AdminFlaggedPage() {
                 <TableHead className="w-[140px]">Flagged by</TableHead>
               </TableHeader>
               <TableBody>
-                {sorted.map((f) => (
-                  <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)}>
+                {sorted.map((f, i) => (
+                  <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)} style={rowStyle(i)}>
                     <TableCell className="w-[92px]"><FlagPill status={f.status} /></TableCell>
                     <TableCell className="w-[110px] text-muted-foreground">{f.reason}</TableCell>
                     <TableCell className="flex-1 min-w-0 text-foreground">

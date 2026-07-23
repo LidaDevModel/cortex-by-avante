@@ -124,7 +124,7 @@ export default function ModulesPage() {
             <SearchInput
               value={search}
               onChange={setSearch}
-              placeholder="Search modules..."
+              placeholder="Search modules"
               className="w-full sm:w-[280px]"
             />
 

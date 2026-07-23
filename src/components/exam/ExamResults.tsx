@@ -261,7 +261,7 @@ export function ExamResults({
             {shortAnswerWrong ? (
               <div className="flex flex-col gap-2">
                 <p className={cn("text-[13px]", shortAnswer.trim() ? "text-foreground" : "text-muted-foreground")}>
-                  &ldquo;{shortAnswer || "No answer provided."}&rdquo;
+                  &ldquo;{shortAnswer || "No answer provided"}&rdquo;
                 </p>
                 <p className={cn("text-[13px]", shortAnswer.trim() ? "text-destructive" : "text-muted-foreground")}>
                   {exam.shortAnswer.aiJustification ?? "Your answer didn't fully address the required concepts."}

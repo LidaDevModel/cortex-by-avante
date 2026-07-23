@@ -48,7 +48,13 @@ export default function AdminModuleEditorPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const isNew = useSearchParams().get("new") === "1";
+  const searchParams = useSearchParams();
+  const isNew = searchParams.get("new") === "1";
+  // Arrived from a list (e.g. the activity log)? Cancel / Save / (Un)publish
+  // drive back there instead of the module list. Validated internal path.
+  const returnParam = searchParams.get("return");
+  const returnTo = returnParam && returnParam.startsWith("/") && !returnParam.startsWith("//") ? returnParam : null;
+  const backHref = returnTo ?? "/admin/content/training";
   useModules();
   const found = getAdminModule(id);
 
@@ -60,6 +66,7 @@ export default function AdminModuleEditorPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [chapters, setChapters] = useState<ChapterDraft[]>([]);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [confirmUnpublish, setConfirmUnpublish] = useState(false);
   const initialRef = useRef("");
 
   useEffect(() => setMounted(true), []);
@@ -96,7 +103,7 @@ export default function AdminModuleEditorPage() {
     const idx = chapters.findIndex((x) => x.key === c.key);
     setChapters((prev) => prev.filter((x) => x.key !== c.key));
     if (c.title.trim() || c.body.trim() || c.subs.length || c.quiz) {
-      showToast({ title: "Chapter removed", placement: "bottom-right", action: { label: "Undo", onClick: () => setChapters((prev) => { const n = [...prev]; n.splice(idx, 0, c); return n; }) } });
+      showToast({ title: "Chapter removed", action: { label: "Undo", onClick: () => setChapters((prev) => { const n = [...prev]; n.splice(idx, 0, c); return n; }) } });
     }
   }
   function editChapter(key: string, patch: Partial<ChapterDraft>) {
@@ -110,7 +117,7 @@ export default function AdminModuleEditorPage() {
     const idx = chap ? chap.subs.findIndex((x) => x.key === s.key) : -1;
     setChapters((prev) => prev.map((c) => (c.key === chapterKey ? { ...c, subs: c.subs.filter((x) => x.key !== s.key) } : c)));
     if (s.title.trim() || s.body.trim()) {
-      showToast({ title: "Subchapter removed", placement: "bottom-right", action: { label: "Undo", onClick: () => setChapters((prev) => prev.map((c) => (c.key === chapterKey ? { ...c, subs: (() => { const n = [...c.subs]; n.splice(idx, 0, s); return n; })() } : c))) } });
+      showToast({ title: "Subchapter removed", action: { label: "Undo", onClick: () => setChapters((prev) => prev.map((c) => (c.key === chapterKey ? { ...c, subs: (() => { const n = [...c.subs]; n.splice(idx, 0, s); return n; })() } : c))) } });
     }
   }
   function editSub(chapterKey: string, subKey: string, patch: Partial<SubDraft>) {
@@ -127,7 +134,7 @@ export default function AdminModuleEditorPage() {
     const quiz = c.quiz;
     editChapter(c.key, { quiz: undefined });
     if (quiz && (quiz.question.trim() || quiz.options.some((o) => o.text.trim()))) {
-      showToast({ title: "Knowledge check removed", placement: "bottom-right", action: { label: "Undo", onClick: () => editChapter(c.key, { quiz }) } });
+      showToast({ title: "Knowledge check removed", action: { label: "Undo", onClick: () => editChapter(c.key, { quiz }) } });
     }
   }
   function editQuiz(key: string, patch: Partial<Quiz>) {
@@ -151,8 +158,13 @@ export default function AdminModuleEditorPage() {
   function snapshot() {
     return JSON.stringify({ title, category, required, roles, chapters });
   }
-  function handleCancel() {
-    if (snapshot() === initialRef.current) router.push("/admin/content/training");
+  // A saveable module needs a title and at least one chapter with real content.
+  const hasContent =
+    title.trim().length > 0 &&
+    chapters.some((c) => c.title.trim() || c.body.trim() || !!c.quiz || c.subs.some((s) => s.title.trim() || s.body.trim()));
+  function handleExit() {
+    // Nothing unsaved → leave straight away; otherwise confirm the discard.
+    if (snapshot() === initialRef.current) router.push(backHref);
     else setConfirmExit(true);
   }
   function saveAll() {
@@ -170,6 +182,21 @@ export default function AdminModuleEditorPage() {
     );
     initialRef.current = snapshot();
     showToast({ title: "Saved", description: "The module was updated." });
+    leaveAfterWrite();
+  }
+  function applyPublish(next: boolean) {
+    setModulePublished(id, next);
+    const undo = { label: "Undo", onClick: () => setModulePublished(id, !next) };
+    showToast(next
+      ? { title: "Published", description: "This module is now visible to learners.", action: undo }
+      : { title: "Moved to draft", description: "This module is no longer visible to learners.", action: undo });
+    leaveAfterWrite();
+  }
+  // After a write: return to a flag review if we came from one, or send a
+  // brand-new module to the list. An existing edit stays on the editor.
+  function leaveAfterWrite() {
+    if (returnTo) router.push(returnTo);
+    else if (isNew) router.push("/admin/content/training");
   }
 
   return (
@@ -184,21 +211,23 @@ export default function AdminModuleEditorPage() {
               <PublishBadge published={found.published !== false} />
             </div>
             <div className="flex items-center gap-2">
-              <Button size="cta" variant="ghost" onClick={handleCancel}>Cancel</Button>
+              {!hasContent && (
+                <span className="hidden md:inline text-[12px] leading-[16px] text-muted-foreground self-center mr-1">Add content to save or publish</span>
+              )}
+              <Button size="cta" variant="ghost" onClick={handleExit}>Exit</Button>
               <Button
                 size="cta"
                 variant="outline"
+                disabled={!hasContent}
                 onClick={() => {
-                  const next = found!.published === false;
-                  setModulePublished(id, next);
-                  showToast(next
-                    ? { title: "Published", description: "This module is now visible to learners." }
-                    : { title: "Moved to draft", description: "This module is no longer visible to learners." });
+                  // Unpublish pulls live content from learners — confirm first.
+                  if (found!.published !== false) setConfirmUnpublish(true);
+                  else applyPublish(true);
                 }}
               >
                 {found.published !== false ? "Unpublish" : "Publish"}
               </Button>
-              <Button size="cta" onClick={saveAll}>Save changes</Button>
+              <Button size="cta" onClick={saveAll} disabled={!hasContent}>{isNew ? "Save" : "Save changes"}</Button>
             </div>
           </div>
 
@@ -352,11 +381,21 @@ export default function AdminModuleEditorPage() {
       <ExitConfirmDialog
         open={confirmExit}
         onOpenChange={setConfirmExit}
-        title="Discard changes?"
-        description="Your changes haven't been saved. Leaving now will discard them."
-        exitLabel="Discard changes"
+        title="Exit without saving?"
+        description="Your changes haven't been saved and will be lost."
+        exitLabel="Exit without saving"
         cancelLabel="Keep editing"
-        onExit={() => { setConfirmExit(false); router.push("/admin/content/training"); }}
+        onExit={() => { setConfirmExit(false); router.push(backHref); }}
+      />
+
+      <ExitConfirmDialog
+        open={confirmUnpublish}
+        onOpenChange={setConfirmUnpublish}
+        title="Unpublish this module?"
+        description="It will no longer be visible to learners until you publish it again."
+        exitLabel="Unpublish"
+        cancelLabel="Cancel"
+        onExit={() => { setConfirmUnpublish(false); applyPublish(false); }}
       />
     </div>
   );

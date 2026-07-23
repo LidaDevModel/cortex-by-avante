@@ -27,6 +27,12 @@ export function ProfileForm({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState(() => getAuthProfile());
+  // Snapshot the initial values so Save can disable when nothing changed.
+  // Normalized (trimmed description, null-vs-missing photo) so whitespace-only
+  // edits don't count as a change.
+  const snap = (p: typeof profile) => JSON.stringify({ avatarUrl: p.avatarUrl ?? null, description: p.description?.trim() || "" });
+  const initialRef = useRef(snap(profile));
+  const dirty = snap(profile) !== initialRef.current;
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -131,7 +137,7 @@ export function ProfileForm({
           optional, so "Save and continue" proceeds on its own. No separate
           skip: it would do the same thing as saving the prefilled form. */}
       <div className="flex flex-col gap-2">
-        <Button type="button" size="cta" className="w-full" onClick={handleSave}>
+        <Button type="button" size="cta" className="w-full" onClick={handleSave} disabled={mode === "edit" && !dirty}>
           {mode === "onboarding" ? "Save and continue" : "Save changes"}
         </Button>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,10 +9,13 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { StatusPill } from "@/components/admin/status-pill";
 import { BackLink } from "@/components/admin/back-link";
+import { resolveBack } from "@/lib/admin-nav";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
+import { PinDialog } from "@/components/admin/PinDialog";
+import { RoleChangeDialog } from "@/components/admin/RoleChangeDialog";
 import { showToast } from "@/components/ui/toast";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { useAdminUsers, updateUserRole, setUserStatus, getUserPin } from "@/lib/admin-store";
+import { useAdminUsers, updateUserRole, setUserStatus, getUserPin, regeneratePin } from "@/lib/admin-store";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
 
 const ROLE_OPTIONS = [
@@ -37,9 +40,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function AdminPersonPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const { id } = useParams<{ id: string }>();
+  const back = resolveBack(useSearchParams().get("return"), { href: "/admin/people", label: "Back to People" });
   const user = useAdminUsers().find((u) => u.id === id);
   const [pin, setPin] = useState<string | null>(null);
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  // Resend rotates the PIN — show the new one in a dialog the admin dismisses.
+  const [resentPin, setResentPin] = useState<string | null>(null);
+  // A role change is confirmed (with its capability summary) before it commits.
+  const [pendingRole, setPendingRole] = useState<Role | null>(null);
 
   if (!user) {
     return (
@@ -56,7 +64,7 @@ export default function AdminPersonPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
-          <BackLink href="/admin/people" label="Back to People" />
+          <BackLink href={back.href} label={back.label} />
 
           {/* Identity */}
           <Section title="Identity">
@@ -84,7 +92,7 @@ export default function AdminPersonPage() {
               </div>
               <FilterSelect
                 value={user.role}
-                onChange={(v) => { updateUserRole(user.id, v as Role); showToast({ title: "Role updated", description: `${user.fullName} is now ${ROLE_LABEL[v as Role]}.` }); }}
+                onChange={(v) => { if (v !== user.role) setPendingRole(v as Role); }}
                 options={ROLE_OPTIONS}
               />
             </div>
@@ -102,7 +110,7 @@ export default function AdminPersonPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-[12px] leading-[16px] text-muted-foreground">Invited {formatDate(user.memberSince)}</span>
                   <button
-                    onClick={() => showToast({ title: "Invitation resent", description: `A new PIN was issued for ${user.email}.` })}
+                    onClick={() => { const next = regeneratePin(user.id); if (next) { setResentPin(next); if (pin) setPin(next); } }}
                     className="h-9 px-4 rounded-[8px] text-[13px] font-semibold border border-primary text-primary transition-opacity duration-100 hover:opacity-70"
                   >
                     Resend invite
@@ -150,6 +158,29 @@ export default function AdminPersonPage() {
           </Section>
         </div>
       </ScrollCanvas>
+
+      {pendingRole && (
+        <RoleChangeDialog
+          name={user.fullName}
+          fromRole={user.role}
+          toRole={pendingRole}
+          onConfirm={() => {
+            updateUserRole(user.id, pendingRole);
+            showToast({ title: "Role updated", description: `${user.fullName} is now ${ROLE_LABEL[pendingRole]}.` });
+            setPendingRole(null);
+          }}
+          onClose={() => setPendingRole(null)}
+        />
+      )}
+
+      {resentPin && (
+        <PinDialog
+          title="Invitation resent"
+          description={`A new PIN was issued for ${user.email}. The old one no longer works.`}
+          pin={resentPin}
+          onClose={() => setResentPin(null)}
+        />
+      )}
 
       <ExitConfirmDialog
         open={confirmDeactivate}

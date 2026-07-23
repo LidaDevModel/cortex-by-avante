@@ -216,7 +216,7 @@ function HistoryBody({ conversations, onSelect, onRename, onDelete }: HistoryLis
       {/* Search */}
       <div className="px-3 pb-3 shrink-0">
         <div className="p-[2px]">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search..." />
+          <SearchInput value={search} onChange={setSearch} placeholder="Search conversations" />
         </div>
       </div>
 
