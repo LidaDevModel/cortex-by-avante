@@ -10,13 +10,14 @@ type Props = {
   kind: "document" | "folder";
   lastModified: string;
   onClick?: () => void;
+  style?: React.CSSProperties;
 };
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export function DocGridCard({ name, kind, lastModified, onClick }: Props) {
+export function DocGridCard({ name, kind, lastModified, onClick, style }: Props) {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, "");
   const { isDark } = useTheme();
@@ -25,6 +26,7 @@ export function DocGridCard({ name, kind, lastModified, onClick }: Props) {
   return (
     <button
       onClick={onClick}
+      style={style}
       className="group flex flex-col gap-3 text-left cursor-pointer w-full transition-transform duration-150 hover:-translate-y-1"
     >
       <div className="w-full px-3">

@@ -16,7 +16,9 @@ import { SearchInput } from "@/components/ui/search-input";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { RequiredPill } from "@/components/training/ModuleCard";
 import { Button } from "@/components/ui/button";
-import { getModuleById, MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
+import { MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
+import { getLearnerModule } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 const CHAPTERS: Chapter[] = MODULE_CHAPTERS;
 
@@ -295,7 +297,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 export default function ModuleDetailPage() {
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
-  const trainingModule = getModuleById(moduleId);
+  const trainingModule = getLearnerModule(moduleId, useCurrentRole());
   const initialProgress = trainingModule?.progress ?? 0;
 
   const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress).currentId);

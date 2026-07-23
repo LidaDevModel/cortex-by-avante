@@ -12,7 +12,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { DocCallout } from "@/components/library/DocCallout";
-import { getDocById, type TocSection, type SubSection } from "@/lib/library-mock";
+import { type TocSection, type SubSection } from "@/lib/library-mock";
+import { getLearnerDoc, useLibrary } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 /* ─── Helpers ─── */
 
@@ -599,7 +601,9 @@ function IconButton({
 export default function FileViewPage() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
-  const result = getDocById(id);
+  const role = useCurrentRole();
+  useLibrary(); // subscribe so a publish/edit re-renders the viewer
+  const result = getLearnerDoc(id, role);
 
   const [tocFilter, setTocFilter] = useState("");
   const [tocSheetOpen, setTocSheetOpen] = useState(false);

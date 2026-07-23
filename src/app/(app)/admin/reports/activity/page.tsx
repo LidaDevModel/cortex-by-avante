@@ -89,7 +89,7 @@ export default function AdminActivityPage() {
               <TableHeader>
                 <TableHead className="flex-1">Action</TableHead>
                 <TableHead className="w-[140px]">Admin</TableHead>
-                <TableHead className="w-[150px]">When</TableHead>
+                <TableHead className="w-[132px]">When</TableHead>
                 <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
               </TableHeader>
               <TableBody>
@@ -101,7 +101,7 @@ export default function AdminActivityPage() {
                     <TableCell className="w-[140px] min-w-0 text-muted-foreground">
                       <span className="block truncate">{e.actor}</span>
                     </TableCell>
-                    <TableCell className="w-[150px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
+                    <TableCell className="w-[132px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
                     <TableCell className="w-8 flex items-center justify-end">
                       {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
                     </TableCell>

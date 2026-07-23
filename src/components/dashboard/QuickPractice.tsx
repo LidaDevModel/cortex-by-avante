@@ -5,7 +5,8 @@ import { Target, Timer, Check, SlidersHorizontal } from "lucide-react";
 import { PresetCard } from "@/components/knowledge-check/PresetCard";
 import { CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
 import { getWeakestCategories, getTodaysDailyAttempt } from "@/lib/kc-store";
-import { getModules } from "@/lib/training-mock";
+import { learnerModules } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 /**
  * Quick practice — the dashboard on-ramp to Knowledge Check. Four stacked
@@ -20,7 +21,7 @@ export function QuickPractice() {
   const dailyDone = getTodaysDailyAttempt();
   const weakest = getWeakestCategories(1);
   const weakestLabel = weakest.length > 0 ? CATEGORY_LABELS[weakest[0]] : null;
-  const examSimAvailable = getModules().some((m) => m.status === "in-progress");
+  const examSimAvailable = learnerModules(useCurrentRole()).some((m) => m.status === "in-progress");
 
   const go = (start: string) => () => router.push(`/training/quick-check?start=${start}`);
 

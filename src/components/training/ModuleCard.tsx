@@ -26,12 +26,12 @@ export function RequiredPill({ required }: { required: boolean }) {
 }
 
 /** Large vertical card — used in the training "In progress" row and elsewhere it needs prominence. */
-export function InProgressCard({ module }: { module: Module }) {
+export function InProgressCard({ module, style }: { module: Module; style?: React.CSSProperties }) {
   return (
     <Link
       href={`/training/modules/${module.id}`}
       className="relative flex flex-col rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md hover:-translate-y-0.5 dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color,transform] duration-150"
-      style={{ border: "1px solid var(--border)" }}
+      style={{ border: "1px solid var(--border)", ...style }}
     >
       {/* Illustration area — gradient anchored to icon zone, bleeds into card body below */}
       <div className="relative flex items-center justify-center" style={{ height: 157 }}>
@@ -60,13 +60,13 @@ export function InProgressCard({ module }: { module: Module }) {
 }
 
 /** Compact horizontal card — used in the training module list. */
-export function ModuleCard({ module }: { module: Module }) {
+export function ModuleCard({ module, style }: { module: Module; style?: React.CSSProperties }) {
   const showProgress = module.status !== "not-started";
   return (
     <Link
       href={`/training/modules/${module.id}`}
       className="relative flex rounded-[12px] overflow-hidden cursor-pointer bg-[var(--surface-raised)] hover:shadow-md hover:-translate-y-0.5 dark:hover:shadow-none dark:hover:bg-[var(--card-hover-bg)] transition-[box-shadow,background-color,transform] duration-150"
-      style={{ border: "1px solid var(--border)" }}
+      style={{ border: "1px solid var(--border)", ...style }}
     >
       {/* Illustration column — gradient anchored to icon zone, bleeds rightward into text area */}
       <div className="relative flex items-center justify-center shrink-0" style={{ width: 88 }}>

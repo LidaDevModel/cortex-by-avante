@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getModuleById } from "@/lib/training-mock";
+import { getLearnerModule } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
@@ -71,7 +72,7 @@ export default function ExamPage() {
   // (no certificate is awarded). Everything below is gated on this flag so the
   // real certification flow is byte-for-byte unchanged.
   const isSimulation = searchParams.get("mode") === "simulation";
-  const moduleTitle = getModuleById(moduleId)?.title;
+  const moduleTitle = getLearnerModule(moduleId, useCurrentRole())?.title;
   // In simulation, label the exam with the chosen module/category; content is
   // the shared mock bank (production would supply per-module questions).
   const exam = isSimulation && moduleTitle

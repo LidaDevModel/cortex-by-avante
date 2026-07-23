@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
 import { HonorCard, HONOR_CARD_W } from "@/components/training/HonorCard";
-import { getCertifiedModules } from "@/lib/training-mock";
+import { getLearnerCertified } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 const CARD_W = HONOR_CARD_W;
 const GAP = 12; // gap-3
@@ -33,7 +34,7 @@ function ArrowBtn({ dir, disabled, onClick }: { dir: "prev" | "next"; disabled: 
  * dots). Scores count up when the shelf scrolls into view.
  */
 export function CertificationsShelf() {
-  const items = getCertifiedModules();
+  const items = getLearnerCertified(useCurrentRole());
   const { ref: viewRef, inView } = useInView<HTMLDivElement>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);

@@ -11,8 +11,9 @@ import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { getModules, getRequiredModules, getRecentModules, isShiftReady } from "@/lib/training-mock";
-import { getRecentDocuments } from "@/lib/library-mock";
+import { isShiftReady } from "@/lib/training-mock";
+import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store";
+import { getLearnerRecent, useLibrary } from "@/lib/content-store";
 import { USER } from "@/lib/user-mock";
 import { useCurrentRole } from "@/lib/current-role";
 
@@ -23,13 +24,13 @@ function Row({ children }: { children: React.ReactNode }) {
 }
 
 export default function DashboardPage() {
-  // Readiness gates shift eligibility — the central predicate for the layout.
-  const requiredModules = getRequiredModules();
-  const cleared = isShiftReady();
-
-  // Time-aware greeting + date meta, set after mount (client clock ≠ prerender
-  // clock, so deriving in render would mismatch hydration).
-  const isAdmin = useCurrentRole() === "admin";
+  const role = useCurrentRole();
+  const isAdmin = role === "admin";
+  useLibrary(); // reflect published docs in the recency feed
+  // Learner's published module set — readiness gates shift eligibility.
+  const modules = useLearnerModules(role);
+  const requiredModules = modules.filter((m) => m.required);
+  const cleared = isShiftReady(modules);
   const [greeting, setGreeting] = useState("Welcome back");
   const [dateMeta, setDateMeta] = useState<string | null>(null);
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function DashboardPage() {
   // Header turns glass once the canvas scrolls (shared canvas-glow behavior).
   const { headerClassName, onScroll } = useGlassHeader();
 
-  const inProgress = getModules().filter((m) => m.status === "in-progress");
+  const inProgress = modules.filter((m) => m.status === "in-progress");
 
   // ─── Reusable section blocks (placed per state) ───
 
@@ -53,7 +54,7 @@ export default function DashboardPage() {
   const certifications = <CertificationsShelf />;
   // RecencyFeed self-hides when empty (14-day window = the lib defaults) —
   // mirrored here so a lone sibling isn't stranded in a half-width column.
-  const hasRecent = getRecentDocuments().length > 0 || getRecentModules().length > 0;
+  const hasRecent = getLearnerRecent(role).length > 0 || getLearnerRecentModules(role).length > 0;
   const newForYourRole = hasRecent ? <RecencyFeed /> : null;
 
   const askCortex = <AskCortexCard />;

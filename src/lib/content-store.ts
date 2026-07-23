@@ -3,17 +3,20 @@
 import { useSyncExternalStore } from "react";
 import { FOLDERS, TOP_LEVEL_DOCS, type LibraryFolder, type LibraryDoc, type TocSection } from "./library-mock";
 import type { Role } from "./user-mock";
+import { isWithinDays, daysSince } from "./utils";
 import { logActivity } from "./activity-log";
 
 /**
- * Admin content overlay for the library (authoring). It starts from the seeded
- * library and overlays admin edits — new folders/documents, renames, deletes,
- * and section edits. Persists to localStorage so a demo survives a reload.
+ * Content overlay for the library. It starts from the seeded library and
+ * overlays admin edits — new folders/documents, renames, deletes, section
+ * edits, and publish state. Persists to localStorage so a demo survives a
+ * reload. This is the single source of truth a real backend replaces.
  *
- * Scope note: this drives the ADMIN screens. The learner library still reads the
- * seed directly. Wiring the learner getters to read this overlay (so edits show
- * up for guards and in the recency feed) is the next step — the same backend
- * seam, done later.
+ * Two views over the same overlay:
+ *  - ADMIN authoring reads everything (useLibrary / getContentDoc / getContentFolder).
+ *  - The LEARNER reads only published, role-visible content (the learner*
+ *    helpers below), so an admin's publish/edit reaches field agents and drafts
+ *    stay hidden.
  */
 
 const KEY = "cortex-admin-library";
@@ -144,6 +147,52 @@ export function updateDoc(id: string, patch: { name?: string; roles?: Role[]; to
   logActivity("edited", `Updated document “${itemName(id)}”`, `/admin/content/${id}`);
 }
 
+/* ─── Learner reads: published + role-visible view of the overlay ───
+   A doc is visible to a learner when it is published and either carries no role
+   restriction or lists the learner's role. Seed docs set neither field, so they
+   are visible to everyone — the learner sees the same content as before, now
+   overlay-backed so admin edits reach them. */
+function visibleToLearner(d: LibraryDoc, role: Role): boolean {
+  return d.published !== false && (!d.roles || d.roles.includes(role));
+}
+
+/** The learner's library: published, role-visible docs; empty folders dropped. */
+export function learnerLibrary(role: Role): Library {
+  const lib = load();
+  return {
+    folders: lib.folders
+      .map((f) => ({ ...f, documents: f.documents.filter((d) => visibleToLearner(d, role)) }))
+      .filter((f) => f.documents.length > 0),
+    topLevel: lib.topLevel.filter((d) => visibleToLearner(d, role)),
+  };
+}
+
+/** A single document for the learner viewer — undefined if unpublished/hidden. */
+export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder?: LibraryFolder } | undefined {
+  const lib = load();
+  for (const f of lib.folders) {
+    const doc = f.documents.find((d) => d.id === id);
+    if (doc) return visibleToLearner(doc, role) ? { doc, folder: f } : undefined;
+  }
+  const t = lib.topLevel.find((d) => d.id === id);
+  return t && visibleToLearner(t, role) ? { doc: t } : undefined;
+}
+
+/** A folder for the learner, with its docs filtered to what they can see. */
+export function getLearnerFolder(id: string, role: Role): LibraryFolder | undefined {
+  const f = load().folders.find((x) => x.id === id);
+  if (!f) return undefined;
+  return { ...f, documents: f.documents.filter((d) => visibleToLearner(d, role)) };
+}
+
+/** Recent published docs for the dashboard recency feed / notifications. */
+export function getLearnerRecent(role: Role, days = 14): LibraryDoc[] {
+  const lib = load();
+  return [...lib.topLevel, ...lib.folders.flatMap((f) => f.documents)]
+    .filter((d) => visibleToLearner(d, role) && isWithinDays(d.lastModified, days))
+    .sort((a, b) => daysSince(a.lastModified) - daysSince(b.lastModified));
+}
+
 /* ─── Reactivity ─── */
 function subscribe(cb: () => void) {
   listeners.add(cb);
@@ -151,4 +200,9 @@ function subscribe(cb: () => void) {
 }
 export function useLibrary(): Library {
   return useSyncExternalStore(subscribe, load, () => SERVER_SEED);
+}
+/** Subscribe to the learner library so edits/publishes re-render the guard view. */
+export function useLearnerLibrary(role: Role): Library {
+  useSyncExternalStore(subscribe, load, () => SERVER_SEED);
+  return learnerLibrary(role);
 }

@@ -12,7 +12,9 @@ import { RequiredPill } from "@/components/training/ModuleCard";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { PASS_MARK } from "@/lib/exam-mock";
-import { getModuleById, getTier, isCertified, EXAM_SECTIONS } from "@/lib/training-mock";
+import { getTier, isCertified, EXAM_SECTIONS } from "@/lib/training-mock";
+import { getLearnerModule } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -31,7 +33,7 @@ export default function CertificationDetailPage() {
   const { headerClassName, onScroll } = useGlassHeader();
 
   const moduleId = params?.id ?? "";
-  const m = getModuleById(moduleId);
+  const m = getLearnerModule(moduleId, useCurrentRole());
   const backHref = search.get("from") || "/profile";
   const title = m?.title ?? "Certification";
   const tier = m ? getTier(m) : null;

@@ -113,22 +113,22 @@ export default function AdminTrainingPage() {
             <Table>
               <TableHeader>
                 <TableHead className="flex-1" sortDir={sortCol === "title" ? sortDir : null} onSort={() => handleSort("title")}>Module</TableHead>
-                <TableHead className="w-[96px]">Category</TableHead>
-                <TableHead className="w-[110px]">Requirement</TableHead>
-                <TableHead className="w-[150px]">Roles</TableHead>
-                <TableHead className="w-[88px]">Status</TableHead>
-                <TableHead className="w-[128px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
+                <TableHead className="w-[100px]">Category</TableHead>
+                <TableHead className="w-[104px]">Requirement</TableHead>
+                <TableHead className="w-[104px]">Roles</TableHead>
+                <TableHead className="w-[104px]">Status</TableHead>
+                <TableHead className="w-[112px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
                 <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
               </TableHeader>
               <TableBody>
                 {paginated.map((m, i) => (
                   <TableRow key={m.id} onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")} style={rowStyle(i)}>
                     <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
-                    <TableCell className="w-[96px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
-                    <TableCell className="w-[110px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
-                    <TableCell className="w-[150px] text-muted-foreground truncate">{m.roles.map((r) => ROLE_LABEL[r]).join(", ")}</TableCell>
-                    <TableCell className="w-[88px]"><PublishBadge published={m.published !== false} /></TableCell>
-                    <TableCell className="w-[128px] text-muted-foreground">{formatDate(m.lastModified ?? m.assignedDate)}</TableCell>
+                    <TableCell className="w-[100px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
+                    <TableCell className="w-[104px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
+                    <TableCell className="w-[104px] text-muted-foreground truncate">{m.roles.map((r) => ROLE_LABEL[r]).join(", ")}</TableCell>
+                    <TableCell className="w-[104px]"><PublishBadge published={m.published !== false} /></TableCell>
+                    <TableCell className="w-[112px] text-muted-foreground">{formatDate(m.lastModified ?? m.assignedDate)}</TableCell>
                     <TableCell className="w-8">
                       <div onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>

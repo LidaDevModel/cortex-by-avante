@@ -6,7 +6,9 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getDocById, findSection } from "@/lib/library-mock";
+import { findSection } from "@/lib/library-mock";
+import { getLearnerDoc } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 const OPEN_DELAY = 150; // hover-intent: don't flash on pass-through
 const CLOSE_DELAY = 120; // grace so the pointer can travel into the card
@@ -33,11 +35,12 @@ export function CitationChip({
 }) {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const role = useCurrentRole();
   const [open, setOpen] = useState(false);
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const result = getDocById(docId);
+  const result = getLearnerDoc(docId, role);
   const section = result ? findSection(result.doc, sectionId) : undefined;
   // from=chat tells the file viewer to offer "Back to conversation".
   const href = `/library/files/${docId}?section=${sectionId}&from=chat`;

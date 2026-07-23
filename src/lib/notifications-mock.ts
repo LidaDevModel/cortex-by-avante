@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getRecentDocuments } from "@/lib/library-mock";
-import { getRecentModules } from "@/lib/training-mock";
+import { getLearnerRecent } from "@/lib/content-store";
+import { getLearnerRecentModules } from "@/lib/training-store";
 import { getTodaysDailyAttempt } from "@/lib/kc-store";
 import { getCurrentRole } from "@/lib/current-role";
 import { listFlags } from "@/lib/flags-store";
@@ -126,7 +126,7 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
 
   /* ── Learner feed — field agents and admins alike (admins have a Learning group too) ── */
   if (prefs.assignments) {
-    for (const m of getRecentModules(RECENCY_DAYS)) {
+    for (const m of getLearnerRecentModules(getCurrentRole(), RECENCY_DAYS)) {
       items.push({
         id: `mod-${m.id}`,
         category: "assignment",
@@ -136,7 +136,7 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
         href: `/training/modules/${m.id}`,
       });
     }
-    for (const d of getRecentDocuments(RECENCY_DAYS)) {
+    for (const d of getLearnerRecent(getCurrentRole(), RECENCY_DAYS)) {
       items.push({
         id: `doc-${d.id}`,
         category: "assignment",

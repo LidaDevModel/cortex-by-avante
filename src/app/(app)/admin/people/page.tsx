@@ -102,10 +102,10 @@ export default function AdminPeoplePage() {
             <Table>
               <TableHeader>
                 <TableHead className="flex-1" sortDir={sortDir} onSort={() => { setSortDir((d) => (d === "asc" ? "desc" : "asc")); setPage(1); }}>Name</TableHead>
-                <TableHead className="w-[120px]">Role</TableHead>
-                <TableHead className="w-[120px]">Status</TableHead>
-                <TableHead className="w-[64px] text-right">Certs</TableHead>
-                <TableHead className="w-[120px]">Last active</TableHead>
+                <TableHead className="w-[104px]">Role</TableHead>
+                <TableHead className="w-[104px]">Status</TableHead>
+                <TableHead className="w-[88px]">Certs</TableHead>
+                <TableHead className="w-[116px]">Last active</TableHead>
               </TableHeader>
               <TableBody>
                 {paginated.map((u, i) => (
@@ -121,10 +121,10 @@ export default function AdminPeoplePage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="w-[120px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
-                    <TableCell className="w-[120px]"><StatusPill status={u.status} /></TableCell>
-                    <TableCell className="w-[64px] text-right tabular-nums">{u.certifications}</TableCell>
-                    <TableCell className="w-[120px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
+                    <TableCell className="w-[104px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
+                    <TableCell className="w-[104px]"><StatusPill status={u.status} /></TableCell>
+                    <TableCell className="w-[88px] tabular-nums">{u.certifications}</TableCell>
+                    <TableCell className="w-[116px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
