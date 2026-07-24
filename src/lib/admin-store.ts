@@ -29,6 +29,13 @@ function rebuild(list: StoredUser[]) {
   publicCache = list.map(({ pin: _pin, ...u }) => u);
 }
 
+/** Persisted data from a build before the per-staff `certs` field is a stale
+ *  shape that crashes the certifications widgets — treat it as unusable so we
+ *  reseed from the current STAFF shape instead. */
+function isCurrentShape(list: unknown): list is StoredUser[] {
+  return Array.isArray(list) && list.every((u) => u && Array.isArray((u as StoredUser).certs));
+}
+
 function load(): StoredUser[] {
   if (cache) return cache;
   if (typeof window === "undefined") {
@@ -37,7 +44,8 @@ function load(): StoredUser[] {
   }
   try {
     const raw = localStorage.getItem(KEY);
-    rebuild(raw ? (JSON.parse(raw) as StoredUser[]) : (STAFF as StoredUser[]));
+    const parsed = raw ? JSON.parse(raw) : null;
+    rebuild(isCurrentShape(parsed) ? parsed : (STAFF as StoredUser[]));
   } catch {
     rebuild(STAFF as StoredUser[]);
   }
