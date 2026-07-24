@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
+import { LockGate } from "@/components/admin/lock-gate";
+import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
@@ -44,6 +46,7 @@ export default function AdminPeoplePage() {
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
+  const unlocked = useAdminUnlocked();
   const [page, setPage] = useState(1);
   const rowStyle = useRowStagger("admin-people");
 
@@ -82,9 +85,11 @@ export default function AdminPeoplePage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">People</h1>
-            <Button size="cta" onClick={() => setInviteOpen(true)}>
-              <UserPlus size={16} strokeWidth={1.5} /> Invite user
-            </Button>
+            <LockGate locked={!unlocked}>
+              <Button size="cta" onClick={() => setInviteOpen(true)}>
+                <UserPlus size={16} strokeWidth={1.5} /> Invite user
+              </Button>
+            </LockGate>
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">

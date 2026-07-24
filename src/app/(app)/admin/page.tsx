@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { RadialStat } from "@/components/admin/radial-stat";
 import { NewContentDialog } from "@/components/admin/NewContentDialog";
+import { LockGate } from "@/components/admin/lock-gate";
+import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
@@ -38,6 +40,7 @@ export default function AdminHomePage() {
   const flags = useFlags();
   const activity = useActivity();
   const [newContentOpen, setNewContentOpen] = useState(false);
+  const unlocked = useAdminUnlocked();
 
   // Date meta, set after mount (client clock ≠ prerender clock).
   const [dateMeta, setDateMeta] = useState<string | null>(null);
@@ -158,9 +161,11 @@ export default function AdminHomePage() {
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
-              <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
-                <Plus size={16} strokeWidth={1.5} /> Add content
-              </Button>
+              <LockGate locked={!unlocked}>
+                <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
+                  <Plus size={16} strokeWidth={1.5} /> Add content
+                </Button>
+              </LockGate>
             </div>
             {/* One small table per content type — each headed by a link to its
                 list, with the published/draft split below. */}

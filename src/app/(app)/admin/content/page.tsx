@@ -17,8 +17,10 @@ import { BackLink } from "@/components/admin/back-link";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { resolveBack } from "@/lib/admin-nav";
 import { Button } from "@/components/ui/button";
+import { LockGate } from "@/components/admin/lock-gate";
+import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished } from "@/lib/content-store";
+import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished, setFolderPublished } from "@/lib/content-store";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
 
@@ -55,6 +57,7 @@ export default function AdminContentPage() {
 
   const newParam = searchParams.get("new");
 
+  const unlocked = useAdminUnlocked();
   const [query, setQuery] = useState("");
   const [kindFilter, setKindFilter] = useState<KindTab>("all");
   const [roleFilter, setRoleFilter] = useState("");
@@ -84,7 +87,7 @@ export default function AdminContentPage() {
   const rows: Row[] = folder
     ? folder.documents.map((d) => ({ id: d.id, name: d.name, type: "document", lastModified: d.lastModified, published: d.published !== false, roles: d.roles, hasContent: docHasContent(d.toc) }))
     : [
-        ...lib.folders.map((f) => ({ id: f.id, name: f.name, type: "folder" as const, lastModified: f.lastModified })),
+        ...lib.folders.map((f) => ({ id: f.id, name: f.name, type: "folder" as const, lastModified: f.lastModified, published: f.published !== false })),
         ...lib.topLevel.map((d) => ({ id: d.id, name: d.name, type: "document" as const, lastModified: d.lastModified, published: d.published !== false, roles: d.roles, hasContent: docHasContent(d.toc) })),
       ];
 
@@ -93,8 +96,8 @@ export default function AdminContentPage() {
     let list = rows.filter((r) => {
       if (q && !r.name.toLowerCase().includes(q)) return false;
       if (!folder && kindFilter !== "all" && r.type !== kindFilter) return false;
-      // Status and role filters only make sense for files — folders drop out.
-      if (statusFilter && (r.type !== "document" || (statusFilter === "published") !== (r.published !== false))) return false;
+      // Status applies to files and folders (both publishable); role is file-only.
+      if (statusFilter && (statusFilter === "published") !== (r.published !== false)) return false;
       if (roleFilter && (r.type !== "document" || (r.roles !== undefined && !r.roles.includes(roleFilter)))) return false;
       return true;
     });
@@ -133,32 +136,59 @@ export default function AdminContentPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           {folder && <BackLink {...resolveBack(searchParams.get("return"), { href: "/admin/content", label: "Back to Library" })} />}
-          <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
-            {folder ? folder.name : "Library"}
-          </h1>
-
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            {!folder ? (
-              <Segmented
-                options={KIND_TABS}
-                value={kindFilter}
-                onChange={resetPage(setKindFilter)}
-                ariaLabel="Filter by kind"
-              />
-            ) : (
-              <span />
-            )}
-            <div className="flex items-center gap-2">
-              {!folder && (
-                <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
-                  <FolderPlus size={16} strokeWidth={1.5} /> New folder
-                </Button>
-              )}
-              <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
-                <FilePlus2 size={16} strokeWidth={1.5} /> New document
-              </Button>
+          {folder ? (
+            // Folder view: name + its actions (New document, Publish/Unpublish
+            // the folder) share the title row.
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+                {folder.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                <LockGate locked={!unlocked}>
+                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                    <FilePlus2 size={16} strokeWidth={1.5} /> New document
+                  </Button>
+                </LockGate>
+                {folder.published !== false ? (
+                  <LockGate locked={!unlocked}>
+                    <Button size="cta" variant="outline" onClick={() => setUnpublishTarget({ id: folder.id, name: folder.name, type: "folder", lastModified: folder.lastModified, published: true })}>
+                      <EyeOff size={16} strokeWidth={1.5} /> Unpublish
+                    </Button>
+                  </LockGate>
+                ) : (
+                  <LockGate locked={!unlocked}>
+                    <Button size="cta" variant="outline" onClick={() => { setFolderPublished(folder.id, true); showToast({ title: "Published", description: `"${folder.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(folder.id, false) } }); }}>
+                      <Send size={16} strokeWidth={1.5} /> Publish
+                    </Button>
+                  </LockGate>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <Segmented
+                  options={KIND_TABS}
+                  value={kindFilter}
+                  onChange={resetPage(setKindFilter)}
+                  ariaLabel="Filter by kind"
+                />
+                <div className="flex items-center gap-2">
+                  <LockGate locked={!unlocked}>
+                    <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
+                      <FolderPlus size={16} strokeWidth={1.5} /> New folder
+                    </Button>
+                  </LockGate>
+                  <LockGate locked={!unlocked}>
+                    <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                      <FilePlus2 size={16} strokeWidth={1.5} /> New document
+                    </Button>
+                  </LockGate>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
@@ -193,7 +223,7 @@ export default function AdminContentPage() {
                     </TableCell>
                     <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
                     <TableCell className="w-[104px]">
-                      {r.type === "document" ? <PublishBadge published={r.published !== false} /> : <span className="text-muted-foreground">—</span>}
+                      <PublishBadge published={r.published !== false} />
                     </TableCell>
                     <TableCell className="w-8">
                       <div onClick={(e) => e.stopPropagation()}>
@@ -208,6 +238,11 @@ export default function AdminContentPage() {
                               <>
                                 <DropdownMenuItem onSelect={() => openRow(r)}><FolderOpen size={16} strokeWidth={1.5} /> Open</DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => setPrompt({ mode: "rename", id: r.id, initial: r.name })}><Pencil size={16} strokeWidth={1.5} /> Rename</DropdownMenuItem>
+                                {r.published !== false ? (
+                                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onSelect={() => { setFolderPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+                                )}
                               </>
                             ) : (
                               <>
@@ -266,14 +301,15 @@ export default function AdminContentPage() {
         open={!!unpublishTarget}
         onOpenChange={(o) => !o && setUnpublishTarget(null)}
         title={`Unpublish "${unpublishTarget?.name ?? "this document"}"?`}
-        description="It will no longer be visible to learners until you publish it again."
+        description={unpublishTarget?.type === "folder" ? "The folder and its documents will no longer be visible to learners until you publish it again." : "It will no longer be visible to learners until you publish it again."}
         exitLabel="Unpublish"
         cancelLabel="Cancel"
         onExit={() => {
           if (unpublishTarget) {
             const t = unpublishTarget;
-            setDocPublished(t.id, false);
-            showToast({ title: "Moved to draft", description: `"${t.name}" is no longer visible to learners.`, action: { label: "Undo", onClick: () => setDocPublished(t.id, true) } });
+            const setPub = t.type === "folder" ? setFolderPublished : setDocPublished;
+            setPub(t.id, false);
+            showToast({ title: "Moved to draft", description: `"${t.name}" is no longer visible to learners.`, action: { label: "Undo", onClick: () => setPub(t.id, true) } });
           }
           setUnpublishTarget(null);
         }}

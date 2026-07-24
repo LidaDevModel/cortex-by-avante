@@ -90,7 +90,7 @@ function itemHref(id: string): string {
 
 export function createFolder(name: string) {
   const lib = load();
-  const folder: LibraryFolder = { id: uid("fld"), name: name.trim(), lastModified: today(), documents: [] };
+  const folder: LibraryFolder = { id: uid("fld"), name: name.trim(), lastModified: today(), published: false, documents: [] };
   save({ ...lib, folders: [folder, ...lib.folders] });
   logActivity("created", `Created folder “${folder.name}”`, `/admin/content?folder=${folder.id}`);
 }
@@ -137,6 +137,16 @@ export function setDocPublished(id: string, published: boolean) {
   });
   logActivity("edited", `${published ? "Published" : "Unpublished"} document “${name}”`, `/admin/content/${id}`);
 }
+/** Toggle whether a folder is live for learners. */
+export function setFolderPublished(id: string, published: boolean) {
+  const lib = load();
+  const name = lib.folders.find((f) => f.id === id)?.name ?? "folder";
+  save({
+    ...lib,
+    folders: lib.folders.map((f) => (f.id === id ? { ...f, published, lastModified: today() } : f)),
+  });
+  logActivity("edited", `${published ? "Published" : "Unpublished"} folder “${name}”`, `/admin/content?folder=${id}`);
+}
 export function updateDoc(id: string, patch: { name?: string; roles?: Role[]; toc?: TocSection[] }) {
   const lib = load();
   const apply = (d: LibraryDoc): LibraryDoc => ({ ...d, ...patch, lastModified: today() });
@@ -161,6 +171,7 @@ export function learnerLibrary(role: Role): Library {
   const lib = load();
   return {
     folders: lib.folders
+      .filter((f) => f.published !== false)
       .map((f) => ({ ...f, documents: f.documents.filter((d) => visibleToLearner(d, role)) }))
       .filter((f) => f.documents.length > 0),
     topLevel: lib.topLevel.filter((d) => visibleToLearner(d, role)),
@@ -172,7 +183,7 @@ export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder
   const lib = load();
   for (const f of lib.folders) {
     const doc = f.documents.find((d) => d.id === id);
-    if (doc) return visibleToLearner(doc, role) ? { doc, folder: f } : undefined;
+    if (doc) return f.published !== false && visibleToLearner(doc, role) ? { doc, folder: f } : undefined;
   }
   const t = lib.topLevel.find((d) => d.id === id);
   return t && visibleToLearner(t, role) ? { doc: t } : undefined;
@@ -181,14 +192,15 @@ export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder
 /** A folder for the learner, with its docs filtered to what they can see. */
 export function getLearnerFolder(id: string, role: Role): LibraryFolder | undefined {
   const f = load().folders.find((x) => x.id === id);
-  if (!f) return undefined;
+  if (!f || f.published === false) return undefined;
   return { ...f, documents: f.documents.filter((d) => visibleToLearner(d, role)) };
 }
 
 /** Recent published docs for the dashboard recency feed / notifications. */
 export function getLearnerRecent(role: Role, days = 14): LibraryDoc[] {
   const lib = load();
-  return [...lib.topLevel, ...lib.folders.flatMap((f) => f.documents)]
+  const inPublishedFolders = lib.folders.filter((f) => f.published !== false).flatMap((f) => f.documents);
+  return [...lib.topLevel, ...inPublishedFolders]
     .filter((d) => visibleToLearner(d, role) && isWithinDays(d.lastModified, days))
     .sort((a, b) => daysSince(a.lastModified) - daysSince(b.lastModified));
 }
