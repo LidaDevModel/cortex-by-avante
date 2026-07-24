@@ -104,6 +104,9 @@ export function inviteUser(input: { email: string; role: Role; fullName?: string
     status: "invited",
     memberSince: new Date().toISOString().slice(0, 10),
     certifications: 0,
+    certs: [],
+    requiredTotal: 0,
+    optionalTotal: 0,
     shiftReady: false,
     pin,
   };

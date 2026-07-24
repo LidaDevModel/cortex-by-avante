@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useCountUp } from "@/hooks/use-count-up";
 import { type CertificationTier, type Module, getTier } from "@/lib/training-mock";
 
@@ -16,22 +17,15 @@ function formatDate(iso: string) {
 export function TierChip({ tier }: { tier: CertificationTier }) {
   if (tier === "ace") {
     return (
-      <span
-        className="self-start inline-flex items-center gap-1 text-[12px] leading-[16px] font-semibold px-2.5 py-1 rounded-full"
-        style={{ background: "color-mix(in srgb, var(--accent-subtle) 45%, transparent)", color: "var(--success)" }}
-      >
-        <Star size={12} strokeWidth={2} fill="currentColor" />
+      <Badge tone="accent" className="self-start" icon={<Star size={12} strokeWidth={2} fill="currentColor" />}>
         Ace
-      </span>
+      </Badge>
     );
   }
   return (
-    <span
-      className="self-start inline-flex items-center text-[12px] leading-[16px] font-medium px-2.5 py-1 rounded-full"
-      style={{ background: "color-mix(in srgb, var(--success) 8%, transparent)", color: "var(--success)" }}
-    >
+    <Badge tone="success" className="self-start">
       Certified
-    </span>
+    </Badge>
   );
 }
 

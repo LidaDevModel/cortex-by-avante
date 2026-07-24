@@ -1,27 +1,37 @@
-import { Check } from "lucide-react";
+import { Check, CircleDashed } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * State B badge — the compact "cleared for shift" marker shown inline beside
- * the dashboard greeting once every required certification is current. The
- * full readiness board collapses to this; the certification detail lives on
- * the shelf below. Dashboard-only (the /chat greeting never shows it).
+ * the dashboard greeting once every required certification is current. Also
+ * used on the admin person page to show a staff member's shift-readiness.
+ *
+ * `requiredCount` populates the tooltip when the caller knows it (the learner's
+ * own dashboard/profile); omit it on the admin surface, where per-staff
+ * required counts aren't loaded, for a generic tooltip.
  */
-export function ClearedBadge({ requiredCount }: { requiredCount: number }) {
+export function ClearedBadge({ requiredCount }: { requiredCount?: number }) {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 h-7 pl-1.5 pr-3 rounded-full shrink-0"
-      style={{ background: "color-mix(in srgb, var(--accent-subtle) 45%, transparent)" }}
-      title={`All ${requiredCount} required certifications are current.`}
+    <Badge
+      tone="success"
+      className="font-semibold"
+      icon={<Check size={13} strokeWidth={2.5} />}
+      title={requiredCount != null ? `All ${requiredCount} required certifications are current.` : "Certified in all required modules."}
     >
-      <span
-        className="flex items-center justify-center w-4 h-4 rounded-full"
-        style={{ background: "var(--success)" }}
-      >
-        <Check size={11} strokeWidth={3} style={{ color: "var(--success-foreground)" }} />
-      </span>
-      <span className="text-[13px] leading-[18px] font-semibold" style={{ color: "var(--success)" }}>
-        Cleared for duty
-      </span>
-    </span>
+      Cleared for duty
+    </Badge>
+  );
+}
+
+/**
+ * The counterpart to ClearedBadge — a neutral marker for an active field agent
+ * who has NOT yet certified in every required module. Neutral (never alarming):
+ * a pending state, not an error. Admin person page only.
+ */
+export function NotClearedBadge() {
+  return (
+    <Badge tone="neutral" icon={<CircleDashed size={13} strokeWidth={1.5} />} title="Not all required certifications are current.">
+      Not shift-ready
+    </Badge>
   );
 }

@@ -16,6 +16,8 @@ import { NamePromptModal } from "@/components/admin/NamePromptModal";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { Button } from "@/components/ui/button";
+import { LockGate } from "@/components/admin/lock-gate";
+import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
@@ -40,6 +42,7 @@ export default function AdminTrainingPage() {
   const [sortCol, setSortCol] = useState<"title" | "lastModified">("lastModified");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [newOpen, setNewOpen] = useState(false);
+  const unlocked = useAdminUnlocked();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [unpublishId, setUnpublishId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -90,9 +93,11 @@ export default function AdminTrainingPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Modules</h1>
-            <Button size="cta" onClick={() => setNewOpen(true)}>
-              <FilePlus2 size={16} strokeWidth={1.5} /> New module
-            </Button>
+            <LockGate locked={!unlocked}>
+              <Button size="cta" onClick={() => setNewOpen(true)}>
+                <FilePlus2 size={16} strokeWidth={1.5} /> New module
+              </Button>
+            </LockGate>
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">

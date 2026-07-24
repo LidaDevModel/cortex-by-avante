@@ -6,6 +6,7 @@ import { Pencil, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { BackLink } from "@/components/admin/back-link";
 import { resolveBack } from "@/lib/admin-nav";
@@ -19,17 +20,14 @@ function formatDate(iso: string) {
 
 function FlagPill({ status, pop = false }: { status: FlagStatus; pop?: boolean }) {
   const open = status === "open";
-  const tone = open
-    ? { background: "color-mix(in srgb, var(--warning) 14%, transparent)", color: "var(--warning)" }
-    : { background: "color-mix(in srgb, var(--success) 12%, transparent)", color: "var(--success)" };
   return (
-    <span
-      className="inline-flex items-center px-2 py-[2px] rounded-[6px] text-[12px] leading-[16px] font-medium"
+    <Badge
+      tone={open ? "warning" : "success"}
       // A tasteful peak-end beat: the pill pops when the flag is just resolved.
-      style={pop ? { ...tone, animation: "check-pop 280ms cubic-bezier(0.32,0.72,0,1) both" } : tone}
+      style={pop ? { animation: "check-pop 280ms cubic-bezier(0.32,0.72,0,1) both" } : undefined}
     >
       {open ? "Open" : "Resolved"}
-    </span>
+    </Badge>
   );
 }
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ProgressDonut } from "@/components/ui/progress-donut";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -260,16 +261,7 @@ export function ReadinessBoard({
           <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
             Required for {role}
           </h2>
-          <span
-            className="shrink-0 text-[12px] leading-[16px] font-medium px-2.5 py-1 rounded-full"
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              color: "var(--muted-foreground)",
-            }}
-          >
-            Any order
-          </span>
+          <Badge variant="outline" tone="neutral">Any order</Badge>
         </div>
 
         {/* Ring + progress summary — the ring reads the certified percentage;

@@ -52,6 +52,8 @@ export type LibraryFolder = {
   id: string;
   name: string;
   lastModified: string;
+  /** Whether this folder is live for learners. Absent = published (seed). */
+  published?: boolean;
   documents: LibraryDoc[];
 };
 
