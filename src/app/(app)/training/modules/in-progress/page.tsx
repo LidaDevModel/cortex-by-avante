@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { PageHeader } from "@/components/ui/page-header";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
+import { RequiredPill } from "@/components/training/ModuleCard";
 import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -38,24 +39,6 @@ const IN_PROGRESS_MODULES: Module[] = [
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
 
 /* ─── Sub-components ─── */
-
-function RequiredPill({ required }: { required: boolean }) {
-  if (required) {
-    return (
-      <span
-        className="self-start text-[11px] leading-[16px] font-medium px-2 py-0.5 rounded-full border shrink-0"
-        style={{ borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--primary)" }}
-      >
-        Required
-      </span>
-    );
-  }
-  return (
-    <span className="self-start text-[11px] leading-[16px] font-medium px-2 py-0.5 rounded-full border border-border text-muted-foreground shrink-0">
-      Optional
-    </span>
-  );
-}
 
 function InProgressCard({ module }: { module: Module }) {
   return (

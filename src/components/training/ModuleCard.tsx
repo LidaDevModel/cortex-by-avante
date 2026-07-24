@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import type { Module } from "@/lib/training-mock";
@@ -6,22 +7,13 @@ import type { Module } from "@/lib/training-mock";
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
 const ILLUSTRATION_GLOW_SIDE_CARD = "var(--illustration-glow-side-card)";
 
-/** Required/Optional status pill shown on module cards. */
+/** Required/Optional status pill shown on module cards. Outline variant of the
+ *  shared Badge — required reads as primary, optional as neutral. */
 export function RequiredPill({ required }: { required: boolean }) {
-  if (required) {
-    return (
-      <span
-        className="self-start text-[11px] leading-[16px] font-medium px-2 py-0.5 rounded-full border shrink-0"
-        style={{ borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--primary)" }}
-      >
-        Required
-      </span>
-    );
-  }
   return (
-    <span className="self-start text-[11px] leading-[16px] font-medium px-2 py-0.5 rounded-full border border-border text-muted-foreground shrink-0">
-      Optional
-    </span>
+    <Badge variant="outline" tone={required ? "primary" : "neutral"} className="self-start">
+      {required ? "Required" : "Optional"}
+    </Badge>
   );
 }
 

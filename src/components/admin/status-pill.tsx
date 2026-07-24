@@ -1,21 +1,16 @@
+import { Badge, type BadgeTone } from "@/components/ui/badge";
 import type { StaffStatus } from "@/lib/user-mock";
 
-/** Staff status pill. Active reads as positive (success), invited as caution
- *  (warning), deactivated as quiet (muted). All from existing tokens. */
-const STYLE: Record<StaffStatus, { label: string; bg: string; color: string }> = {
-  active: { label: "Active", bg: "color-mix(in srgb, var(--success) 12%, transparent)", color: "var(--success)" },
-  invited: { label: "Invited", bg: "color-mix(in srgb, var(--warning) 14%, transparent)", color: "var(--warning)" },
-  deactivated: { label: "Deactivated", bg: "var(--surface-chip)", color: "var(--muted-foreground)" },
+/** Staff status badge. Active reads as positive (success), invited as caution
+ *  (warning), deactivated as quiet (neutral). Shape + colours from the shared
+ *  Badge primitive. */
+const MAP: Record<StaffStatus, { label: string; tone: BadgeTone }> = {
+  active: { label: "Active", tone: "success" },
+  invited: { label: "Invited", tone: "warning" },
+  deactivated: { label: "Deactivated", tone: "neutral" },
 };
 
 export function StatusPill({ status }: { status: StaffStatus }) {
-  const s = STYLE[status];
-  return (
-    <span
-      className="inline-flex items-center px-2 py-[2px] rounded-[6px] text-[12px] leading-[16px] font-medium"
-      style={{ background: s.bg, color: s.color }}
-    >
-      {s.label}
-    </span>
-  );
+  const { label, tone } = MAP[status];
+  return <Badge tone={tone}>{label}</Badge>;
 }

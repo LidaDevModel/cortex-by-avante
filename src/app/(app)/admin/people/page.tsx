@@ -17,6 +17,7 @@ import { useAdminUsers } from "@/lib/admin-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { InviteUserModal } from "@/components/admin/InviteUserModal";
 import { StatusPill } from "@/components/admin/status-pill";
+import { ClearedBadge, NotClearedBadge } from "@/components/dashboard/ClearedBadge";
 
 const PER_PAGE = 8;
 
@@ -104,7 +105,7 @@ export default function AdminPeoplePage() {
                 <TableHead className="flex-1" sortDir={sortDir} onSort={() => { setSortDir((d) => (d === "asc" ? "desc" : "asc")); setPage(1); }}>Name</TableHead>
                 <TableHead className="w-[104px]">Role</TableHead>
                 <TableHead className="w-[104px]">Status</TableHead>
-                <TableHead className="w-[88px]">Certs</TableHead>
+                <TableHead className="w-[150px]">Shift-ready</TableHead>
                 <TableHead className="w-[116px]">Last active</TableHead>
               </TableHeader>
               <TableBody>
@@ -123,7 +124,13 @@ export default function AdminPeoplePage() {
                     </TableCell>
                     <TableCell className="w-[104px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
                     <TableCell className="w-[104px]"><StatusPill status={u.status} /></TableCell>
-                    <TableCell className="w-[88px] tabular-nums">{u.certifications}</TableCell>
+                    <TableCell className="w-[150px]">
+                      {u.role === "field-agent" && u.status === "active" ? (
+                        u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="w-[116px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
                   </TableRow>
                 ))}

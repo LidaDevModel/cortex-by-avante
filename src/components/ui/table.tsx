@@ -61,7 +61,10 @@ export function TableHead({
 }
 
 export function TableBody({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={cn("", className)}>{children}</div>;
+  // Drop the last row's bottom border so it doesn't double up with the Table
+  // container's own bottom border. Targets the last direct child, so a wrapped
+  // row (e.g. an expandable section followed by a footer) keeps its divider.
+  return <div className={cn("[&>*:last-child]:border-b-0", className)}>{children}</div>;
 }
 
 export function TableRow({

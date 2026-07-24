@@ -6,6 +6,7 @@ import { UserRoundPen } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Segmented } from "@/components/ui/segmented";
 import { ClearedBadge } from "@/components/dashboard/ClearedBadge";
 import { HonorCard } from "@/components/training/HonorCard";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
@@ -22,6 +23,14 @@ import { USER } from "@/lib/user-mock";
 function memberSinceLabel(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
+
+/** Requirement lens for the certifications grid — the primary filter tabs. */
+const REQ_TABS = [
+  { value: "all", label: "All" },
+  { value: "required", label: "Required" },
+  { value: "optional", label: "Optional" },
+] as const;
+type ReqFilter = (typeof REQ_TABS)[number]["value"];
 
 /**
  * The internal profile ("how colleagues see you"): provisioned identity +
@@ -53,7 +62,18 @@ export default function ProfilePage() {
   // skill-area summary (the categories the user holds certs in) and a
   // single-select filter, defaulting to "all".
   const [catFilter, setCatFilter] = useState<ModuleCategory | "all">("all");
-  const shownCerts = catFilter === "all" ? certified : certified.filter((m) => m.category === catFilter);
+  // Requirement lens (tabs). Offered only when the user holds both required and
+  // optional certifications — otherwise a tab would land on an empty set.
+  const [reqFilter, setReqFilter] = useState<ReqFilter>("all");
+  const hasRequired = certified.some((m) => m.required);
+  const hasOptional = certified.some((m) => !m.required);
+  const showReqTabs = hasRequired && hasOptional;
+
+  const byReq =
+    reqFilter === "all" || !showReqTabs
+      ? certified
+      : certified.filter((m) => (reqFilter === "required" ? m.required : !m.required));
+  const shownCerts = catFilter === "all" ? byReq : byReq.filter((m) => m.category === catFilter);
 
   // Deep link from the dashboard's "View all" (/profile#certifications) — bring
   // the certifications section to the top of the scroll canvas after paint.
@@ -126,14 +146,27 @@ export default function ProfilePage() {
             className="scroll-mt-8 rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
-                Certifications ({certified.length})
-              </h2>
-              {/* Category pills — same row as the title, right-aligned. The skill
-                  areas the user is certified in (icon · label · count), doubling
-                  as a single-select filter over the grid below. Only categories
-                  the user holds appear, so a filter never empties. */}
+            <div className="flex flex-col gap-3">
+              {/* Title + requirement tabs share a row — tabs right-aligned
+                  (shown only when the user holds both required and optional
+                  certs). */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+                  Certifications ({certified.length})
+                </h2>
+                {showReqTabs && (
+                  <Segmented
+                    options={REQ_TABS}
+                    value={reqFilter}
+                    onChange={setReqFilter}
+                    ariaLabel="Filter certifications by requirement"
+                  />
+                )}
+              </div>
+
+              {/* Category pills — the secondary lens. The skill areas the user
+                  is certified in (icon · label · count), doubling as a
+                  single-select filter that combines with the tabs above. */}
               {certified.length > 0 && skillAreas.length > 1 && (
                 <div className="flex flex-wrap gap-2">
                     <button
@@ -176,13 +209,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {certified.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {shownCerts.map((m, i) => (
-                  <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} returnTo="/profile#certifications" />
-                ))}
-              </div>
-            ) : (
+            {certified.length === 0 ? (
               <div className="flex flex-col items-start gap-2 py-4">
                 <p className="text-[14px] leading-[20px] text-muted-foreground">
                   Certifications you earn will appear here.
@@ -195,6 +222,16 @@ export default function ProfilePage() {
                   Start training
                 </Link>
               </div>
+            ) : shownCerts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {shownCerts.map((m, i) => (
+                  <HonorCard key={m.id} module={m} carousel={false} start={inView} index={i} returnTo="/profile#certifications" />
+                ))}
+              </div>
+            ) : (
+              <p className="text-[14px] leading-[20px] text-muted-foreground py-4">
+                No certifications match these filters.
+              </p>
             )}
           </section>
         </div>

@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Pencil, EyeOff, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Folder, FileText, Pencil, EyeOff, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
-import { KindPill } from "@/components/library/kind-pill";
+import { Segmented } from "@/components/ui/segmented";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
@@ -37,6 +37,14 @@ type Prompt = { mode: "new-folder" | "new-doc" | "rename"; id?: string; initial?
 
 const PER_PAGE = 8;
 
+/** Kind lens — the primary Files / Folders tabs (replaces the old dropdown). */
+const KIND_TABS = [
+  { value: "all", label: "All" },
+  { value: "document", label: "Files" },
+  { value: "folder", label: "Folders" },
+] as const;
+type KindTab = (typeof KIND_TABS)[number]["value"];
+
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
@@ -48,7 +56,7 @@ export default function AdminContentPage() {
   const newParam = searchParams.get("new");
 
   const [query, setQuery] = useState("");
-  const [kindFilter, setKindFilter] = useState("");
+  const [kindFilter, setKindFilter] = useState<KindTab>("all");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
@@ -84,7 +92,7 @@ export default function AdminContentPage() {
   const shown = useMemo(() => {
     let list = rows.filter((r) => {
       if (q && !r.name.toLowerCase().includes(q)) return false;
-      if (kindFilter && r.type !== kindFilter) return false;
+      if (!folder && kindFilter !== "all" && r.type !== kindFilter) return false;
       // Status and role filters only make sense for files — folders drop out.
       if (statusFilter && (r.type !== "document" || (statusFilter === "published") !== (r.published !== false))) return false;
       if (roleFilter && (r.type !== "document" || (r.roles !== undefined && !r.roles.includes(roleFilter)))) return false;
@@ -125,10 +133,21 @@ export default function AdminContentPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           {folder && <BackLink {...resolveBack(searchParams.get("return"), { href: "/admin/content", label: "Back to Library" })} />}
+          <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+            {folder ? folder.name : "Library"}
+          </h1>
+
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
-              {folder ? folder.name : "Library"}
-            </h1>
+            {!folder ? (
+              <Segmented
+                options={KIND_TABS}
+                value={kindFilter}
+                onChange={resetPage(setKindFilter)}
+                ariaLabel="Filter by kind"
+              />
+            ) : (
+              <span />
+            )}
             <div className="flex items-center gap-2">
               {!folder && (
                 <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
@@ -144,7 +163,6 @@ export default function AdminContentPage() {
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
             <div className="flex items-center gap-2 flex-wrap">
-              {!folder && <FilterSelect value={kindFilter} onChange={resetPage(setKindFilter)} options={[{ value: "document", label: "Files" }, { value: "folder", label: "Folders" }]} placeholder="All kinds" />}
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
@@ -159,7 +177,6 @@ export default function AdminContentPage() {
               <TableHeader>
                 <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
                 <TableHead className="w-[124px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-                <TableHead className="w-[104px]">Kind</TableHead>
                 <TableHead className="w-[104px]">Status</TableHead>
                 <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
               </TableHeader>
@@ -167,12 +184,14 @@ export default function AdminContentPage() {
                 {paginated.map((r, i) => (
                   <TableRow key={r.id} onClick={() => handleRowClick(r)} style={rowStyle(i)}>
                     <TableCell className="flex-1 min-w-0 font-medium">
-                      <span className="block truncate">{r.name}</span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {r.type === "folder"
+                          ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+                          : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />}
+                        <span className="block truncate">{r.name}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
-                    <TableCell className="w-[104px]">
-                      <KindPill kind={r.type} />
-                    </TableCell>
                     <TableCell className="w-[104px]">
                       {r.type === "document" ? <PublishBadge published={r.published !== false} /> : <span className="text-muted-foreground">—</span>}
                     </TableCell>

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
@@ -18,18 +19,7 @@ function formatDate(iso: string) {
 /** Open reads as caution (warning); resolved as positive (success). */
 function FlagPill({ status }: { status: FlagStatus }) {
   const open = status === "open";
-  return (
-    <span
-      className="inline-flex items-center px-2 py-[2px] rounded-[6px] text-[12px] leading-[16px] font-medium"
-      style={
-        open
-          ? { background: "color-mix(in srgb, var(--warning) 14%, transparent)", color: "var(--warning)" }
-          : { background: "color-mix(in srgb, var(--success) 12%, transparent)", color: "var(--success)" }
-      }
-    >
-      {open ? "Open" : "Resolved"}
-    </span>
-  );
+  return <Badge tone={open ? "warning" : "success"}>{open ? "Open" : "Resolved"}</Badge>;
 }
 
 export default function AdminFlaggedPage() {

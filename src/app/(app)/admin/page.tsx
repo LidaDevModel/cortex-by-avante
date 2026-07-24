@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  UserCheck, ShieldCheck, Award, Flag, Mail, FileText,
-  CheckCircle2, ArrowUpRight, UserPlus, FilePlus2, BookOpen, type LucideIcon,
+  Flag, Mail, FileText,
+  CheckCircle2, ArrowUpRight, Plus, type LucideIcon,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { RadialStat } from "@/components/admin/radial-stat";
+import { NewContentDialog } from "@/components/admin/NewContentDialog";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
@@ -19,47 +21,6 @@ import { useModules } from "@/lib/training-store";
 import { useFlags } from "@/lib/flags-store";
 import { useActivity } from "@/lib/activity-log";
 import { withReturn } from "@/lib/admin-nav";
-
-/** Ease a whole number 0 → target once, when `run` flips true. Honors
- *  reduced-motion (jumps straight to the value). transform/opacity-free —
- *  it only sets text, so it's cheap and can't shift layout. */
-function useCountUp(target: number, run: boolean, ms = 500): number {
-  const [v, setV] = useState(run ? 0 : target);
-  useEffect(() => {
-    if (!run) { setV(target); return; }
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setV(target);
-      return;
-    }
-    let raf = 0;
-    let start = 0;
-    const tick = (now: number) => {
-      if (!start) start = now;
-      const p = Math.min(1, (now - start) / ms);
-      setV(Math.round(target * (1 - Math.pow(1 - p, 3)))); // easeOutCubic
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, run, ms]);
-  return v;
-}
-
-function StatCard({ icon: Icon, value, label, animate = false }: { icon: LucideIcon; value: string | number; label: string; animate?: boolean }) {
-  // Count up the leading integer; keep any suffix (e.g. the "/7" in "5/7").
-  const parts = String(value).match(/^(\d+)(.*)$/);
-  const counted = useCountUp(parts ? parseInt(parts[1], 10) : 0, animate && !!parts);
-  const display = parts ? `${counted}${parts[2]}` : String(value);
-  return (
-    <div className="flex-1 min-w-[150px] rounded-[12px] p-4 sm:p-5 flex flex-col gap-2 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-      <div className="flex items-center gap-1.5">
-        <Icon size={15} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-        <span className="text-[13px] leading-[18px] text-muted-foreground">{label}</span>
-      </div>
-      <span className="text-[26px] leading-[32px] font-bold tabular-nums text-foreground">{display}</span>
-    </div>
-  );
-}
 
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -72,11 +33,11 @@ export default function AdminHomePage() {
   const animateStats = useEntranceOnce("admin-home-stats");
   // Row cascade — shared with every list table, one key per Home table.
   const attnRow = useRowStagger("home-attention");
-  const contentRow = useRowStagger("home-content");
   const activityRow = useRowStagger("home-activity");
   const users = useAdminUsers();
   const flags = useFlags();
   const activity = useActivity();
+  const [newContentOpen, setNewContentOpen] = useState(false);
 
   // Date meta, set after mount (client clock ≠ prerender clock).
   const [dateMeta, setDateMeta] = useState<string | null>(null);
@@ -90,10 +51,12 @@ export default function AdminHomePage() {
   /* ─── Team pulse ─── */
   const active = users.filter((u) => u.status === "active").length;
   const ready = users.filter((u) => u.status === "active" && u.shiftReady).length;
-  const certs = users.reduce((sum, u) => sum + u.certifications, 0);
+  const requiredCerts = users.reduce((s, u) => s + u.certs.filter((c) => c.required).length, 0);
+  const optionalCerts = users.reduce((s, u) => s + u.certs.filter((c) => !c.required).length, 0);
 
   /* ─── Needs attention ─── */
   const openFlags = flags.filter((f) => f.status === "open").length;
+  const resolvedFlags = flags.filter((f) => f.status === "resolved").length;
   const invited = users.filter((u) => u.status === "invited").length;
   const allDocs = [...lib.folders.flatMap((f) => f.documents), ...lib.topLevel];
   const filesPublished = allDocs.filter((d) => d.published !== false).length;
@@ -121,17 +84,6 @@ export default function AdminHomePage() {
             <div className="flex flex-col gap-1">
               <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Home</h1>
               {dateMeta && <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>}
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button size="cta" variant="outline" asChild>
-                <Link href="/admin/people?invite=1"><UserPlus size={16} strokeWidth={1.5} /> Invite user</Link>
-              </Button>
-              <Button size="cta" variant="outline" asChild>
-                <Link href="/admin/content?new=1"><FilePlus2 size={16} strokeWidth={1.5} /> New document</Link>
-              </Button>
-              <Button size="cta" variant="outline" asChild>
-                <Link href="/admin/content/training?new=1"><BookOpen size={16} strokeWidth={1.5} /> New module</Link>
-              </Button>
             </div>
           </div>
 
@@ -165,38 +117,81 @@ export default function AdminHomePage() {
             )}
           </section>
 
-          {/* Team pulse — point-in-time snapshot of the workforce. */}
-          <div className="flex gap-3 flex-wrap">
-            <StatCard icon={UserCheck} value={`${active}/${users.length}`} label="Active staff" animate={animateStats} />
-            <StatCard icon={ShieldCheck} value={`${ready}/${active}`} label="Shift-ready staff" animate={animateStats} />
-            <StatCard icon={Award} value={certs} label="Certifications held" animate={animateStats} />
+          {/* Team pulse — point-in-time snapshot of the workforce. The readiness
+              donut merges active + shift-ready; certifications held sits beside it. */}
+          <div className="flex gap-6 flex-wrap">
+            <RadialStat
+              title="Team readiness"
+              href="/admin/people"
+              total={users.length}
+              centerLabel="staff"
+              animate={animateStats}
+              series={[
+                { label: "Active", value: active, color: "var(--match-pair-2-border)" },
+                { label: "Shift-ready", value: ready, color: "var(--success)" },
+              ]}
+            />
+            <RadialStat
+              title="Certifications held"
+              href="/admin/people"
+              total={requiredCerts + optionalCerts}
+              centerLabel="certs"
+              animate={animateStats}
+              series={[
+                { label: "Required", value: requiredCerts, color: "var(--success)" },
+                { label: "Optional", value: optionalCerts, color: "var(--match-pair-2-border)" },
+              ]}
+            />
+            <RadialStat
+              title="Flagged responses"
+              href="/admin/reports/flagged"
+              total={openFlags + resolvedFlags}
+              centerLabel="flags"
+              animate={animateStats}
+              series={[
+                { label: "Open", value: openFlags, color: "var(--match-pair-2-border)" },
+                { label: "Resolved", value: resolvedFlags, color: "var(--success)" },
+              ]}
+            />
           </div>
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
-            <Table>
-              <TableHeader>
-                <TableHead className="flex-1">Type</TableHead>
-                <TableHead className="w-[120px] text-right">Published</TableHead>
-                <TableHead className="w-[120px] text-right">Draft</TableHead>
-                <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
-              </TableHeader>
-              <TableBody>
-                {([
-                  { label: "Files", published: filesPublished, draft: filesDraft, href: "/admin/content" },
-                  { label: "Modules", published: modulesPublished, draft: modulesDraft, href: "/admin/content/training" },
-                ]).map((row, i) => (
-                  <TableRow key={row.label} onClick={() => router.push(row.href)} style={contentRow(i)}>
-                    <TableCell className="flex-1 min-w-0 font-medium">{row.label}</TableCell>
-                    <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.published}</TableCell>
-                    <TableCell className="w-[120px] text-right tabular-nums text-foreground">{row.draft}</TableCell>
-                    <TableCell className="w-8 flex items-center justify-end">
-                      <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
+              <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
+                <Plus size={16} strokeWidth={1.5} /> Add content
+              </Button>
+            </div>
+            {/* One small table per content type — each headed by a link to its
+                list, with the published/draft split below. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {([
+                { label: "Files", published: filesPublished, draft: filesDraft, href: "/admin/content" },
+                { label: "Modules", published: modulesPublished, draft: modulesDraft, href: "/admin/content/training" },
+              ]).map((t) => (
+                <div key={t.label} className="flex flex-col gap-3">
+                  <button
+                    onClick={() => router.push(t.href)}
+                    className="group flex items-center justify-between gap-2 text-left cursor-pointer"
+                  >
+                    <span className="text-[14px] leading-[20px] font-semibold text-foreground">{t.label}</span>
+                    <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground transition-colors duration-100 group-hover:text-foreground" />
+                  </button>
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="flex-1 min-w-0 text-muted-foreground">Published</TableCell>
+                        <TableCell className="w-16 text-right tabular-nums text-foreground">{t.published}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="flex-1 min-w-0 text-muted-foreground">Draft</TableCell>
+                        <TableCell className="w-16 text-right tabular-nums text-foreground">{t.draft}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* Recent activity — the last five admin actions, straight from the log. */}
@@ -234,6 +229,12 @@ export default function AdminHomePage() {
           </section>
         </div>
       </ScrollCanvas>
+
+      <NewContentDialog
+        open={newContentOpen}
+        onOpenChange={setNewContentOpen}
+        onChoose={(kind) => router.push(kind === "file" ? "/admin/content?new=1" : "/admin/content/training?new=1")}
+      />
     </div>
   );
 }
