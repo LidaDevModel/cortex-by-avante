@@ -1,5 +1,6 @@
 import { USER } from "./user-mock";
 import { setPersona } from "./demo-persona";
+import { setCurrentRole } from "./current-role";
 import { findInvite } from "./admin-store";
 
 /**
@@ -96,7 +97,12 @@ export function getLastEmail(): string {
     click. `signIn` below stays as the real-validation seam for later. */
 export function demoSignIn() {
   // Sign-in → Mike's lived-in account (progress, certifications, history).
+  // For the demo, signing in lands on the established, cleared ADMIN — the
+  // returning persona (all required certs complete) + the admin access role, so
+  // Cortex Manage is unlocked out of the box. The DialKit toggle still switches
+  // to the field-agent view afterward.
   setPersona("returning");
+  setCurrentRole("admin");
   startSession(PROVISIONED.email);
 }
 
@@ -108,6 +114,7 @@ export function signIn(email: string, password: string): { ok: true } | { ok: fa
     password === record.password;
   if (!match) return { ok: false };
   setPersona("returning");
+  setCurrentRole("admin");
   startSession(PROVISIONED.email);
   return { ok: true };
 }
@@ -129,8 +136,11 @@ export function verifyPin(email: string, pin: string): ActivateResult {
 
 /** Finishes activation: stores the personal password and signs the user in. */
 export function completeActivation(password: string) {
-  // Sign-up → a brand-new guard: the app opens on a blank slate.
+  // Sign-up → a brand-new guard: blank slate + field-agent role, so the app
+  // opens on the not-cleared onboarding state (the only place it should show,
+  // for the demo). The DialKit toggle can still switch views afterward.
   setPersona("new");
+  setCurrentRole("field-agent");
   writeRecord({ ...readRecord(), activated: true, password, activatedAt: new Date().toISOString() });
   startSession(PROVISIONED.email);
 }
