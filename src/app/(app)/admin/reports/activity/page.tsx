@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { withReturn } from "@/lib/admin-nav";
 import { useGlassHeader } from "@/hooks/use-glass-header";
@@ -85,30 +85,50 @@ export default function AdminActivityPage() {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableHead className="flex-1">Action</TableHead>
-                <TableHead className="w-[140px]">Admin</TableHead>
-                <TableHead className="w-[132px]">When</TableHead>
-                <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
-              </TableHeader>
-              <TableBody>
-                {paginated.map((e, i) => (
-                  <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, SELF)) : undefined} style={rowStyle(i)}>
-                    <TableCell className="flex-1 min-w-0">
-                      <span className="block truncate">{e.action}</span>
-                    </TableCell>
-                    <TableCell className="w-[140px] min-w-0 text-muted-foreground">
-                      <span className="block truncate">{e.actor}</span>
-                    </TableCell>
-                    <TableCell className="w-[132px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
-                    <TableCell className="w-8 flex items-center justify-end">
-                      {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {/* Desktop: full column table */}
+              <Table className="hidden md:block">
+                <TableHeader>
+                  <TableHead className="flex-1">Action</TableHead>
+                  <TableHead className="w-[140px]">Admin</TableHead>
+                  <TableHead className="w-[132px]">When</TableHead>
+                  <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((e, i) => (
+                    <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, SELF)) : undefined} style={rowStyle(i)}>
+                      <TableCell className="flex-1 min-w-0">
+                        <span className="block truncate">{e.action}</span>
+                      </TableCell>
+                      <TableCell className="w-[140px] min-w-0 text-muted-foreground">
+                        <span className="block truncate">{e.actor}</span>
+                      </TableCell>
+                      <TableCell className="w-[132px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
+                      <TableCell className="w-8 flex items-center justify-end">
+                        {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Mobile: the action over a who · when meta line; the open arrow
+                  moves to the trailing slot when the entry links somewhere. */}
+              <Table className="md:hidden">
+                <TableBody>
+                  {paginated.map((e, i) => (
+                    <TableCard
+                      key={e.id}
+                      onClick={e.href ? () => router.push(withReturn(e.href!, SELF)) : undefined}
+                      style={rowStyle(i)}
+                      title={e.action}
+                      meta={<TableCardMeta className="tabular-nums">{e.actor} · {formatWhen(e.ts)}</TableCardMeta>}
+                      trailing={e.href ? <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" /> : undefined}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </>
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />

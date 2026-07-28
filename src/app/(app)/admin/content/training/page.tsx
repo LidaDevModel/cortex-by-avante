@@ -6,7 +6,7 @@ import { MoreHorizontal, FilePlus2, EyeOff, Pencil, Trash2, Send } from "lucide-
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -16,8 +16,6 @@ import { NamePromptModal } from "@/components/admin/NamePromptModal";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { Button } from "@/components/ui/button";
-import { LockGate } from "@/components/admin/lock-gate";
-import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
@@ -42,7 +40,6 @@ export default function AdminTrainingPage() {
   const [sortCol, setSortCol] = useState<"title" | "lastModified">("lastModified");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [newOpen, setNewOpen] = useState(false);
-  const unlocked = useAdminUnlocked();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [unpublishId, setUnpublishId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -85,6 +82,33 @@ export default function AdminTrainingPage() {
   const safePage = Math.min(page, totalPages || 1);
   const paginated = rows.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
+  // Per-row actions menu — shared by the desktop table and the mobile card so
+  // Edit/Publish/Delete stay reachable on a phone. The stopPropagation wrapper
+  // keeps a menu click from also opening the row's preview.
+  type ModuleRow = (typeof paginated)[number];
+  function rowActions(m: ModuleRow) {
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
+              <MoreHorizontal size={16} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
+            {m.published !== false ? (
+              <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => { setModulePublished(m.id, true); showToast({ title: "Published", description: `"${m.title}" is now visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+            )}
+            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
       <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules" }]} className={headerClassName} />
@@ -93,11 +117,9 @@ export default function AdminTrainingPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Modules</h1>
-            <LockGate locked={!unlocked}>
-              <Button size="cta" onClick={() => setNewOpen(true)}>
-                <FilePlus2 size={16} strokeWidth={1.5} /> New module
-              </Button>
-            </LockGate>
+            <Button size="cta" onClick={() => setNewOpen(true)}>
+              <FilePlus2 size={16} strokeWidth={1.5} /> New module
+            </Button>
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -115,49 +137,56 @@ export default function AdminTrainingPage() {
               <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "No modules match that search." : "No modules yet. Create one with New module."}</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableHead className="flex-1" sortDir={sortCol === "title" ? sortDir : null} onSort={() => handleSort("title")}>Module</TableHead>
-                <TableHead className="w-[100px]">Category</TableHead>
-                <TableHead className="w-[104px]">Requirement</TableHead>
-                <TableHead className="w-[104px]">Roles</TableHead>
-                <TableHead className="w-[104px]">Status</TableHead>
-                <TableHead className="w-[112px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-                <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
-              </TableHeader>
-              <TableBody>
-                {paginated.map((m, i) => (
-                  <TableRow key={m.id} onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")} style={rowStyle(i)}>
-                    <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
-                    <TableCell className="w-[100px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
-                    <TableCell className="w-[104px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
-                    <TableCell className="w-[104px] text-muted-foreground truncate">{m.roles.map((r) => ROLE_LABEL[r]).join(", ")}</TableCell>
-                    <TableCell className="w-[104px]"><PublishBadge published={m.published !== false} /></TableCell>
-                    <TableCell className="w-[112px] text-muted-foreground">{formatDate(m.lastModified ?? m.assignedDate)}</TableCell>
-                    <TableCell className="w-8">
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
-                              <MoreHorizontal size={16} />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
-                            {m.published !== false ? (
-                              <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => { setModulePublished(m.id, true); showToast({ title: "Published", description: `"${m.title}" is now visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {/* Desktop: full column table */}
+              <Table className="hidden md:block">
+                <TableHeader>
+                  <TableHead className="flex-1" sortDir={sortCol === "title" ? sortDir : null} onSort={() => handleSort("title")}>Module</TableHead>
+                  <TableHead className="w-[100px]">Category</TableHead>
+                  <TableHead className="w-[104px]">Requirement</TableHead>
+                  <TableHead className="w-[104px]">Roles</TableHead>
+                  <TableHead className="w-[104px]">Status</TableHead>
+                  <TableHead className="w-[112px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
+                  <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((m, i) => (
+                    <TableRow key={m.id} onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")} style={rowStyle(i)}>
+                      <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
+                      <TableCell className="w-[100px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
+                      <TableCell className="w-[104px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
+                      <TableCell className="w-[104px] text-muted-foreground truncate">{m.roles.map((r) => ROLE_LABEL[r]).join(", ")}</TableCell>
+                      <TableCell className="w-[104px]"><PublishBadge published={m.published !== false} /></TableCell>
+                      <TableCell className="w-[112px] text-muted-foreground">{formatDate(m.lastModified ?? m.assignedDate)}</TableCell>
+                      <TableCell className="w-8">{rowActions(m)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Mobile: module title over a category · requirement · date meta
+                  line; publish badge + actions menu in the trailing slot. Roles
+                  are relegated to the edit screen on a phone. */}
+              <Table className="md:hidden">
+                <TableBody>
+                  {paginated.map((m, i) => (
+                    <TableCard
+                      key={m.id}
+                      onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")}
+                      style={rowStyle(i)}
+                      title={m.title}
+                      meta={<TableCardMeta>{CATEGORY_LABEL[m.category] ?? m.category} · {m.required ? "Required" : "Optional"} · {formatDate(m.lastModified ?? m.assignedDate)}</TableCardMeta>}
+                      trailing={
+                        <>
+                          <PublishBadge published={m.published !== false} />
+                          {rowActions(m)}
+                        </>
+                      }
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </>
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />

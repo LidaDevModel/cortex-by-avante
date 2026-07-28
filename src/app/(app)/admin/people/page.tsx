@@ -7,11 +7,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
-import { LockGate } from "@/components/admin/lock-gate";
-import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
@@ -46,7 +44,6 @@ export default function AdminPeoplePage() {
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
-  const unlocked = useAdminUnlocked();
   const [page, setPage] = useState(1);
   const rowStyle = useRowStagger("admin-people");
 
@@ -85,11 +82,9 @@ export default function AdminPeoplePage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">People</h1>
-            <LockGate locked={!unlocked}>
-              <Button size="cta" onClick={() => setInviteOpen(true)}>
-                <UserPlus size={16} strokeWidth={1.5} /> Invite user
-              </Button>
-            </LockGate>
+            <Button size="cta" onClick={() => setInviteOpen(true)}>
+              <UserPlus size={16} strokeWidth={1.5} /> Invite user
+            </Button>
           </div>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -105,42 +100,78 @@ export default function AdminPeoplePage() {
               <p className="text-[14px] leading-[20px] text-muted-foreground">No staff match these filters.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableHead className="flex-1" sortDir={sortDir} onSort={() => { setSortDir((d) => (d === "asc" ? "desc" : "asc")); setPage(1); }}>Name</TableHead>
-                <TableHead className="w-[104px]">Role</TableHead>
-                <TableHead className="w-[104px]">Status</TableHead>
-                <TableHead className="w-[150px]">Shift-ready</TableHead>
-                <TableHead className="w-[116px]">Last active</TableHead>
-              </TableHeader>
-              <TableBody>
-                {paginated.map((u, i) => (
-                  <TableRow key={u.id} onClick={() => router.push(`/admin/people/${u.id}`)} style={rowStyle(i)}>
-                    <TableCell className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Avatar className="h-8 w-8 rounded-full shrink-0">
+            <>
+              {/* Desktop: full column table */}
+              <Table className="hidden md:block">
+                <TableHeader>
+                  <TableHead className="flex-1" sortDir={sortDir} onSort={() => { setSortDir((d) => (d === "asc" ? "desc" : "asc")); setPage(1); }}>Name</TableHead>
+                  <TableHead className="w-[104px]">Role</TableHead>
+                  <TableHead className="w-[104px]">Status</TableHead>
+                  <TableHead className="w-[150px]">Shift-ready</TableHead>
+                  <TableHead className="w-[116px]">Last active</TableHead>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((u, i) => (
+                    <TableRow key={u.id} onClick={() => router.push(`/admin/people/${u.id}`)} style={rowStyle(i)}>
+                      <TableCell className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Avatar className="h-8 w-8 rounded-full shrink-0">
+                            <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[12px]">{u.initials}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[14px] leading-[18px] font-medium text-foreground truncate">{u.fullName}</span>
+                            <span className="text-[12px] leading-[16px] text-muted-foreground truncate">{u.email}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[104px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
+                      <TableCell className="w-[104px]"><StatusPill status={u.status} /></TableCell>
+                      <TableCell className="w-[150px]">
+                        {u.role === "field-agent" && u.status === "active" ? (
+                          u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="w-[116px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Mobile: avatar + name lead; email over role · last active as the
+                  meta; status and (for active field agents) shift-ready badges
+                  stack in the trailing slot so both stay real badges, not text. */}
+              <Table className="md:hidden">
+                <TableBody>
+                  {paginated.map((u, i) => (
+                    <TableCard
+                      key={u.id}
+                      onClick={() => router.push(`/admin/people/${u.id}`)}
+                      style={rowStyle(i)}
+                      leading={
+                        <Avatar className="h-9 w-9 rounded-full shrink-0">
                           <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[12px]">{u.initials}</AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[14px] leading-[18px] font-medium text-foreground truncate">{u.fullName}</span>
-                          <span className="text-[12px] leading-[16px] text-muted-foreground truncate">{u.email}</span>
+                      }
+                      title={u.fullName}
+                      meta={
+                        <>
+                          <TableCardMeta>{u.email}</TableCardMeta>
+                          <TableCardMeta>{ROLE_LABEL[u.role]} · {formatDate(u.lastActive)}</TableCardMeta>
+                        </>
+                      }
+                      trailing={
+                        <div className="flex flex-col items-end gap-1.5">
+                          <StatusPill status={u.status} />
+                          {u.role === "field-agent" && u.status === "active" && (u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />)}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[104px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
-                    <TableCell className="w-[104px]"><StatusPill status={u.status} /></TableCell>
-                    <TableCell className="w-[150px]">
-                      {u.role === "field-agent" && u.status === "active" ? (
-                        u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="w-[116px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      }
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </>
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />

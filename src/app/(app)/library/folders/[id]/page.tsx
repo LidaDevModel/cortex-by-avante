@@ -8,7 +8,7 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { PageHeader } from "@/components/ui/page-header";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { DetailHeader } from "@/components/ui/page-header";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { getLearnerFolder, useLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
@@ -182,15 +182,14 @@ export default function FolderDetailPage() {
                 <Table className="md:hidden">
                   <TableBody>
                     {paged.map((doc, i) => (
-                      <TableRow key={doc.id} className="py-3" onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined} style={rowStyle(i)}>
-                        <FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-                        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                          <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
-                          <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
-                            {formatDate(doc.lastModified)} · {doc.content}
-                          </span>
-                        </div>
-                      </TableRow>
+                      <TableCard
+                        key={doc.id}
+                        onClick={() => doc.kind === "document" ? router.push(`/library/files/${doc.id}`) : undefined}
+                        style={rowStyle(i)}
+                        leading={<FileText size={14} strokeWidth={1.5} className="text-muted-foreground shrink-0 mt-0.5" />}
+                        title={doc.name}
+                        meta={<TableCardMeta>{formatDate(doc.lastModified)} · {doc.content}</TableCardMeta>}
+                      />
                     ))}
                   </TableBody>
                 </Table>

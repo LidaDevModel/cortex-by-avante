@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Segmented, type SegmentedOption } from "@/components/ui/segmented";
 import { type ThemePreference, useTheme } from "@/components/theme-context";
 import { useGlassHeader } from "@/hooks/use-glass-header";
-import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import {
   type NotificationPrefs,
   getNotificationPrefs,
@@ -59,11 +59,14 @@ const ADMIN_ROWS: NotificationRow[] = [
 export default function SettingsPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const { preference, setPreference } = useTheme();
-  const role = useCurrentRole();
+  // Operational alerts only exist once the admin is cleared for duty (Cortex
+  // Manage access) — a not-cleared admin is a learner and sees only the learner
+  // rows, matching the notifications feed and the rest of Manage.
+  const canManage = useManageAccess();
   // Version subscription re-renders the toggles when prefs change.
   useNotificationsVersion();
   const prefs = getNotificationPrefs();
-  const notificationRows = role === "admin" ? [...LEARNER_ROWS, ...ADMIN_ROWS] : LEARNER_ROWS;
+  const notificationRows = canManage ? [...LEARNER_ROWS, ...ADMIN_ROWS] : LEARNER_ROWS;
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
