@@ -5,6 +5,7 @@ import { getLearnerRecent } from "@/lib/content-store";
 import { getLearnerRecentModules } from "@/lib/training-store";
 import { getTodaysDailyAttempt } from "@/lib/kc-store";
 import { getCurrentRole } from "@/lib/current-role";
+import { hasManageAccess } from "@/lib/manage-access";
 import { listFlags } from "@/lib/flags-store";
 import { listUsers } from "@/lib/admin-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
@@ -159,8 +160,8 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
     });
   }
 
-  /* ── Operational feed — admins only ── */
-  if (getCurrentRole() === "admin") {
+  /* ── Operational feed — cleared admins only (Cortex Manage access) ── */
+  if (hasManageAccess()) {
     if (prefs.flags) {
       for (const f of listFlags()) {
         if (f.status !== "open") continue;

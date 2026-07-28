@@ -47,6 +47,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
 import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 
@@ -83,6 +84,10 @@ export function CortexSidebar() {
   const router = useRouter();
   const [signOutOpen, setSignOutOpen] = useState(false);
   const role = useCurrentRole();
+  // Cortex Manage appears only once the admin is cleared for duty; a not-cleared
+  // admin navigates as a learner (same nav as a field agent) until they finish
+  // their required training.
+  const canManage = useManageAccess();
   // Read once per mount — the shell renders post-AuthGate, so localStorage is safe.
   const avatarUrl = getAuthProfile().avatarUrl;
   return (
@@ -101,7 +106,7 @@ export function CortexSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarMenu>
-          {role === "admin" ? (
+          {canManage ? (
             <>
               {/* Manage — the admin's primary work, top-level. (Content and
                   Reports arrive with their phases.) */}
@@ -273,7 +278,10 @@ export function CortexSidebar() {
                   <ChevronRight size={14} className="ml-auto text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="start" className="w-[200px]">
+              {/* z-[60]: on mobile this menu is triggered from inside the nav
+                  drawer (a Sheet at z-[55]); the default dropdown z-50 renders
+                  it behind the panel. Lift it above the drawer. */}
+              <DropdownMenuContent side="top" align="start" className="w-[200px] z-[60]">
                 {/* Destinations only — editing launches from the profile page
                     itself. Mirrors the mobile avatar dial (Profile · Settings). */}
                 <DropdownMenuItem onSelect={() => router.push("/profile")}>

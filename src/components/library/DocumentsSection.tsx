@@ -6,7 +6,7 @@ import { LayoutList, LayoutGrid } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import { DocGridCard } from "./DocGridCard";
 import { KindPill, type DocKind } from "./kind-pill";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { cn } from "@/lib/utils";
@@ -226,15 +226,14 @@ export function DocumentsSection() {
             <Table className="md:hidden">
               <TableBody>
                 {paginated.map((doc, i) => (
-                  <TableRow key={doc.id} className="py-3" onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)} style={rowStyle(i)}>
-                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>{doc.name}</span>
-                      <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
-                        {formatDate(doc.lastModified)} · {doc.content}
-                      </span>
-                    </div>
-                    <KindPill kind={doc.kind} />
-                  </TableRow>
+                  <TableCard
+                    key={doc.id}
+                    onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}
+                    style={rowStyle(i)}
+                    title={doc.name}
+                    meta={<TableCardMeta>{formatDate(doc.lastModified)} · {doc.content}</TableCardMeta>}
+                    trailing={<KindPill kind={doc.kind} />}
+                  />
                 ))}
               </TableBody>
             </Table>

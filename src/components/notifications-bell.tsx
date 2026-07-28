@@ -12,7 +12,7 @@ import {
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
-import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { daysSince } from "@/lib/utils";
 import {
   type CortexNotification,
@@ -59,7 +59,9 @@ function Row({ n, onOpen }: { n: CortexNotification & { unread: boolean }; onOpe
 }
 
 function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotification) => void; showTitle?: boolean }) {
-  const role = useCurrentRole();
+  // A cleared admin's empty state names the operational feed; everyone else
+  // (learners and not-cleared admins) gets the learner copy.
+  const canManage = useManageAccess();
   const items = getNotifications();
   const unread = items.filter((n) => n.unread).length;
   const today = items.filter((n) => daysSince(n.date) <= 0);
@@ -108,7 +110,7 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
         <div className="flex flex-col gap-1 px-4 py-8 text-center">
           <p className="text-[14px] leading-[20px] font-medium text-foreground">No new notifications.</p>
           <p className="text-[12px] leading-[16px] text-muted-foreground">
-            {role === "admin"
+            {canManage
               ? "Flagged responses, pending invites, and content updates will appear here."
               : "Updates about your modules and documents will appear here."}
           </p>
@@ -150,8 +152,9 @@ export function NotificationsBell() {
   const browseScreen = useMobileNavVisible();
   const [sheetOpen, setSheetOpen] = useState(false);
   useNotificationsVersion();
-  // Re-render on role switch so the unread dot reflects the admin feed.
-  useCurrentRole();
+  // Re-render on role/clearance change so the unread dot reflects the feed
+  // (the operational feed appears only once the admin is cleared for duty).
+  useManageAccess();
 
   // Unread state lives in localStorage — show the dot only after mount so the
   // server render (which can't read it) never mismatches.

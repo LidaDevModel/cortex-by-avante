@@ -7,7 +7,7 @@ import { House, MessageCircle, Library, BookOpen, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
-import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { USER } from "@/lib/user-mock";
 import { cn } from "@/lib/utils";
@@ -58,9 +58,11 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const router = useRouter();
   const visible = useMobileNavVisible();
-  // Admins navigate via the burger + sidebar drawer on mobile, not this
-  // field-agent pill (their IA is too broad for four thumb tabs).
-  const isAdmin = useCurrentRole() === "admin";
+  // A cleared admin navigates Cortex Manage via the burger + sidebar drawer on
+  // mobile, not this field-agent pill (their IA is too broad for four thumb
+  // tabs). A not-cleared admin has no Manage access, so they get the pill like
+  // any learner.
+  const inManage = useManageAccess();
 
   const [dial, setDial] = useState<DialState>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
@@ -157,7 +159,7 @@ export function MobileTabBar() {
     };
   }, [dial, closeDial, triggerFor]);
 
-  if (!visible || isAdmin) return null;
+  if (!visible || inManage) return null;
 
   const trainingDialShown = dial?.id === "training";
   const profileDialShown = dial?.id === "profile";

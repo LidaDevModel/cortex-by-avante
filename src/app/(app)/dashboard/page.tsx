@@ -16,6 +16,7 @@ import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store
 import { getLearnerRecent, useLibrary } from "@/lib/content-store";
 import { USER } from "@/lib/user-mock";
 import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 
 /** Two dashboard cards side by side on desktop, stacked below lg. Children
     stretch (each widget card is h-full) so paired cards match heights. */
@@ -25,7 +26,11 @@ function Row({ children }: { children: React.ReactNode }) {
 
 export default function DashboardPage() {
   const role = useCurrentRole();
-  const isAdmin = role === "admin";
+  // Only a CLEARED admin has a separate Manage Home, so their learning surface
+  // is a sub-section titled "Learning". For everyone else — field agents and
+  // not-cleared admins — this /dashboard IS their home, so it carries the full
+  // home header (greeting + date), same as a field agent.
+  const canManage = useManageAccess();
   useLibrary(); // reflect published docs in the recency feed
   // Learner's published module set — readiness gates shift eligibility.
   const modules = useLearnerModules(role);
@@ -67,10 +72,10 @@ export default function DashboardPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{isAdmin ? "Learning" : `${greeting}, ${USER.firstName}`}</h1>
+              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : `${greeting}, ${USER.firstName}`}</h1>
               {cleared && <ClearedBadge requiredCount={requiredModules.length} />}
             </div>
-            {!isAdmin && dateMeta && (
+            {!canManage && dateMeta && (
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
             )}
           </div>

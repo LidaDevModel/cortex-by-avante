@@ -7,7 +7,7 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
@@ -83,30 +83,51 @@ export default function AdminFlaggedPage() {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableHead className="w-[92px]">Status</TableHead>
-                <TableHead className="w-[104px]">Reason</TableHead>
-                <TableHead className="flex-1">Based on</TableHead>
-                <TableHead className="w-[108px]">Date</TableHead>
-                <TableHead className="w-[112px]">Flagged by</TableHead>
-              </TableHeader>
-              <TableBody>
-                {sorted.map((f, i) => (
-                  <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)} style={rowStyle(i)}>
-                    <TableCell className="w-[92px]"><FlagPill status={f.status} /></TableCell>
-                    <TableCell className="w-[104px] text-muted-foreground">{f.reason}</TableCell>
-                    <TableCell className="flex-1 min-w-0 text-foreground">
-                      <span className="block truncate">{f.source?.label ?? "Not grounded"}</span>
-                    </TableCell>
-                    <TableCell className="w-[108px] text-muted-foreground">{formatDate(f.date)}</TableCell>
-                    <TableCell className="w-[112px] min-w-0 text-muted-foreground">
-                      <span className="block truncate">{f.flaggedBy}</span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {/* Desktop: full column table */}
+              <Table className="hidden md:block">
+                <TableHeader>
+                  <TableHead className="w-[92px]">Status</TableHead>
+                  <TableHead className="w-[104px]">Reason</TableHead>
+                  <TableHead className="flex-1">Based on</TableHead>
+                  <TableHead className="w-[108px]">Date</TableHead>
+                  <TableHead className="w-[112px]">Flagged by</TableHead>
+                </TableHeader>
+                <TableBody>
+                  {sorted.map((f, i) => (
+                    <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)} style={rowStyle(i)}>
+                      <TableCell className="w-[92px]"><FlagPill status={f.status} /></TableCell>
+                      <TableCell className="w-[104px] text-muted-foreground">{f.reason}</TableCell>
+                      <TableCell className="flex-1 min-w-0 text-foreground">
+                        <span className="block truncate">{f.source?.label ?? "Not grounded"}</span>
+                      </TableCell>
+                      <TableCell className="w-[108px] text-muted-foreground">{formatDate(f.date)}</TableCell>
+                      <TableCell className="w-[112px] min-w-0 text-muted-foreground">
+                        <span className="block truncate">{f.flaggedBy}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Mobile: the five columns collapse into card rows — the source
+                  it's based on over a reason · who · date meta line, status
+                  badge as the scan anchor. */}
+              <Table className="md:hidden">
+                <TableBody>
+                  {sorted.map((f, i) => (
+                    <TableCard
+                      key={f.id}
+                      onClick={() => router.push(`/admin/reports/flagged/${f.id}`)}
+                      style={rowStyle(i)}
+                      title={f.source?.label ?? "Not grounded"}
+                      meta={<TableCardMeta>{f.reason} · {f.flaggedBy} · {formatDate(f.date)}</TableCardMeta>}
+                      trailing={<FlagPill status={f.status} />}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </>
           )}
         </div>
       </ScrollCanvas>

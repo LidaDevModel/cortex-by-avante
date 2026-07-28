@@ -11,10 +11,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { RadialStat } from "@/components/admin/radial-stat";
 import { NewContentDialog } from "@/components/admin/NewContentDialog";
-import { LockGate } from "@/components/admin/lock-gate";
-import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta } from "@/components/ui/table";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useEntranceOnce, useRowStagger } from "@/hooks/use-entrance";
 import { useAdminUsers } from "@/lib/admin-store";
@@ -40,7 +38,6 @@ export default function AdminHomePage() {
   const flags = useFlags();
   const activity = useActivity();
   const [newContentOpen, setNewContentOpen] = useState(false);
-  const unlocked = useAdminUnlocked();
 
   // Date meta, set after mount (client clock ≠ prerender clock).
   const [dateMeta, setDateMeta] = useState<string | null>(null);
@@ -161,11 +158,9 @@ export default function AdminHomePage() {
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
-              <LockGate locked={!unlocked}>
-                <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
-                  <Plus size={16} strokeWidth={1.5} /> Add content
-                </Button>
-              </LockGate>
+              <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
+                <Plus size={16} strokeWidth={1.5} /> Add content
+              </Button>
             </div>
             {/* One small table per content type — each headed by a link to its
                 list, with the published/draft split below. */}
@@ -210,26 +205,46 @@ export default function AdminHomePage() {
             {recentActivity.length === 0 ? (
               <p className="text-[14px] leading-[20px] text-muted-foreground">No activity data yet.</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableHead className="flex-1">Action</TableHead>
-                  <TableHead className="w-[140px]">Admin</TableHead>
-                  <TableHead className="w-[120px]">When</TableHead>
-                  <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
-                </TableHeader>
-                <TableBody>
-                  {recentActivity.map((e, i) => (
-                    <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined} style={activityRow(i)}>
-                      <TableCell className="flex-1 min-w-0"><span className="block truncate">{e.action}</span></TableCell>
-                      <TableCell className="w-[140px] min-w-0 text-muted-foreground"><span className="block truncate">{e.actor}</span></TableCell>
-                      <TableCell className="w-[120px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
-                      <TableCell className="w-8 flex items-center justify-end">
-                        {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <>
+                {/* Desktop: full column table */}
+                <Table className="hidden md:block">
+                  <TableHeader>
+                    <TableHead className="flex-1">Action</TableHead>
+                    <TableHead className="w-[140px]">Admin</TableHead>
+                    <TableHead className="w-[120px]">When</TableHead>
+                    <TableHead className="w-8"><span className="sr-only">Open</span></TableHead>
+                  </TableHeader>
+                  <TableBody>
+                    {recentActivity.map((e, i) => (
+                      <TableRow key={e.id} onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined} style={activityRow(i)}>
+                        <TableCell className="flex-1 min-w-0"><span className="block truncate">{e.action}</span></TableCell>
+                        <TableCell className="w-[140px] min-w-0 text-muted-foreground"><span className="block truncate">{e.actor}</span></TableCell>
+                        <TableCell className="w-[120px] text-muted-foreground tabular-nums">{formatWhen(e.ts)}</TableCell>
+                        <TableCell className="w-8 flex items-center justify-end">
+                          {e.href && <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" />}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Mobile: action over a who · when meta line, matching the full
+                    Activity log's card collapse. */}
+                <Table className="md:hidden">
+                  <TableBody>
+                    {recentActivity.map((e, i) => (
+                      <TableCard
+                        key={e.id}
+                        onClick={e.href ? () => router.push(withReturn(e.href!, "/admin")) : undefined}
+                        style={activityRow(i)}
+                        title={e.action}
+                        meta={<TableCardMeta className="tabular-nums">{e.actor} · {formatWhen(e.ts)}</TableCardMeta>}
+                        trailing={e.href ? <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" /> : undefined}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
             )}
           </section>
         </div>

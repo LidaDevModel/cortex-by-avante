@@ -5,6 +5,7 @@ import { MODULES, isCertified, type Module, type ModuleCategory, type Chapter } 
 import { getPersona } from "./demo-persona";
 import { daysSince } from "./utils";
 import type { Role } from "./user-mock";
+import { toLearnerRole } from "./learner-role";
 import { logActivity } from "./activity-log";
 
 /**
@@ -76,13 +77,16 @@ function personaAdjust(m: AdminModule): Module {
   if (getPersona() === "new") return { ...m, status: "not-started", progress: 0, certification: undefined };
   return m;
 }
-/** Published, role-visible modules for the learner, persona-adjusted. */
+/** Published, role-visible modules for the learner, persona-adjusted. Admins
+ *  learn as field agents (see toLearnerRole), so their training isn't empty. */
 export function learnerModules(role: Role): Module[] {
-  return load().filter((m) => visibleToLearner(m, role)).map(personaAdjust);
+  const r = toLearnerRole(role);
+  return load().filter((m) => visibleToLearner(m, r)).map(personaAdjust);
 }
 export function getLearnerModule(id: string, role: Role): Module | undefined {
+  const r = toLearnerRole(role);
   const m = load().find((x) => x.id === id);
-  return m && visibleToLearner(m, role) ? personaAdjust(m) : undefined;
+  return m && visibleToLearner(m, r) ? personaAdjust(m) : undefined;
 }
 export function getLearnerRequired(role: Role): Module[] {
   return learnerModules(role).filter((m) => m.required);

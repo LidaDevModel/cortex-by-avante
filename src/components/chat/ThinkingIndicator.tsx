@@ -28,20 +28,13 @@ export function ThinkingIndicator({ sources = [] }: { sources?: string[] }) {
 
   return (
     <div className="flex items-center gap-2.5 h-9" role="status" aria-label="Cortex is thinking">
-      {/* Breathing orb */}
-      <span className="relative flex items-center justify-center size-4 shrink-0">
+      {/* Breathing dot — flat brand colour, no gloss or glow (a glossy sphere
+          with a specular highlight and a blurred halo read as dated). */}
+      <span className="flex items-center justify-center size-4 shrink-0">
         <span
-          className="absolute inset-0 rounded-full"
+          className="size-2 rounded-full"
           style={{
-            background: "radial-gradient(circle at 35% 30%, var(--accent-subtle), var(--primary))",
-            animation: "think-pulse 1.2s ease-in-out infinite",
-          }}
-        />
-        <span
-          className="absolute -inset-1 rounded-full"
-          style={{
-            background: "color-mix(in srgb, var(--primary) 18%, transparent)",
-            filter: "blur(3px)",
+            background: "var(--primary)",
             animation: "think-pulse 1.2s ease-in-out infinite",
           }}
         />

@@ -6,7 +6,7 @@ import { ArrowLeft, ChevronRight, Menu } from "lucide-react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
-import { useCurrentRole } from "@/lib/current-role";
+import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { cn } from "@/lib/utils";
 
 /* ─── PageHeader ────────────────────────────────────────────────────────────
@@ -24,7 +24,8 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
   // hides), so there's no empty strip. Desktop keeps the full breadcrumb.
   const browse = useMobileNavVisible();
   const { toggleSidebar } = useSidebar();
-  const isAdmin = useCurrentRole() === "admin";
+  // The mobile burger opens the Manage drawer — only a cleared admin has one.
+  const canManage = useManageAccess();
 
   // Deep paths collapse the middle behind an expandable ellipsis, keeping the
   // root and the current page. Only worth it with ≥2 hidden middles, so we
@@ -69,7 +70,7 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
           opens the nav drawer; field agents keep a quiet header (the floating
           pill is their nav), so no trigger there. */}
       <SidebarTrigger className="-ml-1 max-md:hidden" />
-      {isAdmin && (
+      {canManage && (
         <button
           onClick={toggleSidebar}
           aria-label="Open menu"

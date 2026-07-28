@@ -46,12 +46,12 @@ export type Module = {
 };
 
 export const MODULES: Module[] = [
-  { id: "1", title: "Escalation Procedures 1", chapters: 6, hours: 2, progress: 33, status: "in-progress", required: true, category: "escalations", assignedDate: "2026-05-12" },
+  { id: "1", title: "Escalation Procedures 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "escalations", assignedDate: "2026-05-12", certification: { score: 87, date: "2026-06-18", sectionScores: [90, 86, 84, 88] } },
   { id: "2", title: "First Aid Awareness 1", chapters: 6, hours: 2, progress: 90, status: "in-progress", required: false, category: "first-aid", assignedDate: "2026-04-20" },
   { id: "3", title: "Incident Response 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "incidents", assignedDate: "2026-05-01", certification: { score: 92, date: "2026-06-22", sectionScores: [95, 92, 88, 93] } },
-  { id: "4", title: "Client Protocols 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "clients", assignedDate: "2026-04-28" },
-  { id: "5", title: "Security Protocols 1", chapters: 6, hours: 2, progress: 0, status: "not-started", required: true, category: "incidents", assignedDate: "2026-07-05" },
-  { id: "6", title: "Guard Duty Fundamentals", chapters: 4, hours: 1, progress: 60, status: "in-progress", required: true, category: "clients", assignedDate: "2026-05-18" },
+  { id: "4", title: "Client Protocols 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "clients", assignedDate: "2026-04-28", certification: { score: 91, date: "2026-06-02", sectionScores: [93, 90, 88, 93] } },
+  { id: "5", title: "Security Protocols 1", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "incidents", assignedDate: "2026-07-05", certification: { score: 84, date: "2026-07-20", sectionScores: [88, 84, 80, 84] } },
+  { id: "6", title: "Guard Duty Fundamentals", chapters: 4, hours: 1, progress: 100, status: "completed", required: true, category: "clients", assignedDate: "2026-05-18", certification: { score: 93, date: "2026-06-25", sectionScores: [96, 92, 90, 94] } },
   { id: "7", title: "Emergency Procedures 1", chapters: 5, hours: 2, progress: 0, status: "not-started", required: false, category: "escalations", assignedDate: "2026-06-30" },
   { id: "8", title: "First Aid Awareness 2", chapters: 6, hours: 2, progress: 100, status: "completed", required: true, category: "first-aid", assignedDate: "2026-03-15", certification: { score: 100, date: "2026-06-10", sectionScores: [100, 100, 100, 100] } },
   { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-04-10", certification: { score: 88, date: "2026-05-28", sectionScores: [92, 88, 84, 88] } },

@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { FOLDERS, TOP_LEVEL_DOCS, type LibraryFolder, type LibraryDoc, type TocSection } from "./library-mock";
 import type { Role } from "./user-mock";
+import { toLearnerRole } from "./learner-role";
 import { isWithinDays, daysSince } from "./utils";
 import { logActivity } from "./activity-log";
 
@@ -166,8 +167,10 @@ function visibleToLearner(d: LibraryDoc, role: Role): boolean {
   return d.published !== false && (!d.roles || d.roles.includes(role));
 }
 
-/** The learner's library: published, role-visible docs; empty folders dropped. */
+/** The learner's library: published, role-visible docs; empty folders dropped.
+ *  Admins learn as field agents (see toLearnerRole). */
 export function learnerLibrary(role: Role): Library {
+  role = toLearnerRole(role);
   const lib = load();
   return {
     folders: lib.folders
@@ -180,6 +183,7 @@ export function learnerLibrary(role: Role): Library {
 
 /** A single document for the learner viewer — undefined if unpublished/hidden. */
 export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder?: LibraryFolder } | undefined {
+  role = toLearnerRole(role);
   const lib = load();
   for (const f of lib.folders) {
     const doc = f.documents.find((d) => d.id === id);
@@ -191,6 +195,7 @@ export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder
 
 /** A folder for the learner, with its docs filtered to what they can see. */
 export function getLearnerFolder(id: string, role: Role): LibraryFolder | undefined {
+  role = toLearnerRole(role);
   const f = load().folders.find((x) => x.id === id);
   if (!f || f.published === false) return undefined;
   return { ...f, documents: f.documents.filter((d) => visibleToLearner(d, role)) };
@@ -198,6 +203,7 @@ export function getLearnerFolder(id: string, role: Role): LibraryFolder | undefi
 
 /** Recent published docs for the dashboard recency feed / notifications. */
 export function getLearnerRecent(role: Role, days = 14): LibraryDoc[] {
+  role = toLearnerRole(role);
   const lib = load();
   const inPublishedFolders = lib.folders.filter((f) => f.published !== false).flatMap((f) => f.documents);
   return [...lib.topLevel, ...inPublishedFolders]

@@ -1,22 +1,21 @@
 "use client";
 
+import { useCurrentRole } from "@/lib/current-role";
 import { useLearnerModules } from "@/lib/training-store";
-import { isShiftReady } from "@/lib/training-mock";
+import { hasManageAccess } from "@/lib/manage-access";
 
 /**
- * Admin write-actions (invite, add/publish content, manage people…) unlock only
- * once the signed-in user has completed their OWN required training — an admin
- * who isn't cleared for shift can't manage the platform. Reactive to training
- * progress, so finishing the last required module unlocks live.
- *
- * The check reads the user's field-agent training (the demo user is a guard who
- * also holds admin access) — NOT the admin access-role, which carries no
- * training of its own and would read as vacuously complete. Interface gating
- * only; a real backend enforces the same rule at the API.
+ * Whether the signed-in user may enter Cortex Manage right now — the reactive
+ * hook twin of `hasManageAccess`. Access is gated on shift-readiness, exactly
+ * like a field agent going on duty: an admin who hasn't certified in every
+ * required module can't manage the platform, and is treated as a learner
+ * everywhere (learner nav, no Manage entry, no operational notifications) until
+ * they finish. Interface gating only — a real backend enforces it at the API.
  */
-export function useAdminUnlocked(): boolean {
-  return isShiftReady(useLearnerModules("field-agent"));
+export function useManageAccess(): boolean {
+  // Subscribe to role + training so the decision re-runs live; the decision
+  // itself is the single imperative source of truth.
+  useCurrentRole();
+  useLearnerModules("field-agent");
+  return hasManageAccess();
 }
-
-/** The tooltip shown on a locked admin action. */
-export const ADMIN_LOCK_MESSAGE = "Complete your required training to unlock.";

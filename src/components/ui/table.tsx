@@ -103,6 +103,58 @@ export function TableCell({ className, style, children }: { className?: string; 
   );
 }
 
+/**
+ * One muted meta line inside a `TableCard` — the collapsed row's secondary text
+ * (e.g. "Wrong info · David · 15 Jul"). Truncates so it never wraps the card.
+ * Pass more than one for a two-line meta block (the People card stacks email
+ * over role · last active).
+ */
+export function TableCardMeta({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <span className={cn("block text-[12px] leading-[16px] font-[500] text-muted-foreground truncate", className)}>
+      {children}
+    </span>
+  );
+}
+
+/**
+ * The collapsed form of a table row below `md`. Fixed-width columns don't shrink
+ * gracefully on a phone — they squish, wrap, and truncate — so every table pairs
+ * a full-column `<Table className="hidden md:block">` with a `<Table
+ * className="md:hidden">` of these cards. A card stacks a leading icon/avatar, a
+ * primary title over a muted meta line (`TableCardMeta`), and a trailing slot
+ * (status badge, score, or an actions menu). The whole card is the tap target,
+ * mirroring the desktop row's click.
+ */
+export function TableCard({
+  onClick,
+  style,
+  className,
+  leading,
+  title,
+  meta,
+  trailing,
+}: {
+  onClick?: () => void;
+  style?: React.CSSProperties;
+  className?: string;
+  leading?: React.ReactNode;
+  title: React.ReactNode;
+  meta?: React.ReactNode;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <TableRow onClick={onClick} style={style} className={cn("gap-3 py-3 items-start", className)}>
+      {leading}
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{title}</span>
+        {meta}
+      </div>
+      {trailing != null && <div className="shrink-0 flex items-start gap-2">{trailing}</div>}
+    </TableRow>
+  );
+}
+
 export function TableFooter({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <div className={cn("flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]", className)}>

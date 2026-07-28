@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Pagination } from "@/components/ui/pagination";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import {
   FORMAT_LABELS,
   CATEGORY_LABELS,
@@ -361,20 +361,21 @@ function HistoryTable({
       <Table className="md:hidden">
         <TableBody>
           {rows.length === 0 ? emptyFiltered : rows.map(({ attempt, pct, catLabel, formatLabel, scoreColor }, i) => (
-            <TableRow key={attempt.id} className="py-3 items-start" onClick={() => onViewDetail(attempt.id)} style={rowStyle(i)}>
-              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{catLabel} #{getAttemptOrdinal(attempt.id)}</span>
-                <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground truncate">
-                  {formatLabel} · {formatDate(attempt.date)}
+            <TableCard
+              key={attempt.id}
+              onClick={() => onViewDetail(attempt.id)}
+              style={rowStyle(i)}
+              title={<>{catLabel} #{getAttemptOrdinal(attempt.id)}</>}
+              meta={<TableCardMeta>{formatLabel} · {formatDate(attempt.date)}</TableCardMeta>}
+              trailing={
+                <span
+                  className="text-[13px] leading-[20px] font-semibold"
+                  style={{ fontVariantNumeric: "tabular-nums", color: scoreColor }}
+                >
+                  {attempt.score}/{attempt.total} · {pct}%
                 </span>
-              </div>
-              <span
-                className="shrink-0 text-[13px] leading-[20px] font-semibold"
-                style={{ fontVariantNumeric: "tabular-nums", color: scoreColor }}
-              >
-                {attempt.score}/{attempt.total} · {pct}%
-              </span>
-            </TableRow>
+              }
+            />
           ))}
         </TableBody>
       </Table>

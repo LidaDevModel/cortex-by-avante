@@ -8,7 +8,7 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { Segmented } from "@/components/ui/segmented";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, type SortDir } from "@/components/ui/table";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
@@ -17,8 +17,6 @@ import { BackLink } from "@/components/admin/back-link";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { resolveBack } from "@/lib/admin-nav";
 import { Button } from "@/components/ui/button";
-import { LockGate } from "@/components/admin/lock-gate";
-import { useAdminUnlocked } from "@/hooks/use-admin-unlocked";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished, setFolderPublished } from "@/lib/content-store";
 import { PublishBadge } from "@/components/admin/publish-badge";
@@ -57,7 +55,6 @@ export default function AdminContentPage() {
 
   const newParam = searchParams.get("new");
 
-  const unlocked = useAdminUnlocked();
   const [query, setQuery] = useState("");
   const [kindFilter, setKindFilter] = useState<KindTab>("all");
   const [roleFilter, setRoleFilter] = useState("");
@@ -125,6 +122,46 @@ export default function AdminContentPage() {
     else window.open(`/admin/content/${r.id}/preview`, "_blank");
   }
 
+  // The per-row actions menu — shared by the desktop table and the mobile card
+  // so Open/Rename/Publish/Delete stay reachable on a phone. The stopPropagation
+  // wrapper keeps a menu click from also triggering the row's navigation.
+  function rowActions(r: Row) {
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
+              <MoreHorizontal size={16} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[160px]">
+            {r.type === "folder" ? (
+              <>
+                <DropdownMenuItem onSelect={() => openRow(r)}><FolderOpen size={16} strokeWidth={1.5} /> Open</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setPrompt({ mode: "rename", id: r.id, initial: r.name })}><Pencil size={16} strokeWidth={1.5} /> Rename</DropdownMenuItem>
+                {r.published !== false ? (
+                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onSelect={() => { setFolderPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+                )}
+              </>
+            ) : (
+              <>
+                <DropdownMenuItem onSelect={() => openRow(r)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
+                {r.published !== false ? (
+                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem disabled={!r.hasContent} onSelect={() => { setDocPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setDocPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+                )}
+              </>
+            )}
+            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteTarget(r)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   const crumbs = folder
     ? [{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
     : [{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library" }];
@@ -144,23 +181,17 @@ export default function AdminContentPage() {
                 {folder.name}
               </h1>
               <div className="flex items-center gap-2">
-                <LockGate locked={!unlocked}>
-                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
-                    <FilePlus2 size={16} strokeWidth={1.5} /> New document
-                  </Button>
-                </LockGate>
+                <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                  <FilePlus2 size={16} strokeWidth={1.5} /> New document
+                </Button>
                 {folder.published !== false ? (
-                  <LockGate locked={!unlocked}>
-                    <Button size="cta" variant="outline" onClick={() => setUnpublishTarget({ id: folder.id, name: folder.name, type: "folder", lastModified: folder.lastModified, published: true })}>
-                      <EyeOff size={16} strokeWidth={1.5} /> Unpublish
-                    </Button>
-                  </LockGate>
+                  <Button size="cta" variant="outline" onClick={() => setUnpublishTarget({ id: folder.id, name: folder.name, type: "folder", lastModified: folder.lastModified, published: true })}>
+                    <EyeOff size={16} strokeWidth={1.5} /> Unpublish
+                  </Button>
                 ) : (
-                  <LockGate locked={!unlocked}>
-                    <Button size="cta" variant="outline" onClick={() => { setFolderPublished(folder.id, true); showToast({ title: "Published", description: `"${folder.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(folder.id, false) } }); }}>
-                      <Send size={16} strokeWidth={1.5} /> Publish
-                    </Button>
-                  </LockGate>
+                  <Button size="cta" variant="outline" onClick={() => { setFolderPublished(folder.id, true); showToast({ title: "Published", description: `"${folder.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(folder.id, false) } }); }}>
+                    <Send size={16} strokeWidth={1.5} /> Publish
+                  </Button>
                 )}
               </div>
             </div>
@@ -175,16 +206,12 @@ export default function AdminContentPage() {
                   ariaLabel="Filter by kind"
                 />
                 <div className="flex items-center gap-2">
-                  <LockGate locked={!unlocked}>
-                    <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
-                      <FolderPlus size={16} strokeWidth={1.5} /> New folder
-                    </Button>
-                  </LockGate>
-                  <LockGate locked={!unlocked}>
-                    <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
-                      <FilePlus2 size={16} strokeWidth={1.5} /> New document
-                    </Button>
-                  </LockGate>
+                  <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
+                    <FolderPlus size={16} strokeWidth={1.5} /> New folder
+                  </Button>
+                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                    <FilePlus2 size={16} strokeWidth={1.5} /> New document
+                  </Button>
                 </div>
               </div>
             </>
@@ -203,66 +230,61 @@ export default function AdminContentPage() {
               <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet. Add one with New document."}</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
-                <TableHead className="w-[124px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-                <TableHead className="w-[104px]">Status</TableHead>
-                <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
-              </TableHeader>
-              <TableBody>
-                {paginated.map((r, i) => (
-                  <TableRow key={r.id} onClick={() => handleRowClick(r)} style={rowStyle(i)}>
-                    <TableCell className="flex-1 min-w-0 font-medium">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {r.type === "folder"
-                          ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-                          : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />}
-                        <span className="block truncate">{r.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
-                    <TableCell className="w-[104px]">
-                      <PublishBadge published={r.published !== false} />
-                    </TableCell>
-                    <TableCell className="w-8">
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
-                              <MoreHorizontal size={16} />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[160px]">
-                            {r.type === "folder" ? (
-                              <>
-                                <DropdownMenuItem onSelect={() => openRow(r)}><FolderOpen size={16} strokeWidth={1.5} /> Open</DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => setPrompt({ mode: "rename", id: r.id, initial: r.name })}><Pencil size={16} strokeWidth={1.5} /> Rename</DropdownMenuItem>
-                                {r.published !== false ? (
-                                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem onSelect={() => { setFolderPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setFolderPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <DropdownMenuItem onSelect={() => openRow(r)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
-                                {r.published !== false ? (
-                                  <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem disabled={!r.hasContent} onSelect={() => { setDocPublished(r.id, true); showToast({ title: "Published", description: `"${r.name}" is now visible to learners.`, action: { label: "Undo", onClick: () => setDocPublished(r.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
-                                )}
-                              </>
-                            )}
-                            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteTarget(r)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {/* Desktop: full column table */}
+              <Table className="hidden md:block">
+                <TableHeader>
+                  <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
+                  <TableHead className="w-[124px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
+                  <TableHead className="w-[104px]">Status</TableHead>
+                  <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((r, i) => (
+                    <TableRow key={r.id} onClick={() => handleRowClick(r)} style={rowStyle(i)}>
+                      <TableCell className="flex-1 min-w-0 font-medium">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {r.type === "folder"
+                            ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+                            : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />}
+                          <span className="block truncate">{r.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
+                      <TableCell className="w-[104px]">
+                        <PublishBadge published={r.published !== false} />
+                      </TableCell>
+                      <TableCell className="w-8">{rowActions(r)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Mobile: folder/file icon + name lead, last-modified as the meta;
+                  publish badge and the actions menu ride the trailing slot. */}
+              <Table className="md:hidden">
+                <TableBody>
+                  {paginated.map((r, i) => (
+                    <TableCard
+                      key={r.id}
+                      onClick={() => handleRowClick(r)}
+                      style={rowStyle(i)}
+                      leading={r.type === "folder"
+                        ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0 mt-0.5" />
+                        : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0 mt-0.5" />}
+                      title={r.name}
+                      meta={<TableCardMeta>{formatDate(r.lastModified)}</TableCardMeta>}
+                      trailing={
+                        <>
+                          <PublishBadge published={r.published !== false} />
+                          {rowActions(r)}
+                        </>
+                      }
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </>
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
