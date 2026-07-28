@@ -7,6 +7,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { demoSignIn, isSignedIn } from "@/lib/auth-mock";
+import { hasManageAccess } from "@/lib/manage-access";
+
+/** A cleared admin's home is Cortex Manage (`/admin`); everyone else lands on
+ *  the learner home. Read after sign-in, once the returning persona is set. */
+function landingRoute() {
+  return hasManageAccess() ? "/admin" : "/dashboard";
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -16,7 +23,7 @@ export default function SignInPage() {
 
   // Already signed in → straight to the app.
   useEffect(() => {
-    if (isSignedIn()) router.replace("/dashboard");
+    if (isSignedIn()) router.replace(landingRoute());
   }, [router]);
 
   // Presentation gating: both fields must be filled and the email must look
@@ -30,7 +37,7 @@ export default function SignInPage() {
     e.preventDefault();
     if (!canSubmit) return;
     demoSignIn();
-    router.push("/dashboard");
+    router.push(landingRoute());
   }
 
   return (
