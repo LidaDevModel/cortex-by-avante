@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { getRequirementState, type Module } from "@/lib/training-mock";
 
 /**
@@ -16,7 +18,14 @@ import { getRequirementState, type Module } from "@/lib/training-mock";
  *
  * A card, not a banner: banners are for ambient conditions that are true
  * everywhere (offline), this is one-time news about Home's own content. Sits
- * above the readiness board — it explains the board directly beneath it.
+ * above the readiness board — it explains the board directly beneath it, and
+ * carries the same ambient glow shadow, because for this one visit it IS the
+ * hero of the screen.
+ *
+ * Hierarchy is deliberate: the eyebrow says what kind of news, the MODULE NAME
+ * is the title (it is the subject), the facts sit on one scannable meta line,
+ * and the reassurance gets its own line rather than being buried in a run-on
+ * paragraph.
  */
 export function NewRequirementCard({
   modules,
@@ -45,92 +54,113 @@ export function NewRequirementCard({
     (m) => getRequirementState(m) === "certified"
   ).length;
 
+  const chapters = modules.reduce((sum, m) => sum + m.chapters, 0);
   const hours = modules.reduce((sum, m) => sum + m.hours, 0);
   const timePhrase = hours <= 1 ? "about an hour" : `about ${hours} hours`;
 
-  const addedOn = new Date(first.assignedDate).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-  });
+  const added = new Date(first.assignedDate);
+  const isToday = added.toDateString() === new Date().toDateString();
+  const addedPhrase = isToday
+    ? "Added today"
+    : `Added ${added.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`;
 
   const title = multiple
-    ? `${modules.length} new modules are now required for your role`
-    : "A new module is now required for your role";
-
-  const names = multiple
-    ? modules.map((m) => m.title).join(", ")
+    ? `${modules.length} new required modules`
     : first.title;
+
+  // The reassurance line — the whole point of the card.
+  const reassurance = wasCleared
+    ? multiple
+      ? `Finish ${multiple ? "them" : "it"} and you're cleared for duty again.`
+      : "Finish it and you're cleared for duty again."
+    : `Added to your required training for ${role}.`;
 
   return (
     <section
       aria-labelledby="new-requirement-title"
-      className="relative overflow-hidden rounded-[12px] p-6 pl-[22px] flex flex-col gap-4 bg-surface-raised"
-      style={{ border: "1px solid var(--border)", animation: "msg-in 200ms ease-out both" }}
+      className="relative overflow-hidden rounded-[12px]"
+      style={{
+        // The card's SURFACE carries the notice, not a stripe: the document
+        // callout tint layered over the raised surface (same layering idiom as
+        // `.canvas-glow`). Reads as highlighted rather than alarming, and the
+        // token is defined in both modes — unlike --card-glow-shadow, which is
+        // `none` in dark and would leave dark mode undifferentiated.
+        background: "var(--doc-callout-bg), var(--surface-raised)",
+        border: "1px solid var(--doc-callout-border)",
+        boxShadow: "var(--card-glow-shadow)",
+        animation: "msg-in 200ms ease-out both",
+      }}
     >
-      {/* Left accent — marks this as a notice rather than a standing widget.
-          Same 2px primary accent the selected-item pattern uses. */}
-      <span
-        aria-hidden
-        className="absolute inset-y-0 left-0 w-[2px]"
-        style={{ background: "var(--primary)" }}
-      />
+      <div className="relative flex flex-col gap-5 p-6">
+        {/* Kind marker — a badge, the app's established way of labelling what
+            something IS. A distinct object the eye catches, where small-caps
+            text alone reads as another widget heading. */}
+        <Badge tone="primary" className="self-start font-semibold">
+          {multiple ? "New requirements" : "New requirement"}
+        </Badge>
 
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className="flex items-center justify-center w-10 h-10 rounded-[10px] shrink-0 text-primary"
-          style={{ background: "color-mix(in srgb, var(--accent-subtle) 45%, transparent)" }}
-        >
-          <BookOpen size={20} strokeWidth={1.5} />
-        </span>
+        {/* Subject: the module itself. Illustration + name + facts — the same
+            shape as a readiness-board row, so it reads as the module it is.
+            ModuleIllustration directly, NOT ModuleIcon: that wrapper's ambient
+            glow is sized so its hard edge falls outside a 40px row's clip — on
+            a card this tall the edge lands inside and paints a visible band. */}
+        <div className="relative flex items-center gap-4 min-w-0">
+          <ModuleIllustration
+            category={first.category}
+            width={48}
+            height={48}
+            className="shrink-0 flex"
+          />
+          <div className="relative z-10 flex flex-col gap-1.5 min-w-0">
+            <h2
+              id="new-requirement-title"
+              className="text-[20px] leading-[28px] font-semibold text-foreground"
+            >
+              {title}
+            </h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[13px] leading-[18px] text-muted-foreground">
+                {addedPhrase} · {chapters} chapters
+              </span>
+              <Badge tone="primary" icon={<Clock size={12} strokeWidth={2} />}>
+                {timePhrase}
+              </Badge>
+            </div>
+          </div>
+        </div>
 
-        <div className="flex flex-col gap-1 min-w-0">
-          <h2
-            id="new-requirement-title"
-            className="text-[17px] leading-[24px] font-semibold text-foreground"
+        {/* Reassurance — its own line, the emotional work of the card */}
+        <p className="relative z-10 text-[15px] leading-[24px] text-foreground">
+          {reassurance}
+          {certifiedCount > 0 && (
+            <span className="text-muted-foreground">
+              {" "}Your {certifiedCount} completed requirement
+              {certifiedCount === 1 ? "" : "s"} still count
+              {certifiedCount === 1 ? "s" : ""}.
+            </span>
+          )}
+        </p>
+
+        {/* Primary left-aligned with the tertiary beside it — matches the
+            readiness board's row actions rather than a modal footer. */}
+        <div className="relative z-10 flex items-center gap-5 flex-wrap">
+          <Link
+            href={`/training/modules/${first.id}`}
+            className="inline-flex items-center justify-center gap-1.5 h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
-            {title}
-          </h2>
-          <p className="text-[14px] leading-[20px] text-muted-foreground">
-            {names} {multiple ? "were" : "was"} added on {addedOn}.{" "}
-            {wasCleared
-              ? `Finish ${multiple ? "them" : "it"} — ${timePhrase} — and you're cleared for duty again.`
-              : `That's ${timePhrase} of reading, added to your required training.`}{" "}
-            {certifiedCount > 0 && (
-              <>
-                Your {certifiedCount} completed requirement
-                {certifiedCount === 1 ? "" : "s"} still stand
-                {certifiedCount === 1 ? "s" : ""}.
-              </>
-            )}
-          </p>
+            Start module
+            <ArrowRight size={16} strokeWidth={2} />
+          </Link>
+          <button
+            type="button"
+            onClick={onDismiss}
+            className="text-[13px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px] px-1"
+          >
+            Not now
+          </button>
         </div>
       </div>
-
-      {/* Primary right, tertiary left — VISION's footer rule. The tertiary is a
-          muted text link, never a button. */}
-      <div className="flex items-center gap-4 flex-wrap pl-[52px] max-sm:pl-0">
-        <Link
-          href={`/training/modules/${first.id}`}
-          className="inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold transition-opacity duration-100 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
-          {multiple ? `Start ${first.title}` : "Start module"}
-          <ArrowRight size={15} strokeWidth={2} />
-        </Link>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="text-[13px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px]"
-        >
-          Not now
-        </button>
-      </div>
-
-      <span className="sr-only">
-        Required for {role}. This notice appears once; the module stays on your
-        shift-readiness board below.
-      </span>
     </section>
   );
 }
