@@ -36,9 +36,18 @@ function SectionRow({
   children?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  // The row discloses the breakdown rather than navigating, so it must say so:
+  // a keyboard or screen-reader user otherwise had no way to reach the one
+  // thing on this screen that explains what they got wrong.
+  const panelId = `kc-section-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   return (
     <div>
-      <TableRow onClick={() => setOpen((o) => !o)}>
+      <TableRow
+        onClick={() => setOpen((o) => !o)}
+        ariaLabel={`${label}: ${correct} of ${total} correct. ${open ? "Hide" : "Show"} breakdown`}
+        ariaExpanded={open}
+        ariaControls={panelId}
+      >
         <TableCell className="flex-1 text-left">{label}</TableCell>
         <TableCell
           className="w-10 text-right font-medium tabular-nums"
@@ -52,7 +61,7 @@ function SectionRow({
         </span>
       </TableRow>
       {open && (
-        <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
+        <div id={panelId} className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
             {children ?? <p className="text-[13px] text-muted-foreground">All answers correct.</p>}
           </div>
