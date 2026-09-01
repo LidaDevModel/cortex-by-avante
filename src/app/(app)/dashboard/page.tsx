@@ -10,7 +10,13 @@ import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
+import { NewRequirementCard } from "@/components/dashboard/NewRequirementCard";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import {
+  acknowledgeRequired,
+  useNewRequirements,
+  wasClearedBefore,
+} from "@/lib/required-seen";
 import { isShiftReady } from "@/lib/training-mock";
 import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store";
 import { getLearnerRecent, useLibrary } from "@/lib/content-store";
@@ -64,6 +70,20 @@ export default function DashboardPage() {
 
   const askCortex = <AskCortexCard />;
 
+  // Requirements added since the learner last looked. Readiness itself is a
+  // pure boolean with no memory, so without this the dashboard would silently
+  // reshape into the onboarding layout — see NewRequirementCard.
+  const newlyRequired = useNewRequirements(role);
+  const newRequirement = newlyRequired.length > 0 && (
+    <NewRequirementCard
+      modules={newlyRequired}
+      requiredModules={requiredModules}
+      role={USER.role}
+      wasCleared={wasClearedBefore(role, newlyRequired)}
+      onDismiss={() => acknowledgeRequired(role)}
+    />
+  );
+
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
       <PageHeader crumbs={[{ label: "Home" }]} className={headerClassName} />
@@ -79,6 +99,10 @@ export default function DashboardPage() {
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
             )}
           </div>
+
+          {/* Requirements changed — explains the board below before the user
+              has to guess why their badge disappeared. */}
+          {newRequirement}
 
           {cleared ? (
             /* ── State B — cleared for shift: Ask Cortex is the hero ── */
