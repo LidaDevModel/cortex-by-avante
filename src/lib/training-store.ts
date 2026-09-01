@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { MODULES, isCertified, type Module, type ModuleCategory, type Chapter } from "./training-mock";
+import { MODULES, isCertified, type Module, type ModuleCategory, type Chapter, type Certification } from "./training-mock";
 import { getPersona } from "./demo-persona";
 import { daysSince } from "./utils";
 import type { Role } from "./user-mock";
@@ -65,6 +65,34 @@ export function getAdminModule(id: string): AdminModule | undefined {
   return load().find((m) => m.id === id);
 }
 
+/* ─── Certification earned by passing an exam ─── */
+
+/** Modules certified during this session. Read by `personaAdjust` so the
+    new-hire persona does not blank a certification the user just earned. */
+const sessionCertified = new Set<string>();
+
+/**
+ * Record a passed certification exam.
+ *
+ * Deliberately **session-only**: this mutates the in-memory overlay and
+ * notifies subscribers, but never writes localStorage. Progress in this build
+ * does not survive a reload (owner's call, for demo stability), and a
+ * certification must behave the same way — otherwise one demo run would leave
+ * a certificate behind for the next. A real backend replaces this with a POST.
+ *
+ * `cache` is reassigned rather than mutated so `useSyncExternalStore`'s
+ * snapshot changes identity and subscribers actually re-render.
+ *
+ * The simulation must never call this — see VISION's exam-simulation rules.
+ */
+export function certifyModule(id: string, cert: Certification) {
+  sessionCertified.add(id);
+  cache = load().map((m) =>
+    m.id === id ? { ...m, status: "completed" as const, progress: 100, certification: cert } : m
+  );
+  listeners.forEach((l) => l());
+}
+
 /* ─── Learner reads: published + role-visible view of the overlay ───
    Mirrors training-mock's getters but sources the overlay (so publishes/edits
    reach guards) and keeps the new-hire persona blanking. Pure helpers
@@ -74,7 +102,12 @@ function visibleToLearner(m: AdminModule, role: Role): boolean {
   return m.published !== false && (!m.roles || m.roles.includes(role));
 }
 function personaAdjust(m: AdminModule): Module {
-  if (getPersona() === "new") return { ...m, status: "not-started", progress: 0, certification: undefined };
+  // A certification earned in THIS session survives the new-hire blanking —
+  // otherwise a new hire could pass an exam and never see the result, which is
+  // the one story the demo most needs to tell.
+  if (getPersona() === "new" && !sessionCertified.has(m.id)) {
+    return { ...m, status: "not-started", progress: 0, certification: undefined };
+  }
   return m;
 }
 /** Published, role-visible modules for the learner, persona-adjusted. Admins

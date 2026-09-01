@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getLearnerModule } from "@/lib/training-store";
+import { getLearnerModule, certifyModule } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
@@ -246,6 +246,33 @@ export default function ExamPage() {
     markSectionComplete("branching");
     setPhase("review");
   }
+
+  /**
+   * Record the certification once the exam is scored and passed.
+   *
+   * Driven by phase rather than called from the two submit paths (manual submit
+   * and timer expiry), so it cannot be added to one and forgotten in the other,
+   * and so it stays out of `handleTimesUp`'s dependency list. `certifyModule`
+   * writes the same value each time, so a repeat render is harmless.
+   *
+   * A simulation NEVER records — VISION is explicit, and it is the whole
+   * difference between practice and certification. Section scores are stored as
+   * percentages (each raw section is scored out of 25) to match the shape the
+   * certification detail screen renders; their mean is the total, already /100.
+   */
+  useEffect(() => {
+    if (isSimulation) return;
+    if (phase !== "results" && phase !== "timesUp") return;
+    const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;
+    if (total < PASS_MARK) return;
+    certifyModule(moduleId, {
+      score: total,
+      date: new Date().toISOString().slice(0, 10),
+      sectionScores: [scores.mc, scores.matching, scores.shortAnswer, scores.branching].map(
+        (sectionScore) => sectionScore * 4
+      ),
+    });
+  }, [phase, scores, isSimulation, moduleId]);
 
   function handleSubmit() {
     clearInterval(timerRef.current);
