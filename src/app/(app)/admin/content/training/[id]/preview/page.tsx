@@ -5,8 +5,7 @@ import { Check } from "lucide-react";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { PreviewBanner } from "@/components/admin/PreviewBanner";
-import { useModules, getAdminModule } from "@/lib/training-store";
-import { MODULE_CHAPTERS } from "@/lib/training-mock";
+import { useModules, getAdminModule, moduleChapters } from "@/lib/training-store";
 
 export default function AdminModulePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,8 +21,9 @@ export default function AdminModulePreviewPage() {
     );
   }
 
-  // Authored chapters when present; otherwise the shared canonical set (no final quiz).
-  const chapters = m.authoredChapters ?? MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
+  // Through the one shared seam, so this preview and the learner reader cannot
+  // show different content for the same module. Content only — no final quiz.
+  const chapters = moduleChapters(m);
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden">

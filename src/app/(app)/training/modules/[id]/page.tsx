@@ -16,13 +16,11 @@ import { SearchInput } from "@/components/ui/search-input";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { RequiredPill } from "@/components/training/ModuleCard";
 import { Button } from "@/components/ui/button";
-import { MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
-import { getLearnerModule } from "@/lib/training-store";
+import { type Quiz, type Chapter } from "@/lib/training-mock";
+import { getLearnerModule, getLearnerChapters } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 
-const CHAPTERS: Chapter[] = MODULE_CHAPTERS;
-
-function deriveInitialState(progress: number) {
+function deriveInitialState(progress: number, CHAPTERS: Chapter[]) {
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const completedCount = Math.min(
     Math.round((progress / 100) * contentChapters.length),
@@ -297,11 +295,17 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 export default function ModuleDetailPage() {
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
-  const trainingModule = getLearnerModule(moduleId, useCurrentRole());
+  const role = useCurrentRole();
+  const trainingModule = getLearnerModule(moduleId, role);
   const initialProgress = trainingModule?.progress ?? 0;
 
-  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress).currentId);
-  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress).completedIds);
+  // This module's own chapters — the admin's authored set when it exists,
+  // otherwise the shared canonical one. Same seam the admin preview reads, so
+  // the two cannot show different content for the same module.
+  const CHAPTERS = getLearnerChapters(moduleId, role, { includeFinalQuiz: true });
+
+  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress, CHAPTERS).currentId);
+  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress, CHAPTERS).completedIds);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
 
   // Left panel — chapter title filter
@@ -332,7 +336,7 @@ export default function ModuleDetailPage() {
   const progress = Math.round((completedIds.size / contentChapters.length) * 100);
 
   // Searchable chapters: text chapters only (no final quiz)
-  const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), []);
+  const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), [CHAPTERS]);
 
   // Chapters matching the find query (title + body, text chapters only)
   const findMatchChapters = useMemo(() => {
@@ -495,7 +499,7 @@ export default function ModuleDetailPage() {
         {trainingModule.title}
       </h1>
       <p className="text-[13px] leading-[20px] text-muted-foreground">
-        {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
+        {contentChapters.length} {contentChapters.length === 1 ? "chapter" : "chapters"}&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
       </p>
       <RequiredPill required={trainingModule.required} />
       <div className="flex items-center gap-3 mt-1">
