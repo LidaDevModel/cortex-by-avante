@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { getRequirementState, type Module } from "@/lib/training-mock";
@@ -94,10 +94,16 @@ export function NewRequirementCard({
       <div className="relative flex flex-col gap-5 p-6">
         {/* Kind marker — a badge, the app's established way of labelling what
             something IS. A distinct object the eye catches, where small-caps
-            text alone reads as another widget heading. */}
-        <Badge tone="primary" className="self-start font-semibold">
-          {multiple ? "New requirements" : "New requirement"}
-        </Badge>
+            text alone reads as another widget heading. The time sits beside it
+            as quiet italic aside: it is context, not a status. */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <Badge tone="primary" className="font-semibold">
+            {multiple ? "New requirements" : "New requirement"}
+          </Badge>
+          <span className="text-[13px] leading-[18px] italic text-muted-foreground">
+            {timePhrase}
+          </span>
+        </div>
 
         {/* Subject: the module itself. Illustration + name + facts — the same
             shape as a readiness-board row, so it reads as the module it is.
@@ -118,14 +124,9 @@ export function NewRequirementCard({
             >
               {title}
             </h2>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[13px] leading-[18px] text-muted-foreground">
-                {addedPhrase} · {chapters} chapters
-              </span>
-              <Badge tone="primary" icon={<Clock size={12} strokeWidth={2} />}>
-                {timePhrase}
-              </Badge>
-            </div>
+            <span className="text-[13px] leading-[18px] text-muted-foreground">
+              {addedPhrase} · {chapters} chapters
+            </span>
           </div>
         </div>
 
