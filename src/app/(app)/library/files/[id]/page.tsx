@@ -324,6 +324,32 @@ function DocumentPage({
   const hasPositionedRef = useRef(false);
 
 
+  /** The original positioning body, unchanged, lifted so the retry can call it. */
+  const positionTo = useCallback((el: HTMLDivElement, container: HTMLDivElement) => {
+    // Suppress the scroll listener while the programmatic scroll animates.
+    // Release on scrollend (i.e. when the animation actually settles) — a
+    // fixed short timer can expire mid-flight on long multi-page jumps and
+    // let the position watcher re-target a page the animation is passing,
+    // yanking the viewport back. The timeout stays as a generous fallback
+    // for scrolls that never fire the event (already at position).
+    suppressScrollRef.current = true;
+    const release = () => {
+      suppressScrollRef.current = false;
+      container.removeEventListener("scrollend", release);
+      if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
+    };
+    container.addEventListener("scrollend", release);
+    if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
+    suppressTimerRef.current = setTimeout(release, 1500);
+    // First positioning (e.g. a ?section= deep link) jumps instantly — a smooth
+    // multi-page scroll can be canceled by the route entrance animation and
+    // strand the viewport at the top; later TOC selections animate as usual.
+    const behavior: ScrollBehavior = hasPositionedRef.current ? "smooth" : "auto";
+    hasPositionedRef.current = true;
+    container.scrollTo({ top: el.offsetTop - 32, behavior });
+    return () => container.removeEventListener("scrollend", release);
+  }, []);
+
   /**
    * Scroll to the active page.
    *
@@ -368,32 +394,6 @@ function DocumentPage({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
-
-  /** The original positioning body, unchanged, lifted so the retry can call it. */
-  const positionTo = useCallback((el: HTMLDivElement, container: HTMLDivElement) => {
-    // Suppress the scroll listener while the programmatic scroll animates.
-    // Release on scrollend (i.e. when the animation actually settles) — a
-    // fixed short timer can expire mid-flight on long multi-page jumps and
-    // let the position watcher re-target a page the animation is passing,
-    // yanking the viewport back. The timeout stays as a generous fallback
-    // for scrolls that never fire the event (already at position).
-    suppressScrollRef.current = true;
-    const release = () => {
-      suppressScrollRef.current = false;
-      container.removeEventListener("scrollend", release);
-      if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
-    };
-    container.addEventListener("scrollend", release);
-    if (suppressTimerRef.current) clearTimeout(suppressTimerRef.current);
-    suppressTimerRef.current = setTimeout(release, 1500);
-    // First positioning (e.g. a ?section= deep link) jumps instantly — a smooth
-    // multi-page scroll can be canceled by the route entrance animation and
-    // strand the viewport at the top; later TOC selections animate as usual.
-    const behavior: ScrollBehavior = hasPositionedRef.current ? "smooth" : "auto";
-    hasPositionedRef.current = true;
-    container.scrollTo({ top: el.offsetTop - 32, behavior });
-    return () => container.removeEventListener("scrollend", release);
-  }, []);
 
   useEffect(() => {
     const container = scrollRef.current;
