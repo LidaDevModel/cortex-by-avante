@@ -35,6 +35,11 @@ export default function ModulesPage() {
 
   const totalInProgress = allModules.filter((m) => m.status === "in-progress").length;
 
+  // Which narrowing controls are set — the empty-state copy and its button
+  // name only what applies.
+  const hasSearch = search.trim().length > 0;
+  const hasFilters = Boolean(requirementFilter || statusFilter || categoryFilter);
+
   const filteredModules = useMemo(() => {
     let list = allModules;
 
@@ -178,23 +183,28 @@ export default function ModulesPage() {
               ))}
             </div>
           ) : (
-            /* Two messages, two problems. "Try a different search or filter"
-               used to show even with nothing typed and every filter on "All" —
-               impossible advice on a new hire's first day. The empty-set
-               string is VISION's own, from the empty-states table. */
-            <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            /* Messages that name the actual situation. "Try a different search
+               or filter" used to show even with nothing typed and every filter
+               on "All" — impossible advice on a new hire's first day. The
+               empty-set string is VISION's own, from its empty-states table.
+               Button is the shared `Button` at default size, matching
+               `NotFoundState`. */
+            <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
               <p className="text-[15px] leading-[24px] text-muted-foreground">
                 {allModules.length === 0
                   ? "No modules assigned to your role yet."
-                  : "No modules match that search or filter."}
+                  : hasSearch && hasFilters
+                    ? "No modules match your search and filters."
+                    : hasSearch
+                      ? "No modules match your search."
+                      : "No modules match those filters."}
               </p>
               {allModules.length > 0 && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); }}
                 >
-                  Clear search and filters
+                  {hasSearch && hasFilters ? "Clear search & filters" : hasSearch ? "Clear search" : "Clear filters"}
                 </Button>
               )}
             </div>

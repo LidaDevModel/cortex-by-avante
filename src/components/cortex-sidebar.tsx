@@ -72,7 +72,11 @@ const contentSubItems = [
 // The admin's own learning surfaces, grouped under "Learning". Modules and
 // Knowledge Check sit flat here to avoid a group inside a group.
 const learningSubItems = [
-  { label: "Overview", href: "/dashboard" },
+  // "Home", not "Overview" — the field agent's sidebar, the mobile tab bar and
+  // this route's own breadcrumb all call /dashboard "Home", and the comment
+  // above claims "Home everywhere". The admin's Learning group was the one
+  // place that called the same page something else.
+  { label: "Home", href: "/dashboard" },
   { label: "AI Chat", href: "/chat" },
   { label: "Library", href: "/library" },
   { label: "Modules", href: "/training/modules" },

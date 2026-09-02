@@ -133,6 +133,11 @@ export function DocumentsSection() {
     return list;
   }, [documents, search, sortCol, sortDir, kindFilter]);
 
+  // Which of the two narrowing controls is actually set — the empty-state copy
+  // and its button name only what applies.
+  const hasSearch = search.trim().length > 0;
+  const hasFilter = kindFilter.length > 0;
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
@@ -202,22 +207,30 @@ export function DocumentsSection() {
       {/* Content */}
       <div className="mt-4">
         {paginated.length === 0 ? (
-          /* Two different messages, because they are two different problems.
-             "No documents available." used to show for BOTH — so a guard who
-             mistyped a search concluded the library was empty. */
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+          /* Three messages, because they are three different problems, and a
+             button that names exactly what it will clear. "No documents
+             available." used to show for all of them — so a guard who mistyped
+             a search concluded the library was empty.
+
+             The list holds folders as well as documents, so the copy says so.
+             Button is the shared `Button` at its default size, matching
+             `NotFoundState` — the app's other blank-state action. */
+          <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
             <p className="text-[15px] leading-[24px] text-muted-foreground">
               {documents.length === 0
                 ? "No documents available."
-                : "Nothing matches that search."}
+                : hasSearch && hasFilter
+                  ? "No documents or folders match your search and filter."
+                  : hasSearch
+                    ? "No documents or folders match your search."
+                    : "No documents or folders match that filter."}
             </p>
             {documents.length > 0 && (
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => { setSearch(""); setKindFilter(""); setPage(1); }}
               >
-                Clear search and filters
+                {hasSearch && hasFilter ? "Clear search & filter" : hasSearch ? "Clear search" : "Clear filter"}
               </Button>
             )}
           </div>
