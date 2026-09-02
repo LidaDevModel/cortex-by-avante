@@ -81,6 +81,13 @@ export default function ChatPage() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
+  // Armed by /chat?demo=error — see startStreaming.
+  const demoErrorArmedRef = useRef(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("demo") === "error") {
+      demoErrorArmedRef.current = true;
+    }
+  }, []);
   const currentResponseRef = useRef<ChatResponse | null>(null);
 
   const hasConversation = messages.length > 0;
@@ -179,9 +186,25 @@ export default function ChatPage() {
     const fullText = getStreamTextFor(blocks);
     let idx = 0;
     responseCountRef.current += 1;
-    const errorAt = responseCountRef.current === 3
-      ? Math.floor(fullText.length * 0.5)
-      : -1;
+
+    // A deliberately failed answer, so the inline error + "Try again" state can
+    // be shown in a demo. It used to fire automatically on the third response
+    // of every session, which meant it interrupted whatever the presenter
+    // happened to be doing at the time -- including a question they were using
+    // to make a different point.
+    //
+    // Now it is armed on demand: open /chat?demo=error and the NEXT answer
+    // fails halfway through. Nothing appears in the conversation, so the
+    // trigger is invisible on screen.
+    //
+    // To restore the old automatic behaviour, set DEMO_ERROR_ON_NTH to 3.
+    const DEMO_ERROR_ON_NTH: number | null = null;
+    const armedByUrl = demoErrorArmedRef.current;
+    if (armedByUrl) demoErrorArmedRef.current = false;
+    const shouldFail =
+      armedByUrl ||
+      (DEMO_ERROR_ON_NTH !== null && responseCountRef.current === DEMO_ERROR_ON_NTH);
+    const errorAt = shouldFail ? Math.floor(fullText.length * 0.5) : -1;
 
     streamIntervalRef.current = setInterval(() => {
       idx += 4;
