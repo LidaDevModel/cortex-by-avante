@@ -368,6 +368,15 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
   function handleSelectConversation(conversation: Conversation) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(false);
+    // Save what is on screen before replacing it. Starting a NEW conversation
+    // already archived the old one; opening a PAST one did not, so switching
+    // silently discarded whatever the guard had just asked. The title guard
+    // stops a conversation re-archiving itself when it is reopened.
+    const firstUser = messages.find((m) => m.role === "user");
+    const currentTitle = conversationTitle || firstUser?.content;
+    if (currentTitle && currentTitle !== conversation.title) {
+      archiveConversation(currentTitle);
+    }
     const response = chatProvider.getResponse(
       [{ role: "user", text: conversation.title }],
       { detail: detailLevel }
