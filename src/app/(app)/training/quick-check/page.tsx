@@ -15,7 +15,7 @@ import {
   generateQuestions,
   computeKCScore,
 } from "@/lib/knowledge-check-mock";
-import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal, getWeakestCategories } from "@/lib/kc-store";
+import { addAttempt, getAllAttempts, getPendingOrdinal, getAttemptOrdinal, getWeakAreaTargets, getWeakAreaMeta } from "@/lib/kc-store";
 import type {
   KCFormat,
   KCCategory,
@@ -423,10 +423,9 @@ function QuickCheckContent() {
   const searchParams = useSearchParams();
 
   // Weakest category label for the "Weak areas" preset; null disables it.
-  const weakestLabel = useMemo(() => {
-    const w = getWeakestCategories(1);
-    return w.length > 0 ? CATEGORY_LABELS[w[0]] : null;
-  }, [attempts]);
+  // Built in kc-store and shared with Home's tile, so the two screens cannot
+  // disagree about what a "Weak areas" run targets.
+  const weakAreaMeta = useMemo(() => getWeakAreaMeta(ALL_FORMATS), [attempts]);
 
   /* Format toggle */
   const toggleFormat = useCallback((f: KCFormat) => {
@@ -473,7 +472,7 @@ function QuickCheckContent() {
 
   /* Preset: Weak areas — mixed questions focused on the lowest-scoring category. */
   function startWeakAreas() {
-    const cats = getWeakestCategories(1);
+    const cats = getWeakAreaTargets(ALL_FORMATS);
     if (cats.length === 0) return; // no history yet; the card is disabled anyway
     setSelectedFormats([...ALL_FORMATS]);
     setSelectedCategories(cats);
@@ -599,7 +598,7 @@ function QuickCheckContent() {
 
                 {/* Start a check — presets + custom */}
                 <KCStartSection
-                  weakestLabel={weakestLabel}
+                  weakAreaMeta={weakAreaMeta}
                   examSimAvailable={inProgressModules.length > 0}
                   onDaily5={startDaily5}
                   onWeakAreas={startWeakAreas}

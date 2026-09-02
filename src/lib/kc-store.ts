@@ -1,5 +1,5 @@
-import type { KCAttempt, KCCategory } from "./knowledge-check-mock";
-import { MOCK_ATTEMPTS } from "./knowledge-check-mock";
+import type { KCAttempt, KCCategory, KCFormat } from "./knowledge-check-mock";
+import { MOCK_ATTEMPTS, scoreQuestion, countAvailable, CATEGORY_LABELS } from "./knowledge-check-mock";
 import { getPersona } from "./demo-persona";
 
 // Module-level store so attempts created during the session survive navigation
@@ -63,14 +63,72 @@ export function getTodaysDailyAttempt(now: Date = new Date()): KCAttempt | undef
   return getAllAttempts().find((a) => a.preset === "daily5" && isSameDay(a.date));
 }
 
+/**
+ * The subjects a "Weak areas" run should actually cover.
+ *
+ * Starts from the weakest and adds the next weakest until there are enough
+ * questions for a worthwhile session. The bank is uneven -- first aid has one
+ * question, incidents has five -- so targeting the single weakest subject can
+ * yield a one-question "check", which reads as broken even though it is honest.
+ * Widening is better than padding with subjects the learner is already good at.
+ *
+ * Returns the subjects in weakest-first order, so a caller can name them.
+ */
+export function getWeakAreaTargets(formats: KCFormat[], minQuestions = 4): KCCategory[] {
+  const ranked = getWeakestCategories(4);
+  const picked: KCCategory[] = [];
+  for (const cat of ranked) {
+    picked.push(cat);
+    if (countAvailable(formats, picked) >= minQuestions) break;
+  }
+  return picked;
+}
+
+/**
+ * The "Weak areas" tile's subtitle, built in ONE place.
+ *
+ * Home and the Knowledge Check screen both show this tile, and both used to
+ * build the sentence themselves from `getWeakestCategories(1)` — so once the
+ * run widened to two subjects, the two screens would have disagreed about what
+ * it targets. Same reasoning as the shared chapter seam: one function, two
+ * consumers, no way to drift.
+ *
+ * Returns null when there is no history yet, which is also the tile's disabled
+ * condition.
+ */
+export function getWeakAreaMeta(formats: KCFormat[]): string | null {
+  const targets = getWeakAreaTargets(formats);
+  if (targets.length === 0) return null;
+  const names = targets.map((c) => CATEGORY_LABELS[c]);
+  const joined =
+    names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  return names.length === 1
+    ? `Targets your weakest area: ${joined}`
+    : `Targets your weakest areas: ${joined}`;
+}
+
+/**
+ * The learner's weakest subjects, scored PER QUESTION.
+ *
+ * This used to credit a whole attempt's score to every category the attempt was
+ * tagged with -- so one 0/11 attempt tagged "escalations, first aid" pushed both
+ * to the bottom, and an 11/11 attempt tagged four categories lifted all four,
+ * regardless of what the questions were actually about. Nothing was attributed
+ * to the subject it belonged to, because questions had no subject.
+ *
+ * Now each question's own result counts toward its own category.
+ */
 export function getWeakestCategories(count = 1): KCCategory[] {
   const totals = new Map<KCCategory, { score: number; total: number }>();
-  for (const a of getAllAttempts()) {
-    for (const cat of a.categories) {
-      const acc = totals.get(cat) ?? { score: 0, total: 0 };
-      acc.score += a.score;
-      acc.total += a.total;
-      totals.set(cat, acc);
+  for (const attempt of getAllAttempts()) {
+    for (const q of attempt.questions) {
+      const { correct, total } = scoreQuestion(q, attempt.answers[q.id]);
+      const acc = totals.get(q.category) ?? { score: 0, total: 0 };
+      acc.score += correct;
+      acc.total += total;
+      totals.set(q.category, acc);
     }
   }
   return [...totals.entries()]

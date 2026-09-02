@@ -4,7 +4,7 @@ import { Target, SlidersHorizontal, Timer } from "lucide-react";
 import { PresetCard } from "@/components/knowledge-check/PresetCard";
 
 export function KCStartSection({
-  weakestLabel,
+  weakAreaMeta,
   examSimAvailable,
   onDaily5,
   onWeakAreas,
@@ -12,7 +12,8 @@ export function KCStartSection({
   onCustom,
 }: {
   /** Label of the weakest category, or null when there's no history yet. */
-  weakestLabel: string | null;
+  /** Full subtitle from `getWeakAreaMeta` — null when there is no history. */
+  weakAreaMeta: string | null;
   /** False when no module is in progress to rehearse. */
   examSimAvailable: boolean;
   onDaily5: () => void;
@@ -38,9 +39,9 @@ export function KCStartSection({
         <PresetCard
           icon={<Target size={20} strokeWidth={1.5} />}
           title="Weak areas"
-          meta={weakestLabel ? `Targets your weakest area: ${weakestLabel}` : "Complete a check to unlock"}
+          meta={weakAreaMeta ?? "Complete a check to unlock"}
           onClick={onWeakAreas}
-          disabled={!weakestLabel}
+          disabled={!weakAreaMeta}
           className="bg-surface-chip border-border"
         />
         <PresetCard
