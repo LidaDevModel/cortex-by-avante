@@ -427,6 +427,14 @@ function DocumentPage({
         style={{ background: `linear-gradient(to top, ${canvasBg}, transparent)` }} />
       <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto overscroll-x-contain scroll-thin">
         <div className="flex flex-col items-center gap-4 py-8" style={{ minWidth: scaledW + 48 }}>
+          {/* A published document with no sections rendered a blank grey
+              expanse — the reader looked broken rather than empty. Reachable
+              through normal use once an admin unpublishes or clears content. */}
+          {sections.length === 0 && (
+            <p className="py-24 text-[14px] leading-[20px] text-muted-foreground">
+              This document has no content yet.
+            </p>
+          )}
           {sections.map((s) => {
             const renderPage = (id: string, pg: PageDescriptor) => (
               <div
@@ -866,11 +874,15 @@ export default function FileViewPage() {
 
                 {/* Page nav */}
                 <div className="flex items-center gap-3">
-                  <span className="text-[14px] text-muted-foreground">
-                    Page{" "}
-                    <span className="text-[16px] text-foreground">{activePageNum}</span>
-                    {" "}/ {totalPages}
-                  </span>
+                  {/* No counter when there is nothing to count — an empty
+                      document used to read "Page 1 / 0". */}
+                  {totalPages > 0 && (
+                    <span className="text-[14px] text-muted-foreground">
+                      Page{" "}
+                      <span className="text-[16px] text-foreground">{activePageNum}</span>
+                      {" "}/ {totalPages}
+                    </span>
+                  )}
                   {/* Prev/next are pointer affordances — mobile navigates by
                       scroll and the contents sheet */}
                   <div className="hidden sm:flex">
@@ -965,7 +977,9 @@ export default function FileViewPage() {
           // reconciled with the renderer. A guard sent to the wrong page and
           // then shown two different totals has two reasons to distrust the
           // document, at the moment they are checking a fact.
-          meta={`${totalPages} ${totalPages === 1 ? "page" : "pages"}`}
+          // Nothing to count means nothing to say — the reading surface below
+          // already carries "This document has no content yet."
+          meta={totalPages > 0 ? `${totalPages} ${totalPages === 1 ? "page" : "pages"}` : undefined}
           className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"
         />
       </div>

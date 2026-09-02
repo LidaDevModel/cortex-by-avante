@@ -191,12 +191,17 @@ export default function AdminDocumentEditorPage() {
       : { title: "Moved to draft", description: "This document is no longer visible to learners.", action: undo });
     leaveAfterWrite();
   }
-  // After a write: return to a flag review if we came from one, or send a
-  // brand-new document to the list (its folder, if created inside one). An
-  // existing edit stays on the editor.
+  // After a write: return to a flag review if we came from one. Otherwise stay
+  // on the editor — an existing edit always did, and a brand-new document used
+  // to be sent to the list, which meant writing section two required finding
+  // and reopening the document you had just created. The document exists in the
+  // store by this point, so `?new=1` is dropped and the screen simply becomes
+  // the editor it already was: the title changes from "Create document" to
+  // "Edit document" and the button from "Save" to "Save changes". Exit is still
+  // the way out.
   function leaveAfterWrite() {
-    if (returnTo) router.push(returnTo);
-    else if (isNew) router.push(found!.folderId ? `/admin/content?folder=${found!.folderId}` : "/admin/content");
+    if (returnTo) { router.push(returnTo); return; }
+    if (isNew) router.replace(`/admin/content/${id}`);
   }
 
   return (
