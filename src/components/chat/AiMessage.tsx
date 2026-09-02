@@ -260,7 +260,7 @@ export function AiMessage({
             <button
               onClick={handleCopy}
               aria-label={copied ? "Copied" : "Copy message"}
-              className="p-[15px] md:p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
+              className="p-[15px] md:p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-[colors,transform] duration-100 active:scale-95"
             >
               {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
             </button>

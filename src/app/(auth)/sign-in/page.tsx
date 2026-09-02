@@ -68,6 +68,9 @@ export default function SignInPage() {
             id="email"
             type="email"
             autoComplete="email"
+            enterKeyHint="next"
+            autoCapitalize="none"
+            autoCorrect="off"
             autoFocus
             placeholder="name@avante.security"
             value={email}
@@ -100,6 +103,8 @@ export default function SignInPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
+              // Last field in the form — the action key signs you in.
+              enterKeyHint="go"
               placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -520,6 +520,18 @@
   to   { transform: translate3d(0, 0, 0); }
 }
 
+/* `type="search"` (added so the phone keyboard shows a magnifier key) makes
+   WebKit render its own cancel button, which would sit on top of SearchInput's
+   own clear control. Chrome here does not draw it, but Safari does — suppressed
+   so the field never shows two X's. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 /* Global webkit scrollbar — transparent track so no white/light bar bleeds through */
 ::-webkit-scrollbar-track {
   background: transparent;

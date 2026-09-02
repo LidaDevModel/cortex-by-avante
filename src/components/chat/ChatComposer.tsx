@@ -357,6 +357,9 @@ export function ChatComposer({
               }}
               rows={1}
               placeholder={placeholder}
+              // Enter submits (Shift+Enter is a newline), so the phone's action
+              // key should read "send" rather than "return".
+              enterKeyHint="send"
               // The placeholder is not an accessible name: it changes with
               // context and screen readers may not announce it at all.
               aria-label="Ask Cortex a question"

@@ -62,14 +62,14 @@ export function UserMessage({
           <button
             onClick={onEdit}
             aria-label="Edit message"
-            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-[colors,transform] duration-100 active:scale-95"
           >
             <Pencil size={14} />
           </button>
           <button
             onClick={handleCopy}
             aria-label={copied ? "Copied" : "Copy message"}
-            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-[colors,transform] duration-100 active:scale-95"
           >
             {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
           </button>
