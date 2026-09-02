@@ -163,8 +163,8 @@ export default function AdminContentPage() {
   }
 
   const crumbs = folder
-    ? [{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
-    : [{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library" }];
+    ? [{ label: "Admin", href: "/admin" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
+    : [{ label: "Admin", href: "/admin" }, { label: "Library" }];
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
