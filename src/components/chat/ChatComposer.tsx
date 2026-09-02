@@ -298,6 +298,18 @@ export function ChatComposer({
         border: `1px solid ${isDragging ? "var(--ring)" : "var(--input-border)"}`,
         boxShadow: "var(--shadow-input-widget)",
       }}
+      // The visible input strip is only ~24px tall inside a much larger card,
+      // so most taps on the composer landed on padding and did nothing. Clicking
+      // anywhere in the card focuses the field — unless the tap was on a real
+      // control inside it (attach, send, an attachment chip) or on a text
+      // selection the user is making.
+      onMouseDown={(e) => {
+        const t = e.target as HTMLElement;
+        if (t.closest("button, a, input, textarea")) return;
+        if (window.getSelection()?.toString()) return;
+        e.preventDefault();
+        textareaRef.current?.focus();
+      }}
       onDragOver={enableAttachments ? (e) => { e.preventDefault(); setIsDragging(true); } : undefined}
       onDragLeave={enableAttachments ? (e) => { if (e.currentTarget === e.target) setIsDragging(false); } : undefined}
       onDrop={handleDrop}
