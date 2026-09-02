@@ -121,7 +121,7 @@ export function CertificationsShelf() {
             <div
               ref={scrollRef}
               onScroll={updateScrollState}
-              className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory"
+              className="flex gap-3 overflow-x-auto overscroll-x-contain no-scrollbar snap-x snap-mandatory"
             >
               {items.map((m, i) => (
                 <HonorCard key={m.id} module={m} carousel start={inView} index={i} returnTo="/dashboard" />

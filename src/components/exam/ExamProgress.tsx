@@ -114,7 +114,7 @@ export function SectionNav({ activeSection, completedSections, onSectionClick }:
   return (
     // Scrolls edge-to-edge on mobile where the five section pills don't fit;
     // resets inside the column on desktop. Matches the KC section-tabs strip.
-    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {SECTIONS.map((s) => {
         const isActive = activeSection === s.id;
         const isDone = completedSections.has(s.id);

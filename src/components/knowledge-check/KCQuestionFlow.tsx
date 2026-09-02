@@ -102,7 +102,7 @@ export function KCSectionTabs({
     // Bleeds to the viewport edge on mobile so the pill row scrolls
     // edge-to-edge when the sections don't fit; resets inside the column on
     // desktop where they do.
-    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {sections.map((s) => {
         const isActive = !isReviewActive && s.startIndex === activeSection?.startIndex;
         const isDone = !isActive && isSectionComplete(s, questions, answers);

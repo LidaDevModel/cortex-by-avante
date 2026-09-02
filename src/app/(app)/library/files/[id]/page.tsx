@@ -381,7 +381,7 @@ function DocumentPage({
         style={{ background: `linear-gradient(to bottom, ${canvasBg}, transparent)` }} />
       <div className="absolute bottom-0 inset-x-0 h-12 pointer-events-none z-10"
         style={{ background: `linear-gradient(to top, ${canvasBg}, transparent)` }} />
-      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto scroll-thin">
+      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto overscroll-x-contain scroll-thin">
         <div className="flex flex-col items-center gap-4 py-8" style={{ minWidth: scaledW + 48 }}>
           {sections.map((s) => {
             const renderPage = (id: string, pg: PageDescriptor) => (
