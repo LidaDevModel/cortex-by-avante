@@ -334,6 +334,9 @@ export default function ModuleDetailPage() {
 
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const progress = Math.round((completedIds.size / contentChapters.length) * 100);
+  // Facts the final-quiz panel needs to stop overclaiming.
+  const chaptersLeft = Math.max(0, contentChapters.length - completedIds.size);
+  const alreadyCertified = Boolean(trainingModule?.certification);
 
   // Searchable chapters: text chapters only (no final quiz)
   const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), [CHAPTERS]);
@@ -648,22 +651,37 @@ export default function ModuleDetailPage() {
                     >
                       <Flag size={24} style={{ color: "var(--primary)" }} />
                     </div>
+                    {/* Three states, not one. This panel used to say "You've
+                        completed all chapters" unconditionally — including above
+                        a 0% progress bar, to a learner who had read nothing —
+                        and it offered "Start final quiz" to someone already
+                        certified. The exam stays reachable either way (a demo
+                        necessity, and gating it is decision D6); only the copy
+                        tells the truth. */}
                     <div className="flex flex-col gap-1">
                       <p className="text-[17px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
-                        Ready for the final quiz?
+                        {alreadyCertified
+                          ? "You're certified in this module"
+                          : chaptersLeft > 0
+                            ? "Finish the chapters first"
+                            : "Ready for the final quiz?"}
                       </p>
                       <p className="text-[14px] leading-[22px] text-muted-foreground">
-                        You&apos;ve completed all chapters. Test your knowledge to earn your certification.
+                        {alreadyCertified
+                          ? `Passed with ${trainingModule.certification!.score} of 100 on ${new Date(trainingModule.certification!.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.`
+                          : chaptersLeft > 0
+                            ? `${chaptersLeft} ${chaptersLeft === 1 ? "chapter" : "chapters"} left before the exam. You can take it now, but the material comes first.`
+                            : "You've completed all chapters. Test your knowledge to earn your certification."}
                       </p>
                     </div>
                     <Link
                       href={`/training/modules/${moduleId}/exam`}
                       className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90"
                     >
-                      Start final quiz
+                      {alreadyCertified ? "Retake exam" : "Start final quiz"}
                     </Link>
                     <p className="text-[13px] leading-[16px] text-muted-foreground">
-                      Not ready?{" "}
+                      {alreadyCertified ? "Want a refresher? " : "Not ready? "}
                       <Link
                         href={`/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`}
                         className="font-medium transition-colors duration-100"
