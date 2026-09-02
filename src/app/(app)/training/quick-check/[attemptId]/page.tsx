@@ -6,6 +6,7 @@ import { FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
 import { findAttempt, getAttemptOrdinal } from "@/lib/kc-store";
 import { KCScoreTable } from "@/components/knowledge-check/KCScoreTable";
 import { NotFoundState } from "@/components/ui/not-found-state";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 const ALL_CATEGORIES = ["escalations", "first-aid", "incidents", "clients"] as const;
 
@@ -20,6 +21,9 @@ function formatDateShort(iso: string) {
 }
 
 export default function KCAttemptPage({ params }: { params: Promise<{ attemptId: string }> }) {
+  // Admins reach these through their sidebar's "Learning" group; agents
+  // through "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const { attemptId } = use(params);
   const attempt = findAttempt(attemptId);
 
@@ -29,7 +33,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
   if (!attempt) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Training" }, { label: "Knowledge check", href: "/training/quick-check" }, { label: "Not found" }]} />
+        <PageHeader crumbs={[...group, { label: "Knowledge check", href: "/training/quick-check" }, { label: "Not found" }]} />
         <NotFoundState
           title="Check not found"
           description="This knowledge check may have been removed, or the link is out of date."
@@ -54,7 +58,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
       <PageHeader crumbs={[
-        { label: "Training" },
+        ...group,
         { label: "Knowledge check", href: "/training/quick-check" },
         { label: title },
       ]} />

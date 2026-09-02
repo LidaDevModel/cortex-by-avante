@@ -34,6 +34,7 @@ import { useFocusedTask } from "@/hooks/use-mobile-nav";
 import { learnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /* ─── Types ─── */
 
@@ -398,6 +399,9 @@ export default function QuickCheckPage() {
 }
 
 function QuickCheckContent() {
+  // Admins reach this through their sidebar's "Learning" group; agents through
+  // "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("listing");
   const { headerClassName, onScroll, reset: resetGlass } = useGlassHeader();
@@ -561,7 +565,7 @@ function QuickCheckContent() {
   const inSession = phase === "flow" || phase === "review" || phase === "results";
   const crumbs = inSession
     ? [
-        { label: "Training" },
+        ...group,
         { label: "Knowledge check" },
         { label: (() => {
             const cats = selectedCategories;
@@ -573,7 +577,7 @@ function QuickCheckContent() {
             return `${label} #${getPendingOrdinal(cats)}`;
           })() },
       ]
-    : [{ label: "Training" }, { label: "Knowledge check" }];
+    : [...group, { label: "Knowledge check" }];
 
   return (
     <>

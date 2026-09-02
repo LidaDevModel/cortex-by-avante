@@ -163,8 +163,8 @@ export default function AdminContentPage() {
   }
 
   const crumbs = folder
-    ? [{ label: "Cortex Manage", href: "/admin" }, { label: "Content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
-    : [{ label: "Cortex Manage", href: "/admin" }, { label: "Content" }, { label: "Library" }];
+    ? [{ label: "Content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
+    : [{ label: "Content" }, { label: "Library" }];
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -220,7 +220,7 @@ export default function AdminContentPage() {
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
             <div className="flex items-center gap-2 flex-wrap">
-              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Cortex Manage" }]} placeholder="All roles" />
+              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
           </div>

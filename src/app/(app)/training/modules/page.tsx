@@ -14,6 +14,7 @@ import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /* ─── Page ─── */
 
@@ -26,6 +27,8 @@ export default function ModulesPage() {
   const [search, setSearch] = useState("");
 
   const allModules = useLearnerModules(useCurrentRole());
+  // Same reason as Library: an admin has two Modules screens.
+  const { group } = useLearnerNav(true);
   const gridRow = useRowStagger("learner-modules-grid");
 
   const inProgress = useMemo(
@@ -62,7 +65,7 @@ export default function ModulesPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className={headerClassName} />
+      <PageHeader crumbs={[...group, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="relative max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">

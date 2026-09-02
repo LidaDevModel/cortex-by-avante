@@ -12,6 +12,7 @@ import { useInitialLoad } from "@/hooks/use-initial-load";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /**
  * A fixed shortlist, not real recency — there is no view tracking yet, which is
@@ -31,6 +32,9 @@ export default function LibraryPage() {
   const router = useRouter();
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("library");
+  // An admin has TWO Libraries — this one and the authoring one under Content —
+  // so their trail names the group. See useLearnerNav.
+  const { group } = useLearnerNav();
   const role = useCurrentRole();
   const lib = useLearnerLibrary(role);
 
@@ -51,7 +55,7 @@ export default function LibraryPage() {
   );
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Library" }]} className={headerClassName} />
+      <PageHeader crumbs={[...group, { label: "Library" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
           <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">

@@ -12,6 +12,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { useLearnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /* ─── Types ─── */
 
@@ -64,6 +65,9 @@ function InProgressCard({ module }: { module: Module }) {
 /* ─── Page ─── */
 
 export default function InProgressPage() {
+  // Admins reach these through their sidebar's "Learning" group; agents
+  // through "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [requirementFilter, setRequirementFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -105,7 +109,7 @@ export default function InProgressPage() {
       {/* Header — shared PageHeader (breadcrumb on desktop, quiet on mobile) */}
       <PageHeader
         crumbs={[
-          { label: "Training" },
+          ...group,
           { label: "Modules", href: "/training/modules" },
           { label: "In progress" },
         ]}

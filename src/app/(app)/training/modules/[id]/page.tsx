@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { type Quiz, type Chapter } from "@/lib/training-mock";
 import { getLearnerModule, getLearnerChapters } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 function deriveInitialState(progress: number, CHAPTERS: Chapter[]) {
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
@@ -293,6 +294,9 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 /* ─── Page ─── */
 
 export default function ModuleDetailPage() {
+  // Admins reach these through their sidebar's "Learning" group; agents
+  // through "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
   const role = useCurrentRole();
@@ -473,7 +477,7 @@ export default function ModuleDetailPage() {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-surface">
         <PageHeader crumbs={[
-          { label: "Training", href: "/training/modules" },
+          ...group,
           { label: "Modules", href: "/training/modules" },
           { label: "Module" },
         ]} />
@@ -548,7 +552,7 @@ export default function ModuleDetailPage() {
       <PageHeader
         className="border-b border-border"
         crumbs={[
-          { label: "Training", href: "/training/modules" },
+          ...group,
           { label: "Modules", href: "/training/modules" },
           { label: trainingModule.title },
         ]}
