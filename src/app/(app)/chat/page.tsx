@@ -478,7 +478,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 min-w-0 text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
+                  <button className="flex items-center gap-1 min-w-0 h-11 md:h-auto text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
                     <span className="truncate">{conversationTitle}</span>
                     <ChevronDown size={14} className="text-muted-foreground shrink-0" />
                   </button>
@@ -517,7 +517,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                 type="button"
                 onClick={handleNewConversation}
                 aria-label="New conversation"
-                className="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
+                className="flex items-center justify-center gap-1.5 h-11 md:h-9 min-w-11 md:min-w-0 px-3 md:px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
                 style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
               >
                 <SquarePen size={15} strokeWidth={1.75} />
@@ -567,7 +567,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
               <button
                 onClick={jumpToBottom}
                 aria-label="Scroll to latest message"
-                className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-surface-glass"
+                className="flex items-center justify-center size-11 md:size-9 rounded-full border border-border bg-surface-glass"
                 style={{
                   backdropFilter: "blur(4px)",
                   boxShadow: "var(--shadow-floating)",

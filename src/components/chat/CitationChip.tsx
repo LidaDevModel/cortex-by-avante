@@ -68,7 +68,13 @@ export function CitationChip({
             if (isMobile) setOpen(o => !o); // tap = peek; the card's link navigates
             else router.push(href);         // desktop click = go to source
           }}
-          className="inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap"
+          // The chip sits INLINE inside a paragraph, so growing it to 44px would push
+          // the text lines apart. Instead a pseudo-element extends the tap target to
+          // 44px tall without affecting layout — touch only, so it never interferes
+          // with text selection on a pointer device. This is the control a guard most
+          // wants to hit while checking whether Cortex told them the truth, and it
+          // measured 28px tall.
+          className="relative inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] md:before:content-none"
           style={{
             background: "color-mix(in srgb, var(--primary) 10%, var(--surface))",
             animation: `chip-in 150ms ease-out ${delayMs}ms both`,

@@ -50,7 +50,7 @@ function FeedbackBtn({
   return (
     <button
       onClick={onClick}
-      className={`p-1.5 rounded-lg transition-colors duration-100 ${active ? "bg-accent-subtle" : ""}`}
+      className={`p-[15px] md:p-1.5 rounded-lg transition-colors duration-100 ${active ? "bg-accent-subtle" : ""}`}
       aria-label={type === "up" ? "Helpful" : "Not helpful"}
       aria-pressed={active}
     >
@@ -249,7 +249,7 @@ export function AiMessage({
               onClick={handleReadAloud}
               aria-label={isSpeaking ? "Stop reading aloud" : "Read aloud"}
               aria-pressed={isSpeaking}
-              className={`p-1.5 rounded-lg transition-colors duration-100 ${
+              className={`p-[15px] md:p-1.5 rounded-lg transition-colors duration-100 ${
                 isSpeaking
                   ? "bg-accent-subtle text-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
@@ -260,7 +260,7 @@ export function AiMessage({
             <button
               onClick={handleCopy}
               aria-label={copied ? "Copied" : "Copy message"}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
+              className="p-[15px] md:p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
             >
               {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
             </button>

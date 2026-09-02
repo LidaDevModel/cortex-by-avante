@@ -163,7 +163,7 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
           </p>
           <Link
             href="/training/modules"
-            className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+            className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
             style={{ color: "var(--primary)" }}
           >
             Browse modules
@@ -182,7 +182,7 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
         <Link
           href="/training/modules/in-progress"
-          className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+          className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
           style={{ color: "var(--primary)" }}
         >
           View all

@@ -288,7 +288,9 @@ export function ChatComposer({
     setIsRecording(false);
   }
 
-  const iconBtn = "w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors";
+  // 44px on touch (WCAG 2.5.8 / platform minimums), 40px on pointer devices
+  // where the cursor is precise and the row reads tighter.
+  const iconBtn = "size-11 md:size-10 rounded-[10px] flex items-center justify-center transition-colors";
 
   return (
     <div
@@ -469,7 +471,7 @@ export function ChatComposer({
                 <button
                   type="button"
                   disabled={!canSend}
-                  className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-[opacity,transform] duration-100 enabled:hover:opacity-90 enabled:active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cortex-send-btn size-11 md:size-10 flex items-center justify-center transition-[opacity,transform] duration-100 enabled:hover:opacity-90 enabled:active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Send message"
                   onClick={submit}
                   style={{ boxShadow: "var(--shadow-ai-send-button)" }}

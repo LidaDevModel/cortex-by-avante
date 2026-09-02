@@ -52,19 +52,24 @@ export function UserMessage({
           {content}
         </div>
       )}
+      {/* Actions are ALWAYS visible on touch. This row was
+          `opacity-0 group-hover:opacity-100`, and a phone has no hover — so Edit
+          and Copy on your own message were invisible and unreachable for a guard
+          mid-shift, which is worse than a small target. Hover-reveal is kept for
+          pointer devices, where it keeps the transcript clean. */}
       {content && (
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
+        <div className="flex items-center gap-2 md:gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-100">
           <button
             onClick={onEdit}
             aria-label="Edit message"
-            className="p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
           >
             <Pencil size={14} />
           </button>
           <button
             onClick={handleCopy}
             aria-label={copied ? "Copied" : "Copy message"}
-            className="p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
+            className="p-[15px] md:p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors duration-100"
           >
             {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
           </button>
