@@ -300,12 +300,18 @@ export function ChatComposer({
       }}
       // The visible input strip is only ~24px tall inside a much larger card,
       // so most taps on the composer landed on padding and did nothing. Clicking
-      // anywhere in the card focuses the field — unless the tap was on a real
-      // control inside it (attach, send, an attachment chip) or on a text
-      // selection the user is making.
+      // anywhere in the card focuses the field.
       onMouseDown={(e) => {
+        const card = e.currentTarget as HTMLElement;
         const t = e.target as HTMLElement;
-        if (t.closest("button, a, input, textarea")) return;
+        // React portals bubble through the REACT tree, not the DOM tree, so a
+        // click inside the portalled answer-detail popover reaches this handler
+        // even though it sits outside the card. Stealing focus there made Radix
+        // see focus leave the popover and dismiss it, so the dial closed the
+        // moment you touched its slider. Only act on what is physically inside.
+        if (!card.contains(t)) return;
+        // A real control, or a text selection in progress, keeps its own focus.
+        if (t.closest("button, a, input, textarea, [role=slider]")) return;
         if (window.getSelection()?.toString()) return;
         e.preventDefault();
         textareaRef.current?.focus();
