@@ -175,7 +175,7 @@
 .dark {
   /* Cortex dark mode — neutral dark gray base, muted teal accent (#353535 cards, #71b7a2 primary) */
   --progress-track: oklch(0.46 0 0);        /* neutral mid-gray track in dark mode */
-  --background: oklch(0.17 0 0);             /* #1a1a1a — page bg, darker than cards */
+  --background: oklch(0.17 0 0);             /* #0f0f0f — page bg, darker than cards */
   --foreground: oklch(1 0 0);               /* white */
   --popover: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
   --popover-foreground: oklch(1 0 0);
