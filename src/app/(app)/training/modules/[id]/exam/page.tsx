@@ -91,11 +91,12 @@ export default function ExamPage() {
   const preExamRules = isSimulation
     ? [
         "Same shape as the real exam: 5 multiple choice, 1 matching, 1 short answer, 1 branching scenario.",
-        "Timed like the certification exam — you can skip and return within sections 1–3.",
+        `Timed like the certification exam, which needs ${PASS_MARK} of 100 to pass — you can skip and return within sections 1–3.`,
         "This is practice — no certificate is awarded. Your score shows how ready you are.",
       ]
     : [
         "5 multiple choice questions, 1 matching exercise, 1 short answer, 1 branching scenario.",
+        `You need ${PASS_MARK} of 100 to certify.`,
         "You can skip and return to questions in sections 1–3.",
         "Exiting at any point discards your progress.",
       ];
