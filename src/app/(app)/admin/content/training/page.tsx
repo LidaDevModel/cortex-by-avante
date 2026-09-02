@@ -111,7 +111,7 @@ export default function AdminTrainingPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules" }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Content" }, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
@@ -208,8 +208,8 @@ export default function AdminTrainingPage() {
         onOpenChange={(o) => !o && setDeleteId(null)}
         title="Delete module?"
         description={`This removes "${deleting?.title ?? "this module"}" and its chapters. This can't be undone.`}
-        exitLabel="Delete"
-        cancelLabel="Cancel"
+        exitLabel="Delete module"
+        cancelLabel="Keep module"
         onExit={() => { if (deleteId) deleteModule(deleteId); setDeleteId(null); }}
       />
 

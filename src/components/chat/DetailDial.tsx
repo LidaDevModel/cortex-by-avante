@@ -61,7 +61,7 @@ export function DetailDial({
         <button
           type="button"
           aria-label={`Answer detail: ${current.label}`}
-          className="inline-flex items-center gap-1 h-8 px-2 rounded-[6px] text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="inline-flex items-center gap-1 h-11 md:h-8 px-2 rounded-[6px] text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           {current.label}
           <ChevronDown size={14} strokeWidth={1.75} />

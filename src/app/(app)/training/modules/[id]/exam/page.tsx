@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getLearnerModule } from "@/lib/training-store";
+import { getLearnerModule, certifyModule } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
-import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
+import { ExamProgress, SectionNav, SECTIONS, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
 import { Matching } from "@/components/exam/sections/Matching";
 import { ShortAnswer } from "@/components/exam/sections/ShortAnswer";
@@ -91,11 +91,12 @@ export default function ExamPage() {
   const preExamRules = isSimulation
     ? [
         "Same shape as the real exam: 5 multiple choice, 1 matching, 1 short answer, 1 branching scenario.",
-        "Timed like the certification exam — you can skip and return within sections 1–3.",
+        `Timed like the certification exam, which needs ${PASS_MARK} of 100 to pass — you can skip and return within sections 1–3.`,
         "This is practice — no certificate is awarded. Your score shows how ready you are.",
       ]
     : [
         "5 multiple choice questions, 1 matching exercise, 1 short answer, 1 branching scenario.",
+        `You need ${PASS_MARK} of 100 to certify.`,
         "You can skip and return to questions in sections 1–3.",
         "Exiting at any point discards your progress.",
       ];
@@ -246,6 +247,33 @@ export default function ExamPage() {
     markSectionComplete("branching");
     setPhase("review");
   }
+
+  /**
+   * Record the certification once the exam is scored and passed.
+   *
+   * Driven by phase rather than called from the two submit paths (manual submit
+   * and timer expiry), so it cannot be added to one and forgotten in the other,
+   * and so it stays out of `handleTimesUp`'s dependency list. `certifyModule`
+   * writes the same value each time, so a repeat render is harmless.
+   *
+   * A simulation NEVER records — VISION is explicit, and it is the whole
+   * difference between practice and certification. Section scores are stored as
+   * percentages (each raw section is scored out of 25) to match the shape the
+   * certification detail screen renders; their mean is the total, already /100.
+   */
+  useEffect(() => {
+    if (isSimulation) return;
+    if (phase !== "results" && phase !== "timesUp") return;
+    const total = scores.mc + scores.matching + scores.shortAnswer + scores.branching;
+    if (total < PASS_MARK) return;
+    certifyModule(moduleId, {
+      score: total,
+      date: new Date().toISOString().slice(0, 10),
+      sectionScores: [scores.mc, scores.matching, scores.shortAnswer, scores.branching].map(
+        (sectionScore) => sectionScore * 4
+      ),
+    });
+  }, [phase, scores, isSimulation, moduleId]);
 
   function handleSubmit() {
     clearInterval(timerRef.current);
@@ -402,6 +430,10 @@ export default function ExamPage() {
           question={exam.multipleChoice[mcIndex]}
           questionIndex={mcIndex}
           totalQuestions={exam.multipleChoice.length}
+          sectionPosition={1}
+          // Derived, so adding or removing a section cannot leave the counter
+          // quietly lying. "review" is not a question section.
+          sectionCount={SECTIONS.filter((s) => s.id !== "review").length}
           selectedIndex={mcAnswers[mcIndex]?.selectedIndex ?? null}
           answeredIndices={mcAnsweredSet}
           skippedIndices={mcSkippedSet}

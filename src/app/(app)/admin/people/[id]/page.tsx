@@ -72,7 +72,7 @@ export default function AdminPersonPage() {
   if (!user) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "People", href: "/admin/people" }, { label: "Not found" }]} className={headerClassName} />
+        <PageHeader crumbs={[{ label: "People", href: "/admin/people" }, { label: "Not found" }]} className={headerClassName} />
         <NotFoundState title="User not found" description="This person may have been removed. Return to the staff list." actionLabel="Back to people" actionHref="/admin/people" />
       </div>
     );
@@ -99,7 +99,7 @@ export default function AdminPersonPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "People", href: "/admin/people" }, { label: user.fullName }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "People", href: "/admin/people" }, { label: user.fullName }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
@@ -323,7 +323,7 @@ export default function AdminPersonPage() {
         title="Deactivate account?"
         description={`${user.fullName} won't be able to sign in until reactivated.`}
         exitLabel="Deactivate"
-        cancelLabel="Cancel"
+        cancelLabel="Keep account active"
         onExit={() => { setConfirmDeactivate(false); setUserStatus(user.id, "deactivated"); showToast({ title: "Account deactivated" }); }}
       />
     </div>

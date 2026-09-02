@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { MODULES, isCertified, type Module, type ModuleCategory, type Chapter } from "./training-mock";
+import { MODULES, MODULE_CHAPTERS, isCertified, type Module, type ModuleCategory, type Chapter, type Certification } from "./training-mock";
 import { getPersona } from "./demo-persona";
 import { daysSince } from "./utils";
 import type { Role } from "./user-mock";
@@ -65,6 +65,69 @@ export function getAdminModule(id: string): AdminModule | undefined {
   return load().find((m) => m.id === id);
 }
 
+/* ─── Chapters: the one read seam ─── */
+
+/**
+ * The chapters a module actually has — the admin's authored chapters when they
+ * exist, otherwise the shared canonical set.
+ *
+ * **One seam, two consumers.** The learner reader and the admin preview both
+ * read through here, so they can never diverge again. Before this, the preview
+ * read `authoredChapters` while the reader used a hardcoded `MODULE_CHAPTERS`
+ * constant — so an admin authored "Mounting and battery checks", the preview
+ * promised "This is the content learners see", and the guard opened the module
+ * and read six chapters about escalation procedures. Nothing the admin wrote
+ * ever reached a learner, and neither side had any signal.
+ *
+ * `includeFinalQuiz` covers the one real difference between the two: the reader
+ * needs the closing exam step, the preview shows content only. An authored set
+ * carries no final quiz of its own (the editor does not author one), so the
+ * canonical entry is appended — otherwise authoring a module would remove its
+ * route to certification.
+ */
+export function moduleChapters(
+  m: { authoredChapters?: Chapter[] } | undefined,
+  { includeFinalQuiz = false }: { includeFinalQuiz?: boolean } = {}
+): Chapter[] {
+  const authored = m?.authoredChapters;
+  if (!authored || authored.length === 0) {
+    return includeFinalQuiz ? MODULE_CHAPTERS : MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
+  }
+  if (!includeFinalQuiz) return authored;
+  const finalQuiz = MODULE_CHAPTERS.find((c) => c.isFinalQuiz);
+  return finalQuiz
+    ? [...authored, { ...finalQuiz, num: authored.length + 1 }]
+    : authored;
+}
+
+/* ─── Certification earned by passing an exam ─── */
+
+/** Modules certified during this session. Read by `personaAdjust` so the
+    new-hire persona does not blank a certification the user just earned. */
+const sessionCertified = new Set<string>();
+
+/**
+ * Record a passed certification exam.
+ *
+ * Deliberately **session-only**: this mutates the in-memory overlay and
+ * notifies subscribers, but never writes localStorage. Progress in this build
+ * does not survive a reload (owner's call, for demo stability), and a
+ * certification must behave the same way — otherwise one demo run would leave
+ * a certificate behind for the next. A real backend replaces this with a POST.
+ *
+ * `cache` is reassigned rather than mutated so `useSyncExternalStore`'s
+ * snapshot changes identity and subscribers actually re-render.
+ *
+ * The simulation must never call this — see VISION's exam-simulation rules.
+ */
+export function certifyModule(id: string, cert: Certification) {
+  sessionCertified.add(id);
+  cache = load().map((m) =>
+    m.id === id ? { ...m, status: "completed" as const, progress: 100, certification: cert } : m
+  );
+  listeners.forEach((l) => l());
+}
+
 /* ─── Learner reads: published + role-visible view of the overlay ───
    Mirrors training-mock's getters but sources the overlay (so publishes/edits
    reach guards) and keeps the new-hire persona blanking. Pure helpers
@@ -74,8 +137,27 @@ function visibleToLearner(m: AdminModule, role: Role): boolean {
   return m.published !== false && (!m.roles || m.roles.includes(role));
 }
 function personaAdjust(m: AdminModule): Module {
-  if (getPersona() === "new") return { ...m, status: "not-started", progress: 0, certification: undefined };
+  // A certification earned in THIS session survives the new-hire blanking —
+  // otherwise a new hire could pass an exam and never see the result, which is
+  // the one story the demo most needs to tell.
+  if (getPersona() === "new" && !sessionCertified.has(m.id)) {
+    return { ...m, status: "not-started", progress: 0, certification: undefined };
+  }
   return m;
+}
+/**
+ * Chapters for a module as the LEARNER sees it — role- and publish-gated, then
+ * through the one `moduleChapters` seam. A module the learner may not see
+ * yields the canonical set rather than leaking authored content.
+ */
+export function getLearnerChapters(
+  id: string,
+  role: Role,
+  opts?: { includeFinalQuiz?: boolean }
+): Chapter[] {
+  const r = toLearnerRole(role);
+  const m = load().find((x) => x.id === id);
+  return moduleChapters(m && visibleToLearner(m, r) ? m : undefined, opts);
 }
 /** Published, role-visible modules for the learner, persona-adjusted. Admins
  *  learn as field agents (see toLearnerRole), so their training isn't empty. */

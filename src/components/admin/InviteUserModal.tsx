@@ -41,7 +41,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
   function submit() {
     if (!email.includes("@")) {
       setEmailError(true);
-      showToast({ title: "Check the email", description: "Enter a valid email address." });
+      showToast({ title: "Couldn't send invite", description: "Enter a valid email address." });
       return;
     }
     const { pin } = inviteUser({ email, role });

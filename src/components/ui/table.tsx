@@ -72,21 +72,52 @@ export function TableRow({
   onClick,
   style,
   children,
+  ariaLabel,
+  ariaExpanded,
+  ariaControls,
 }: {
   className?: string;
   onClick?: () => void;
   style?: React.CSSProperties;
   children: React.ReactNode;
+  /** Accessible name, when the row's visible cells don't read as one. */
+  ariaLabel?: string;
+  /** For a row that discloses content below it, rather than navigating. */
+  ariaExpanded?: boolean;
+  ariaControls?: string;
 }) {
+  // A row with an onClick is a control, so it has to behave like one: reachable
+  // by Tab, activated by Enter or Space, and announced as something you can
+  // press. Without this the row was a plain div, and twelve lists across the
+  // product could be searched, filtered and sorted by keyboard but never opened
+  // — the Library, every admin list, and the knowledge-check breakdown.
+  // A row with no onClick stays inert markup and gains none of it.
+  const interactive = Boolean(onClick);
   return (
     <div
       onClick={onClick}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key !== "Enter" && e.key !== " ") return;
+              // Space scrolls the page by default; Enter can submit a form.
+              e.preventDefault();
+              onClick?.();
+            }
+          : undefined
+      }
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? ariaLabel : undefined}
+      aria-expanded={interactive ? ariaExpanded : undefined}
+      aria-controls={interactive ? ariaControls : undefined}
       style={style}
       className={cn(
         // min-h matches a row carrying a 32px actions button (10px padding each
         // side) so tables without one don't render shorter rows.
         "flex items-center gap-2 px-4 py-[10px] min-h-[52px] border-b border-border transition-colors duration-100",
-        onClick && "cursor-pointer hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)]",
+        interactive &&
+          "cursor-pointer hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
         className
       )}
     >

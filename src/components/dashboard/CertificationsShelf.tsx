@@ -107,7 +107,7 @@ export function CertificationsShelf() {
           )}
           <Link
             href="/profile#certifications"
-            className="text-[13px] leading-[20px] font-medium whitespace-nowrap transition-opacity duration-100 hover:opacity-70"
+            className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium whitespace-nowrap transition-opacity duration-100 hover:opacity-70"
             style={{ color: "var(--primary)" }}
           >
             View all
@@ -121,7 +121,7 @@ export function CertificationsShelf() {
             <div
               ref={scrollRef}
               onScroll={updateScrollState}
-              className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory"
+              className="flex gap-3 overflow-x-auto overscroll-x-contain no-scrollbar snap-x snap-mandatory"
             >
               {items.map((m, i) => (
                 <HonorCard key={m.id} module={m} carousel start={inView} index={i} returnTo="/dashboard" />
@@ -146,7 +146,31 @@ export function CertificationsShelf() {
               }}
             />
           </div>
-          <div className="flex items-center justify-center gap-1.5 pt-1">
+          {/* TOUCH: a position indicator, not nine controls. These were 18x18
+              buttons 6px apart — far below any platform minimum — and nine
+              44px targets cannot fit in 375px, so padding them was not an
+              option. The carousel already swipes natively on touch, so swipe
+              is the interaction and this just says where you are. The count is
+              spelled out because nine dots do not read at a glance.
+              POINTER (sm+): unchanged, they stay tap-to-jump buttons. */}
+          <div className="flex items-center justify-center gap-2 pt-1 sm:hidden">
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              {items.map((m, i) => (
+                <span
+                  key={m.id}
+                  className={`block rounded-full transition-all duration-150 ${
+                    i === activeIndex ? "bg-accent-subtle dark:bg-primary" : "bg-border"
+                  }`}
+                  style={{ width: i === activeIndex ? 18 : 6, height: 6 }}
+                />
+              ))}
+            </div>
+            <span aria-live="polite" className="text-[12px] leading-[16px] text-muted-foreground tabular-nums">
+              {activeIndex + 1} of {items.length}
+            </span>
+          </div>
+
+          <div className="hidden sm:flex items-center justify-center gap-1.5 pt-1">
             {items.map((m, i) => {
               const active = i === activeIndex;
               return (

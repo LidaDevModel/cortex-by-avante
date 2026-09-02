@@ -174,7 +174,7 @@ export function NotificationsBell() {
     <button
       type="button"
       aria-label={unread ? "Notifications (unread)" : "Notifications"}
-      className="relative flex items-center justify-center w-10 h-10 rounded-lg text-muted-foreground transition-colors duration-100 hover:text-foreground hover:bg-foreground/5 cursor-pointer"
+      className="relative flex items-center justify-center size-11 md:size-10 rounded-lg text-muted-foreground transition-[colors,transform] duration-100 hover:text-foreground hover:bg-foreground/5 active:scale-95 cursor-pointer"
     >
       <Bell size={16} strokeWidth={1.5} />
       {unread && (
@@ -218,7 +218,7 @@ export function NotificationsBell() {
                   <button
                     type="button"
                     aria-label="Close"
-                    className="-mr-1.5 flex items-center justify-center w-10 h-10 rounded-lg text-muted-foreground transition-colors duration-100 hover:text-foreground hover:bg-foreground/5 cursor-pointer"
+                    className="-mr-1.5 flex items-center justify-center size-11 md:size-10 rounded-lg text-muted-foreground transition-[colors,transform] duration-100 hover:text-foreground hover:bg-foreground/5 active:scale-95 cursor-pointer"
                   >
                     <X size={18} strokeWidth={1.5} />
                   </button>

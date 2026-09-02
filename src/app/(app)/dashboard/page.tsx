@@ -10,13 +10,20 @@ import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
+import { NewRequirementCard } from "@/components/dashboard/NewRequirementCard";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import {
+  acknowledgeRequired,
+  useNewRequirements,
+  wasClearedBefore,
+} from "@/lib/required-seen";
 import { isShiftReady } from "@/lib/training-mock";
 import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store";
 import { getLearnerRecent, useLibrary } from "@/lib/content-store";
 import { USER } from "@/lib/user-mock";
 import { useCurrentRole } from "@/lib/current-role";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /** Two dashboard cards side by side on desktop, stacked below lg. Children
     stretch (each widget card is h-full) so paired cards match heights. */
@@ -31,6 +38,9 @@ export default function DashboardPage() {
   // not-cleared admins — this /dashboard IS their home, so it carries the full
   // home header (greeting + date), same as a field agent.
   const canManage = useManageAccess();
+  // An admin reaches this screen through their sidebar's "Learning" group, and
+  // their sidebar calls it "Overview"; a field agent's calls it "Home".
+  const { group, isAdmin } = useLearnerNav();
   useLibrary(); // reflect published docs in the recency feed
   // Learner's published module set — readiness gates shift eligibility.
   const modules = useLearnerModules(role);
@@ -64,9 +74,23 @@ export default function DashboardPage() {
 
   const askCortex = <AskCortexCard />;
 
+  // Requirements added since the learner last looked. Readiness itself is a
+  // pure boolean with no memory, so without this the dashboard would silently
+  // reshape into the onboarding layout — see NewRequirementCard.
+  const newlyRequired = useNewRequirements(role);
+  const newRequirement = newlyRequired.length > 0 && (
+    <NewRequirementCard
+      modules={newlyRequired}
+      requiredModules={requiredModules}
+      role={USER.role}
+      wasCleared={wasClearedBefore(role, newlyRequired)}
+      onDismiss={() => acknowledgeRequired(role)}
+    />
+  );
+
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Home" }]} className={headerClassName} />
+      <PageHeader crumbs={[...group, { label: isAdmin ? "Overview" : "Home" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
@@ -79,6 +103,10 @@ export default function DashboardPage() {
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
             )}
           </div>
+
+          {/* Requirements changed — explains the board below before the user
+              has to guess why their badge disappeared. */}
+          {newRequirement}
 
           {cleared ? (
             /* ── State B — cleared for shift: Ask Cortex is the hero ── */

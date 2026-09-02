@@ -49,7 +49,7 @@ export function EdgeFadeScroller({
 
   return (
     <div className={cn("relative", wrapperClassName)}>
-      <div ref={ref} onScroll={update} className={cn("overflow-x-auto no-scrollbar", className)}>
+      <div ref={ref} onScroll={update} className={cn("overflow-x-auto overscroll-x-contain no-scrollbar", className)}>
         {children}
       </div>
       <div

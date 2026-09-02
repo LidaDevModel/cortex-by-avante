@@ -21,6 +21,10 @@ export type Message = {
   streamText?: string;
   isStreaming?: boolean;
   isError?: boolean;
+  /** The user pressed Stop: `streamText` holds only what had arrived, and the
+      answer carries no blocks, so no citation chips are shown. A chip would
+      imply a complete, sourced answer. */
+  isStopped?: boolean;
   /** The settled response as ordered blocks (text · diagram). */
   blocks?: ResponseBlock[];
   /** Citation labels for the thinking indicator's status lines. */
@@ -46,7 +50,7 @@ function FeedbackBtn({
   return (
     <button
       onClick={onClick}
-      className={`p-1.5 rounded-lg transition-colors duration-100 ${active ? "bg-accent-subtle" : ""}`}
+      className={`p-[15px] md:p-1.5 rounded-lg transition-colors duration-100 ${active ? "bg-accent-subtle" : ""}`}
       aria-label={type === "up" ? "Helpful" : "Not helpful"}
       aria-pressed={active}
     >
@@ -129,7 +133,7 @@ export function AiMessage({
     );
   }
 
-  if (message.isError) {
+  if (message.isStopped) {
     return (
       <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
         {message.streamText && (
@@ -137,16 +141,39 @@ export function AiMessage({
             {message.streamText}
           </p>
         )}
-        <div className="flex items-center gap-2">
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
-            Cortex couldn't get a response. Try again in a moment.
+        {/* Quiet, not an error — the user chose this. No citation chips: a
+            partial answer has no complete source list to stand behind. */}
+        <p className="text-[13px] leading-[20px] text-muted-foreground">Stopped</p>
+      </div>
+    );
+  }
+
+  if (message.isError) {
+    return (
+      <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
+        {message.streamText && (
+          <p className="text-[15px] leading-[24px] text-muted-foreground whitespace-pre-wrap">
+            {message.streamText}
           </p>
-          <button
-            onClick={() => onRetry(message.id)}
-            className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
-          >
-            Try again
-          </button>
+        )}
+        {/* VISION's phrasing table gives this a title as well as a
+            description; only the description was rendered. The partial text
+            above is muted so it reads as abandoned, not as an answer. */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[13px] leading-[20px] font-semibold text-foreground">
+            Something went wrong
+          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-[13px] leading-[20px] text-muted-foreground">
+              Cortex couldn&apos;t get a response. Try again in a moment.
+            </p>
+            <button
+              onClick={() => onRetry(message.id)}
+              className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
+            >
+              Try again
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -222,7 +249,7 @@ export function AiMessage({
               onClick={handleReadAloud}
               aria-label={isSpeaking ? "Stop reading aloud" : "Read aloud"}
               aria-pressed={isSpeaking}
-              className={`p-1.5 rounded-lg transition-colors duration-100 ${
+              className={`p-[15px] md:p-1.5 rounded-lg transition-colors duration-100 ${
                 isSpeaking
                   ? "bg-accent-subtle text-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
@@ -233,7 +260,7 @@ export function AiMessage({
             <button
               onClick={handleCopy}
               aria-label={copied ? "Copied" : "Copy message"}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
+              className="p-[15px] md:p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-[colors,transform] duration-100 active:scale-95"
             >
               {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
             </button>

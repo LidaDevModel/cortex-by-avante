@@ -35,26 +35,48 @@ function SectionRow({
   total: number;
   children?: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  // A section with wrong answers opens itself, and it is the ONLY kind of row
+  // that discloses anything. A perfect section has nothing behind it, so it is
+  // a plain row: no chevron, no click, no focus stop. It used to render the
+  // affordance anyway and pay it off with "All answers correct." — a click and
+  // a moment's attention spent to be told what the score already said.
+  const hasBreakdown = Boolean(children);
+  const [open, setOpen] = useState(hasBreakdown);
+  // The row discloses the breakdown rather than navigating, so it must say so:
+  // a keyboard or screen-reader user otherwise had no way to reach the one
+  // thing on this screen that explains what they got wrong.
+  const panelId = `kc-section-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   return (
     <div>
-      <TableRow onClick={() => setOpen((o) => !o)}>
+      <TableRow
+        onClick={hasBreakdown ? () => setOpen((o) => !o) : undefined}
+        ariaLabel={
+          hasBreakdown
+            ? `${label}: ${correct} of ${total} correct. ${open ? "Hide" : "Show"} breakdown`
+            : undefined
+        }
+        ariaExpanded={hasBreakdown ? open : undefined}
+        ariaControls={hasBreakdown ? panelId : undefined}
+      >
         <TableCell className="flex-1 text-left">{label}</TableCell>
-        <TableCell
-          className="w-10 text-right font-medium tabular-nums"
-          style={{ color: correct === total ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
-        >
+        {/* Deliberately NOT coloured. These cells used to be green when a
+            section was perfect and red otherwise, while the headline percentage
+            next to them was green above the 70% pass mark — so a 6-of-8 result
+            rendered "75%" in green directly above a total "6" in red. One
+            colour, two meanings, on one screen. Pass/fail now lives only on the
+            headline; a section score is just a number. */}
+        <TableCell className="w-10 text-right font-medium tabular-nums text-foreground">
           {correct}
         </TableCell>
         <TableCell className="w-10 text-right text-muted-foreground tabular-nums">{total}</TableCell>
         <span className="w-5 flex justify-end text-muted-foreground">
-          {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
+          {hasBreakdown && (open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />)}
         </span>
       </TableRow>
-      {open && (
-        <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
+      {hasBreakdown && open && (
+        <div id={panelId} className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
-            {children ?? <p className="text-[13px] text-muted-foreground">All answers correct.</p>}
+            {children}
           </div>
         </div>
       )}
@@ -225,10 +247,7 @@ export function KCScoreTable({
 
       <TableFooter>
         <TableCell className="flex-1 font-semibold">Total</TableCell>
-        <TableCell
-          className="w-10 text-right font-bold tabular-nums"
-          style={{ color: totalCorrect === totalPoints ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
-        >
+        <TableCell className="w-10 text-right font-bold tabular-nums text-foreground">
           {totalCorrect}
         </TableCell>
         <TableCell className="w-10 text-right font-medium text-muted-foreground tabular-nums">{totalPoints}</TableCell>

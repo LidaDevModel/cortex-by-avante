@@ -9,6 +9,8 @@ import { KindPill, type DocKind } from "./kind-pill";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Button } from "@/components/ui/button";
+import { countDocPages } from "@/lib/library-mock";
 import { cn } from "@/lib/utils";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
@@ -81,13 +83,22 @@ export function DocumentsSection() {
       content: `${f.documents.length} file${f.documents.length !== 1 ? "s" : ""}`,
       lastModified: f.lastModified,
     })),
-    ...lib.topLevel.map((d): Doc => ({
-      id: d.id,
-      name: d.name,
-      kind: "document",
-      content: d.content,
-      lastModified: d.lastModified,
-    })),
+    ...lib.topLevel.map((d): Doc => {
+      // Derived, so the list and the reader show the SAME number. The authored
+      // `content` string counts sections ("8 pages") while the reader
+      // paginates long sections and reaches 14 for that document — deriving
+      // only the reader's header would have left these two screens
+      // disagreeing. Falls back to the authored string for anything with no
+      // sections to count (a folder of files, an admin's new document).
+      const pages = countDocPages(d.toc);
+      return {
+        id: d.id,
+        name: d.name,
+        kind: "document",
+        content: pages > 0 ? `${pages} page${pages === 1 ? "" : "s"}` : d.content,
+        lastModified: d.lastModified,
+      };
+    }),
   ], [lib]);
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
@@ -121,6 +132,11 @@ export function DocumentsSection() {
     });
     return list;
   }, [documents, search, sortCol, sortDir, kindFilter]);
+
+  // Which of the two narrowing controls is actually set — the empty-state copy
+  // and its button name only what applies.
+  const hasSearch = search.trim().length > 0;
+  const hasFilter = kindFilter.length > 0;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -191,8 +207,32 @@ export function DocumentsSection() {
       {/* Content */}
       <div className="mt-4">
         {paginated.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
-            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents available.</p>
+          /* Three messages, because they are three different problems, and a
+             button that names exactly what it will clear. "No documents
+             available." used to show for all of them — so a guard who mistyped
+             a search concluded the library was empty.
+
+             The list holds folders as well as documents, so the copy says so.
+             Button is the shared `Button` at its default size, matching
+             `NotFoundState` — the app's other blank-state action. */
+          <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+            <p className="text-[15px] leading-[24px] text-muted-foreground">
+              {documents.length === 0
+                ? "No documents available."
+                : hasSearch && hasFilter
+                  ? "No documents or folders match your search and filter."
+                  : hasSearch
+                    ? "No documents or folders match your search."
+                    : "No documents or folders match that filter."}
+            </p>
+            {documents.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => { setSearch(""); setKindFilter(""); setPage(1); }}
+              >
+                {hasSearch && hasFilter ? "Clear search & filter" : hasSearch ? "Clear search" : "Clear filter"}
+              </Button>
+            )}
           </div>
         ) : view === "list" ? (
           <>
@@ -231,7 +271,11 @@ export function DocumentsSection() {
                     onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}
                     style={rowStyle(i)}
                     title={doc.name}
-                    meta={<TableCardMeta>{formatDate(doc.lastModified)} · {doc.content}</TableCardMeta>}
+                    /* Every admin-created document has an empty `content`,
+                       so the separator used to dangle: "01 Sept 2026 ·".
+                       That is the default state of all real content, with the
+                       seeded documents as the only exceptions. */
+                    meta={<TableCardMeta>{formatDate(doc.lastModified)}{doc.content ? ` · ${doc.content}` : ""}</TableCardMeta>}
                     trailing={<KindPill kind={doc.kind} />}
                   />
                 ))}

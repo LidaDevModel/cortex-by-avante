@@ -43,8 +43,13 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
     isLast || !crumb.href ? (
       <span
         className={cn(
-          "shrink-0",
-          isLast ? "font-medium text-foreground truncate" : "text-muted-foreground"
+          // The last crumb must be the one that gives way, so it gets
+          // `min-w-0 truncate` and NOT `shrink-0` — the two together cancel
+          // out, which is why a long title used to push the notifications bell
+          // off the right edge instead of truncating itself.
+          isLast
+            ? "min-w-0 font-medium text-foreground truncate"
+            : "shrink-0 text-muted-foreground"
         )}
       >
         {crumb.label}
@@ -79,7 +84,7 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
           <Menu size={20} strokeWidth={1.75} />
         </button>
       )}
-      <div className="hidden md:flex items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
+      <div className="hidden md:flex flex-1 items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
         {shown.map((item, i) => (
           <span key={i} className="flex items-center gap-1.5 min-w-0">
             {i > 0 && (
@@ -106,7 +111,7 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
       </div>
       {/* Actions slot — shell-owned; the bell hides itself on focused-task
           screens (do-not-disturb during exams and reading). */}
-      <div className="ml-auto flex items-center">
+      <div className="ml-auto shrink-0 flex items-center">
         <NotificationsBell />
       </div>
     </header>

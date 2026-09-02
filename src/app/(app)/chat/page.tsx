@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowDown, ChevronDown, ChevronLeft, History, Pencil, SquarePen, Trash2 } from "lucide-react";
+import { ArrowDown, ChevronDown, ChevronLeft, ChevronRight, History, Pencil, SquarePen, Trash2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 import { ChatHistoryPanel, ChatHistorySheet, useConversations, type Conversation } from "@/components/chat-history-panel";
 import {
   DropdownMenu,
@@ -71,6 +72,8 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
+  // "Learning" for an admin, nothing for a field agent — see useLearnerNav.
+  const { group } = useLearnerNav();
   const [isRenamingTitle, setIsRenamingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
@@ -81,6 +84,13 @@ export default function ChatPage() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const responseCountRef = useRef(0);
+  // Armed by /chat?demo=error — see startStreaming.
+  const demoErrorArmedRef = useRef(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("demo") === "error") {
+      demoErrorArmedRef.current = true;
+    }
+  }, []);
   const currentResponseRef = useRef<ChatResponse | null>(null);
 
   const hasConversation = messages.length > 0;
@@ -179,9 +189,25 @@ export default function ChatPage() {
     const fullText = getStreamTextFor(blocks);
     let idx = 0;
     responseCountRef.current += 1;
-    const errorAt = responseCountRef.current === 3
-      ? Math.floor(fullText.length * 0.5)
-      : -1;
+
+    // A deliberately failed answer, so the inline error + "Try again" state can
+    // be shown in a demo. It used to fire automatically on the third response
+    // of every session, which meant it interrupted whatever the presenter
+    // happened to be doing at the time -- including a question they were using
+    // to make a different point.
+    //
+    // Now it is armed on demand: open /chat?demo=error and the NEXT answer
+    // fails halfway through. Nothing appears in the conversation, so the
+    // trigger is invisible on screen.
+    //
+    // To restore the old automatic behaviour, set DEMO_ERROR_ON_NTH to 3.
+    const DEMO_ERROR_ON_NTH: number | null = null;
+    const armedByUrl = demoErrorArmedRef.current;
+    if (armedByUrl) demoErrorArmedRef.current = false;
+    const shouldFail =
+      armedByUrl ||
+      (DEMO_ERROR_ON_NTH !== null && responseCountRef.current === DEMO_ERROR_ON_NTH);
+    const errorAt = shouldFail ? Math.floor(fullText.length * 0.5) : -1;
 
     streamIntervalRef.current = setInterval(() => {
       idx += 4;
@@ -211,6 +237,17 @@ export default function ChatPage() {
     }, 30);
   }
 
+/**
+ * Mock response latency. Named so a real integration cannot inherit these by
+ * accident, which is how a demo delay becomes a production delay.
+ *
+ * When a backend lands, THINK_MS should become the **minimum** time the
+ * thinking indicator stays on screen — a floor, so a fast answer does not
+ * flash — and never a delay added on top of a real round trip. It cannot be
+ * written that way yet: there is no request to race against.
+ */
+const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const;
+
   function queueAiResponse(response: ChatResponse) {
     setTimeout(() => {
       const aiId = `a${Date.now()}`;
@@ -221,8 +258,8 @@ export default function ChatPage() {
         streamText: "",
         sources: getSourceLabelsFor(response.blocks),
       }]);
-      setTimeout(() => startStreaming(aiId, response), 1400);
-    }, 80);
+      setTimeout(() => startStreaming(aiId, response), MOCK_LATENCY.thinkMs);
+    }, MOCK_LATENCY.appendMs);
   }
 
   function handleRetry(msgId: string) {
@@ -239,7 +276,7 @@ export default function ChatPage() {
         ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(response.blocks) }
         : m
     ));
-    setTimeout(() => startStreaming(msgId, response), 800);
+    setTimeout(() => startStreaming(msgId, response), MOCK_LATENCY.retryThinkMs);
   }
 
   function handleSubmit(text: string, attachments: Attachment[] = []) {
@@ -272,13 +309,14 @@ export default function ChatPage() {
     setMessages(prev => {
       const last = prev[prev.length - 1];
       if (last?.isStreaming) {
-        const resp = currentResponseRef.current;
+        // Stop keeps what arrived. It used to swap in the FULL response, so a
+        // button labelled Stop actually revealed the whole answer -- complete
+        // with citation chips implying a finished, sourced reply. Owner's call
+        // (2026-09-02): Stop means stop.
         return [...prev.slice(0, -1), {
           ...last,
           isStreaming: false,
-          blocks: resp?.blocks ?? [],
-          browseLibraryHref: resp?.browseLibraryHref,
-          diagram: resp?.diagram,
+          isStopped: true,
         }];
       }
       return prev;
@@ -357,6 +395,15 @@ export default function ChatPage() {
   function handleSelectConversation(conversation: Conversation) {
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(false);
+    // Save what is on screen before replacing it. Starting a NEW conversation
+    // already archived the old one; opening a PAST one did not, so switching
+    // silently discarded whatever the guard had just asked. The title guard
+    // stops a conversation re-archiving itself when it is reopened.
+    const firstUser = messages.find((m) => m.role === "user");
+    const currentTitle = conversationTitle || firstUser?.content;
+    if (currentTitle && currentTitle !== conversation.title) {
+      archiveConversation(currentTitle);
+    }
     const response = chatProvider.getResponse(
       [{ role: "user", text: conversation.title }],
       { detail: detailLevel }
@@ -401,7 +448,21 @@ export default function ChatPage() {
             Home
           </Link>
 
-          {conversationTitle && (
+          {/* Group crumb. This header IS the breadcrumb row — same 56px height,
+              same padding, same sidebar toggle as PageHeader — so for an admin
+              it should read like the rest of their Learning screens rather than
+              starting mid-sentence with a conversation name. Desktop only: on
+              mobile this row carries the back affordance instead, per VISION's
+              mobile-header rule, and a field agent gets no group at all
+              because AI Chat is top-level in their sidebar. */}
+          {group.length > 0 && (
+            <span className="hidden md:flex items-center gap-1.5 shrink-0">
+              <span className="text-[14px] leading-[20px] text-muted-foreground">{group[0].label}</span>
+              <ChevronRight size={14} strokeWidth={1.5} className="shrink-0 text-muted-foreground opacity-60" />
+            </span>
+          )}
+
+          {conversationTitle ? (
             isRenamingTitle ? (
               <input
                 ref={titleInputRef}
@@ -417,7 +478,7 @@ export default function ChatPage() {
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 min-w-0 text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
+                  <button className="flex items-center gap-1 min-w-0 h-11 md:h-auto text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
                     <span className="truncate">{conversationTitle}</span>
                     <ChevronDown size={14} className="text-muted-foreground shrink-0" />
                   </button>
@@ -439,6 +500,12 @@ export default function ChatPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             )
+          ) : (
+            /* No conversation yet: name the screen so the row agrees with the
+               sidebar's highlighted item instead of sitting empty. */
+            <span className="hidden md:inline text-[14px] leading-[20px] font-medium text-foreground">
+              AI Chat
+            </span>
           )}
 
           <div className="ml-auto flex items-center gap-1.5">
@@ -450,19 +517,21 @@ export default function ChatPage() {
                 type="button"
                 onClick={handleNewConversation}
                 aria-label="New conversation"
-                className="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
+                className="flex items-center justify-center gap-1.5 h-11 md:h-9 min-w-11 md:min-w-0 px-3 md:px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
                 style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
               >
                 <SquarePen size={15} strokeWidth={1.75} />
                 <span className="hidden sm:inline">New chat</span>
               </button>
             )}
-            {/* Mobile-only history trigger — the desktop rail is hidden below md */}
+            {/* History trigger — paired with the rail below, which now holds
+                until `lg`: at 768px a chat column plus a rail leaves neither
+                enough room. Flip both together or this range loses history. */}
             <button
               type="button"
               onClick={() => setHistorySheetOpen(true)}
               aria-label="Old conversations"
-              className="md:hidden flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
+              className="lg:hidden flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
             >
               <History size={16} strokeWidth={1.5} />
             </button>
@@ -500,7 +569,7 @@ export default function ChatPage() {
               <button
                 onClick={jumpToBottom}
                 aria-label="Scroll to latest message"
-                className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-surface-glass"
+                className="flex items-center justify-center size-11 md:size-9 rounded-full border border-border bg-surface-glass"
                 style={{
                   backdropFilter: "blur(4px)",
                   boxShadow: "var(--shadow-floating)",
@@ -569,7 +638,7 @@ export default function ChatPage() {
       </div>
 
       {/* Desktop: inline history rail. Mobile: sheet (below). */}
-      <div ref={historyRailRef} className="relative z-10 hidden md:flex shrink-0">
+      <div ref={historyRailRef} className="relative z-10 hidden lg:flex shrink-0">
       <ChatHistoryPanel
         isOpen={showHistory}
         onToggle={() => setShowHistory(v => !v)}

@@ -1,11 +1,12 @@
 "use client";
 
 import { use } from "react";
-import { notFound } from "next/navigation";
 import { PageHeader, DetailHeader } from "@/components/ui/page-header";
 import { FORMAT_LABELS, CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
 import { findAttempt, getAttemptOrdinal } from "@/lib/kc-store";
 import { KCScoreTable } from "@/components/knowledge-check/KCScoreTable";
+import { NotFoundState } from "@/components/ui/not-found-state";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 const ALL_CATEGORIES = ["escalations", "first-aid", "incidents", "clients"] as const;
 
@@ -20,10 +21,28 @@ function formatDateShort(iso: string) {
 }
 
 export default function KCAttemptPage({ params }: { params: Promise<{ attemptId: string }> }) {
+  // Admins reach these through their sidebar's "Learning" group; agents
+  // through "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const { attemptId } = use(params);
   const attempt = findAttempt(attemptId);
 
-  if (!attempt) notFound();
+  // Inline, like every sibling detail route: a stale attempt link gets a
+  // message that names what was missing and a way back to the list it came
+  // from, rather than the generic "Page not found".
+  if (!attempt) {
+    return (
+      <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
+        <PageHeader crumbs={[...group, { label: "Knowledge check", href: "/training/quick-check" }, { label: "Not found" }]} />
+        <NotFoundState
+          title="Check not found"
+          description="This knowledge check may have been removed, or the link is out of date."
+          actionLabel="Back to knowledge check"
+          actionHref="/training/quick-check"
+        />
+      </div>
+    );
+  }
 
   const pct = attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
   const ordinal = getAttemptOrdinal(attemptId);
@@ -39,7 +58,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
   return (
     <div className="relative flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
       <PageHeader crumbs={[
-        { label: "Training" },
+        ...group,
         { label: "Knowledge check", href: "/training/quick-check" },
         { label: title },
       ]} />

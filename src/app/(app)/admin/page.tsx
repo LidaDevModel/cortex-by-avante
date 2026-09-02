@@ -198,7 +198,7 @@ export default function AdminHomePage() {
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Recent activity</h2>
-              <Link href="/admin/reports/activity" className="text-[13px] leading-[20px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
+              <Link href="/admin/reports/activity" className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
                 View all
               </Link>
             </div>

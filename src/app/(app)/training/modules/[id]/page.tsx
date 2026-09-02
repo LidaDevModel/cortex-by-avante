@@ -16,13 +16,12 @@ import { SearchInput } from "@/components/ui/search-input";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { RequiredPill } from "@/components/training/ModuleCard";
 import { Button } from "@/components/ui/button";
-import { MODULE_CHAPTERS, type Quiz, type Chapter } from "@/lib/training-mock";
-import { getLearnerModule } from "@/lib/training-store";
+import { type Quiz, type Chapter } from "@/lib/training-mock";
+import { getLearnerModule, getLearnerChapters } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
-const CHAPTERS: Chapter[] = MODULE_CHAPTERS;
-
-function deriveInitialState(progress: number) {
+function deriveInitialState(progress: number, CHAPTERS: Chapter[]) {
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const completedCount = Math.min(
     Math.round((progress / 100) * contentChapters.length),
@@ -295,13 +294,22 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
 /* ─── Page ─── */
 
 export default function ModuleDetailPage() {
+  // Admins reach these through their sidebar's "Learning" group; agents
+  // through "Training". See useLearnerNav.
+  const { group } = useLearnerNav(true);
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
-  const trainingModule = getLearnerModule(moduleId, useCurrentRole());
+  const role = useCurrentRole();
+  const trainingModule = getLearnerModule(moduleId, role);
   const initialProgress = trainingModule?.progress ?? 0;
 
-  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress).currentId);
-  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress).completedIds);
+  // This module's own chapters — the admin's authored set when it exists,
+  // otherwise the shared canonical one. Same seam the admin preview reads, so
+  // the two cannot show different content for the same module.
+  const CHAPTERS = getLearnerChapters(moduleId, role, { includeFinalQuiz: true });
+
+  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress, CHAPTERS).currentId);
+  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress, CHAPTERS).completedIds);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
 
   // Left panel — chapter title filter
@@ -330,9 +338,12 @@ export default function ModuleDetailPage() {
 
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
   const progress = Math.round((completedIds.size / contentChapters.length) * 100);
+  // Facts the final-quiz panel needs to stop overclaiming.
+  const chaptersLeft = Math.max(0, contentChapters.length - completedIds.size);
+  const alreadyCertified = Boolean(trainingModule?.certification);
 
   // Searchable chapters: text chapters only (no final quiz)
-  const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), []);
+  const textChapters = useMemo(() => CHAPTERS.filter(c => !c.isFinalQuiz && c.body), [CHAPTERS]);
 
   // Chapters matching the find query (title + body, text chapters only)
   const findMatchChapters = useMemo(() => {
@@ -466,7 +477,7 @@ export default function ModuleDetailPage() {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-surface">
         <PageHeader crumbs={[
-          { label: "Training", href: "/training/modules" },
+          ...group,
           { label: "Modules", href: "/training/modules" },
           { label: "Module" },
         ]} />
@@ -495,7 +506,7 @@ export default function ModuleDetailPage() {
         {trainingModule.title}
       </h1>
       <p className="text-[13px] leading-[20px] text-muted-foreground">
-        {trainingModule.chapters} chapters&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
+        {contentChapters.length} {contentChapters.length === 1 ? "chapter" : "chapters"}&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
       </p>
       <RequiredPill required={trainingModule.required} />
       <div className="flex items-center gap-3 mt-1">
@@ -541,7 +552,7 @@ export default function ModuleDetailPage() {
       <PageHeader
         className="border-b border-border"
         crumbs={[
-          { label: "Training", href: "/training/modules" },
+          ...group,
           { label: "Modules", href: "/training/modules" },
           { label: trainingModule.title },
         ]}
@@ -549,7 +560,7 @@ export default function ModuleDetailPage() {
 
       {/* Module identity — mobile only. The desktop rail carries it; on phones
           there's no rail, so it sits as a band above the content. */}
-      <div className="md:hidden shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+      <div className="lg:hidden shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         {identityInner}
       </div>
 
@@ -587,7 +598,7 @@ export default function ModuleDetailPage() {
                   type="button"
                   onClick={() => setChaptersSheetOpen(true)}
                   aria-label="Chapters"
-                  className="md:hidden shrink-0 flex items-center justify-center size-10 rounded-[10px] border border-border bg-surface text-foreground transition-colors duration-100 hover:bg-[var(--surface-raised)]"
+                  className="lg:hidden shrink-0 flex items-center justify-center size-11 rounded-[10px] border border-border bg-surface text-foreground transition-colors duration-100 hover:bg-[var(--surface-raised)]"
                 >
                   <ListChecks size={15} strokeWidth={1.5} />
                 </button>
@@ -644,22 +655,37 @@ export default function ModuleDetailPage() {
                     >
                       <Flag size={24} style={{ color: "var(--primary)" }} />
                     </div>
+                    {/* Three states, not one. This panel used to say "You've
+                        completed all chapters" unconditionally — including above
+                        a 0% progress bar, to a learner who had read nothing —
+                        and it offered "Start final quiz" to someone already
+                        certified. The exam stays reachable either way (a demo
+                        necessity, and gating it is decision D6); only the copy
+                        tells the truth. */}
                     <div className="flex flex-col gap-1">
                       <p className="text-[17px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
-                        Ready for the final quiz?
+                        {alreadyCertified
+                          ? "You're certified in this module"
+                          : chaptersLeft > 0
+                            ? "Finish the chapters first"
+                            : "Ready for the final quiz?"}
                       </p>
                       <p className="text-[14px] leading-[22px] text-muted-foreground">
-                        You&apos;ve completed all chapters. Test your knowledge to earn your certification.
+                        {alreadyCertified
+                          ? `Passed with ${trainingModule.certification!.score} of 100 on ${new Date(trainingModule.certification!.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.`
+                          : chaptersLeft > 0
+                            ? `${chaptersLeft} ${chaptersLeft === 1 ? "chapter" : "chapters"} left before the exam. You can take it now, but the material comes first.`
+                            : "You've completed all chapters. Test your knowledge to earn your certification."}
                       </p>
                     </div>
                     <Link
                       href={`/training/modules/${moduleId}/exam`}
                       className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90"
                     >
-                      Start final quiz
+                      {alreadyCertified ? "Retake exam" : "Start final quiz"}
                     </Link>
                     <p className="text-[13px] leading-[16px] text-muted-foreground">
-                      Not ready?{" "}
+                      {alreadyCertified ? "Want a refresher? " : "Not ready? "}
                       <Link
                         href={`/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`}
                         className="font-medium transition-colors duration-100"

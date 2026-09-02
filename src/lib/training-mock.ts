@@ -123,9 +123,15 @@ export function getCertifiedModules(): Module[] {
   );
 }
 
-/** True when every required module is certified — i.e. the agent is cleared for shift. */
+/** True when every required module is certified — i.e. the agent is cleared for shift.
+ *
+ *  `required.length > 0` guards the empty set: `Array.every` on an empty list is
+ *  true, so without it a learner with no required training assigned reads as
+ *  "Cleared for duty", and an admin with none gets all of Cortex Manage. Same
+ *  guard, same reason, as `STAFF`'s `requiredTotal > 0` in `user-mock.ts`. */
 export function isShiftReady(modules: Module[] = getModules()): boolean {
-  return modules.filter((m) => m.required).every(isCertified);
+  const required = modules.filter((m) => m.required);
+  return required.length > 0 && required.every(isCertified);
 }
 
 /** Estimated minutes left to finish a module's reading, from progress. */

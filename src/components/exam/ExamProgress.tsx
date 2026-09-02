@@ -54,12 +54,17 @@ export function ExamProgress({
     >
       <button
         onClick={onExit}
-        className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer shrink-0"
+        // The only way out of a timed exam, and its name was empty below `sm`:
+        // the icon is an SVG and the label was `display:none`, so the
+        // accessible name resolved to nothing. WCAG 4.1.2, Level A, on the
+        // highest-stakes screen in the product.
+        aria-label={isSimulation ? "Exit simulation" : "Exit exam"}
+        // 44x44 minimum: the negative margin keeps the visual position while
+        // the padding grows the hit area. The header is 56px, so it fits.
+        className="flex items-center gap-1.5 min-h-[44px] px-2 -ml-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer shrink-0"
       >
         <X size={14} />
-        {/* Label is a pointer nicety; the icon carries it on mobile where the
-            row is tight. */}
-        <span className="hidden sm:inline">Exit</span>
+        <span>Exit</span>
       </button>
       {/* Title — inline-centered in the flex row on mobile, viewport-centered
           via absolute positioning on desktop (unchanged there). */}
@@ -109,7 +114,7 @@ export function SectionNav({ activeSection, completedSections, onSectionClick }:
   return (
     // Scrolls edge-to-edge on mobile where the five section pills don't fit;
     // resets inside the column on desktop. Matches the KC section-tabs strip.
-    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {SECTIONS.map((s) => {
         const isActive = activeSection === s.id;
         const isDone = completedSections.has(s.id);

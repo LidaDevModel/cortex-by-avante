@@ -61,7 +61,7 @@ export default function AdminActivityPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Activity log" }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Activity log" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">

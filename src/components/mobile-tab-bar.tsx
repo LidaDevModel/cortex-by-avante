@@ -28,7 +28,7 @@ const DIALS = {
   training: {
     options: [
       { label: "Modules", href: "/training/modules" },
-      { label: "Knowledge Check", href: "/training/quick-check" },
+      { label: "Knowledge check", href: "/training/quick-check" },
     ] as DialOption[],
     // Anchored over the Training tab (right edge); options grow bottom-up.
     align: "right" as const,
@@ -302,7 +302,7 @@ export function MobileTabBar() {
                   )}
                 >
                   <tab.icon size={20} strokeWidth={isActive ? 2.25 : 1.5} />
-                  <span className={cn("text-[11px] leading-[14px]", isActive ? "font-semibold" : "font-medium")}>
+                  <span className={cn("text-[12px] leading-[16px]", isActive ? "font-semibold" : "font-medium")}>
                     {tab.label}
                   </span>
                 </Link>
@@ -342,7 +342,7 @@ export function MobileTabBar() {
               </span>
               <span
                 className={cn(
-                  "text-[11px] leading-[14px]",
+                  "text-[12px] leading-[16px]",
                   trainingActive || trainingDialShown ? "font-semibold" : "font-medium"
                 )}
               >

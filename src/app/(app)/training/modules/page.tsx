@@ -6,6 +6,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 import { useLearnerModules } from "@/lib/training-store";
@@ -13,6 +14,7 @@ import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 
 /* ─── Page ─── */
 
@@ -25,6 +27,8 @@ export default function ModulesPage() {
   const [search, setSearch] = useState("");
 
   const allModules = useLearnerModules(useCurrentRole());
+  // Same reason as Library: an admin has two Modules screens.
+  const { group } = useLearnerNav(true);
   const gridRow = useRowStagger("learner-modules-grid");
 
   const inProgress = useMemo(
@@ -33,6 +37,11 @@ export default function ModulesPage() {
   );
 
   const totalInProgress = allModules.filter((m) => m.status === "in-progress").length;
+
+  // Which narrowing controls are set — the empty-state copy and its button
+  // name only what applies.
+  const hasSearch = search.trim().length > 0;
+  const hasFilters = Boolean(requirementFilter || statusFilter || categoryFilter);
 
   const filteredModules = useMemo(() => {
     let list = allModules;
@@ -56,7 +65,7 @@ export default function ModulesPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Training" }, { label: "Modules" }]} className={headerClassName} />
+      <PageHeader crumbs={[...group, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="relative max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
@@ -177,10 +186,30 @@ export default function ModulesPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
+            /* Messages that name the actual situation. "Try a different search
+               or filter" used to show even with nothing typed and every filter
+               on "All" — impossible advice on a new hire's first day. The
+               empty-set string is VISION's own, from its empty-states table.
+               Button is the shared `Button` at default size, matching
+               `NotFoundState`. */
+            <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
               <p className="text-[15px] leading-[24px] text-muted-foreground">
-                No modules found. Try a different search or filter.
+                {allModules.length === 0
+                  ? "No modules assigned to your role yet."
+                  : hasSearch && hasFilters
+                    ? "No modules match your search and filters."
+                    : hasSearch
+                      ? "No modules match your search."
+                      : "No modules match those filters."}
               </p>
+              {allModules.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={() => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); }}
+                >
+                  {hasSearch && hasFilters ? "Clear search & filters" : hasSearch ? "Clear search" : "Clear filters"}
+                </Button>
+              )}
             </div>
           )}
             </>

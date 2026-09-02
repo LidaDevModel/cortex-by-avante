@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Target, Timer, Check, SlidersHorizontal } from "lucide-react";
 import { PresetCard } from "@/components/knowledge-check/PresetCard";
-import { CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
-import { getWeakestCategories, getTodaysDailyAttempt } from "@/lib/kc-store";
+
+import { getWeakAreaMeta, getTodaysDailyAttempt } from "@/lib/kc-store";
 import { learnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 
@@ -19,8 +19,8 @@ export function QuickPractice() {
   const router = useRouter();
 
   const dailyDone = getTodaysDailyAttempt();
-  const weakest = getWeakestCategories(1);
-  const weakestLabel = weakest.length > 0 ? CATEGORY_LABELS[weakest[0]] : null;
+  // Shared with the Knowledge Check screen so the two can never disagree.
+  const weakAreaMeta = getWeakAreaMeta(["mc", "matching", "branching"]);
   const examSimAvailable = learnerModules(useCurrentRole()).some((m) => m.status === "in-progress");
 
   const go = (start: string) => () => router.push(`/training/quick-check?start=${start}`);
@@ -56,9 +56,9 @@ export function QuickPractice() {
         <PresetCard
           icon={<Target size={20} strokeWidth={1.5} />}
           title="Weak areas"
-          meta={weakestLabel ? `Targets your weakest area: ${weakestLabel}` : "Complete a check to unlock"}
+          meta={weakAreaMeta ?? "Complete a check to unlock"}
           onClick={go("weak")}
-          disabled={!weakestLabel}
+          disabled={!weakAreaMeta}
           className="bg-surface-chip"
         />
 

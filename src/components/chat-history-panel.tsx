@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { showToast } from "@/components/ui/toast";
 import { History, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
 import {
@@ -82,9 +83,35 @@ export function useConversations() {
     setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
     if (id.startsWith("arch-")) persistArchived(loadArchived().map((c) => (c.id === id ? { ...c, title } : c)));
   };
+  /**
+   * Delete with an undo, not a confirmation. VISION's own care-inversion:
+   * removing a section here already offers "Undo", while deleting a whole
+   * conversation had no guard of any kind — one menu click and it was gone.
+   * Undo beats a dialog for a reversible action; the position is restored, not
+   * just the item, so the list does not reshuffle.
+   */
   const remove = (id: string) => {
-    setConversations((prev) => prev.filter((c) => c.id !== id));
+    let restore: (() => void) | null = null;
+    setConversations((prev) => {
+      const idx = prev.findIndex((c) => c.id === id);
+      if (idx === -1) return prev;
+      const removed = prev[idx];
+      restore = () => {
+        setConversations((cur) => {
+          if (cur.some((c) => c.id === removed.id)) return cur;
+          const next = [...cur];
+          next.splice(Math.min(idx, next.length), 0, removed);
+          return next;
+        });
+        if (removed.id.startsWith("arch-")) persistArchived([removed, ...loadArchived()]);
+      };
+      return prev.filter((c) => c.id !== id);
+    });
     if (id.startsWith("arch-")) persistArchived(loadArchived().filter((c) => c.id !== id));
+    showToast({
+      title: "Conversation deleted",
+      action: { label: "Undo", onClick: () => restore?.() },
+    });
   };
   // Record a just-left conversation into history (most recent first) — updates
   // the live list AND the store, so it shows under "Today" on this same return.

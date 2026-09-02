@@ -37,7 +37,16 @@ const para = (...segments: Segment[]): TextBlock => ({ type: "text", segments })
 
 const RESPONSE_TOPICS: ResponseTopic[] = [
   {
-    keywords: ["escalat", "tier", "supervisor", "duty manager"],
+    // The situation words are here, not just in DOMAIN_VOCABULARY, because the
+    // tier answer below IS the right answer for them: an aggressive person or a
+    // refused entry is exactly what the three-tier system decides who to tell
+    // and how fast. Journey 2 typed "a man at the north gate is refusing to
+    // show ID and getting aggressive" and was told his question was not about
+    // security operations.
+    keywords: [
+      "escalat", "tier", "supervisor", "duty manager",
+      "aggress", "altercation", "threat", "abusive", "intruder", "trespass", "refus",
+    ],
     diagramKey: "escalation",
     variants: {
       concise: [
@@ -73,7 +82,10 @@ const RESPONSE_TOPICS: ResponseTopic[] = [
     },
   },
   {
-    keywords: ["incident", "report", "log", "documentation"],
+    // "log" was here and matched "I cannot **log** in to my payroll account",
+    // which came back as a confidently cited answer about incident registers.
+    // The specific phrasings replace it; "incident" already covers the rest.
+    keywords: ["incident", "report", "incident log", "logbook", "documentation"],
     diagramKey: "incident",
     variants: {
       concise: [
@@ -311,9 +323,14 @@ const NOT_FOUND_RESPONSE: TextBlock[] = [
 const DOMAIN_VOCABULARY = [
   "security", "guard", "shift", "site", "safety", "supervisor", "manager",
   "duty", "uniform", "equipment", "report", "client", "visitor", "access",
-  "incident", "patrol", "radio", "alarm", "emergency", "cctv", "post", "log",
+  "incident", "patrol", "radio", "alarm", "emergency", "cctv", "post", "logbook",
   "protocol", "procedure", "escalat", "handover", "briefing", "checkpoint",
   "perimeter", "officer", "badge", "gatehouse", "evacuat", "first aid",
+  // How guards describe a situation, rather than how documents are titled.
+  // Without these a real incident fell through both tiers and was told it was
+  // not about security operations at all — the worst possible answer mid-shift.
+  "gate", "refus", "aggress", "threat", "altercation", "trespass", "intruder",
+  "abusive", "weapon", "theft", "injur", "assault", "suspicious",
 ];
 
 export type ResponseKind = "answer" | "not-found" | "out-of-scope";
@@ -340,11 +357,24 @@ export type ChatResponse = {
 // Phrasings that explicitly request a visual (Stage 3 expands the trigger).
 const DIAGRAM_REQUEST = ["diagram", "flowchart", "flow chart", "chart", "visual", "visualise", "visualize", "draw", "map out", "step by step", "step-by-step", "show me the steps", "show me the flow"];
 
+/**
+ * Word-boundary keyword test.
+ *
+ * Keywords are deliberately stems — "escalat" must match "escalation" and
+ * "escalated" — so the boundary is required only at the START of the word. That
+ * is what stops a keyword matching inside an unrelated one, which is how the
+ * incident topic used to claim questions it had no business answering.
+ */
+function hits(q: string, keyword: string): boolean {
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}`).test(q);
+}
+
 export function resolveResponse(question: string, level: DetailLevel = "standard"): ChatResponse {
   const q = question.toLowerCase();
   const scored = RESPONSE_TOPICS.map(topic => ({
     topic,
-    score: topic.keywords.filter(kw => q.includes(kw)).length,
+    score: topic.keywords.filter(kw => hits(q, kw)).length,
   })).filter(s => s.score > 0);
 
   if (scored.length > 0) {
@@ -362,7 +392,7 @@ export function resolveResponse(question: string, level: DetailLevel = "standard
     return { kind: "answer", blocks, diagram };
   }
 
-  if (DOMAIN_VOCABULARY.some(kw => q.includes(kw))) {
+  if (DOMAIN_VOCABULARY.some(kw => hits(q, kw))) {
     return { kind: "not-found", blocks: NOT_FOUND_RESPONSE, browseLibraryHref: "/library" };
   }
 

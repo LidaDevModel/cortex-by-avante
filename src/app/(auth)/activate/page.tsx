@@ -27,6 +27,9 @@ export default function ActivatePage() {
 
   // Step 1 — verify PIN
   const [email, setEmail] = useState("");
+  // See the sign-in page: the error waits until the field is left, and clears
+  // as soon as the user edits it again.
+  const [emailTouched, setEmailTouched] = useState(false);
   const [pin, setPin] = useState("");
 
   // Step 2 — create password. Requirements are shown up front (not hidden in a
@@ -58,7 +61,7 @@ export default function ActivatePage() {
   // rule) — but any dummy values pass. The PIN/email aren't checked against a
   // real account; the flow just advances.
   const emailLooksValid = email.includes("@");
-  const emailError = email.length > 0 && !emailLooksValid;
+  const emailError = emailTouched && email.length > 0 && !emailLooksValid;
   const step1Valid = emailLooksValid && pin.length === 6;
 
   function handleVerify(e: React.FormEvent) {
@@ -117,8 +120,14 @@ export default function ActivatePage() {
       {step === 3 ? (
         // mt-2 lifts title→content to 32px visible — the runway sign-in's muted
         // subtitle line creates before its form (visual parity, not measured).
-        <div key="profile" className="mt-2" style={{ animation: "msg-in 200ms ease-out both" }}>
+        <div key="profile" className="mt-2 flex flex-col gap-4" style={{ animation: "msg-in 200ms ease-out both" }}>
           <ProfileForm mode="onboarding" onDone={finishOnboarding} />
+          {/* The last auth screen a new hire sees. Nothing told them which
+              door to use next time, or that the password they just chose is
+              the one to use — so the next visit started with a guess. */}
+          <p className="text-[13px] leading-[20px] text-muted-foreground">
+            Next time, sign in with your email and the password you just created.
+          </p>
         </div>
       ) : step === 1 ? (
         <form
@@ -139,7 +148,8 @@ export default function ActivatePage() {
               autoFocus
               placeholder="name@avante.security"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setEmailTouched(false); }}
+              onBlur={() => setEmailTouched(true)}
               className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
             />
             {/* Reserved message line — always present so the form never jumps */}

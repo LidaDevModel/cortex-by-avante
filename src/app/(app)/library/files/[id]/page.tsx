@@ -12,8 +12,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { DocCallout } from "@/components/library/DocCallout";
-import { type TocSection, type SubSection } from "@/lib/library-mock";
-import { getLearnerDoc, useLibrary } from "@/lib/content-store";
+import { type TocSection, type SubSection, countDocPages} from "@/lib/library-mock";
+import { getLearnerDocResult, useLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
 
 /* ─── Helpers ─── */
@@ -323,10 +323,9 @@ function DocumentPage({
   const suppressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasPositionedRef = useRef(false);
 
-  useEffect(() => {
-    const el = pageRefs.current[activeId];
-    const container = scrollRef.current;
-    if (!el || !container) return;
+
+  /** The original positioning body, unchanged, lifted so the retry can call it. */
+  const positionTo = useCallback((el: HTMLDivElement, container: HTMLDivElement) => {
     // Suppress the scroll listener while the programmatic scroll animates.
     // Release on scrollend (i.e. when the animation actually settles) — a
     // fixed short timer can expire mid-flight on long multi-page jumps and
@@ -349,6 +348,51 @@ function DocumentPage({
     hasPositionedRef.current = true;
     container.scrollTo({ top: el.offsetTop - 32, behavior });
     return () => container.removeEventListener("scrollend", release);
+  }, []);
+
+  /**
+   * Scroll to the active page.
+   *
+   * On first mount the target page element is not registered yet, so this used
+   * to bail — and because it depends only on `activeId`, which never changes
+   * for a `?section=` deep link, it never retried. Journey 2: following a
+   * citation to "4. Emergency Response" landed on section 1 while the toolbar
+   * correctly read "Page 9 / 14". The app knew where to go and did not go.
+   *
+   * It now waits for the element across a few frames. Deliberately NOT done by
+   * bumping state from the ref callback: the callback is a fresh function each
+   * render, so React detaches and re-attaches it every time, and setState there
+   * loops until React throws "Maximum update depth exceeded" — which is exactly
+   * what happened on the first attempt at this fix.
+   */
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    let raf = 0;
+    let attempts = 0;
+    let cancelled = false;
+    let cleanupScrollend: (() => void) | null = null;
+
+    const tryScroll = () => {
+      if (cancelled) return;
+      const el = pageRefs.current[activeId];
+      if (!el) {
+        // ~20 frames is a third of a second at 60fps: long enough for the page
+        // list to mount, short enough never to fight a real user scroll.
+        if (attempts++ < 20) raf = requestAnimationFrame(tryScroll);
+        return;
+      }
+      cleanupScrollend = positionTo(el, container);
+    };
+
+    tryScroll();
+    return () => {
+      cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
+      cleanupScrollend?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
 
   useEffect(() => {
@@ -381,8 +425,16 @@ function DocumentPage({
         style={{ background: `linear-gradient(to bottom, ${canvasBg}, transparent)` }} />
       <div className="absolute bottom-0 inset-x-0 h-12 pointer-events-none z-10"
         style={{ background: `linear-gradient(to top, ${canvasBg}, transparent)` }} />
-      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto scroll-thin">
+      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-auto overscroll-x-contain scroll-thin">
         <div className="flex flex-col items-center gap-4 py-8" style={{ minWidth: scaledW + 48 }}>
+          {/* A published document with no sections rendered a blank grey
+              expanse — the reader looked broken rather than empty. Reachable
+              through normal use once an admin unpublishes or clears content. */}
+          {sections.length === 0 && (
+            <p className="py-24 text-[14px] leading-[20px] text-muted-foreground">
+              This document has no content yet.
+            </p>
+          )}
           {sections.map((s) => {
             const renderPage = (id: string, pg: PageDescriptor) => (
               <div
@@ -603,7 +655,8 @@ export default function FileViewPage() {
   const searchParams = useSearchParams();
   const role = useCurrentRole();
   useLibrary(); // subscribe so a publish/edit re-renders the viewer
-  const result = getLearnerDoc(id, role);
+  const lookup = getLearnerDocResult(id, role);
+  const result = lookup.status === "ok" ? lookup : null;
 
   const [tocFilter, setTocFilter] = useState("");
   const [tocSheetOpen, setTocSheetOpen] = useState(false);
@@ -702,12 +755,20 @@ export default function FileViewPage() {
   const canNext = activeIndex < sections.length - 1;
 
   if (!result) {
+    // "Not found" is only true when it really is not there. A document scoped
+    // to another role exists — saying otherwise misleads, and leaves the guard
+    // with nothing to do about it.
+    const forbidden = lookup.status === "forbidden";
     return (
       <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-        <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: "File" }]} />
+        <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: forbidden ? "Restricted" : "File" }]} />
         <NotFoundState
-          title="Document not found"
-          description="This document may have been moved or removed from the Library."
+          title={forbidden ? "Access restricted" : "Document not found"}
+          description={
+            forbidden
+              ? "This content isn't available for your role. Contact your manager if you think this is a mistake."
+              : "This document may have been moved or removed from the Library."
+          }
           actionLabel="Back to Library"
           actionHref="/library"
         />
@@ -733,7 +794,8 @@ export default function FileViewPage() {
     return map;
   }, [sections]);
 
-  const totalPages = Object.keys(pageNumbers).length || sections.length;
+  // Same function the Library list uses — see countDocPages.
+  const totalPages = countDocPages(sections);
   const activePageNum = pageNumbers[activeId] ?? 1;
 
   // Grid find: count pages whose searchText contains the query
@@ -793,7 +855,7 @@ export default function FileViewPage() {
         findGridMode={viewMode === "grid"}
         left={
           /* Mobile contents trigger — the desktop rail is hidden below md */
-          <div className="md:hidden shrink-0">
+          <div className="lg:hidden shrink-0">
             <IconButton position="solo" onClick={() => setTocSheetOpen(true)} title="Contents">
               <TableOfContentsIcon size={15} strokeWidth={1.5} className="text-foreground" />
               <span className="sr-only">Contents</span>
@@ -822,11 +884,15 @@ export default function FileViewPage() {
 
                 {/* Page nav */}
                 <div className="flex items-center gap-3">
-                  <span className="text-[14px] text-muted-foreground">
-                    Page{" "}
-                    <span className="text-[16px] text-foreground">{activePageNum}</span>
-                    {" "}/ {totalPages}
-                  </span>
+                  {/* No counter when there is nothing to count — an empty
+                      document used to read "Page 1 / 0". */}
+                  {totalPages > 0 && (
+                    <span className="text-[14px] text-muted-foreground">
+                      Page{" "}
+                      <span className="text-[16px] text-foreground">{activePageNum}</span>
+                      {" "}/ {totalPages}
+                    </span>
+                  )}
                   {/* Prev/next are pointer affordances — mobile navigates by
                       scroll and the contents sheet */}
                   <div className="hidden sm:flex">
@@ -914,7 +980,16 @@ export default function FileViewPage() {
           backHref={fromChat ? "/chat" : folder ? `/library/folders/${folder.id}` : "/library"}
           backLabel={fromChat ? "Back to conversation" : folder ? `Back to ${folder.name}` : "Back to Library"}
           title={doc.name}
-          meta={doc.content}
+          // Derived from the pages actually rendered, not the authored
+          // `content` string. The header said "8 pages" while the toolbar
+          // said "Page 9 / 14" — nine of eight — because `content` is
+          // hand-written free text on the seed ("8 pages") that was never
+          // reconciled with the renderer. A guard sent to the wrong page and
+          // then shown two different totals has two reasons to distrust the
+          // document, at the moment they are checking a fact.
+          // Nothing to count means nothing to say — the reading surface below
+          // already carries "This document has no content yet."
+          meta={totalPages > 0 ? `${totalPages} ${totalPages === 1 ? "page" : "pages"}` : undefined}
           className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"
         />
       </div>

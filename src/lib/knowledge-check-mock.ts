@@ -25,6 +25,9 @@ export type KCCategory = "escalations" | "first-aid" | "incidents" | "clients";
 export type KCMCQuestion = {
   id: string;
   type: "mc";
+  /** The training subject this question belongs to. Drives category filtering
+      and the per-question weak-area maths. */
+  category: KCCategory;
   question: string;
   options: string[];
   correctIndex: number;
@@ -35,6 +38,7 @@ export type KCMCQuestion = {
 export type KCMatchingQuestion = {
   id: string;
   type: "matching";
+  category: KCCategory;
   instruction: string;
   pairs: { id: string; term: string; definition: string }[];
   sourceDoc: string;
@@ -44,6 +48,7 @@ export type KCMatchingQuestion = {
 export type KCBranchingQuestion = {
   id: string;
   type: "branching";
+  category: KCCategory;
   title: string;
   nodes: KCBranchingNode[];
   startNodeId: string;
@@ -101,6 +106,7 @@ export function getBudget(formats: KCFormat[]): Budget {
 const MC_BANK: KCMCQuestion[] = [
   {
     id: "kc-mc-1",
+    category: "escalations",
     type: "mc",
     question: "Which tier of escalation requires immediate notification of emergency services?",
     options: ["Tier 1 — Monitor", "Tier 2 — Notify", "Tier 3 — Respond", "Post-incident review"],
@@ -110,6 +116,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-2",
+    category: "incidents",
     type: "mc",
     question: "What is the first action a guard should take when discovering an unattended bag?",
     options: [
@@ -124,6 +131,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-3",
+    category: "incidents",
     type: "mc",
     question: "How long after an incident must a security report be completed?",
     options: ["1 hour", "4 hours", "End of shift", "24 hours"],
@@ -133,6 +141,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-4",
+    category: "incidents",
     type: "mc",
     question: "Which communication channel is designated for Tier 2 security incidents?",
     options: [
@@ -147,6 +156,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-5",
+    category: "escalations",
     type: "mc",
     question: "During a fire evacuation, a staff member refuses to leave. What is the correct response?",
     options: [
@@ -161,6 +171,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-6",
+    category: "escalations",
     type: "mc",
     question: "What does a Tier 1 security event require?",
     options: [
@@ -175,6 +186,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-7",
+    category: "clients",
     type: "mc",
     question: "When encountering a person tailgating through a secure door, you should:",
     options: [
@@ -189,6 +201,7 @@ const MC_BANK: KCMCQuestion[] = [
   },
   {
     id: "kc-mc-8",
+    category: "clients",
     type: "mc",
     question: "A shift handover report should include which of the following?",
     options: [
@@ -206,6 +219,7 @@ const MC_BANK: KCMCQuestion[] = [
 const MATCHING_BANK: KCMatchingQuestion[] = [
   {
     id: "kc-match-1",
+    category: "escalations",
     type: "matching",
     instruction: "Match each escalation tier to its correct definition.",
     pairs: [
@@ -219,6 +233,7 @@ const MATCHING_BANK: KCMatchingQuestion[] = [
   },
   {
     id: "kc-match-2",
+    category: "incidents",
     type: "matching",
     instruction: "Match each communication method to its correct use case.",
     pairs: [
@@ -231,6 +246,7 @@ const MATCHING_BANK: KCMatchingQuestion[] = [
   },
   {
     id: "kc-match-3",
+    category: "incidents",
     type: "matching",
     instruction: "Match each incident type to its required initial action.",
     pairs: [
@@ -246,6 +262,7 @@ const MATCHING_BANK: KCMatchingQuestion[] = [
 const BRANCHING_BANK: KCBranchingQuestion[] = [
   {
     id: "kc-branch-1",
+    category: "clients",
     type: "branching",
     title: "Unauthorised access scenario",
     startNodeId: "b1-start",
@@ -293,6 +310,7 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
   },
   {
     id: "kc-branch-2",
+    category: "first-aid",
     type: "branching",
     title: "Medical emergency response",
     startNodeId: "b2-start",
@@ -340,6 +358,7 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
   },
   {
     id: "kc-branch-3",
+    category: "clients",
     type: "branching",
     title: "Shift handover breach",
     startNodeId: "b3-start",
@@ -389,13 +408,41 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
 
 /* ─── Question generation ─── */
 
-export function generateQuestions(formats: KCFormat[], _categories: KCCategory[]): KCQuestion[] {
+/**
+ * Build a check from the chosen formats and subjects.
+ *
+ * The categories argument used to be ignored -- it was literally named
+ * `_categories` -- and the questions carried no subject at all, so "Weak areas:
+ * targets your weakest area" and Custom check's category picker both delivered
+ * whatever the format budget happened to slice. Every question now carries a
+ * `category` and this filters on it.
+ *
+ * If a subject has fewer questions than the budget asks for, the check is
+ * simply shorter rather than empty -- an honest short check beats a padded one
+ * drawn from subjects the learner did not pick.
+ */
+export function generateQuestions(formats: KCFormat[], categories: KCCategory[]): KCQuestion[] {
+  const wanted = new Set(categories);
+  const inScope = <T extends KCQuestion>(bank: T[]) =>
+    wanted.size === 0 ? bank : bank.filter((q) => wanted.has(q.category));
+
   const budget = getBudget(formats);
   const questions: KCQuestion[] = [];
-  if (budget.mc > 0) questions.push(...MC_BANK.slice(0, budget.mc));
-  if (budget.matching > 0) questions.push(...MATCHING_BANK.slice(0, budget.matching));
-  if (budget.branching > 0) questions.push(...BRANCHING_BANK.slice(0, budget.branching));
+  if (budget.mc > 0) questions.push(...inScope(MC_BANK).slice(0, budget.mc));
+  if (budget.matching > 0) questions.push(...inScope(MATCHING_BANK).slice(0, budget.matching));
+  if (budget.branching > 0) questions.push(...inScope(BRANCHING_BANK).slice(0, budget.branching));
   return questions;
+}
+
+/** How many questions exist for a subject in a given set of formats. Lets a
+    caller warn about, or avoid, a subject the bank barely covers. */
+export function countAvailable(formats: KCFormat[], categories: KCCategory[]): number {
+  const wanted = new Set(categories);
+  const banks: KCQuestion[][] = [];
+  if (formats.includes("mc")) banks.push(MC_BANK);
+  if (formats.includes("matching")) banks.push(MATCHING_BANK);
+  if (formats.includes("branching")) banks.push(BRANCHING_BANK);
+  return banks.flat().filter((q) => wanted.size === 0 || wanted.has(q.category)).length;
 }
 
 /* ─── Scoring ─── */
@@ -456,8 +503,12 @@ function mockAttempt(
   const answers: Record<string, KCAnswer> = {};
 
   questions.forEach((q, i) => {
+    // "poor" used to mark EVERY answer wrong, so five of the seventeen seeded
+    // attempts scored 0/11 -- a score nobody achieves on four-option multiple
+    // choice, twice, in one history. It also anchored the weak-area maths.
+    // A third correct reads as weak without reading as broken.
     const isCorrect =
-      correctnessPattern === "good" ? true : correctnessPattern === "poor" ? false : i % 2 === 0;
+      correctnessPattern === "good" ? true : correctnessPattern === "poor" ? i % 3 === 0 : i % 2 === 0;
 
     if (q.type === "mc") {
       answers[q.id] = {

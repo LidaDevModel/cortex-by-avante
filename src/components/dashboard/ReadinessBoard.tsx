@@ -290,7 +290,7 @@ export function ReadinessBoard({
       <div className="flex flex-col gap-2">
         {/* Always visible: what's left to do. Two columns on desktop (auto rows),
             single column on mobile. The row UI itself is unchanged. */}
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           {activeRows.map((m, i) => (
             <RequirementRow key={m.id} module={m} index={i} isPrimary={m.id === primaryId} />
           ))}
@@ -312,7 +312,7 @@ export function ReadinessBoard({
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
+              <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2 pt-2">
                 {certifiedRows.map((m, i) => (
                   <RequirementRow key={m.id} module={m} index={i} isPrimary={false} />
                 ))}

@@ -21,7 +21,10 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
     pages.push(totalPages);
   }
 
-  const navBtn = "h-8 w-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]";
+  // 44px on touch, 32px on pointer devices. Shared by every paginated list —
+  // Library, admin content, people, flagged responses, activity — so one
+  // change covers them all.
+  const navBtn = "size-11 md:size-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-[colors,transform] duration-100 enabled:active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]";
 
   return (
     <div className={cn("flex items-center justify-between", className)}>
@@ -41,7 +44,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
           p === "…" ? (
             <span
               key={`ellipsis-${i}`}
-              className="h-8 w-8 flex items-center justify-center text-[13px] text-muted-foreground"
+              className="size-11 md:size-8 flex items-center justify-center text-[13px] text-muted-foreground"
             >
               …
             </span>
@@ -49,7 +52,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
             <button
               key={p}
               onClick={() => onChange(p)}
-              className="h-8 w-8 flex items-center justify-center rounded-[6px] border text-[13px] leading-[20px] font-medium transition-colors duration-100"
+              className="size-11 md:size-8 flex items-center justify-center rounded-[6px] border text-[13px] leading-[20px] font-medium transition-[colors,transform] duration-100 active:scale-95"
               style={
                 p === page
                   ? { background: "var(--primary)", borderColor: "var(--primary)", color: "var(--primary-foreground)" }

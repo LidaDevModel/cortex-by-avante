@@ -60,7 +60,7 @@ const navItems = [
 
 const trainingSubItems = [
   { label: "Modules", href: "/training/modules" },
-  { label: "Knowledge Check", href: "/training/quick-check" },
+  { label: "Knowledge check", href: "/training/quick-check" },
 ];
 
 // Content authoring — Library documents and training Modules.
@@ -76,7 +76,7 @@ const learningSubItems = [
   { label: "AI Chat", href: "/chat" },
   { label: "Library", href: "/library" },
   { label: "Modules", href: "/training/modules" },
-  { label: "Knowledge Check", href: "/training/quick-check" },
+  { label: "Knowledge check", href: "/training/quick-check" },
 ];
 
 export function CortexSidebar() {
@@ -136,7 +136,18 @@ export function CortexSidebar() {
                         <SidebarMenuSubItem key={sub.label}>
                           <SidebarMenuSubButton
                             asChild
-                            isActive={sub.href === "/admin/content" ? pathname === "/admin/content" : pathname.startsWith(sub.href)}
+                            // "Library" is a prefix of "Modules", so a plain
+                            // startsWith would light both on a module route.
+                            // An exact match went too far the other way and
+                            // lost the highlight on a document editor at
+                            // /admin/content/[id]. Match the subtree, minus
+                            // the one that belongs to its sibling.
+                            isActive={
+                              sub.href === "/admin/content"
+                                ? pathname.startsWith("/admin/content") &&
+                                  !pathname.startsWith("/admin/content/training")
+                                : pathname.startsWith(sub.href)
+                            }
                           >
                             <Link href={sub.href}>{sub.label}</Link>
                           </SidebarMenuSubButton>

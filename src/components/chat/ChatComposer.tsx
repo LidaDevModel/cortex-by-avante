@@ -288,20 +288,44 @@ export function ChatComposer({
     setIsRecording(false);
   }
 
-  const iconBtn = "w-10 h-10 rounded-[10px] flex items-center justify-center transition-colors";
+  // 44px on touch (WCAG 2.5.8 / platform minimums), 40px on pointer devices
+  // where the cursor is precise and the row reads tighter.
+  const iconBtn = "size-11 md:size-10 rounded-[10px] flex items-center justify-center transition-colors";
 
   return (
     <div
-      className="chat-input-shimmer relative w-full rounded-2xl flex flex-col gap-2 p-3"
+      className="relative w-full rounded-2xl flex flex-col gap-2 p-3"
       style={{
         background: "var(--surface)",
         border: `1px solid ${isDragging ? "var(--ring)" : "var(--input-border)"}`,
         boxShadow: "var(--shadow-input-widget)",
       }}
+      // The visible input strip is only ~24px tall inside a much larger card,
+      // so most taps on the composer landed on padding and did nothing. Clicking
+      // anywhere in the card focuses the field.
+      onMouseDown={(e) => {
+        const card = e.currentTarget as HTMLElement;
+        const t = e.target as HTMLElement;
+        // React portals bubble through the REACT tree, not the DOM tree, so a
+        // click inside the portalled answer-detail popover reaches this handler
+        // even though it sits outside the card. Stealing focus there made Radix
+        // see focus leave the popover and dismiss it, so the dial closed the
+        // moment you touched its slider. Only act on what is physically inside.
+        if (!card.contains(t)) return;
+        // A real control, or a text selection in progress, keeps its own focus.
+        if (t.closest("button, a, input, textarea, [role=slider]")) return;
+        if (window.getSelection()?.toString()) return;
+        e.preventDefault();
+        textareaRef.current?.focus();
+      }}
       onDragOver={enableAttachments ? (e) => { e.preventDefault(); setIsDragging(true); } : undefined}
       onDragLeave={enableAttachments ? (e) => { if (e.currentTarget === e.target) setIsDragging(false); } : undefined}
       onDrop={handleDrop}
     >
+      {/* The ambient border sheen. A real element because its moving layer is a
+          pseudo-element child, and pseudo-elements cannot nest — see
+          .chat-input-sheen in globals.css. */}
+      <span className="chat-input-sheen" aria-hidden="true" />
       {enableAttachments && (
         <input
           ref={fileInputRef}
@@ -333,6 +357,12 @@ export function ChatComposer({
               }}
               rows={1}
               placeholder={placeholder}
+              // Enter submits (Shift+Enter is a newline), so the phone's action
+              // key should read "send" rather than "return".
+              enterKeyHint="send"
+              // The placeholder is not an accessible name: it changes with
+              // context and screen readers may not announce it at all.
+              aria-label="Ask Cortex a question"
               className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:text-[14px]"
               onScroll={updateTaScroll}
               style={{ maxHeight: `${MAX_HEIGHT}px`, overflowY: isScrollable ? "auto" : "hidden" }}
@@ -444,7 +474,7 @@ export function ChatComposer({
                 <button
                   type="button"
                   disabled={!canSend}
-                  className="cortex-send-btn w-10 h-10 flex items-center justify-center transition-[opacity,transform] duration-100 enabled:hover:opacity-90 enabled:active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cortex-send-btn size-11 md:size-10 flex items-center justify-center transition-[opacity,transform] duration-100 enabled:hover:opacity-90 enabled:active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Send message"
                   onClick={submit}
                   style={{ boxShadow: "var(--shadow-ai-send-button)" }}

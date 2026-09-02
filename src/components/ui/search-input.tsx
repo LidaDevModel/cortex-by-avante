@@ -17,10 +17,13 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
         className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
       />
       <input
-        type="text"
+        type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        // The phone keyboard's action key becomes a magnifier rather than a
+        // generic return.
+        enterKeyHint="search"
         // Search fields must not be auto-corrected/capitalized — the mobile
         // keyboard otherwise fights the controlled value and scrambles input.
         autoCapitalize="none"

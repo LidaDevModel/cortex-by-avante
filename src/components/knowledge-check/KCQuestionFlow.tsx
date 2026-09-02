@@ -102,7 +102,7 @@ export function KCSectionTabs({
     // Bleeds to the viewport edge on mobile so the pill row scrolls
     // edge-to-edge when the sections don't fit; resets inside the column on
     // desktop where they do.
-    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {sections.map((s) => {
         const isActive = !isReviewActive && s.startIndex === activeSection?.startIndex;
         const isDone = !isActive && isSectionComplete(s, questions, answers);
@@ -286,6 +286,8 @@ function MCQuestion({
   isLastSection,
   questionIndex,
   totalQuestions,
+  sectionPosition,
+  sectionCount,
   dots,
 }: {
   question: Extract<KCQuestion, { type: "mc" }>;
@@ -297,6 +299,8 @@ function MCQuestion({
   isLastSection: boolean;
   questionIndex: number;
   totalQuestions: number;
+  sectionPosition: number;
+  sectionCount: number;
   dots?: React.ReactNode;
 }) {
   const selectedIndex = answer?.selectedIndex ?? null;
@@ -314,8 +318,13 @@ function MCQuestion({
     <div className="flex flex-col gap-4 w-full max-w-[600px] mx-auto">
       {dots}
       <div className="flex flex-col gap-1">
+        {/* Scoped to the section, so "of 4" cannot read as the whole check —
+            a "Daily 5" is four MC questions plus a matching exercise, scored
+            out of 8. */}
         <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
-          Question {questionIndex + 1} of {totalQuestions}
+          {sectionCount > 1
+            ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
+            : `Question ${questionIndex + 1} of ${totalQuestions}`}
         </span>
         <p className="text-[20px] leading-[28px] font-semibold text-foreground">{question.question}</p>
       </div>
@@ -618,6 +627,8 @@ export function KCQuestionFlow({
                 isLastSection={isLastSection}
                 questionIndex={currentIndex - activeSection.startIndex}
                 totalQuestions={activeSection.count}
+                sectionPosition={sections.indexOf(activeSection) + 1}
+                sectionCount={sections.length}
                 dots={activeSection.count > 1 ? (
                   <ProgressDots
                     section={activeSection}

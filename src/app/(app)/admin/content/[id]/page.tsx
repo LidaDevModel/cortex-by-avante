@@ -90,7 +90,7 @@ export default function AdminDocumentEditorPage() {
   if (!found) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library", href: "/admin/content" }, { label: "Not found" }]} className={headerClassName} />
+        <PageHeader crumbs={[{ label: "Content" }, { label: "Library", href: "/admin/content" }, { label: "Not found" }]} className={headerClassName} />
         <NotFoundState title="Document not found" description="This document may have been removed. Return to the content list." actionLabel="Back to content" actionHref="/admin/content" />
       </div>
     );
@@ -191,17 +191,22 @@ export default function AdminDocumentEditorPage() {
       : { title: "Moved to draft", description: "This document is no longer visible to learners.", action: undo });
     leaveAfterWrite();
   }
-  // After a write: return to a flag review if we came from one, or send a
-  // brand-new document to the list (its folder, if created inside one). An
-  // existing edit stays on the editor.
+  // After a write: return to a flag review if we came from one. Otherwise stay
+  // on the editor — an existing edit always did, and a brand-new document used
+  // to be sent to the list, which meant writing section two required finding
+  // and reopening the document you had just created. The document exists in the
+  // store by this point, so `?new=1` is dropped and the screen simply becomes
+  // the editor it already was: the title changes from "Create document" to
+  // "Edit document" and the button from "Save" to "Save changes". Exit is still
+  // the way out.
   function leaveAfterWrite() {
-    if (returnTo) router.push(returnTo);
-    else if (isNew) router.push(found!.folderId ? `/admin/content?folder=${found!.folderId}` : "/admin/content");
+    if (returnTo) { router.push(returnTo); return; }
+    if (isNew) router.replace(`/admin/content/${id}`);
   }
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Library", href: "/admin/content" }, { label: found.doc.name }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Content" }, { label: "Library", href: "/admin/content" }, { label: found.doc.name }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">

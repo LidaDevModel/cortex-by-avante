@@ -31,6 +31,9 @@ export type CortexNotification = {
   /** ISO date — drives Today/Earlier grouping and relative time. */
   date: string;
   href: string;
+  /** A required module gates shift readiness, so it sorts above optional news
+      within the same day. */
+  required?: boolean;
 };
 
 export type NotificationPrefs = {
@@ -128,13 +131,21 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
   /* ── Learner feed — field agents and admins alike (admins have a Learning group too) ── */
   if (prefs.assignments) {
     for (const m of getLearnerRecentModules(getCurrentRole(), RECENCY_DAYS)) {
+      // A required module is not the same news as an optional one: it decides
+      // whether the guard is cleared for their next shift. Journey 5 met this
+      // as one undifferentiated line in the feed.
       items.push({
         id: `mod-${m.id}`,
         category: "assignment",
-        title: `New module assigned: ${m.title}`,
-        meta: `${m.chapters} chapters · ${m.hours}h`,
+        title: m.required
+          ? `New requirement: ${m.title}`
+          : `New module assigned: ${m.title}`,
+        meta: m.required
+          ? `Required for ${ROLE_LABEL[getCurrentRole()]} · ~${m.hours}h`
+          : `${m.chapters} chapters · ${m.hours}h`,
         date: m.assignedDate,
         href: `/training/modules/${m.id}`,
+        required: m.required,
       });
     }
     for (const d of getLearnerRecent(getCurrentRole(), RECENCY_DAYS)) {
@@ -191,7 +202,13 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
   }
 
   return items
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    // Newest first, but a required module outranks optional news from the same
+    // day — it is the item that decides whether the guard can work their shift.
+    .sort((a, b) => {
+      const byDate = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (byDate !== 0) return byDate;
+      return Number(b.required ?? false) - Number(a.required ?? false);
+    })
     .map((n) => ({ ...n, unread: !read.has(n.id) }));
 }
 
