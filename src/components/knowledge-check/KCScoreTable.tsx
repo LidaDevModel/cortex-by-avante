@@ -35,7 +35,12 @@ function SectionRow({
   total: number;
   children?: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  // A section with wrong answers opens itself. The corrections are the point of
+  // practising, and they were behind a 14px chevron on a screen whose primary
+  // action is "Try another" -- so the designed path was to retry without ever
+  // seeing what you got wrong. A perfect section stays shut; it has nothing to
+  // show but "All answers correct."
+  const [open, setOpen] = useState(correct < total);
   // The row discloses the breakdown rather than navigating, so it must say so:
   // a keyboard or screen-reader user otherwise had no way to reach the one
   // thing on this screen that explains what they got wrong.
@@ -49,10 +54,13 @@ function SectionRow({
         ariaControls={panelId}
       >
         <TableCell className="flex-1 text-left">{label}</TableCell>
-        <TableCell
-          className="w-10 text-right font-medium tabular-nums"
-          style={{ color: correct === total ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
-        >
+        {/* Deliberately NOT coloured. These cells used to be green when a
+            section was perfect and red otherwise, while the headline percentage
+            next to them was green above the 70% pass mark — so a 6-of-8 result
+            rendered "75%" in green directly above a total "6" in red. One
+            colour, two meanings, on one screen. Pass/fail now lives only on the
+            headline; a section score is just a number. */}
+        <TableCell className="w-10 text-right font-medium tabular-nums text-foreground">
           {correct}
         </TableCell>
         <TableCell className="w-10 text-right text-muted-foreground tabular-nums">{total}</TableCell>
@@ -234,10 +242,7 @@ export function KCScoreTable({
 
       <TableFooter>
         <TableCell className="flex-1 font-semibold">Total</TableCell>
-        <TableCell
-          className="w-10 text-right font-bold tabular-nums"
-          style={{ color: totalCorrect === totalPoints ? "var(--success)" : "var(--destructive)" } as React.CSSProperties}
-        >
+        <TableCell className="w-10 text-right font-bold tabular-nums text-foreground">
           {totalCorrect}
         </TableCell>
         <TableCell className="w-10 text-right font-medium text-muted-foreground tabular-nums">{totalPoints}</TableCell>
