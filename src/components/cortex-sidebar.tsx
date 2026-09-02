@@ -136,7 +136,18 @@ export function CortexSidebar() {
                         <SidebarMenuSubItem key={sub.label}>
                           <SidebarMenuSubButton
                             asChild
-                            isActive={sub.href === "/admin/content" ? pathname === "/admin/content" : pathname.startsWith(sub.href)}
+                            // "Library" is a prefix of "Modules", so a plain
+                            // startsWith would light both on a module route.
+                            // An exact match went too far the other way and
+                            // lost the highlight on a document editor at
+                            // /admin/content/[id]. Match the subtree, minus
+                            // the one that belongs to its sibling.
+                            isActive={
+                              sub.href === "/admin/content"
+                                ? pathname.startsWith("/admin/content") &&
+                                  !pathname.startsWith("/admin/content/training")
+                                : pathname.startsWith(sub.href)
+                            }
                           >
                             <Link href={sub.href}>{sub.label}</Link>
                           </SidebarMenuSubButton>
