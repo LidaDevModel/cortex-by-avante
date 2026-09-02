@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { RecentlyViewedCard, type RecentlyViewedItem } from "@/components/library/RecentlyViewedCard";
 import { DocumentsSection } from "@/components/library/DocumentsSection";
@@ -9,7 +10,15 @@ import { EdgeFadeScroller } from "@/components/ui/edge-fade-scroller";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useLearnerLibrary } from "@/lib/content-store";
+import { useCurrentRole } from "@/lib/current-role";
 
+/**
+ * A fixed shortlist, not real recency — there is no view tracking yet, which is
+ * P1-11. Two things it must not do in the meantime: show above an empty library
+ * (five cards over "No documents available."), and offer a card the learner
+ * cannot open. Both are filtered against the learner's own library below.
+ */
 const RECENTLY_VIEWED: RecentlyViewedItem[] = [
   { id: "1", type: "file", name: "Incident Response" },
   { id: "2", type: "folder", name: "Guard Duty" },
@@ -22,6 +31,24 @@ export default function LibraryPage() {
   const router = useRouter();
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("library");
+  const role = useCurrentRole();
+  const lib = useLearnerLibrary(role);
+
+  // Only shortlist what this learner can actually open, and drop the whole
+  // section if their library is empty.
+  const visibleIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const f of lib.folders) {
+      ids.add(f.id);
+      for (const d of f.documents) ids.add(d.id);
+    }
+    for (const d of lib.topLevel) ids.add(d.id);
+    return ids;
+  }, [lib]);
+  const recentlyViewed = useMemo(
+    () => RECENTLY_VIEWED.filter((item) => visibleIds.has(item.id)),
+    [visibleIds]
+  );
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
       <PageHeader crumbs={[{ label: "Library" }]} className={headerClassName} />
@@ -61,7 +88,8 @@ export default function LibraryPage() {
               </>
             ) : (
               <>
-            {/* Recently Viewed */}
+            {/* Recently Viewed — hidden entirely when there is nothing to show */}
+            {recentlyViewed.length > 0 && (
             <section className="flex flex-col gap-0">
               <p
                 className="section-label"
@@ -76,7 +104,7 @@ export default function LibraryPage() {
                 wrapperClassName="-mx-4 sm:-mx-2"
                 className="flex gap-2 snap-x px-4 scroll-px-4 sm:px-2 sm:scroll-px-2 py-3"
               >
-                {RECENTLY_VIEWED.map((item) => (
+                {recentlyViewed.map((item) => (
                   <RecentlyViewedCard
                     key={item.id}
                     item={item}
@@ -85,6 +113,7 @@ export default function LibraryPage() {
                 ))}
               </EdgeFadeScroller>
             </section>
+            )}
 
             <DocumentsSection />
               </>

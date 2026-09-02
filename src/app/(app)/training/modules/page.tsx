@@ -6,6 +6,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 import { useLearnerModules } from "@/lib/training-store";
@@ -177,10 +178,25 @@ export default function ModulesPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
+            /* Two messages, two problems. "Try a different search or filter"
+               used to show even with nothing typed and every filter on "All" —
+               impossible advice on a new hire's first day. The empty-set
+               string is VISION's own, from the empty-states table. */
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
               <p className="text-[15px] leading-[24px] text-muted-foreground">
-                No modules found. Try a different search or filter.
+                {allModules.length === 0
+                  ? "No modules assigned to your role yet."
+                  : "No modules match that search or filter."}
               </p>
+              {allModules.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); }}
+                >
+                  Clear search and filters
+                </Button>
+              )}
             </div>
           )}
             </>

@@ -9,6 +9,7 @@ import { KindPill, type DocKind } from "./kind-pill";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
@@ -191,8 +192,24 @@ export function DocumentsSection() {
       {/* Content */}
       <div className="mt-4">
         {paginated.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
-            <p className="text-[15px] leading-[24px] text-muted-foreground">No documents available.</p>
+          /* Two different messages, because they are two different problems.
+             "No documents available." used to show for BOTH — so a guard who
+             mistyped a search concluded the library was empty. */
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <p className="text-[15px] leading-[24px] text-muted-foreground">
+              {documents.length === 0
+                ? "No documents available."
+                : "Nothing matches that search."}
+            </p>
+            {documents.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setSearch(""); setKindFilter(""); setPage(1); }}
+              >
+                Clear search and filters
+              </Button>
+            )}
           </div>
         ) : view === "list" ? (
           <>
