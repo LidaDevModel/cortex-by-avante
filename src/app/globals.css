@@ -179,7 +179,7 @@
   --foreground: oklch(1 0 0);               /* white */
   --popover: #1c1c1c;                       /* swapped with --doc-page-bg's former value (was oklch(0.27 0 0)) */
   --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.69 0.07 175);          /* #71b7a2 — muted teal */
+  --primary: oklch(0.727 0.078 173);        /* #71b7a2 — muted teal (VISION's declared dark primary) */
   --primary-foreground: oklch(0.10 0 0);
   --success: oklch(0.69 0.07 175);          /* achievement family — seeded = primary */
   --success-foreground: oklch(0.10 0 0);
