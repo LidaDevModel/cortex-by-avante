@@ -211,6 +211,17 @@ export default function ChatPage() {
     }, 30);
   }
 
+/**
+ * Mock response latency. Named so a real integration cannot inherit these by
+ * accident, which is how a demo delay becomes a production delay.
+ *
+ * When a backend lands, THINK_MS should become the **minimum** time the
+ * thinking indicator stays on screen — a floor, so a fast answer does not
+ * flash — and never a delay added on top of a real round trip. It cannot be
+ * written that way yet: there is no request to race against.
+ */
+const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const;
+
   function queueAiResponse(response: ChatResponse) {
     setTimeout(() => {
       const aiId = `a${Date.now()}`;
@@ -221,8 +232,8 @@ export default function ChatPage() {
         streamText: "",
         sources: getSourceLabelsFor(response.blocks),
       }]);
-      setTimeout(() => startStreaming(aiId, response), 1400);
-    }, 80);
+      setTimeout(() => startStreaming(aiId, response), MOCK_LATENCY.thinkMs);
+    }, MOCK_LATENCY.appendMs);
   }
 
   function handleRetry(msgId: string) {
@@ -239,7 +250,7 @@ export default function ChatPage() {
         ? { ...m, isError: false, isStreaming: true, streamText: "", sources: getSourceLabelsFor(response.blocks) }
         : m
     ));
-    setTimeout(() => startStreaming(msgId, response), 800);
+    setTimeout(() => startStreaming(msgId, response), MOCK_LATENCY.retryThinkMs);
   }
 
   function handleSubmit(text: string, attachments: Attachment[] = []) {
