@@ -460,18 +460,49 @@
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
-/* AI chat input shimmer — a faint animated sheen that always drifts along the
-   input's border (not tied to focus). Painted only on the 1px border via
-   mask-exclude, so the centre stays transparent and nothing covers or clips the
-   textarea or send button. Tokens only (adapts to both modes); kept subtle with
-   a thin ring + low opacity, on VISION's 2200ms linear shimmer timing. */
-.chat-input-shimmer::before {
-  content: "";
+/* AI chat input sheen — a faint light that always drifts along the input's
+   border (not tied to focus). Painted only on the 1px border via mask-exclude,
+   so the centre stays transparent and nothing covers or clips the textarea or
+   send button. Tokens only (adapts to both modes); kept subtle with a thin ring
+   + low opacity, on VISION's 6500ms linear ambient timing.
+
+   TWO LAYERS ON PURPOSE. This used to be one `::before` animating
+   `background-position`, which is a PAINT property: the browser redrew and
+   re-masked the element every frame, forever, on the two screens a guard uses
+   most, and the cost grew with window width. Now a fixed masked frame holds a
+   wider gradient child that slides on `transform`, which the compositor handles
+   without repainting. Pseudo-elements cannot nest, so the frame is a real
+   `<span>` in ChatComposer and the moving layer is its `::before`.
+
+   The painted result is unchanged by construction: same gradient stops, same
+   tile size (220% x 100% of the input), same 110deg angle, same 0.22 opacity,
+   same mask, same geometry, same direction (rightward), same 6500ms.
+
+   One deliberate difference: the loop is now seamless. The old version
+   travelled 1.20 tile widths per cycle, so the pattern jumped every 6.5s. The
+   child is two tiles wide and slides exactly one, so tile two takes tile one's
+   place with no discontinuity. */
+.chat-input-sheen {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(
+  overflow: hidden;
+  opacity: 0.22;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+.chat-input-sheen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* Two tiles of 220%, so sliding one tile loops seamlessly. */
+  width: 440%;
+  background-image: linear-gradient(
     110deg,
     var(--ring) 0%,
     var(--ring) 38%,
@@ -479,17 +510,14 @@
     var(--ring) 62%,
     var(--ring) 100%
   );
-  background-size: 220% 100%;
-  background-position: 0% 0;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  opacity: 0.22;
-  pointer-events: none;
-  animation: chat-input-shimmer 6500ms linear infinite;
+  background-size: 50% 100%;
+  background-repeat: repeat-x;
+  will-change: transform;
+  animation: chat-input-sheen 6500ms linear infinite;
 }
-@keyframes chat-input-shimmer {
-  to { background-position: -220% 0; }
+@keyframes chat-input-sheen {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
 }
 
 /* Global webkit scrollbar — transparent track so no white/light bar bleeds through */

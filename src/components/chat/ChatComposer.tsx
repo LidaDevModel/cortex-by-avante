@@ -292,7 +292,7 @@ export function ChatComposer({
 
   return (
     <div
-      className="chat-input-shimmer relative w-full rounded-2xl flex flex-col gap-2 p-3"
+      className="relative w-full rounded-2xl flex flex-col gap-2 p-3"
       style={{
         background: "var(--surface)",
         border: `1px solid ${isDragging ? "var(--ring)" : "var(--input-border)"}`,
@@ -320,6 +320,10 @@ export function ChatComposer({
       onDragLeave={enableAttachments ? (e) => { if (e.currentTarget === e.target) setIsDragging(false); } : undefined}
       onDrop={handleDrop}
     >
+      {/* The ambient border sheen. A real element because its moving layer is a
+          pseudo-element child, and pseudo-elements cannot nest — see
+          .chat-input-sheen in globals.css. */}
+      <span className="chat-input-sheen" aria-hidden="true" />
       {enableAttachments && (
         <input
           ref={fileInputRef}
