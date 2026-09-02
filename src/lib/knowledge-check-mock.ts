@@ -456,8 +456,12 @@ function mockAttempt(
   const answers: Record<string, KCAnswer> = {};
 
   questions.forEach((q, i) => {
+    // "poor" used to mark EVERY answer wrong, so five of the seventeen seeded
+    // attempts scored 0/11 -- a score nobody achieves on four-option multiple
+    // choice, twice, in one history. It also anchored the weak-area maths.
+    // A third correct reads as weak without reading as broken.
     const isCorrect =
-      correctnessPattern === "good" ? true : correctnessPattern === "poor" ? false : i % 2 === 0;
+      correctnessPattern === "good" ? true : correctnessPattern === "poor" ? i % 3 === 0 : i % 2 === 0;
 
     if (q.type === "mc") {
       answers[q.id] = {
