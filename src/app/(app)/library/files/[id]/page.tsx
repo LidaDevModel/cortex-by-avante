@@ -323,10 +323,54 @@ function DocumentPage({
   const suppressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasPositionedRef = useRef(false);
 
+
+  /**
+   * Scroll to the active page.
+   *
+   * On first mount the target page element is not registered yet, so this used
+   * to bail — and because it depends only on `activeId`, which never changes
+   * for a `?section=` deep link, it never retried. Journey 2: following a
+   * citation to "4. Emergency Response" landed on section 1 while the toolbar
+   * correctly read "Page 9 / 14". The app knew where to go and did not go.
+   *
+   * It now waits for the element across a few frames. Deliberately NOT done by
+   * bumping state from the ref callback: the callback is a fresh function each
+   * render, so React detaches and re-attaches it every time, and setState there
+   * loops until React throws "Maximum update depth exceeded" — which is exactly
+   * what happened on the first attempt at this fix.
+   */
   useEffect(() => {
-    const el = pageRefs.current[activeId];
     const container = scrollRef.current;
-    if (!el || !container) return;
+    if (!container) return;
+
+    let raf = 0;
+    let attempts = 0;
+    let cancelled = false;
+    let cleanupScrollend: (() => void) | null = null;
+
+    const tryScroll = () => {
+      if (cancelled) return;
+      const el = pageRefs.current[activeId];
+      if (!el) {
+        // ~20 frames is a third of a second at 60fps: long enough for the page
+        // list to mount, short enough never to fight a real user scroll.
+        if (attempts++ < 20) raf = requestAnimationFrame(tryScroll);
+        return;
+      }
+      cleanupScrollend = positionTo(el, container);
+    };
+
+    tryScroll();
+    return () => {
+      cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
+      cleanupScrollend?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
+
+  /** The original positioning body, unchanged, lifted so the retry can call it. */
+  const positionTo = useCallback((el: HTMLDivElement, container: HTMLDivElement) => {
     // Suppress the scroll listener while the programmatic scroll animates.
     // Release on scrollend (i.e. when the animation actually settles) — a
     // fixed short timer can expire mid-flight on long multi-page jumps and
@@ -349,7 +393,7 @@ function DocumentPage({
     hasPositionedRef.current = true;
     container.scrollTo({ top: el.offsetTop - 32, behavior });
     return () => container.removeEventListener("scrollend", release);
-  }, [activeId]);
+  }, []);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -914,7 +958,14 @@ export default function FileViewPage() {
           backHref={fromChat ? "/chat" : folder ? `/library/folders/${folder.id}` : "/library"}
           backLabel={fromChat ? "Back to conversation" : folder ? `Back to ${folder.name}` : "Back to Library"}
           title={doc.name}
-          meta={doc.content}
+          // Derived from the pages actually rendered, not the authored
+          // `content` string. The header said "8 pages" while the toolbar
+          // said "Page 9 / 14" — nine of eight — because `content` is
+          // hand-written free text on the seed ("8 pages") that was never
+          // reconciled with the renderer. A guard sent to the wrong page and
+          // then shown two different totals has two reasons to distrust the
+          // document, at the moment they are checking a fact.
+          meta={`${totalPages} ${totalPages === 1 ? "page" : "pages"}`}
           className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"
         />
       </div>
