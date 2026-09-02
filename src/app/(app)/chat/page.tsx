@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowDown, ChevronDown, ChevronLeft, History, Pencil, SquarePen, Trash2 } from "lucide-react";
+import { ArrowDown, ChevronDown, ChevronLeft, ChevronRight, History, Pencil, SquarePen, Trash2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useLearnerNav } from "@/lib/learner-crumbs";
 import { ChatHistoryPanel, ChatHistorySheet, useConversations, type Conversation } from "@/components/chat-history-panel";
 import {
   DropdownMenu,
@@ -71,6 +72,8 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
+  // "Learning" for an admin, nothing for a field agent — see useLearnerNav.
+  const { group } = useLearnerNav();
   const [isRenamingTitle, setIsRenamingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
@@ -445,7 +448,21 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
             Home
           </Link>
 
-          {conversationTitle && (
+          {/* Group crumb. This header IS the breadcrumb row — same 56px height,
+              same padding, same sidebar toggle as PageHeader — so for an admin
+              it should read like the rest of their Learning screens rather than
+              starting mid-sentence with a conversation name. Desktop only: on
+              mobile this row carries the back affordance instead, per VISION's
+              mobile-header rule, and a field agent gets no group at all
+              because AI Chat is top-level in their sidebar. */}
+          {group.length > 0 && (
+            <span className="hidden md:flex items-center gap-1.5 shrink-0">
+              <span className="text-[14px] leading-[20px] text-muted-foreground">{group[0].label}</span>
+              <ChevronRight size={14} strokeWidth={1.5} className="shrink-0 text-muted-foreground opacity-60" />
+            </span>
+          )}
+
+          {conversationTitle ? (
             isRenamingTitle ? (
               <input
                 ref={titleInputRef}
@@ -483,6 +500,12 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                 </DropdownMenuContent>
               </DropdownMenu>
             )
+          ) : (
+            /* No conversation yet: name the screen so the row agrees with the
+               sidebar's highlighted item instead of sitting empty. */
+            <span className="hidden md:inline text-[14px] leading-[20px] font-medium text-foreground">
+              AI Chat
+            </span>
           )}
 
           <div className="ml-auto flex items-center gap-1.5">
