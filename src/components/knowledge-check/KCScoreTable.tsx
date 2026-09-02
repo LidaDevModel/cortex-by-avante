@@ -35,12 +35,13 @@ function SectionRow({
   total: number;
   children?: React.ReactNode;
 }) {
-  // A section with wrong answers opens itself. The corrections are the point of
-  // practising, and they were behind a 14px chevron on a screen whose primary
-  // action is "Try another" -- so the designed path was to retry without ever
-  // seeing what you got wrong. A perfect section stays shut; it has nothing to
-  // show but "All answers correct."
-  const [open, setOpen] = useState(correct < total);
+  // A section with wrong answers opens itself, and it is the ONLY kind of row
+  // that discloses anything. A perfect section has nothing behind it, so it is
+  // a plain row: no chevron, no click, no focus stop. It used to render the
+  // affordance anyway and pay it off with "All answers correct." — a click and
+  // a moment's attention spent to be told what the score already said.
+  const hasBreakdown = Boolean(children);
+  const [open, setOpen] = useState(hasBreakdown);
   // The row discloses the breakdown rather than navigating, so it must say so:
   // a keyboard or screen-reader user otherwise had no way to reach the one
   // thing on this screen that explains what they got wrong.
@@ -48,10 +49,14 @@ function SectionRow({
   return (
     <div>
       <TableRow
-        onClick={() => setOpen((o) => !o)}
-        ariaLabel={`${label}: ${correct} of ${total} correct. ${open ? "Hide" : "Show"} breakdown`}
-        ariaExpanded={open}
-        ariaControls={panelId}
+        onClick={hasBreakdown ? () => setOpen((o) => !o) : undefined}
+        ariaLabel={
+          hasBreakdown
+            ? `${label}: ${correct} of ${total} correct. ${open ? "Hide" : "Show"} breakdown`
+            : undefined
+        }
+        ariaExpanded={hasBreakdown ? open : undefined}
+        ariaControls={hasBreakdown ? panelId : undefined}
       >
         <TableCell className="flex-1 text-left">{label}</TableCell>
         {/* Deliberately NOT coloured. These cells used to be green when a
@@ -65,13 +70,13 @@ function SectionRow({
         </TableCell>
         <TableCell className="w-10 text-right text-muted-foreground tabular-nums">{total}</TableCell>
         <span className="w-5 flex justify-end text-muted-foreground">
-          {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
+          {hasBreakdown && (open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />)}
         </span>
       </TableRow>
-      {open && (
+      {hasBreakdown && open && (
         <div id={panelId} className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
-            {children ?? <p className="text-[13px] text-muted-foreground">All answers correct.</p>}
+            {children}
           </div>
         </div>
       )}
