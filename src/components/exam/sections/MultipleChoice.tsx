@@ -8,6 +8,10 @@ type Props = {
   question: MCQuestion;
   questionIndex: number;
   totalQuestions: number;
+  /** This section's place in the whole run, e.g. 1 of 4. Optional: without it
+      the counter falls back to the question count alone. */
+  sectionPosition?: number;
+  sectionCount?: number;
   selectedIndex: number | null;
   answeredIndices: Set<number>;
   skippedIndices: Set<number>;
@@ -22,6 +26,8 @@ export function MultipleChoice({
   question,
   questionIndex,
   totalQuestions,
+  sectionPosition,
+  sectionCount,
   selectedIndex,
   answeredIndices,
   skippedIndices,
@@ -82,8 +88,16 @@ export function MultipleChoice({
 
         {/* Question */}
         <div className="flex flex-col gap-1">
+          {/* "Question 1 of 5" alone read as the whole exam, which has eight
+              questions across four sections on one shared timer -- so a
+              candidate could pace against 5 and meet three unseen sections
+              with minutes left. Naming the section's position scopes the
+              count without repeating the section name, which the tabs above
+              already show. */}
           <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
-            Question {questionIndex + 1} of {totalQuestions}
+            {sectionPosition && sectionCount
+              ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
+              : `Question ${questionIndex + 1} of ${totalQuestions}`}
           </span>
           <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
             {question.question}

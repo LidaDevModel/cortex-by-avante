@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getLearnerModule, certifyModule } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
-import { ExamProgress, SectionNav, type ExamSection } from "@/components/exam/ExamProgress";
+import { ExamProgress, SectionNav, SECTIONS, type ExamSection } from "@/components/exam/ExamProgress";
 import { MultipleChoice } from "@/components/exam/sections/MultipleChoice";
 import { Matching } from "@/components/exam/sections/Matching";
 import { ShortAnswer } from "@/components/exam/sections/ShortAnswer";
@@ -430,6 +430,10 @@ export default function ExamPage() {
           question={exam.multipleChoice[mcIndex]}
           questionIndex={mcIndex}
           totalQuestions={exam.multipleChoice.length}
+          sectionPosition={1}
+          // Derived, so adding or removing a section cannot leave the counter
+          // quietly lying. "review" is not a question section.
+          sectionCount={SECTIONS.filter((s) => s.id !== "review").length}
           selectedIndex={mcAnswers[mcIndex]?.selectedIndex ?? null}
           answeredIndices={mcAnsweredSet}
           skippedIndices={mcSkippedSet}
