@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { DocCallout } from "@/components/library/DocCallout";
-import { type TocSection, type SubSection } from "@/lib/library-mock";
+import { type TocSection, type SubSection, countDocPages} from "@/lib/library-mock";
 import { getLearnerDocResult, useLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
 
@@ -794,7 +794,8 @@ export default function FileViewPage() {
     return map;
   }, [sections]);
 
-  const totalPages = Object.keys(pageNumbers).length || sections.length;
+  // Same function the Library list uses — see countDocPages.
+  const totalPages = countDocPages(sections);
   const activePageNum = pageNumbers[activeId] ?? 1;
 
   // Grid find: count pages whose searchText contains the query

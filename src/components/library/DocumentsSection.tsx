@@ -10,6 +10,7 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCar
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Button } from "@/components/ui/button";
+import { countDocPages } from "@/lib/library-mock";
 import { cn } from "@/lib/utils";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
@@ -82,13 +83,22 @@ export function DocumentsSection() {
       content: `${f.documents.length} file${f.documents.length !== 1 ? "s" : ""}`,
       lastModified: f.lastModified,
     })),
-    ...lib.topLevel.map((d): Doc => ({
-      id: d.id,
-      name: d.name,
-      kind: "document",
-      content: d.content,
-      lastModified: d.lastModified,
-    })),
+    ...lib.topLevel.map((d): Doc => {
+      // Derived, so the list and the reader show the SAME number. The authored
+      // `content` string counts sections ("8 pages") while the reader
+      // paginates long sections and reaches 14 for that document — deriving
+      // only the reader's header would have left these two screens
+      // disagreeing. Falls back to the authored string for anything with no
+      // sections to count (a folder of files, an admin's new document).
+      const pages = countDocPages(d.toc);
+      return {
+        id: d.id,
+        name: d.name,
+        kind: "document",
+        content: pages > 0 ? `${pages} page${pages === 1 ? "" : "s"}` : d.content,
+        lastModified: d.lastModified,
+      };
+    }),
   ], [lib]);
   const [search, setSearch] = useState("");
   const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");

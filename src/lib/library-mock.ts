@@ -19,6 +19,26 @@ export type PageContent = {
   note?: string;
 };
 
+/**
+ * How many pages a document actually renders.
+ *
+ * One section is one page, plus a page per subsection, plus a page per
+ * continuation page. Lives here, not in the reader, because the LIST and the
+ * READER must show the same number — the authored `content` string ("8 pages")
+ * counts sections only, while the reader paginates long sections onto extra
+ * pages and reaches 14 for the same document. Deriving the header from the
+ * reader's own count fixed the reader but left the list disagreeing with it;
+ * this makes both read one function.
+ */
+export function countDocPages(sections: TocSection[] | undefined): number {
+  if (!sections?.length) return 0;
+  let pages = 0;
+  for (const s of sections) {
+    pages += 1 + (s.subsections?.length ?? 0) + (s.continuationPages?.length ?? 0);
+  }
+  return pages;
+}
+
 export type TocSection = {
   id: string;
   num: string;
