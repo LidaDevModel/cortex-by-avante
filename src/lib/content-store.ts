@@ -182,15 +182,43 @@ export function learnerLibrary(role: Role): Library {
 }
 
 /** A single document for the learner viewer — undefined if unpublished/hidden. */
-export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder?: LibraryFolder } | undefined {
+/**
+ * A learner's read of one document.
+ *
+ * Returns WHY it is unavailable, not just that it is. A document scoped to
+ * another role used to come back `undefined`, exactly like a document that does
+ * not exist — so a guard following a link to admin-only content was told
+ * "Document not found", which is untrue and unhelpful: the honest answer is
+ * that it exists and is not theirs, with a route to their manager. VISION's
+ * phrasing table has an entry for this and nothing used it.
+ *
+ * `forbidden` deliberately does not distinguish an unpublished document from a
+ * role-scoped one -- both are "not yours right now" to the reader.
+ */
+export type LearnerDocResult =
+  | { status: "ok"; doc: LibraryDoc; folder?: LibraryFolder }
+  | { status: "forbidden" }
+  | { status: "not-found" };
+
+export function getLearnerDocResult(id: string, role: Role): LearnerDocResult {
   role = toLearnerRole(role);
   const lib = load();
   for (const f of lib.folders) {
     const doc = f.documents.find((d) => d.id === id);
-    if (doc) return f.published !== false && visibleToLearner(doc, role) ? { doc, folder: f } : undefined;
+    if (doc) {
+      if (f.published === false || !visibleToLearner(doc, role)) return { status: "forbidden" };
+      return { status: "ok", doc, folder: f };
+    }
   }
   const t = lib.topLevel.find((d) => d.id === id);
-  return t && visibleToLearner(t, role) ? { doc: t } : undefined;
+  if (!t) return { status: "not-found" };
+  return visibleToLearner(t, role) ? { status: "ok", doc: t } : { status: "forbidden" };
+}
+
+/** Back-compat shape for callers that only need the document. */
+export function getLearnerDoc(id: string, role: Role): { doc: LibraryDoc; folder?: LibraryFolder } | undefined {
+  const r = getLearnerDocResult(id, role);
+  return r.status === "ok" ? { doc: r.doc, folder: r.folder } : undefined;
 }
 
 /** A folder for the learner, with its docs filtered to what they can see. */

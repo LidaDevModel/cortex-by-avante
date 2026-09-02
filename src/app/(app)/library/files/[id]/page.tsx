@@ -13,7 +13,7 @@ import { Highlight } from "@/components/ui/highlight";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
 import { DocCallout } from "@/components/library/DocCallout";
 import { type TocSection, type SubSection } from "@/lib/library-mock";
-import { getLearnerDoc, useLibrary } from "@/lib/content-store";
+import { getLearnerDocResult, useLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
 
 /* ─── Helpers ─── */
@@ -655,7 +655,8 @@ export default function FileViewPage() {
   const searchParams = useSearchParams();
   const role = useCurrentRole();
   useLibrary(); // subscribe so a publish/edit re-renders the viewer
-  const result = getLearnerDoc(id, role);
+  const lookup = getLearnerDocResult(id, role);
+  const result = lookup.status === "ok" ? lookup : null;
 
   const [tocFilter, setTocFilter] = useState("");
   const [tocSheetOpen, setTocSheetOpen] = useState(false);
@@ -754,12 +755,20 @@ export default function FileViewPage() {
   const canNext = activeIndex < sections.length - 1;
 
   if (!result) {
+    // "Not found" is only true when it really is not there. A document scoped
+    // to another role exists — saying otherwise misleads, and leaves the guard
+    // with nothing to do about it.
+    const forbidden = lookup.status === "forbidden";
     return (
       <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--surface)" }}>
-        <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: "File" }]} />
+        <PageHeader crumbs={[{ label: "Library", href: "/library" }, { label: forbidden ? "Restricted" : "File" }]} />
         <NotFoundState
-          title="Document not found"
-          description="This document may have been moved or removed from the Library."
+          title={forbidden ? "Access restricted" : "Document not found"}
+          description={
+            forbidden
+              ? "This content isn't available for your role. Contact your manager if you think this is a mistake."
+              : "This document may have been moved or removed from the Library."
+          }
           actionLabel="Back to Library"
           actionHref="/library"
         />
