@@ -21,6 +21,10 @@ export type Message = {
   streamText?: string;
   isStreaming?: boolean;
   isError?: boolean;
+  /** The user pressed Stop: `streamText` holds only what had arrived, and the
+      answer carries no blocks, so no citation chips are shown. A chip would
+      imply a complete, sourced answer. */
+  isStopped?: boolean;
   /** The settled response as ordered blocks (text · diagram). */
   blocks?: ResponseBlock[];
   /** Citation labels for the thinking indicator's status lines. */
@@ -125,6 +129,21 @@ export function AiMessage({
           {message.streamText}
           <StreamingCaret />
         </p>
+      </div>
+    );
+  }
+
+  if (message.isStopped) {
+    return (
+      <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
+        {message.streamText && (
+          <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
+            {message.streamText}
+          </p>
+        )}
+        {/* Quiet, not an error — the user chose this. No citation chips: a
+            partial answer has no complete source list to stand behind. */}
+        <p className="text-[13px] leading-[20px] text-muted-foreground">Stopped</p>
       </div>
     );
   }

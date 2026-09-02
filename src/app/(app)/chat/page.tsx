@@ -306,13 +306,14 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
     setMessages(prev => {
       const last = prev[prev.length - 1];
       if (last?.isStreaming) {
-        const resp = currentResponseRef.current;
+        // Stop keeps what arrived. It used to swap in the FULL response, so a
+        // button labelled Stop actually revealed the whole answer -- complete
+        // with citation chips implying a finished, sourced reply. Owner's call
+        // (2026-09-02): Stop means stop.
         return [...prev.slice(0, -1), {
           ...last,
           isStreaming: false,
-          blocks: resp?.blocks ?? [],
-          browseLibraryHref: resp?.browseLibraryHref,
-          diagram: resp?.diagram,
+          isStopped: true,
         }];
       }
       return prev;
