@@ -28,7 +28,7 @@ const DIALS = {
   training: {
     options: [
       { label: "Modules", href: "/training/modules" },
-      { label: "Knowledge Check", href: "/training/quick-check" },
+      { label: "Knowledge check", href: "/training/quick-check" },
     ] as DialOption[],
     // Anchored over the Training tab (right edge); options grow bottom-up.
     align: "right" as const,

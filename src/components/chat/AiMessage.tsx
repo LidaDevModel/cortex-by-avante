@@ -152,20 +152,28 @@ export function AiMessage({
     return (
       <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
         {message.streamText && (
-          <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
+          <p className="text-[15px] leading-[24px] text-muted-foreground whitespace-pre-wrap">
             {message.streamText}
           </p>
         )}
-        <div className="flex items-center gap-2">
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
-            Cortex couldn't get a response. Try again in a moment.
+        {/* VISION's phrasing table gives this a title as well as a
+            description; only the description was rendered. The partial text
+            above is muted so it reads as abandoned, not as an answer. */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[13px] leading-[20px] font-semibold text-foreground">
+            Something went wrong
           </p>
-          <button
-            onClick={() => onRetry(message.id)}
-            className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
-          >
-            Try again
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-[13px] leading-[20px] text-muted-foreground">
+              Cortex couldn&apos;t get a response. Try again in a moment.
+            </p>
+            <button
+              onClick={() => onRetry(message.id)}
+              className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
+            >
+              Try again
+            </button>
+          </div>
         </div>
       </div>
     );

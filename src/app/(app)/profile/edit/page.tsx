@@ -19,7 +19,7 @@ export default function ProfileEditPage() {
           <ProfileForm
             mode="edit"
             onDone={() => {
-              showToast({ title: "Profile updated." });
+              showToast({ title: "Profile updated" });
               router.push("/profile");
             }}
           />

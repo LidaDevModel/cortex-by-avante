@@ -163,8 +163,8 @@ export default function AdminContentPage() {
   }
 
   const crumbs = folder
-    ? [{ label: "Admin", href: "/admin" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
-    : [{ label: "Admin", href: "/admin" }, { label: "Library" }];
+    ? [{ label: "Cortex Manage", href: "/admin" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
+    : [{ label: "Cortex Manage", href: "/admin" }, { label: "Library" }];
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
@@ -220,7 +220,7 @@ export default function AdminContentPage() {
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
             <div className="flex items-center gap-2 flex-wrap">
-              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
+              <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Cortex Manage" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
           </div>
@@ -314,8 +314,8 @@ export default function AdminContentPage() {
         onOpenChange={(o) => !o && setDeleteTarget(null)}
         title={`Delete ${deleteTarget?.type === "folder" ? "folder" : "document"}?`}
         description={deleteTarget?.type === "folder" ? "This removes the folder and its documents. This can't be undone." : "This removes the document. This can't be undone."}
-        exitLabel="Delete"
-        cancelLabel="Cancel"
+        exitLabel={deleteTarget?.type === "folder" ? "Delete folder and contents" : "Delete document"}
+        cancelLabel={deleteTarget?.type === "folder" ? "Keep folder" : "Keep document"}
         onExit={() => { if (deleteTarget) deleteItem(deleteTarget.id); setDeleteTarget(null); }}
       />
 
@@ -325,7 +325,7 @@ export default function AdminContentPage() {
         title={`Unpublish "${unpublishTarget?.name ?? "this document"}"?`}
         description={unpublishTarget?.type === "folder" ? "The folder and its documents will no longer be visible to learners until you publish it again." : "It will no longer be visible to learners until you publish it again."}
         exitLabel="Unpublish"
-        cancelLabel="Cancel"
+        cancelLabel="Keep published"
         onExit={() => {
           if (unpublishTarget) {
             const t = unpublishTarget;

@@ -60,7 +60,7 @@ const navItems = [
 
 const trainingSubItems = [
   { label: "Modules", href: "/training/modules" },
-  { label: "Knowledge Check", href: "/training/quick-check" },
+  { label: "Knowledge check", href: "/training/quick-check" },
 ];
 
 // Content authoring — Library documents and training Modules.
@@ -76,7 +76,7 @@ const learningSubItems = [
   { label: "AI Chat", href: "/chat" },
   { label: "Library", href: "/library" },
   { label: "Modules", href: "/training/modules" },
-  { label: "Knowledge Check", href: "/training/quick-check" },
+  { label: "Knowledge check", href: "/training/quick-check" },
 ];
 
 export function CortexSidebar() {

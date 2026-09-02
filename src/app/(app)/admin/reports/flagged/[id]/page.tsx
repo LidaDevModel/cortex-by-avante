@@ -51,7 +51,7 @@ export default function AdminFlagDetailPage() {
   if (!flag) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Flagged responses", href: "/admin/reports/flagged" }, { label: "Not found" }]} className={headerClassName} />
+        <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Flagged responses", href: "/admin/reports/flagged" }, { label: "Not found" }]} className={headerClassName} />
         <NotFoundState title="Flag not found" description="This flagged response may have been removed." actionLabel="Back to flagged responses" actionHref="/admin/reports/flagged" />
       </div>
     );
@@ -59,7 +59,7 @@ export default function AdminFlagDetailPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Flagged responses", href: "/admin/reports/flagged" }, { label: "Response" }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Flagged responses", href: "/admin/reports/flagged" }, { label: "Response" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">

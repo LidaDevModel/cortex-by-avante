@@ -87,7 +87,7 @@ export default function AdminModuleEditorPage() {
   if (!found) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules", href: "/admin/content/training" }, { label: "Not found" }]} className={headerClassName} />
+        <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules", href: "/admin/content/training" }, { label: "Not found" }]} className={headerClassName} />
         <NotFoundState title="Module not found" description="This module may have been removed. Return to the training list." actionLabel="Back to training" actionHref="/admin/content/training" />
       </div>
     );
@@ -201,7 +201,7 @@ export default function AdminModuleEditorPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Admin", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules", href: "/admin/content/training" }, { label: found.title }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules", href: "/admin/content/training" }, { label: found.title }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
@@ -394,7 +394,7 @@ export default function AdminModuleEditorPage() {
         title="Unpublish this module?"
         description="It will no longer be visible to learners until you publish it again."
         exitLabel="Unpublish"
-        cancelLabel="Cancel"
+        cancelLabel="Keep published"
         onExit={() => { setConfirmUnpublish(false); applyPublish(false); }}
       />
     </div>
