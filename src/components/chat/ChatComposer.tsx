@@ -333,6 +333,9 @@ export function ChatComposer({
               }}
               rows={1}
               placeholder={placeholder}
+              // The placeholder is not an accessible name: it changes with
+              // context and screen readers may not announce it at all.
+              aria-label="Ask Cortex a question"
               className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:text-[14px]"
               onScroll={updateTaScroll}
               style={{ maxHeight: `${MAX_HEIGHT}px`, overflowY: isScrollable ? "auto" : "hidden" }}
