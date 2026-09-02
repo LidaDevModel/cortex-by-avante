@@ -248,7 +248,11 @@ export function DocumentsSection() {
                     onClick={() => router.push(doc.kind === "folder" ? `/library/folders/${doc.id}` : `/library/files/${doc.id}`)}
                     style={rowStyle(i)}
                     title={doc.name}
-                    meta={<TableCardMeta>{formatDate(doc.lastModified)} · {doc.content}</TableCardMeta>}
+                    /* Every admin-created document has an empty `content`,
+                       so the separator used to dangle: "01 Sept 2026 ·".
+                       That is the default state of all real content, with the
+                       seeded documents as the only exceptions. */
+                    meta={<TableCardMeta>{formatDate(doc.lastModified)}{doc.content ? ` · ${doc.content}` : ""}</TableCardMeta>}
                     trailing={<KindPill kind={doc.kind} />}
                   />
                 ))}

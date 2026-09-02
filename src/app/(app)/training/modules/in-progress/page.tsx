@@ -10,7 +10,8 @@ import Link from "next/link";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
-import { getPersona } from "@/lib/demo-persona";
+import { useLearnerModules } from "@/lib/training-store";
+import { useCurrentRole } from "@/lib/current-role";
 
 /* ─── Types ─── */
 
@@ -25,16 +26,6 @@ type Module = {
   required: boolean;
   category: ModuleCategory;
 };
-
-/* ─── Mock data (in-progress modules only) ─── */
-
-
-const IN_PROGRESS_MODULES: Module[] = [
-  { id: "1", title: "Escalation Procedures 1",  chapters: 6, hours: 2, progress: 10, required: true,  category: "escalations" },
-  { id: "2", title: "First Aid Awareness 1",    chapters: 6, hours: 2, progress: 90, required: false, category: "first-aid" },
-  { id: "3", title: "Incident Response 1",      chapters: 6, hours: 2, progress: 37, required: true,  category: "incidents" },
-  { id: "4", title: "Client Protocols 1",       chapters: 6, hours: 2, progress: 90, required: true,  category: "clients" },
-];
 
 const ILLUSTRATION_GLOW_CARD = "var(--illustration-glow-card)";
 
@@ -85,8 +76,16 @@ export default function InProgressPage() {
     scrollTimerRef.current = setTimeout(() => scrollRef.current?.classList.remove("is-scrolling"), 800);
   }, []);
 
-  // A new guard has nothing in progress; Mike sees his real list.
-  const sourceModules = useMemo(() => (getPersona() === "new" ? [] : IN_PROGRESS_MODULES), []);
+  // Read the store, not a hardcoded array. This screen used to list four
+  // modules from its own constant — three of which this account is already
+  // certified in, shown at 10% / 37% / 90% — while Home said one. Two screens,
+  // one tap apart, disagreeing about the same fact. `useLearnerModules` already
+  // applies the new-hire persona, so the special case for it goes too.
+  const allModules = useLearnerModules(useCurrentRole());
+  const sourceModules = useMemo(
+    () => allModules.filter((m) => m.status === "in-progress"),
+    [allModules]
+  );
 
   const filtered = useMemo(() => {
     let list = sourceModules;
