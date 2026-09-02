@@ -111,7 +111,7 @@ export default function AdminTrainingPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-      <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Content", href: "/admin/content" }, { label: "Modules" }]} className={headerClassName} />
+      <PageHeader crumbs={[{ label: "Cortex Manage", href: "/admin" }, { label: "Content" }, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">

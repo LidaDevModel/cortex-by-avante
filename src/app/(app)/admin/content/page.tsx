@@ -163,8 +163,8 @@ export default function AdminContentPage() {
   }
 
   const crumbs = folder
-    ? [{ label: "Cortex Manage", href: "/admin" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
-    : [{ label: "Cortex Manage", href: "/admin" }, { label: "Library" }];
+    ? [{ label: "Cortex Manage", href: "/admin" }, { label: "Content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
+    : [{ label: "Cortex Manage", href: "/admin" }, { label: "Content" }, { label: "Library" }];
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">

@@ -105,7 +105,7 @@ export default function InProgressPage() {
       {/* Header — shared PageHeader (breadcrumb on desktop, quiet on mobile) */}
       <PageHeader
         crumbs={[
-          { label: "Training", href: "/training/modules" },
+          { label: "Training" },
           { label: "Modules", href: "/training/modules" },
           { label: "In progress" },
         ]}

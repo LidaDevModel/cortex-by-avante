@@ -29,7 +29,7 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
   if (!attempt) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
-        <PageHeader crumbs={[{ label: "Training", href: "/training/modules" }, { label: "Knowledge check", href: "/training/quick-check" }, { label: "Not found" }]} />
+        <PageHeader crumbs={[{ label: "Training" }, { label: "Knowledge check", href: "/training/quick-check" }, { label: "Not found" }]} />
         <NotFoundState
           title="Check not found"
           description="This knowledge check may have been removed, or the link is out of date."
