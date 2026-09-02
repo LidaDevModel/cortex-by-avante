@@ -18,6 +18,11 @@ function landingRoute() {
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  // Whether the field has been left once. An email is invalid for as long as
+  // you are typing it -- "l", "li", "lida" -- so showing the error on the
+  // first keystroke tells a new hire they are wrong while they are still
+  // answering. VISION also requires the error to clear on change.
+  const [emailTouched, setEmailTouched] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -30,7 +35,7 @@ export default function SignInPage() {
   // like one (contain "@") to enable the button — but any dummy values pass.
   // We never check the credentials themselves; the button just opens the app.
   const emailLooksValid = email.includes("@");
-  const emailError = email.length > 0 && !emailLooksValid;
+  const emailError = emailTouched && email.length > 0 && !emailLooksValid;
   const canSubmit = emailLooksValid && password.length > 0;
 
   function handleSubmit(e: React.FormEvent) {
@@ -66,7 +71,8 @@ export default function SignInPage() {
             autoFocus
             placeholder="name@avante.security"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setEmailTouched(false); }}
+            onBlur={() => setEmailTouched(true)}
             className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
           />
           {/* Reserved message line — always present so the form never jumps */}

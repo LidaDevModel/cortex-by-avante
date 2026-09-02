@@ -27,6 +27,9 @@ export default function ActivatePage() {
 
   // Step 1 — verify PIN
   const [email, setEmail] = useState("");
+  // See the sign-in page: the error waits until the field is left, and clears
+  // as soon as the user edits it again.
+  const [emailTouched, setEmailTouched] = useState(false);
   const [pin, setPin] = useState("");
 
   // Step 2 — create password. Requirements are shown up front (not hidden in a
@@ -58,7 +61,7 @@ export default function ActivatePage() {
   // rule) — but any dummy values pass. The PIN/email aren't checked against a
   // real account; the flow just advances.
   const emailLooksValid = email.includes("@");
-  const emailError = email.length > 0 && !emailLooksValid;
+  const emailError = emailTouched && email.length > 0 && !emailLooksValid;
   const step1Valid = emailLooksValid && pin.length === 6;
 
   function handleVerify(e: React.FormEvent) {
@@ -139,7 +142,8 @@ export default function ActivatePage() {
               autoFocus
               placeholder="name@avante.security"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setEmailTouched(false); }}
+              onBlur={() => setEmailTouched(true)}
               className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
             />
             {/* Reserved message line — always present so the form never jumps */}
