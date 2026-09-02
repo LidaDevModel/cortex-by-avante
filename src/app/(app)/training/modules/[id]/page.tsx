@@ -560,7 +560,7 @@ export default function ModuleDetailPage() {
 
       {/* Module identity — mobile only. The desktop rail carries it; on phones
           there's no rail, so it sits as a band above the content. */}
-      <div className="md:hidden shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+      <div className="lg:hidden shrink-0 px-4 sm:px-8 pt-6 pb-5 flex flex-col gap-2" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         {identityInner}
       </div>
 
@@ -598,7 +598,7 @@ export default function ModuleDetailPage() {
                   type="button"
                   onClick={() => setChaptersSheetOpen(true)}
                   aria-label="Chapters"
-                  className="md:hidden shrink-0 flex items-center justify-center size-10 rounded-[10px] border border-border bg-surface text-foreground transition-colors duration-100 hover:bg-[var(--surface-raised)]"
+                  className="lg:hidden shrink-0 flex items-center justify-center size-11 rounded-[10px] border border-border bg-surface text-foreground transition-colors duration-100 hover:bg-[var(--surface-raised)]"
                 >
                   <ListChecks size={15} strokeWidth={1.5} />
                 </button>

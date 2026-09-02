@@ -524,12 +524,14 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                 <span className="hidden sm:inline">New chat</span>
               </button>
             )}
-            {/* Mobile-only history trigger — the desktop rail is hidden below md */}
+            {/* History trigger — paired with the rail below, which now holds
+                until `lg`: at 768px a chat column plus a rail leaves neither
+                enough room. Flip both together or this range loses history. */}
             <button
               type="button"
               onClick={() => setHistorySheetOpen(true)}
               aria-label="Old conversations"
-              className="md:hidden flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
+              className="lg:hidden flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors duration-100"
             >
               <History size={16} strokeWidth={1.5} />
             </button>
@@ -636,7 +638,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
       </div>
 
       {/* Desktop: inline history rail. Mobile: sheet (below). */}
-      <div ref={historyRailRef} className="relative z-10 hidden md:flex shrink-0">
+      <div ref={historyRailRef} className="relative z-10 hidden lg:flex shrink-0">
       <ChatHistoryPanel
         isOpen={showHistory}
         onToggle={() => setShowHistory(v => !v)}

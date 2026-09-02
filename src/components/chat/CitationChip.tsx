@@ -87,7 +87,14 @@ export function CitationChip({
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
-          side="top"
+          // On touch, open BELOW the chip. `side="top"` covered most of the
+          // paragraph above it — including the very sentence whose source you
+          // are checking. Journey 2 measured it hiding three of five lines of
+          // the cited paragraph at 375px. The natural motion here is
+          // compare-the-two: read the claim, read the source. Pointer devices
+          // keep "top", where the popover follows the cursor upward and the
+          // space above a mid-page chip is usually clear.
+          side={isMobile ? "bottom" : "top"}
           align="center"
           sideOffset={8}
           collisionPadding={12}

@@ -855,7 +855,7 @@ export default function FileViewPage() {
         findGridMode={viewMode === "grid"}
         left={
           /* Mobile contents trigger — the desktop rail is hidden below md */
-          <div className="md:hidden shrink-0">
+          <div className="lg:hidden shrink-0">
             <IconButton position="solo" onClick={() => setTocSheetOpen(true)} title="Contents">
               <TableOfContentsIcon size={15} strokeWidth={1.5} className="text-foreground" />
               <span className="sr-only">Contents</span>

@@ -14,7 +14,7 @@ export function SplitPanel({ left, right, leftWidth = 354, className }: Props) {
           most of the viewport, so consumers provide a mobile alternative
           (e.g. the file viewer's contents sheet). */}
       <aside
-        className="shrink-0 hidden md:flex flex-col overflow-hidden"
+        className="shrink-0 hidden lg:flex flex-col overflow-hidden"
         style={{ width: leftWidth, borderRight: "1px solid var(--border)" }}
       >
         {left}
