@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { ModuleIcon } from "@/components/training/ModuleIcon";
+import { ModuleIcon, ModuleGlow } from "@/components/training/ModuleIcon";
 import { type Module, MODULE_CHAPTERS, getRemainingMinutes } from "@/lib/training-mock";
 
 const CONTENT_CHAPTERS = MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
@@ -122,6 +122,10 @@ function AccordionItem({
         className="absolute inset-x-0 top-0 flex items-center gap-3 p-3 text-left transition-[opacity,scale] duration-150 ease-out active:scale-[0.99]"
         style={{ opacity: expanded ? 0 : 1, pointerEvents: expanded ? "none" : "auto" }}
       >
+        {/* The button is absolutely positioned, so it is the glow's
+            containing block — the bloom spans the collapsed row and fades
+            out with it, rather than filling the expanded card. */}
+        <ModuleGlow />
         <ModuleIcon category={m.category} size={36} />
         <span className="relative z-10 flex flex-col min-w-0 flex-1">
           <span className="text-[14px] leading-[20px] font-semibold text-foreground truncate">{m.title}</span>

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ProgressDonut } from "@/components/ui/progress-donut";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ModuleIcon } from "@/components/training/ModuleIcon";
+import { ModuleIcon, ModuleGlow } from "@/components/training/ModuleIcon";
 import { useCountUp } from "@/hooks/use-count-up";
 import { cn } from "@/lib/utils";
 import {
@@ -110,6 +110,12 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           : { border: "1px solid transparent" }
       }
     >
+      {/* Ambient bloom, row-level so it spans the full row height even when the
+          CTA wraps to a second line — see ModuleGlow. Only where a ModuleIcon
+          is actually shown: certified rows carry the check tile instead and
+          have never had a glow. */}
+      {state !== "certified" && <ModuleGlow />}
+
       {/* Stretched link — makes the whole row clickable. In-progress/not-started
           go to the module; certified goes to the certification detail page. The
           ready-to-certify row is excluded (it owns a "Get certified" button, so

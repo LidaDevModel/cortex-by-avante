@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import { RequiredPill } from "@/components/training/ModuleCard";
-import { ModuleIcon } from "@/components/training/ModuleIcon";
+import { ModuleIcon, ModuleGlow } from "@/components/training/ModuleIcon";
 import { FileIllustration } from "@/components/library/RecentlyViewedCard";
 import { useTheme } from "@/components/theme-context";
 import { Segmented } from "@/components/ui/segmented";
@@ -61,6 +61,7 @@ function ModuleRow({ module: m }: { module: Module }) {
       href={`/training/modules/${m.id}`}
       className="relative overflow-hidden flex items-center gap-3 rounded-[10px] p-3 bg-surface-lifted transition-[translate,scale,box-shadow,background-color] duration-150 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] dark:hover:shadow-none dark:hover:bg-surface-chip-hover"
     >
+      <ModuleGlow />
       <ModuleIcon category={m.category} size={36} />
       <span className="relative z-10 flex flex-col min-w-0 flex-1">
         <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>
