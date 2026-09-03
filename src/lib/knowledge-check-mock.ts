@@ -1,4 +1,11 @@
 // KC-specific branching types — structurally compatible with exam BranchingGame
+/**
+ * Pass mark for a knowledge check, as a percentage of points scored.
+ * Distinct from the certification exam's PASS_MARK (85 of 100, in exam-mock):
+ * a practice check is a lower bar and is never recorded.
+ */
+export const KC_PASS_MARK = 70;
+
 export type KCBranchingOption = {
   id: string;
   text: string;

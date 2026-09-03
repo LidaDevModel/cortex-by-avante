@@ -86,7 +86,15 @@
   --destructive: oklch(0.577 0.245 27.325);
   --warning: oklch(0.55 0.14 52);            /* amber — medium password strength; AA text on light surfaces */
   --border: oklch(0.922 0.004 250);          /* #e5e7eb */
-  --input: var(--border);                    /* input border === default border */
+  /* --input is SPLIT FROM --border (they were the same value). A field's outline
+     is a UI component boundary, so WCAG 1.4.11 asks for 3:1 against its
+     background — the shared border gave 1.17-1.23:1 across the three surfaces
+     inputs sit on, which is close to invisible. L=0.650 is the LIGHTEST value
+     that still clears 3:1 on all three (background 3.08, surface 3.16,
+     surface-raised 3.01), so the outline is compliant without going heavy.
+     --border itself is unchanged: dividers and card edges are decorative and
+     are not held to 3:1. */
+  --input: oklch(0.650 0.004 250);           /* #8d8f91 — field outlines, >=3:1 */
   --ring: oklch(0.30 0.09 150);
   --radius: 0.5rem;                          /* 8px — VISION.md radius.button/input */
   /* Sidebar tokens that always mirror a core token reference it directly (one
@@ -192,7 +200,11 @@
   --destructive: oklch(0.704 0.191 22.216);
   --warning: oklch(0.82 0.15 78);           /* amber — medium password strength (brighter on dark) */
   --border: oklch(0.38 0 0);                /* neutral gray border — matches light mode contrast */
-  --input: var(--border);                    /* input border === default border */
+  /* Same rule inverted: on dark surfaces the outline must be LIGHTER than the
+     field it encloses. The shared border gave 1.36-1.91:1. L=0.566 is the
+     darkest value clearing 3:1 on all three (background 4.21, surface 3.75,
+     surface-raised 3.00). */
+  --input: oklch(0.566 0 0);                 /* #767676 — field outlines, >=3:1 */
   --ring: oklch(0.75 0.07 170);             /* #7fc3af — lighter teal ring */
   --sidebar: var(--background);
   --sidebar-foreground: var(--foreground);

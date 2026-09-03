@@ -11,7 +11,7 @@ import type {
   KCMatchingAnswer,
   KCBranchingAnswer,
 } from "@/lib/knowledge-check-mock";
-import { scoreQuestion, FORMAT_LABELS } from "@/lib/knowledge-check-mock";
+import { scoreQuestion, FORMAT_LABELS, KC_PASS_MARK } from "@/lib/knowledge-check-mock";
 import { useEffect } from "react";
 
 /* ─── Helpers ─── */
@@ -269,7 +269,7 @@ export function KCDetailModal({ attempt, onClose }: { attempt: KCAttempt; onClos
               </span>
               <span
                 className="text-[13px] leading-[20px] font-semibold tabular-nums"
-                style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
+                style={{ color: pct >= KC_PASS_MARK ? "var(--primary)" : "var(--destructive)" }}
               >
                 {attempt.score}/{attempt.total} · {pct}%
               </span>

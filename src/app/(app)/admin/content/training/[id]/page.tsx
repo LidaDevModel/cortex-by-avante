@@ -289,11 +289,11 @@ export default function AdminModuleEditorPage() {
                     <Trash2 size={15} strokeWidth={1.5} />
                   </button>
                 </div>
-                <Input value={c.title} onChange={(e) => editChapter(c.key, { title: e.target.value })} placeholder="Chapter title" className={FIELD_BG} />
+                <Input value={c.title} onChange={(e) => editChapter(c.key, { title: e.target.value })} placeholder="Chapter title" aria-label="Chapter title" className={FIELD_BG} />
                 <textarea
                   value={c.body}
                   onChange={(e) => editChapter(c.key, { body: e.target.value })}
-                  placeholder="Chapter body"
+                  placeholder="Chapter body" aria-label="Chapter body"
                   className="w-full min-h-[140px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 text-[14px] leading-[22px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
                 />
 
@@ -307,11 +307,11 @@ export default function AdminModuleEditorPage() {
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
                       </div>
-                      <Input value={s.title} onChange={(e) => editSub(c.key, s.key, { title: e.target.value })} placeholder="Subchapter title" className={FIELD_BG} />
+                      <Input value={s.title} onChange={(e) => editSub(c.key, s.key, { title: e.target.value })} placeholder="Subchapter title" aria-label="Subchapter title" className={FIELD_BG} />
                       <textarea
                         value={s.body}
                         onChange={(e) => editSub(c.key, s.key, { body: e.target.value })}
-                        placeholder="Subchapter body"
+                        placeholder="Subchapter body" aria-label="Subchapter body"
                         className="w-full min-h-[90px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 text-[14px] leading-[22px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
                       />
                     </div>
@@ -335,7 +335,7 @@ export default function AdminModuleEditorPage() {
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
                       </div>
-                      <Input value={c.quiz.question} onChange={(e) => editQuiz(c.key, { question: e.target.value })} placeholder="Question" className={FIELD_BG} />
+                      <Input value={c.quiz.question} onChange={(e) => editQuiz(c.key, { question: e.target.value })} placeholder="Question" aria-label="Question" className={FIELD_BG} />
                       <span className="text-[12px] leading-[16px] text-muted-foreground">Select the correct answer.</span>
                       <div className="flex flex-col gap-2">
                         {c.quiz.options.map((o, k) => {
@@ -351,7 +351,7 @@ export default function AdminModuleEditorPage() {
                               >
                                 {correct && <Check size={12} strokeWidth={3} style={{ color: "var(--primary-foreground)" }} />}
                               </button>
-                              <Input value={o.text} onChange={(e) => editOption(c.key, o.id, e.target.value)} placeholder={`Option ${k + 1}`} className={`flex-1 ${FIELD_BG}`} />
+                              <Input value={o.text} onChange={(e) => editOption(c.key, o.id, e.target.value)} placeholder={`Option ${k + 1}`} aria-label={`Option ${k + 1}`} className={`flex-1 ${FIELD_BG}`} />
                               {c.quiz!.options.length > 2 && (
                                 <button onClick={() => removeOption(c.key, o.id)} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100 shrink-0" aria-label={`Remove option ${k + 1}`}>
                                   <Trash2 size={14} strokeWidth={1.5} />

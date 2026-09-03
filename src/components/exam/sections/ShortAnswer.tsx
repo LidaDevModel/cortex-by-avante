@@ -22,7 +22,7 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
           <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
             Short answer
           </span>
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 id={`sa-prompt-${question.id}`} className="text-[20px] leading-[28px] font-semibold text-foreground">
             {question.prompt}
           </h2>
         </div>
@@ -33,22 +33,26 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
             <textarea
               value={answer}
               onChange={(e) => onChange(e.target.value)}
+              // The question is the field's label, and the guidance below is its
+              // description — without these the field announced as unlabelled
+              // and the prompt was unreachable from it.
+              aria-labelledby={`sa-prompt-${question.id}`}
+              aria-describedby={`sa-hint-${question.id}`}
               placeholder="Write your answer here…"
               rows={5}
-              className="w-full px-4 py-3 rounded-[8px] border border-border bg-[var(--surface-raised)] text-[14px] leading-[24px] text-foreground placeholder:text-muted-foreground resize-y outline-none focus:ring-2 transition-shadow duration-100"
+              className="w-full px-4 py-3 rounded-[8px] border border-input bg-[var(--surface-raised)] text-[14px] leading-[24px] text-foreground placeholder:text-muted-foreground resize-y outline-none focus:ring-2 transition-shadow duration-100"
               style={
                 { "--tw-ring-color": "color-mix(in srgb, var(--primary) 30%, transparent)" } as React.CSSProperties
               }
             />
           </div>
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-[12px] text-muted-foreground">
-              Cover the key points in 2–3 sentences.
-            </p>
-            <span className="text-[11px] text-muted-foreground shrink-0 tabular-nums">
-              {answer.length} characters
-            </span>
-          </div>
+          {/* The character count is gone: there is no limit to count against,
+              so it reported a number the candidate could not act on — and it
+              read as a constraint that does not exist. The guidance stays, and
+              is now the field's description. */}
+          <p id={`sa-hint-${question.id}`} className="text-[12px] text-muted-foreground">
+            Cover the key points in 2–3 sentences.
+          </p>
         </div>
 
         {/* Rubric hints */}

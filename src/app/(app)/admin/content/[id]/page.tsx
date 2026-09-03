@@ -279,8 +279,8 @@ export default function AdminDocumentEditorPage() {
                   <Trash2 size={15} strokeWidth={1.5} />
                 </button>
               </div>
-              <Input value={s.title} onChange={(e) => edit(s.key, { title: e.target.value })} placeholder="Section title" className={FIELD_BG} />
-              <textarea value={s.body} onChange={(e) => edit(s.key, { body: e.target.value })} placeholder="Section body" className={`${textareaCls} min-h-[120px]`} />
+              <Input value={s.title} onChange={(e) => edit(s.key, { title: e.target.value })} placeholder="Section title" aria-label="Section title" className={FIELD_BG} />
+              <textarea value={s.body} onChange={(e) => edit(s.key, { body: e.target.value })} placeholder="Section body" aria-label="Section body" className={`${textareaCls} min-h-[120px]`} />
 
               {/* Image + caption */}
               {s.image ? (
@@ -292,7 +292,7 @@ export default function AdminDocumentEditorPage() {
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
                   </div>
-                  <Input value={s.image.caption ?? ""} onChange={(e) => edit(s.key, { image: { src: s.image!.src, caption: e.target.value } })} placeholder="Image caption" className={FIELD_BG} />
+                  <Input value={s.image.caption ?? ""} onChange={(e) => edit(s.key, { image: { src: s.image!.src, caption: e.target.value } })} placeholder="Image caption" aria-label="Image caption" className={FIELD_BG} />
                 </div>
               ) : (
                 <label className={`${addLinkCls} cursor-pointer`}>
@@ -307,7 +307,7 @@ export default function AdminDocumentEditorPage() {
                   {s.points.map((p, k) => (
                     <div key={k} className="flex items-center gap-2.5">
                       <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-muted-foreground shrink-0" />
-                      <Input value={p} onChange={(e) => editPoint(s.key, k, e.target.value)} placeholder={`Point ${k + 1}`} className={`flex-1 ${FIELD_BG}`} />
+                      <Input value={p} onChange={(e) => editPoint(s.key, k, e.target.value)} placeholder={`Point ${k + 1}`} aria-label={`Point ${k + 1}`} className={`flex-1 ${FIELD_BG}`} />
                       <button onClick={() => removePoint(s.key, k)} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100 shrink-0" aria-label={`Remove point ${k + 1}`}>
                         <Trash2 size={14} strokeWidth={1.5} />
                       </button>
@@ -328,7 +328,7 @@ export default function AdminDocumentEditorPage() {
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
                   </div>
-                  <textarea value={s.note} onChange={(e) => edit(s.key, { note: e.target.value })} placeholder="Highlighted paragraph" className={`${textareaCls} min-h-[70px] italic`} />
+                  <textarea value={s.note} onChange={(e) => edit(s.key, { note: e.target.value })} placeholder="Highlighted paragraph" aria-label="Highlighted paragraph" className={`${textareaCls} min-h-[70px] italic`} />
                 </div>
               ) : (
                 <button onClick={() => edit(s.key, { note: "" })} className={addLinkCls}>
@@ -346,8 +346,8 @@ export default function AdminDocumentEditorPage() {
                         <Trash2 size={14} strokeWidth={1.5} />
                       </button>
                     </div>
-                    <Input value={sub.title} onChange={(e) => editSub(s.key, sub.key, { title: e.target.value })} placeholder="Subsection title" className={FIELD_BG} />
-                    <textarea value={sub.body} onChange={(e) => editSub(s.key, sub.key, { body: e.target.value })} placeholder="Subsection body" className={`${textareaCls} min-h-[90px]`} />
+                    <Input value={sub.title} onChange={(e) => editSub(s.key, sub.key, { title: e.target.value })} placeholder="Subsection title" aria-label="Subsection title" className={FIELD_BG} />
+                    <textarea value={sub.body} onChange={(e) => editSub(s.key, sub.key, { body: e.target.value })} placeholder="Subsection body" aria-label="Subsection body" className={`${textareaCls} min-h-[90px]`} />
                   </div>
                 ))}
                 <button onClick={() => addSub(s.key)} className={addLinkCls}>

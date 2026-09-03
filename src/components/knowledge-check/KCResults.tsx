@@ -1,7 +1,7 @@
 "use client";
 
 import type { KCQuestion, KCAnswer } from "@/lib/knowledge-check-mock";
-import { scoreQuestion } from "@/lib/knowledge-check-mock";
+import { scoreQuestion, KC_PASS_MARK } from "@/lib/knowledge-check-mock";
 import { KCScoreTable } from "./KCScoreTable";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,7 @@ export function KCResults({
   const totalCorrect = questions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).correct, 0);
   const totalPoints = questions.reduce((acc, q) => acc + scoreQuestion(q, answers[q.id]).total, 0);
   const pct = totalPoints > 0 ? Math.round((totalCorrect / totalPoints) * 100) : 0;
+  const passed = pct >= KC_PASS_MARK;
 
   return (
     <div
@@ -33,16 +34,27 @@ export function KCResults({
         >
           {pct === 100 ? "Perfect score" : "Knowledge check complete"}
         </h1>
-        <div className="flex items-baseline gap-3">
-          <span
-            className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
-            style={{ color: pct >= 70 ? "var(--success)" : "var(--destructive)" }}
-          >
-            {pct}%
-          </span>
-          <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">
-            {totalCorrect} of {totalPoints} correct
-          </span>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-baseline gap-3">
+            <span
+              className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
+              style={{ color: passed ? "var(--success)" : "var(--destructive)" }}
+            >
+              {pct}%
+            </span>
+            <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">
+              {totalCorrect} of {totalPoints} correct
+            </span>
+          </div>
+          {/* The verdict IN TEXT. It used to live only in the colour of the
+              percentage — green at or above the mark, red below — which says
+              nothing to a colour-blind reader, a screen reader, or a printout.
+              The mark itself was never stated here either. */}
+          <p className="text-[15px] leading-[24px] font-medium text-foreground">
+            {passed
+              ? `Above the ${KC_PASS_MARK}% pass mark`
+              : `Below the ${KC_PASS_MARK}% pass mark`}
+          </p>
         </div>
       </div>
 
