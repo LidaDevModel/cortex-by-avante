@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
 import { HonorCard, HONOR_CARD_W } from "@/components/training/HonorCard";
 import { getLearnerCertified } from "@/lib/training-store";
@@ -74,7 +74,7 @@ export function CertificationsShelf() {
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Certifications</h2>
         {/* VISION tone: no exclamation marks. */}
         <StatePanel
-          size="sm"
+          icon={GraduationCap}
           title="No certifications yet"
           description="Complete a module and pass its exam to earn your first Avante certification."
           action={{ label: "Browse modules", href: "/training/modules" }}

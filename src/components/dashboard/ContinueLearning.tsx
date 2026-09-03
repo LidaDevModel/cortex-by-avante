@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ModuleIcon, ModuleGlow } from "@/components/training/ModuleIcon";
 import { type Module, MODULE_CHAPTERS, getRemainingMinutes } from "@/lib/training-mock";
@@ -164,7 +164,7 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
         {/* VISION tone: no exclamation marks. */}
         <StatePanel
-          size="sm"
+          icon={BookOpen}
           title="Nothing in progress"
           description="Start a module and it will pick up here."
           action={{ label: "Browse modules", href: "/training/modules" }}

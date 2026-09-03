@@ -29,10 +29,11 @@ import { cn } from "@/lib/utils";
  *  - "invite" — a gate they can act on: finish the chapters, finish the
  *    training. Primary-tinted well, primary action.
  *
- * SIZE:
- *  - "default" — owns the screen's body.
- *  - "sm" — sits inside a dashboard card, where a 56px well and a 48px CTA
- *    would overwhelm the card it lives in.
+ * ONE SET OF METRICS, no size variant. There was a "sm" for the two dashboard
+ * card empties, on the assumption a 56px well and a 48px CTA would swamp a
+ * card. Measured, the cards had 98px of slack — and the smaller CTA came out
+ * at 32px, under VISION's 44px touch floor. A second scale bought nothing and
+ * cost the standard, so it is gone.
  */
 
 type Act = {
@@ -48,7 +49,6 @@ export function StatePanel({
   action,
   secondary,
   tone = "neutral",
-  size = "default",
   className,
 }: {
   /** Omit for filter-empty states, where an icon adds weight and no meaning. */
@@ -65,10 +65,8 @@ export function StatePanel({
   /** A quieter second option — "Try a timed simulation", "Search the library". */
   secondary?: Act;
   tone?: "neutral" | "invite";
-  size?: "default" | "sm";
   className?: string;
 }) {
-  const sm = size === "sm";
   const invite = tone === "invite";
 
   return (
@@ -78,10 +76,8 @@ export function StatePanel({
       // "panel screen" can never be filed without its panel.
       data-slot="state-panel"
       data-tone={tone}
-      data-size={size}
       className={cn(
-        "flex-1 flex flex-col items-center justify-center text-center px-6",
-        sm ? "gap-3 py-6" : "gap-4 py-16",
+        "flex-1 flex flex-col items-center justify-center text-center px-6 gap-4 py-16",
         className
       )}
     >
@@ -89,33 +85,26 @@ export function StatePanel({
         <span
           aria-hidden
           className={cn(
-            "flex items-center justify-center rounded-full shrink-0",
-            sm ? "w-10 h-10" : "w-14 h-14",
+            "flex items-center justify-center rounded-full shrink-0 w-14 h-14",
             invite ? "text-primary" : "bg-surface-raised text-muted-foreground"
           )}
           style={invite ? { background: "color-mix(in srgb, var(--primary) 8%, transparent)" } : undefined}
         >
-          <Icon size={sm ? 20 : 24} strokeWidth={1.5} />
+          <Icon size={24} strokeWidth={1.5} />
         </span>
       )}
 
       <div className="flex flex-col gap-1">
         {title && (
           <p
-            className={cn(
-              "font-semibold text-foreground",
-              sm ? "text-[15px] leading-[24px]" : "text-[20px] leading-[28px]"
-            )}
+            className="text-[20px] leading-[28px] font-semibold text-foreground"
           >
             {title}
           </p>
         )}
         {description && (
           <p
-            className={cn(
-              "text-muted-foreground",
-              sm ? "text-[14px] leading-[20px] max-w-[38ch]" : "text-[15px] leading-[24px] max-w-[46ch]"
-            )}
+            className="text-[15px] leading-[24px] text-muted-foreground max-w-[46ch]"
           >
             {description}
           </p>
@@ -123,14 +112,8 @@ export function StatePanel({
       </div>
 
       {(action || secondary) && (
-        <div className={cn("flex flex-col items-center", sm ? "gap-1.5" : "mt-1 gap-2")}>
-          {action && (
-            <ActionButton
-              act={action}
-              variant={invite ? "default" : "outline"}
-              size={sm ? "sm" : "cta"}
-            />
-          )}
+        <div className="mt-1 flex flex-col items-center gap-2">
+          {action && <ActionButton act={action} variant={invite ? "default" : "outline"} size="cta" />}
           {secondary && <ActionButton act={secondary} variant="ghost" size="sm" />}
         </div>
       )}
