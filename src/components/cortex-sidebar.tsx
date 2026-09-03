@@ -48,6 +48,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
 import { useCurrentRole } from "@/lib/current-role";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
+import { navGroupOpen, setNavGroupOpen, useNavGroups } from "@/lib/nav-groups";
+import { useIsCompactNav } from "@/hooks/use-nav-shape";
 import { getAuthProfile, signOut } from "@/lib/auth-mock";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 
@@ -88,6 +90,33 @@ export function CortexSidebar() {
   // admin navigates as a learner (same nav as a field agent) until they finish
   // their required training.
   const canManage = useManageAccess();
+  // Keeps the `defaultOpen` reads below current after a manual toggle — see
+  // nav-groups for why a bare module write is not enough.
+  useNavGroups();
+
+  /* Which group opens with the DRAWER.
+     Precedence: the section you are IN, then what you last chose, then a
+     fallback. The fallback matters because "open the section you are in"
+     answers nothing on the pages that belong to no section — admin Home,
+     People, Flagged responses, Activity log. The drawer used to open there
+     with everything shut, so every sub-item cost two taps. Content takes the
+     fallback: it is the authoring surface admins spend most of their time in.
+     The active section always wins, so you can never collapse your way into a
+     drawer that gives no clue where you are.
+
+     Gated on `compact` so DESKTOP IS UNTOUCHED — it keeps its route-based
+     defaults and its own session state. Nothing is hidden behind a burger
+     there, so "opens with everything shut" is not a problem on that surface,
+     and it is a working one. Toggles still record either way, so a choice made
+     on one surface carries to the other. */
+  const compact = useIsCompactNav();
+  const inContent = pathname.startsWith("/admin/content");
+  const inLearning = !pathname.startsWith("/admin");
+  const noSectionActive = !inContent && !inLearning;
+  const contentGroupOpen =
+    inContent || (compact && (navGroupOpen("content") ?? noSectionActive));
+  const learningGroupOpen =
+    inLearning || (compact && (navGroupOpen("learning") ?? false));
   // Read once per mount — the shell renders post-AuthGate, so localStorage is safe.
   const avatarUrl = getAuthProfile().avatarUrl;
   return (
@@ -118,7 +147,11 @@ export function CortexSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible defaultOpen={pathname.startsWith("/admin/content")}>
+              <Collapsible
+                className="group/collapsible"
+                defaultOpen={contentGroupOpen}
+                onOpenChange={(o) => setNavGroupOpen("content", o)}
+              >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip="Content" className="gap-3 rounded-lg">
@@ -126,7 +159,7 @@ export function CortexSidebar() {
                       <span>Content</span>
                       <ChevronDown
                         size={14}
-                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180 group-data-[collapsible=icon]:hidden"
                       />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -187,7 +220,11 @@ export function CortexSidebar() {
 
               {/* Learning — the admin's own training surfaces, grouped and
                   demoted below Manage. Opens by default on a learner route. */}
-              <Collapsible defaultOpen={!pathname.startsWith("/admin")}>
+              <Collapsible
+                className="group/collapsible"
+                defaultOpen={learningGroupOpen}
+                onOpenChange={(o) => setNavGroupOpen("learning", o)}
+              >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip="Learning" className="gap-3 rounded-lg">
@@ -195,7 +232,7 @@ export function CortexSidebar() {
                       <span>Learning</span>
                       <ChevronDown
                         size={14}
-                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180 group-data-[collapsible=icon]:hidden"
                       />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -235,7 +272,11 @@ export function CortexSidebar() {
               ))}
 
               {/* Training — collapsible sub-menu, icon-only when sidebar is collapsed */}
-              <Collapsible defaultOpen={pathname.startsWith("/training")}>
+              <Collapsible
+                className="group/collapsible"
+                defaultOpen={pathname.startsWith("/training") || (compact && (navGroupOpen("training") ?? false))}
+                onOpenChange={(o) => setNavGroupOpen("training", o)}
+              >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip="Training" className="gap-3 rounded-lg">
@@ -243,7 +284,7 @@ export function CortexSidebar() {
                       <span>Training</span>
                       <ChevronDown
                         size={14}
-                        className="ml-auto transition-transform duration-200 [[data-state=open]_&]:rotate-180 group-data-[collapsible=icon]:hidden"
+                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180 group-data-[collapsible=icon]:hidden"
                       />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
