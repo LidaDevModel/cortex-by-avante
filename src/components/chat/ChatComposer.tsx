@@ -178,7 +178,7 @@ export function ChatComposer({
     // backend's cap). Already full → say so and take nothing.
     const remaining = MAX_ATTACHMENTS - attachments.length;
     if (remaining <= 0) {
-      showToast({ title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
+      showToast({ tone: "error", title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
       return;
     }
     const accepted: Attachment[] = [];
@@ -187,11 +187,11 @@ export function ChatComposer({
       const isImage = file.type.startsWith("image/");
       const isDoc = DOC_TYPES.includes(file.type);
       if (!isImage && !isDoc) {
-        showToast({ title: "Couldn't attach file", description: "Attach an image or a document (PDF, Word, or text)." });
+        showToast({ tone: "error", title: "Couldn't attach file", description: "Attach an image or a document (PDF, Word, or text)." });
         continue;
       }
       if (file.size > MAX_FILE_BYTES) {
-        showToast({ title: "Couldn't attach file", description: "Files must be under 10 MB." });
+        showToast({ tone: "error", title: "Couldn't attach file", description: "Files must be under 10 MB." });
         continue;
       }
       // Partial accept: fill the remaining slots, flag the overflow once.
@@ -211,7 +211,7 @@ export function ChatComposer({
       });
     }
     if (hitLimit) {
-      showToast({ title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
+      showToast({ tone: "error", title: "Attachment limit reached", description: `You can attach up to ${MAX_ATTACHMENTS} items per message.` });
     }
     if (accepted.length > 0) setAttachments((prev) => [...prev, ...accepted].slice(0, MAX_ATTACHMENTS));
   }

@@ -27,7 +27,14 @@ export function ThinkingIndicator({ sources = [] }: { sources?: string[] }) {
   }, [statuses.length]);
 
   return (
-    <div className="flex items-center gap-2.5 h-9" role="status" aria-label="Cortex is thinking">
+    // The status line cycles every couple of seconds. Left announceable, a
+    // screen reader re-reads the whole region on each change — three or four
+    // interruptions per answer. So the region carries ONE stable sentence and
+    // the cycling text is hidden from it.
+    <div className="flex items-center gap-2.5 h-9">
+      <span className="sr-only" role="status" aria-live="polite">
+        Cortex is thinking
+      </span>
       {/* Breathing dot — flat brand colour, no gloss or glow (a glossy sphere
           with a specular highlight and a blurred halo read as dated). */}
       <span className="flex items-center justify-center size-4 shrink-0">
@@ -40,8 +47,10 @@ export function ThinkingIndicator({ sources = [] }: { sources?: string[] }) {
         />
       </span>
 
-      {/* Cycling status line with shimmer sweep */}
+      {/* Cycling status line with shimmer sweep — decorative to assistive tech;
+          the stable sr-only line above is what gets announced. */}
       <span
+        aria-hidden
         key={statusIdx}
         className="text-[13px] leading-[20px] font-medium"
         style={{

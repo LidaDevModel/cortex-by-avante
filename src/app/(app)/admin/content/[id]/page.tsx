@@ -126,7 +126,7 @@ export default function AdminDocumentEditorPage() {
   function pickImage(key: string, file: File | undefined) {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      showToast({ title: "Couldn't attach file", description: "Attach an image or a document (PDF, Word, or text)." });
+      showToast({ tone: "error", title: "Couldn't attach file", description: "Attach an image or a document (PDF, Word, or text)." });
       return;
     }
     const reader = new FileReader();

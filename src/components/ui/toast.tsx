@@ -17,6 +17,13 @@ export type ToastInput = {
   durationMs?: number;
   /** Optional single action (e.g. Undo). Runs, then dismisses the toast. */
   action?: { label: string; onClick: () => void };
+  /**
+   * "error" gets `role="alert"` (announced at once, interrupting) and never
+   * auto-dismisses — a failure the person has to act on must not disappear
+   * while they are reading it. Neutral toasts keep `role="status"` and the 5s
+   * timer. Surface stays neutral either way: VISION forbids all-red toasts.
+   */
+  tone?: "neutral" | "error";
 };
 
 type Toast = ToastInput & { id: number };
@@ -44,14 +51,18 @@ export function dismissToast(id: number) {
 }
 
 function ToastCard({ toast }: { toast: Toast }) {
+  const isError = toast.tone === "error";
   useEffect(() => {
+    // Errors persist until dismissed: `durationMs: 0` opts out of the timer.
+    if (isError || !toast.durationMs) return;
     const id = setTimeout(() => dismissToast(toast.id), toast.durationMs);
     return () => clearTimeout(id);
-  }, [toast.id, toast.durationMs]);
+  }, [toast.id, toast.durationMs, isError]);
 
   return (
     <div
-      role="status"
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
       className="pointer-events-auto relative w-[320px] rounded-[12px] border border-border bg-surface-raised p-4 pr-10 flex flex-col gap-1"
       style={{
         boxShadow: "var(--shadow-modal-panel)",
