@@ -1,6 +1,7 @@
 "use client";
 
 import type { ShortAnswerQuestion } from "@/lib/exam-mock";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   question: ShortAnswerQuestion;
@@ -67,12 +68,9 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
 
         {/* Actions */}
         <div className="flex justify-end pt-2">
-          <button
-            onClick={onNext}
-            className="flex items-center gap-2 h-10 px-5 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-          >
+          <Button size="cta" onClick={onNext}>
             Next →
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BranchingScenario, BranchingNode, BranchingOption } from "@/lib/exam-mock";
+import { Button } from "@/components/ui/button";
 
 type NodeState = "locked" | "current" | "visited" | "end";
 
@@ -378,12 +379,9 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
 
               {selectedOption && !locked && (
                 <div className="flex justify-end animate-in fade-in duration-150">
-                  <button
-                    onClick={handleConfirm}
-                    className="h-10 px-6 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-                  >
+                  <Button size="cta" onClick={handleConfirm}>
                     Confirm decision
-                  </button>
+                  </Button>
                 </div>
               )}
             </>

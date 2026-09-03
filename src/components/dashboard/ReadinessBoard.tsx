@@ -16,6 +16,7 @@ import {
   type RequirementState,
   getRequirementState,
 } from "@/lib/training-mock";
+import { Button } from "@/components/ui/button";
 
 // Action-priority order (approved): quickest win first, certified next, then
 // what's still incomplete. Lower = higher up the board.
@@ -181,27 +182,28 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           {m.certification!.score}%
         </span>
       ) : state === "ready-to-certify" ? (
-        <Link
-          href={examHref}
-          className="relative z-10 w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold transition-opacity duration-100 hover:opacity-90"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
-          Get certified
-          <ArrowRight size={15} strokeWidth={2} />
-        </Link>
+        /* 48px: the row grows rather than the control shrinking below the
+           44px hit target. */
+        <Button asChild size="cta" className="relative z-10 w-full sm:w-auto shrink-0">
+          <Link href={examHref}>
+            Get certified
+            <ArrowRight size={15} strokeWidth={2} />
+          </Link>
+        </Button>
       ) : highlight ? (
         // Primary (next) row: an explicit filled CTA names the action, so the
         // eye catches it and the user knows what to do. Visual only — the
         // stretched row link above is the real control (avoids nested links);
         // its aria-label already reads "Start/Continue {title}".
-        <span
-          aria-hidden
-          className="relative z-10 pointer-events-none w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
-          {state === "in-progress" ? "Continue" : "Start module"}
-          <ArrowRight size={15} strokeWidth={2} />
-        </span>
+        /* A Button so it matches the real one exactly, but wrapping a span:
+           it must stay non-interactive, because the stretched row link above
+           is the actual control. */
+        <Button asChild size="cta" className="relative z-10 pointer-events-none w-full sm:w-auto shrink-0">
+          <span aria-hidden>
+            {state === "in-progress" ? "Continue" : "Start module"}
+            <ArrowRight size={15} strokeWidth={2} />
+          </span>
+        </Button>
       ) : (
         <span
           aria-hidden

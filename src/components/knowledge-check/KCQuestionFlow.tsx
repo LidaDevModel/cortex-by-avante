@@ -15,6 +15,7 @@ import type {
   KCCategory,
 } from "@/lib/knowledge-check-mock";
 import { CATEGORY_LABELS } from "@/lib/knowledge-check-mock";
+import { Button } from "@/components/ui/button";
 
 /* ─── Section helpers ─── */
 
@@ -349,13 +350,9 @@ function MCQuestion({
       </div>
       <div className="flex items-center justify-end pt-2">
         {isLastInSection ? (
-          <button
-            onClick={onNext}
-            className="h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-          >
+          <Button size="cta" onClick={onNext}>
             Next →
-          </button>
+          </Button>
         ) : (
           <button
             onClick={onSkip}
@@ -595,13 +592,14 @@ export function KCQuestionFlow({
               <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground capitalize min-w-0 truncate">
                 {title}
               </h1>
-              <button
+              <Button
+                variant="outline"
+                size="cta"
                 onClick={() => setExitOpen(true)}
-                className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70 shrink-0 whitespace-nowrap"
-                style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+                className="shrink-0 whitespace-nowrap text-muted-foreground"
               >
                 Quit check
-              </button>
+              </Button>
             </div>
 
             {/* Section tabs */}

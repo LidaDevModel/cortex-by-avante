@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import type { MatchingExercise, MatchingPair } from "@/lib/exam-mock";
+import { Button } from "@/components/ui/button";
 
 // Distinct pair colors — bg/border only; text always uses var(--foreground) for contrast in both modes
 const PAIR_COLORS = [
@@ -255,12 +256,9 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
 
         {/* Actions */}
         <div className="flex justify-end pt-2">
-          <button
-            onClick={onNext}
-            className="flex items-center gap-2 h-10 px-5 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-          >
+          <Button size="cta" onClick={onNext}>
             Next →
-          </button>
+          </Button>
         </div>
       </div>
     </div>

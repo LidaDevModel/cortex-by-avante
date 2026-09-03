@@ -36,6 +36,7 @@ import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useLearnerNav } from "@/lib/learner-crumbs";
 import { StatePanel } from "@/components/ui/state-panel";
+import { Button } from "@/components/ui/button";
 
 /* ─── Types ─── */
 
@@ -171,18 +172,11 @@ function ConfigScreen({
 
         {/* Actions */}
         <div className="flex flex-col gap-2">
-          <button
-            onClick={onStart}
-            disabled={!canStart}
-            className="h-[40px] rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100"
-            style={
-              canStart
-                ? { background: "var(--primary)", color: "var(--primary-foreground)" }
-                : { background: "var(--primary)", color: "var(--primary-foreground)", opacity: 0.5, cursor: "not-allowed" }
-            }
-          >
+          {/* Button's own disabled state is VISION's rule already — 50% opacity
+              and cursor-not-allowed — so the hand-rolled style branch goes. */}
+          <Button size="cta" onClick={onStart} disabled={!canStart}>
             Start knowledge check
-          </button>
+          </Button>
           <button
             onClick={onCancel}
             className="text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
@@ -669,13 +663,14 @@ function QuickCheckContent() {
                       ? `${CATEGORY_LABELS[selectedCategories[0]]} check`
                       : `${CATEGORY_LABELS[selectedCategories[0]]} & ${selectedCategories.length - 1} more`}
                   </h1>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="cta"
                     onClick={resetToListing}
-                    className="h-[36px] px-4 rounded-[8px] border text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70 shrink-0 whitespace-nowrap"
-                    style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+                    className="shrink-0 whitespace-nowrap text-muted-foreground"
                   >
                     Quit check
-                  </button>
+                  </Button>
                 </div>
                 <KCSectionTabs
                   sections={buildSections(generatedQuestions)}

@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
 import { getRequirementState, type Module } from "@/lib/training-mock";
+import { Button } from "@/components/ui/button";
 
 /**
  * "Your requirements changed" — the one-time notice on Home when a module has
@@ -145,14 +146,12 @@ export function NewRequirementCard({
         {/* Primary left-aligned with the tertiary beside it — matches the
             readiness board's row actions rather than a modal footer. */}
         <div className="relative z-10 flex items-center gap-5 flex-wrap">
-          <Link
-            href={`/training/modules/${first.id}`}
-            className="inline-flex items-center justify-center gap-1.5 h-[40px] px-5 rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-          >
-            Start module
-            <ArrowRight size={16} strokeWidth={2} />
-          </Link>
+          <Button asChild size="cta">
+            <Link href={`/training/modules/${first.id}`}>
+              Start module
+              <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+          </Button>
           <button
             type="button"
             onClick={onDismiss}

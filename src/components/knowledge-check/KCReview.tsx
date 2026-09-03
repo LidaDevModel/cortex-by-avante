@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { KCQuestion, KCAnswer, KCMCAnswer, KCMatchingAnswer, KCBranchingAnswer } from "@/lib/knowledge-check-mock";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   questions: KCQuestion[];
@@ -239,20 +240,12 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
             </p>
           </div>
         )}
-        <button
-          onClick={onSubmit}
-          className="h-[40px] rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
+        <Button size="cta" onClick={onSubmit}>
           {unansweredCount > 0 ? "Submit anyway" : "Submit"}
-        </button>
-        <button
-          onClick={onBack}
-          className="h-[40px] rounded-[8px] border text-[14px] leading-[20px] font-semibold transition-colors duration-100"
-          style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-        >
+        </Button>
+        <Button size="cta" variant="outline" onClick={onBack}>
           Back to questions
-        </button>
+        </Button>
       </div>
     </div>
   );

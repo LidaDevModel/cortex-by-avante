@@ -9,6 +9,7 @@ import { ShareFeedbackModal } from "@/components/chat/ShareFeedbackModal";
 import { CitationChip } from "@/components/chat/CitationChip";
 import { DiagramBlock } from "@/components/chat/DiagramBlock";
 import { type Attachment } from "@/components/chat/AttachmentChip";
+import { Button } from "@/components/ui/button";
 
 export type FeedbackState = null | "up" | "down";
 
@@ -220,15 +221,17 @@ export function AiMessage({
             wasn't already rendered into this message (covers the user who's
             struggling, without relying on how they phrased it). */}
         {message.diagram && !(message.blocks ?? []).some((b) => b.type === "diagram") && (
-          <button
+          <Button
             type="button"
+            variant="cta-secondary"
+            size="cta"
             onClick={() => onShowDiagram?.(message.id)}
-            className="inline-flex items-center gap-1.5 self-start h-9 px-3 rounded-[8px] text-[13px] font-medium border transition-colors duration-100 hover:bg-[var(--surface-lifted)]"
-            style={{ borderColor: "var(--primary)", color: "var(--primary)", animation: "msg-in 200ms ease-out 150ms both" }}
+            className="self-start"
+            style={{ animation: "msg-in 200ms ease-out 150ms both" }}
           >
             <Workflow size={14} strokeWidth={1.5} />
             Show me a diagram
-          </button>
+          </Button>
         )}
         <div className="flex flex-col gap-1.5" style={{ animation: "msg-in 200ms ease-out 150ms both" }}>
           <div className="flex items-center gap-1">

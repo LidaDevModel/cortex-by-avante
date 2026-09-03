@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { MCQuestion } from "@/lib/exam-mock";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   question: MCQuestion;
@@ -140,12 +141,9 @@ export function MultipleChoice({
         {/* Actions */}
         <div className="flex items-center justify-end pt-2">
           {isLast ? (
-            <button
-              onClick={onNext}
-              className="flex items-center gap-2 h-10 px-5 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
-            >
+            <Button size="cta" onClick={onNext}>
               Next →
-            </button>
+            </Button>
           ) : (
             <button
               onClick={onSkip}

@@ -3,6 +3,7 @@
 import type { KCQuestion, KCAnswer } from "@/lib/knowledge-check-mock";
 import { scoreQuestion } from "@/lib/knowledge-check-mock";
 import { KCScoreTable } from "./KCScoreTable";
+import { Button } from "@/components/ui/button";
 
 export function KCResults({
   questions,
@@ -50,20 +51,12 @@ export function KCResults({
 
       {/* Actions */}
       <div className="flex flex-col gap-2">
-        <button
-          onClick={onTryAnother}
-          className="h-[40px] rounded-[8px] text-[14px] leading-[20px] font-semibold transition-opacity duration-100 hover:opacity-90"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
-        >
+        <Button size="cta" onClick={onTryAnother}>
           Try another
-        </button>
-        <button
-          onClick={onBack}
-          className="flex items-center justify-center h-[40px] rounded-[8px] border text-[14px] leading-[20px] font-semibold transition-colors duration-100"
-          style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-        >
+        </Button>
+        <Button size="cta" variant="outline" onClick={onBack}>
           Back to knowledge check
-        </button>
+        </Button>
       </div>
     </div>
   );

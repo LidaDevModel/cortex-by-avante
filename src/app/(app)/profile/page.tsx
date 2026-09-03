@@ -19,6 +19,7 @@ import { learnerModules, getLearnerCertified, getLearnerRequired } from "@/lib/t
 import { useCurrentRole } from "@/lib/current-role";
 import { getPersona } from "@/lib/demo-persona";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
+import { Button } from "@/components/ui/button";
 
 function memberSinceLabel(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
@@ -120,14 +121,12 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <Link
-                href="/profile/edit"
-                className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 h-[36px] px-4 rounded-[8px] text-[13px] font-semibold border transition-colors duration-100 hover:bg-[var(--surface-lifted)]"
-                style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
-              >
-                <UserRoundPen size={15} strokeWidth={1.5} />
-                Edit profile
-              </Link>
+              <Button asChild variant="cta-secondary" size="cta" className="w-full sm:w-auto shrink-0">
+                <Link href="/profile/edit">
+                  <UserRoundPen size={15} strokeWidth={1.5} />
+                  Edit profile
+                </Link>
+              </Button>
             </div>
 
             {/* Quiet stats row */}
