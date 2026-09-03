@@ -9,12 +9,12 @@ import { KindPill, type DocKind } from "./kind-pill";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Button } from "@/components/ui/button";
 import { countDocPages } from "@/lib/library-mock";
 import { cn } from "@/lib/utils";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
+import { StatePanel } from "@/components/ui/state-panel";
 
 /* ─── Types ─── */
 
@@ -215,25 +215,25 @@ export function DocumentsSection() {
              The list holds folders as well as documents, so the copy says so.
              Button is the shared `Button` at its default size, matching
              `NotFoundState` — the app's other blank-state action. */
-          <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <p className="text-[15px] leading-[24px] text-muted-foreground">
-              {documents.length === 0
+          <StatePanel
+            title={
+              documents.length === 0
                 ? "No documents available."
                 : hasSearch && hasFilter
                   ? "No documents or folders match your search and filter."
                   : hasSearch
                     ? "No documents or folders match your search."
-                    : "No documents or folders match that filter."}
-            </p>
-            {documents.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={() => { setSearch(""); setKindFilter(""); setPage(1); }}
-              >
-                {hasSearch && hasFilter ? "Clear search & filter" : hasSearch ? "Clear search" : "Clear filter"}
-              </Button>
-            )}
-          </div>
+                    : "No documents or folders match that filter."
+            }
+            action={
+              documents.length > 0
+                ? {
+                    label: hasSearch && hasFilter ? "Clear search & filter" : hasSearch ? "Clear search" : "Clear filter",
+                    onClick: () => { setSearch(""); setKindFilter(""); setPage(1); },
+                  }
+                : undefined
+            }
+          />
         ) : view === "list" ? (
           <>
             {/* Desktop: full column table */}

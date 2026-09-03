@@ -83,7 +83,10 @@ export default function AdminPeoplePage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">People</h1>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">People</h1>
+              <p className="text-[14px] leading-[20px] text-muted-foreground">Everyone at Avante, their role, and whether they&apos;re cleared for duty.</p>
+            </div>
             {!locked && (
             <Button size="cta" onClick={() => setInviteOpen(true)}>
               <UserPlus size={16} strokeWidth={1.5} /> Invite user

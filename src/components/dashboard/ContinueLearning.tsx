@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ModuleIcon, ModuleGlow } from "@/components/training/ModuleIcon";
 import { type Module, MODULE_CHAPTERS, getRemainingMinutes } from "@/lib/training-mock";
+import { StatePanel } from "@/components/ui/state-panel";
 
 const CONTENT_CHAPTERS = MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
 // Fallback until the collapsed row is measured — prevents an SSR flash of the
@@ -161,18 +162,13 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
         style={{ border: "1px solid var(--border)" }}
       >
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-6">
-          <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[260px]">
-            Start your first module!
-          </p>
-          <Link
-            href="/training/modules"
-            className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
-            style={{ color: "var(--primary)" }}
-          >
-            Browse modules
-          </Link>
-        </div>
+        {/* VISION tone: no exclamation marks. */}
+        <StatePanel
+          size="sm"
+          title="Nothing in progress"
+          description="Start a module and it will pick up here."
+          action={{ label: "Browse modules", href: "/training/modules" }}
+        />
       </section>
     );
   }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { NotFoundState } from "@/components/ui/not-found-state";
+import { StatePanel } from "@/components/ui/state-panel";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -648,53 +649,43 @@ export default function ModuleDetailPage() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 text-center">
-                    <div
-                      className="flex items-center justify-center rounded-full"
-                      style={{ width: 56, height: 56, background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}
-                    >
-                      <Flag size={24} style={{ color: "var(--primary)" }} />
-                    </div>
-                    {/* Three states, not one. This panel used to say "You've
-                        completed all chapters" unconditionally — including above
-                        a 0% progress bar, to a learner who had read nothing —
-                        and it offered "Start final quiz" to someone already
-                        certified. The exam stays reachable either way (a demo
-                        necessity, and gating it is decision D6); only the copy
-                        tells the truth. */}
-                    <div className="flex flex-col gap-1">
-                      <p className="text-[17px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
-                        {alreadyCertified
-                          ? "You're certified in this module"
-                          : chaptersLeft > 0
-                            ? "Finish the chapters first"
-                            : "Ready for the final quiz?"}
-                      </p>
-                      <p className="text-[14px] leading-[22px] text-muted-foreground">
-                        {alreadyCertified
-                          ? `Passed with ${trainingModule.certification!.score} of 100 on ${new Date(trainingModule.certification!.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.`
-                          : chaptersLeft > 0
-                            ? `${chaptersLeft} ${chaptersLeft === 1 ? "chapter" : "chapters"} left before the exam. You can take it now, but the material comes first.`
-                            : "You've completed all chapters. Test your knowledge to earn your certification."}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/training/modules/${moduleId}/exam`}
-                      className="h-[40px] px-6 rounded-[8px] text-[14px] leading-[20px] font-semibold flex items-center bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90"
-                    >
-                      {alreadyCertified ? "Retake exam" : "Start final quiz"}
-                    </Link>
-                    <p className="text-[13px] leading-[16px] text-muted-foreground">
-                      {alreadyCertified ? "Want a refresher? " : "Not ready? "}
-                      <Link
-                        href={`/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`}
-                        className="font-medium transition-colors duration-100"
-                        style={{ color: "var(--primary)" }}
-                      >
-                        Try a timed simulation
-                      </Link>
-                    </p>
-                  </div>
+                  /* Three states, not one. This panel used to say "You've
+                     completed all chapters" unconditionally — including above
+                     a 0% progress bar, to a learner who had read nothing —
+                     and it offered "Start final quiz" to someone already
+                     certified. The exam stays reachable either way (a demo
+                     necessity, and gating it is decision D6); only the copy
+                     tells the truth.
+
+                     Now the shared StatePanel: it used to hand-roll a 56px
+                     well, a 17/26 title and a 40px primary link, none of which
+                     matched the app's other centred states or VISION's ramp. */
+                  <StatePanel
+                    icon={Flag}
+                    tone="invite"
+                    title={
+                      alreadyCertified
+                        ? "You're certified in this module"
+                        : chaptersLeft > 0
+                          ? "Finish the chapters first"
+                          : "Ready for the final quiz?"
+                    }
+                    description={
+                      alreadyCertified
+                        ? `Passed with ${trainingModule.certification!.score} of 100 on ${new Date(trainingModule.certification!.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.`
+                        : chaptersLeft > 0
+                          ? `${chaptersLeft} ${chaptersLeft === 1 ? "chapter" : "chapters"} left before the exam. You can take it now, but the material comes first.`
+                          : "You've completed all chapters. Test your knowledge to earn your certification."
+                    }
+                    action={{
+                      label: alreadyCertified ? "Retake exam" : "Start final quiz",
+                      href: `/training/modules/${moduleId}/exam`,
+                    }}
+                    secondary={{
+                      label: alreadyCertified ? "Try a timed simulation" : "Try a timed simulation",
+                      href: `/training/modules/${moduleId}/exam?mode=simulation&return=${encodeURIComponent(`/training/modules/${moduleId}`)}`,
+                    }}
+                  />
                 )}
 
                 {!currentChapter.isFinalQuiz && (

@@ -36,13 +36,26 @@ const RECORD_KEY = "cortex-auth-record";
 const SESSION_KEY = "cortex-session";
 const LAST_EMAIL_KEY = "cortex-last-email";
 
+const EMPTY_RECORD: AuthRecord = { activated: false, profile: {} };
+
 function readRecord(): AuthRecord {
-  if (typeof window === "undefined") return { activated: false, profile: {} };
+  if (typeof window === "undefined") return EMPTY_RECORD;
   try {
     const raw = localStorage.getItem(RECORD_KEY);
-    if (raw) return JSON.parse(raw) as AuthRecord;
+    // Merged over the defaults, not returned raw: a stored record written by an
+    // older shape (or a partial write) can be missing `profile`, and every
+    // caller of getAuthProfile() reads a field off it — `.avatarUrl` on
+    // undefined took the whole app down with an unhandled TypeError, sidebar
+    // included, on every route. The JSON.parse was already guarded; the shape
+    // was not.
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<AuthRecord> | null;
+      if (parsed && typeof parsed === "object") {
+        return { ...EMPTY_RECORD, ...parsed, profile: parsed.profile ?? {} };
+      }
+    }
   } catch {}
-  return { activated: false, profile: {} };
+  return EMPTY_RECORD;
 }
 
 function writeRecord(record: AuthRecord) {

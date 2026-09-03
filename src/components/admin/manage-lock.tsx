@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { useLearnerModules } from "@/lib/training-store";
 import { isCertified } from "@/lib/training-mock";
@@ -48,30 +47,14 @@ export function ManageLockedPanel({ task }: { task: string }) {
   const { remaining, started } = useManageLock();
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-16 gap-3">
-      <span
-        aria-hidden
-        className="flex items-center justify-center w-12 h-12 rounded-full bg-surface-raised"
-        style={{ border: "1px solid var(--border)" }}
-      >
-        <Lock size={20} strokeWidth={1.5} className="text-muted-foreground" />
-      </span>
-
-      <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
-        {`${task[0].toUpperCase()}${task.slice(1)} needs clearance`}
-      </h2>
-
-      <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[44ch]">
-        {`Cortex Manage unlocks once you're cleared for duty. Certify in ${remainingPhrase(
-          remaining
-        )} to open it.`}
-      </p>
-
-      <Button size="cta" asChild className="mt-3">
-        <Link href="/training/modules">
-          {started ? "Continue training" : "Start training"}
-        </Link>
-      </Button>
-    </div>
+    <StatePanel
+      icon={Lock}
+      tone="invite"
+      title={`${task[0].toUpperCase()}${task.slice(1)} needs clearance`}
+      description={`Cortex Manage unlocks once you're cleared for duty. Certify in ${remainingPhrase(
+        remaining
+      )} to open it.`}
+      action={{ label: started ? "Continue training" : "Start training", href: "/training/modules" }}
+    />
   );
 }

@@ -179,7 +179,10 @@ export default function AdminContentPage() {
               there is no folder to be inside. */}
           {locked ? (
             <>
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+              <div className="flex flex-col gap-1">
+                <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+                <p className="text-[14px] leading-[20px] text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
+              </div>
               <ManageLockedPanel task="managing the content library" />
             </>
           ) : (
@@ -209,7 +212,10 @@ export default function AdminContentPage() {
             </div>
           ) : (
             <>
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+              <div className="flex flex-col gap-1">
+                <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+                <p className="text-[14px] leading-[20px] text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
+              </div>
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <Segmented
                   options={KIND_TABS}

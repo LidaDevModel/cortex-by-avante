@@ -13,6 +13,7 @@ import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { useLearnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useLearnerNav } from "@/lib/learner-crumbs";
+import { StatePanel } from "@/components/ui/state-panel";
 
 /* ─── Types ─── */
 
@@ -178,11 +179,7 @@ export default function InProgressPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-[15px] leading-[24px] text-muted-foreground">
-                  No modules match your filters.
-                </p>
-              </div>
+              <StatePanel title="No modules match your filters." />
             )}
 
           </div>

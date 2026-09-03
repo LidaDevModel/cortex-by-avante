@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { SearchX, WifiOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { StatePanel } from "@/components/ui/state-panel";
 
 /**
  * Full-height "we couldn't find this" state for detail routes reached with a
@@ -14,6 +13,10 @@ import { Button } from "@/components/ui/button";
  * `actionHref` for a retry button, and `icon="offline"` for the load-failure
  * face. One component so a dead end and a failed load never drift apart
  * visually — they are the same shape of problem to the person looking at them.
+ *
+ * A thin wrapper over `StatePanel` (the app's single centred-state panel) that
+ * keeps this named, dead-end-specific API for its many call sites. Nothing but
+ * the icon choice and the tone lives here now.
  */
 export function NotFoundState({
   title,
@@ -41,37 +44,17 @@ export function NotFoundState({
   onSecondaryAction?: () => void;
   icon?: "missing" | "offline";
 }) {
-  const Icon = icon === "offline" ? WifiOff : SearchX;
   return (
-    <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <span className="flex items-center justify-center w-12 h-12 rounded-full bg-surface-raised text-muted-foreground">
-        <Icon size={22} strokeWidth={1.5} />
-      </span>
-      <div className="flex flex-col gap-1">
-        <p className="text-[16px] leading-[24px] font-semibold text-foreground">{title}</p>
-        <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[320px]">{description}</p>
-      </div>
-      <div className="mt-1 flex flex-col items-center gap-2">
-        {actionHref ? (
-          <Button asChild variant="outline">
-            <Link href={actionHref}>{actionLabel}</Link>
-          </Button>
-        ) : (
-          <Button variant="outline" onClick={onAction}>
-            {actionLabel}
-          </Button>
-        )}
-        {secondaryLabel && (secondaryHref || onSecondaryAction) &&
-          (onSecondaryAction ? (
-            <Button variant="ghost" size="sm" onClick={onSecondaryAction}>
-              {secondaryLabel}
-            </Button>
-          ) : (
-            <Button asChild variant="ghost" size="sm">
-              <Link href={secondaryHref!}>{secondaryLabel}</Link>
-            </Button>
-          ))}
-      </div>
-    </div>
+    <StatePanel
+      icon={icon === "offline" ? WifiOff : SearchX}
+      title={title}
+      description={description}
+      action={{ label: actionLabel, href: actionHref, onClick: onAction }}
+      secondary={
+        secondaryLabel && (secondaryHref || onSecondaryAction)
+          ? { label: secondaryLabel, href: secondaryHref, onClick: onSecondaryAction }
+          : undefined
+      }
+    />
   );
 }

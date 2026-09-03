@@ -35,6 +35,7 @@ import { learnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useLearnerNav } from "@/lib/learner-crumbs";
+import { StatePanel } from "@/components/ui/state-panel";
 
 /* ─── Types ─── */
 
@@ -297,13 +298,11 @@ function HistoryTable({
 
   if (attempts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-        <Eye size={32} strokeWidth={1.5} className="text-muted-foreground" />
-        <p className="text-[15px] leading-[24px] font-medium text-foreground">No previous checks.</p>
-        <p className="text-[13px] leading-[20px] text-muted-foreground">
-          Start a knowledge check to see your history here.
-        </p>
-      </div>
+      <StatePanel
+        icon={Eye}
+        title="No previous checks."
+        description="Start a knowledge check to see your history here."
+      />
     );
   }
 

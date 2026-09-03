@@ -6,7 +6,6 @@ import { SearchInput } from "@/components/ui/search-input";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 import { useLearnerModules } from "@/lib/training-store";
@@ -15,6 +14,7 @@ import { useRowStagger } from "@/hooks/use-entrance";
 import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLearnerNav } from "@/lib/learner-crumbs";
+import { StatePanel } from "@/components/ui/state-panel";
 
 /* ─── Page ─── */
 
@@ -192,25 +192,25 @@ export default function ModulesPage() {
                empty-set string is VISION's own, from its empty-states table.
                Button is the shared `Button` at default size, matching
                `NotFoundState`. */
-            <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-              <p className="text-[15px] leading-[24px] text-muted-foreground">
-                {allModules.length === 0
+            <StatePanel
+              title={
+                allModules.length === 0
                   ? "No modules assigned to your role yet."
                   : hasSearch && hasFilters
                     ? "No modules match your search and filters."
                     : hasSearch
                       ? "No modules match your search."
-                      : "No modules match those filters."}
-              </p>
-              {allModules.length > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={() => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); }}
-                >
-                  {hasSearch && hasFilters ? "Clear search & filters" : hasSearch ? "Clear search" : "Clear filters"}
-                </Button>
-              )}
-            </div>
+                      : "No modules match those filters."
+              }
+              action={
+                allModules.length > 0
+                  ? {
+                      label: hasSearch && hasFilters ? "Clear search & filters" : hasSearch ? "Clear search" : "Clear filters",
+                      onClick: () => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); },
+                    }
+                  : undefined
+              }
+            />
           )}
             </>
           )}

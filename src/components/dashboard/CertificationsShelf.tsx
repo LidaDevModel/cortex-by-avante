@@ -7,6 +7,7 @@ import { useInView } from "@/hooks/use-in-view";
 import { HonorCard, HONOR_CARD_W } from "@/components/training/HonorCard";
 import { getLearnerCertified } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
+import { StatePanel } from "@/components/ui/state-panel";
 
 const CARD_W = HONOR_CARD_W;
 const GAP = 12; // gap-3
@@ -71,18 +72,13 @@ export function CertificationsShelf() {
         style={{ border: "1px solid var(--border)" }}
       >
         <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Certifications</h2>
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-6">
-          <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[260px]">
-            Complete a module and pass its exam to earn your first Avante Certification!
-          </p>
-          <Link
-            href="/training/modules"
-            className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
-            style={{ color: "var(--primary)" }}
-          >
-            Browse modules
-          </Link>
-        </div>
+        {/* VISION tone: no exclamation marks. */}
+        <StatePanel
+          size="sm"
+          title="No certifications yet"
+          description="Complete a module and pass its exam to earn your first Avante certification."
+          action={{ label: "Browse modules", href: "/training/modules" }}
+        />
       </section>
     );
   }
