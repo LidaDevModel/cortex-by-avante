@@ -60,7 +60,10 @@ export function ProfileForm({
     // picks up the same ~32px visible air as the other auth screens.
     <div className="flex flex-col gap-8">
       {/* Photo */}
-      <div className="flex items-center gap-4">
+      {/* Bottom-aligned: the avatar and its action read as one unit sitting on
+          a shared baseline, rather than the button floating at the circle's
+          midpoint. */}
+      <div className="flex items-end gap-4">
         <Avatar className="h-16 w-16 rounded-full shrink-0">
           {profile.avatarUrl && <AvatarImage src={profile.avatarUrl} alt="" />}
           <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[18px]">
@@ -71,8 +74,8 @@ export function ProfileForm({
           <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
           <Button
             type="button"
-            variant="outline"
-            className="h-9 border-primary text-primary hover:text-primary"
+            variant="cta-secondary"
+            size="cta"
             onClick={() => fileRef.current?.click()}
           >
             {profile.avatarUrl ? "Change photo" : "Upload photo"}

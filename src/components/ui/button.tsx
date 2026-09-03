@@ -12,6 +12,14 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
         outline:
           "border-border bg-background shadow-xs hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+        /* Cortex SECONDARY CTA — VISION: "outlined variant — color.primary
+           border and text, transparent background". The app was missing it, so
+           six call sites hand-rolled it: five as raw <button>s spelling out
+           `border border-primary text-primary`, one as an `outline` Button
+           patched with the same classes. `outline` stays neutral (filter
+           buttons, dead-end actions); this is the deliberate secondary action. */
+        "cta-secondary":
+          "border-primary text-primary bg-transparent hover:bg-primary/5 hover:text-primary dark:bg-transparent dark:border-primary dark:hover:bg-primary/10",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:

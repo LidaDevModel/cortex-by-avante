@@ -114,7 +114,10 @@ export function StatePanel({
       {(action || secondary) && (
         <div className="mt-1 flex flex-col items-center gap-2">
           {action && <ActionButton act={action} variant={invite ? "default" : "outline"} size="cta" />}
-          {secondary && <ActionButton act={secondary} variant="ghost" size="sm" />}
+          {/* min-h-11: a ghost button at size="sm" is 32px, under VISION's
+              44px hit target — and on a dead end this is often the only
+              way out. Type stays quiet; only the target grows. */}
+          {secondary && <ActionButton act={secondary} variant="ghost" size="sm" className="min-h-11 px-3" />}
         </div>
       )}
     </div>
@@ -125,20 +128,22 @@ function ActionButton({
   act,
   variant,
   size,
+  className,
 }: {
   act: Act;
   variant: "default" | "outline" | "ghost";
   size: "cta" | "sm";
+  className?: string;
 }) {
   if (act.href) {
     return (
-      <Button asChild variant={variant} size={size}>
+      <Button asChild variant={variant} size={size} className={className}>
         <Link href={act.href}>{act.label}</Link>
       </Button>
     );
   }
   return (
-    <Button variant={variant} size={size} onClick={act.onClick}>
+    <Button variant={variant} size={size} className={className} onClick={act.onClick}>
       {act.label}
     </Button>
   );
