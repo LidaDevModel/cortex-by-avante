@@ -215,8 +215,9 @@ export function DocumentsSection() {
              The list holds folders as well as documents, so the copy says so.
              Button is the shared `Button` at its default size, matching
              `NotFoundState` — the app's other blank-state action. */
+          /* Description only, no action — see the modules list. */
           <StatePanel
-            title={
+            description={
               documents.length === 0
                 ? "No documents available."
                 : hasSearch && hasFilter
@@ -224,14 +225,6 @@ export function DocumentsSection() {
                   : hasSearch
                     ? "No documents or folders match your search."
                     : "No documents or folders match that filter."
-            }
-            action={
-              documents.length > 0
-                ? {
-                    label: hasSearch && hasFilter ? "Clear search & filter" : hasSearch ? "Clear search" : "Clear filter",
-                    onClick: () => { setSearch(""); setKindFilter(""); setPage(1); },
-                  }
-                : undefined
             }
           />
         ) : view === "list" ? (

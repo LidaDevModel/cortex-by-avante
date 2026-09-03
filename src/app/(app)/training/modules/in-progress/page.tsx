@@ -179,7 +179,7 @@ export default function InProgressPage() {
                 ))}
               </div>
             ) : (
-              <StatePanel title="No modules match your filters." />
+              <StatePanel description="No modules match your filters." />
             )}
 
           </div>

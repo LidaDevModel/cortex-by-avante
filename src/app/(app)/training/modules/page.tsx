@@ -192,8 +192,11 @@ export default function ModulesPage() {
                empty-set string is VISION's own, from its empty-states table.
                Button is the shared `Button` at default size, matching
                `NotFoundState`. */
+            /* An empty result is a sentence, not a heading: description
+               only, no action. The clear-search/filters button is gone by
+               request — the person can clear the field they just typed in. */
             <StatePanel
-              title={
+              description={
                 allModules.length === 0
                   ? "No modules assigned to your role yet."
                   : hasSearch && hasFilters
@@ -201,14 +204,6 @@ export default function ModulesPage() {
                     : hasSearch
                       ? "No modules match your search."
                       : "No modules match those filters."
-              }
-              action={
-                allModules.length > 0
-                  ? {
-                      label: hasSearch && hasFilters ? "Clear search & filters" : hasSearch ? "Clear search" : "Clear filters",
-                      onClick: () => { setSearch(""); setRequirementFilter(""); setStatusFilter(""); setCategoryFilter(""); },
-                    }
-                  : undefined
               }
             />
           )}

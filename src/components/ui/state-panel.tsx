@@ -53,7 +53,13 @@ export function StatePanel({
 }: {
   /** Omit for filter-empty states, where an icon adds weight and no meaning. */
   icon?: LucideIcon;
-  title: string;
+  /**
+   * Omit for an empty RESULT — "no documents match your search" is a sentence,
+   * not a heading, and setting it in the H2 role shouted a non-event. Those
+   * states pass `description` alone and read as one quiet line. Pass at least
+   * one of `title` / `description`.
+   */
+  title?: string;
   description?: string;
   action?: Act;
   /** A quieter second option — "Try a timed simulation", "Search the library". */
@@ -94,14 +100,16 @@ export function StatePanel({
       )}
 
       <div className="flex flex-col gap-1">
-        <p
-          className={cn(
-            "font-semibold text-foreground",
-            sm ? "text-[15px] leading-[24px]" : "text-[20px] leading-[28px]"
-          )}
-        >
-          {title}
-        </p>
+        {title && (
+          <p
+            className={cn(
+              "font-semibold text-foreground",
+              sm ? "text-[15px] leading-[24px]" : "text-[20px] leading-[28px]"
+            )}
+          >
+            {title}
+          </p>
+        )}
         {description && (
           <p
             className={cn(

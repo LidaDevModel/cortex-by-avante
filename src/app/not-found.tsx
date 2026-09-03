@@ -29,8 +29,6 @@ export default function RootNotFound() {
         description="That link doesn't lead anywhere. It may have been moved or removed."
         actionLabel="Back to home"
         actionHref="/dashboard"
-        secondaryLabel="Search the library"
-        secondaryHref="/library"
       />
     </main>
   );
