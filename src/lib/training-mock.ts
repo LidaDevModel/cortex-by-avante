@@ -57,6 +57,17 @@ export const MODULES: Module[] = [
   { id: "9", title: "Client Protocols 2", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-04-10", certification: { score: 88, date: "2026-05-28", sectionScores: [92, 88, 84, 88] } },
   { id: "10", title: "Radio Communications", chapters: 4, hours: 1, progress: 100, status: "completed", required: false, category: "incidents", assignedDate: "2026-03-20", certification: { score: 95, date: "2026-05-20", sectionScores: [98, 96, 90, 96] } },
   { id: "11", title: "Workplace Safety Basics", chapters: 5, hours: 2, progress: 100, status: "completed", required: false, category: "first-aid", assignedDate: "2026-03-05", certification: { score: 100, date: "2026-05-12", sectionScores: [100, 100, 100, 100] } },
+  /* Read but not yet certified — the one learner state the seed was missing.
+     Every other 100% module also carried a certification, so two designed
+     states were unreachable in the demo: the module's "Ready for the final
+     quiz?" panel, and getRequirementState's "ready-to-certify".
+     Deliberately NOT required: a required module without its certificate would
+     make the returning persona not cleared for duty, which locks Cortex Manage
+     and unpicks the main demo story. Consequence of that choice: the readiness
+     board only lists required modules, so its ready-to-certify row (the one
+     with "Get certified") is still unseen — surfacing that needs either a
+     third persona or a deliberate break of cleared-for-duty. */
+  { id: "12", title: "Access Control Basics", chapters: 6, hours: 2, progress: 100, status: "completed", required: false, category: "clients", assignedDate: "2026-07-12" },
 ];
 
 /**
