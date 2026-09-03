@@ -202,15 +202,28 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          {/* Choosing a destination closes the drawer — otherwise it stays
-              open on top of the page it just opened. Scoped to `a[href]` so a
-              group toggle (Content / Learning, both <button>) keeps the drawer
-              up, and so re-tapping the item you are already on closes it too
-              (a route-change effect would not, since the path never changes). */}
+          {/* Committing to something closes the drawer — otherwise it stays
+              open on top of whatever it just opened.
+
+              Two selectors, because the drawer holds two kinds of commitment:
+              `a[href]` for the nav links, and `[role=menuitem]` for the avatar
+              menu, whose Profile / Settings / Sign out items are Radix
+              DropdownMenuItems driven by router.push and a dialog — no anchor
+              between them, so an href-only rule left all three open. Sign out
+              was the visible one: the confirm appeared BEHIND the drawer.
+
+              Neither selector matches a group toggle (Content / Learning are
+              plain <button>s) or the avatar trigger itself, so disclosing a
+              group and opening the avatar menu both keep the drawer up.
+
+              Anchor/menuitem based rather than a route-change effect so that
+              re-tapping the item you are already on closes too — the path
+              never changes there. */}
           <div
             className="flex h-full w-full flex-col"
             onClick={(e) => {
-              if (!(e.target as HTMLElement).closest("a[href]")) return
+              const t = e.target as HTMLElement
+              if (!t.closest('a[href], [role="menuitem"]')) return
               // Tell the incoming screen to skip its entrance fade, so the
               // drawer's slide is the only motion and it reveals a page that
               // is already there.
