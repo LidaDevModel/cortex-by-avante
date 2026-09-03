@@ -18,10 +18,11 @@ import { cn } from "@/lib/utils";
 type Crumb = { label: string; href?: string };
 
 export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?: string }) {
-  // The breadcrumb is a desktop pattern. On phones the screen name lives in the
-  // page body (its big title / detail-header), so the top bar shows only the
-  // bell — and collapses entirely on focused-task screens (where the bell also
-  // hides), so there's no empty strip. Desktop keeps the full breadcrumb.
+  // The breadcrumb stays from 768 up — including the tablet band, where the
+  // nav is a drawer or pill but there is ample width and the admin IA runs
+  // three levels deep, so the trail is the only orientation cue left. Below
+  // 768 the screen name lives in the page body instead, and the bar collapses
+  // entirely on focused-task screens (where the bell also hides).
   const browse = useMobileNavVisible();
   const { toggleSidebar } = useSidebar();
   // The mobile burger opens the Manage drawer — only a cleared admin has one.
@@ -67,19 +68,20 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
     <header
       className={cn(
         "relative z-10 flex items-center gap-2 px-4 h-14 shrink-0 bg-surface",
-        !browse && "max-md:hidden",
+        !browse && "max-lg:hidden",
         className
       )}
     >
-      {/* Desktop: the sidebar collapse toggle. Mobile: admins get a burger that
-          opens the nav drawer; field agents keep a quiet header (the floating
-          pill is their nav), so no trigger there. */}
-      <SidebarTrigger className="-ml-1 max-md:hidden" />
+      {/* Sidebar widths: the collapse toggle. Below the nav breakpoint (tablet
+          and phone): admins get a burger that opens the nav drawer; field
+          agents keep a quiet header (the floating pill is their nav), so no
+          trigger there. See use-nav-shape for why the boundary is 1024. */}
+      <SidebarTrigger className="-ml-1 max-lg:hidden" />
       {canManage && (
         <button
           onClick={toggleSidebar}
           aria-label="Open menu"
-          className="md:hidden -ml-1 w-9 h-9 flex items-center justify-center rounded-lg text-foreground hover:bg-foreground/5 transition-colors duration-100"
+          className="lg:hidden -ml-1 w-11 h-11 flex items-center justify-center rounded-lg text-foreground hover:bg-foreground/5 transition-colors duration-100"
         >
           <Menu size={20} strokeWidth={1.75} />
         </button>

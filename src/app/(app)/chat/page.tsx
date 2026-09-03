@@ -442,7 +442,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
               guaranteed exit, regardless of how the user arrived). */}
           <Link
             href="/dashboard"
-            className="md:hidden -ml-2 flex items-center gap-0.5 h-11 pl-1 pr-2 text-[14px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 shrink-0"
+            className="lg:hidden -ml-2 flex items-center gap-0.5 h-11 pl-1 pr-2 text-[14px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 shrink-0"
           >
             <ChevronLeft size={18} strokeWidth={2} />
             Home

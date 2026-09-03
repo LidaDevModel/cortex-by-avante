@@ -174,7 +174,7 @@ export function MobileTabBar() {
         <div
           aria-hidden
           onClick={() => closeDial()}
-          className="fixed inset-0 z-40 md:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
           style={{
             background: "var(--scrim)",
             backdropFilter: "blur(8px)",
@@ -188,9 +188,13 @@ export function MobileTabBar() {
 
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-50 md:hidden pointer-events-none px-4 pb-[calc(12px+env(safe-area-inset-bottom))]"
+        className="fixed inset-x-0 bottom-0 z-50 lg:hidden pointer-events-none px-4 pb-[calc(12px+env(safe-area-inset-bottom))]"
       >
-        <div className="relative flex items-center gap-3">
+        {/* Capped + centred: `flex-1` on the pill would otherwise stretch four
+            tabs across a whole tablet — unreachable targets and a pill that
+            reads as a toolbar. At phone widths the cap never binds, so the
+            phone layout is untouched. */}
+        <div className="relative mx-auto w-full max-w-[28rem] flex items-center gap-3">
           {/* Speed dial options — grow out of their trigger, bottom-up */}
           {dial && activeDial && (
             <div
