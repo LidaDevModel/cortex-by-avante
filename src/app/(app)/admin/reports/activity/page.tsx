@@ -13,7 +13,7 @@ import { withReturn } from "@/lib/admin-nav";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useActivity, ACTIVITY_KIND_OPTIONS } from "@/lib/activity-log";
-import { useManageLock, LockedEmpty, NO_RECORDS } from "@/components/admin/manage-lock";
+import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 
 const SELF = "/admin/reports/activity";
 
@@ -26,10 +26,8 @@ function formatWhen(iso: string) {
 export default function AdminActivityPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const allEntries = useActivity();
+  const all = useActivity();
   const { locked } = useManageLock();
-  // No records while locked — the reason renders in their place.
-  const all = locked ? NO_RECORDS : allEntries;
 
   const [query, setQuery] = useState("");
   const [kindFilter, setKindFilter] = useState("");
@@ -68,11 +66,18 @@ export default function AdminActivityPage() {
       <PageHeader crumbs={[{ label: "Activity log" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex flex-col gap-1">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Activity log</h1>
             <p className="text-[14px] leading-[20px] text-muted-foreground">Who did what across content, people, and flagged responses.</p>
           </div>
+
+          {/* Locked: the screen keeps its identity above, and its working
+              surface becomes one statement plus the one useful action. */}
+          {locked ? (
+            <ManageLockedPanel task="reviewing the activity log" />
+          ) : (
+            <>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder="Search actions" className="w-full sm:w-[280px]" />
@@ -82,9 +87,7 @@ export default function AdminActivityPage() {
             </div>
           </div>
 
-          {locked ? (
-            <LockedEmpty what="activity entries" />
-          ) : entries.length === 0 ? (
+          {entries.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">
                 {q || kindFilter || actorFilter ? "No actions match these filters." : "No activity data yet. Actions across content, people, and flagged responses will appear here."}
@@ -138,6 +141,8 @@ export default function AdminActivityPage() {
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
+            </>
+          )}
         </div>
       </ScrollCanvas>
     </div>

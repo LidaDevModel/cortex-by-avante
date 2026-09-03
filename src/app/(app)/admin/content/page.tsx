@@ -21,7 +21,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished, setFolderPublished } from "@/lib/content-store";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
-import { useManageLock, LockedEmpty, LOCKED_HINT, NO_RECORDS } from "@/components/admin/manage-lock";
+import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 
 type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
 
@@ -49,14 +49,8 @@ type KindTab = (typeof KIND_TABS)[number]["value"];
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const allLib = useLibrary();
+  const lib = useLibrary();
   const { locked } = useManageLock();
-  // No records while locked — the reason renders in their place.
-  // Memoised: a fresh object each render would invalidate every useMemo below.
-  const lib = useMemo(
-    () => (locked ? { ...allLib, docs: NO_RECORDS, folders: NO_RECORDS } : allLib),
-    [locked, allLib]
-  );
   const searchParams = useSearchParams();
   const folderId = searchParams.get("folder") ?? undefined;
   const folder = folderId ? getContentFolder(folderId) : undefined;
@@ -179,7 +173,17 @@ export default function AdminContentPage() {
       <PageHeader crumbs={crumbs} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
+          {/* Locked: one identity line and one statement. The folder view's own
+              title row and actions are skipped too — with the section locked
+              there is no folder to be inside. */}
+          {locked ? (
+            <>
+              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+              <ManageLockedPanel task="managing the content library" />
+            </>
+          ) : (
+          <>
           {folder && <BackLink {...resolveBack(searchParams.get("return"), { href: "/admin/content", label: "Back to Library" })} />}
           {folder ? (
             // Folder view: name + its actions (New document, Publish/Unpublish
@@ -189,7 +193,7 @@ export default function AdminContentPage() {
                 {folder.name}
               </h1>
               <div className="flex items-center gap-2">
-                <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
+                <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
                   <FilePlus2 size={16} strokeWidth={1.5} /> New document
                 </Button>
                 {folder.published !== false ? (
@@ -214,10 +218,10 @@ export default function AdminContentPage() {
                   ariaLabel="Filter by kind"
                 />
                 <div className="flex items-center gap-2">
-                  <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
+                  <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
                     <FolderPlus size={16} strokeWidth={1.5} /> New folder
                   </Button>
-                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
+                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
                     <FilePlus2 size={16} strokeWidth={1.5} /> New document
                   </Button>
                 </div>
@@ -233,9 +237,7 @@ export default function AdminContentPage() {
             </div>
           </div>
 
-          {locked ? (
-            <LockedEmpty what="documents and folders" />
-          ) : shown.length === 0 ? (
+          {shown.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet. Add one with New document."}</p>
             </div>
@@ -298,6 +300,8 @@ export default function AdminContentPage() {
           )}
 
           <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
+          </>
+          )}
         </div>
       </ScrollCanvas>
 

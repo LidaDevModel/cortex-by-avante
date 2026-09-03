@@ -11,7 +11,7 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCar
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
-import { useManageLock, LockedEmpty, NO_RECORDS } from "@/components/admin/manage-lock";
+import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -26,10 +26,8 @@ function FlagPill({ status }: { status: FlagStatus }) {
 export default function AdminFlaggedPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const allFlags = useFlags();
+  const flags = useFlags();
   const { locked } = useManageLock();
-  // No records while locked — the reason renders in their place.
-  const flags = locked ? NO_RECORDS : allFlags;
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -65,11 +63,18 @@ export default function AdminFlaggedPage() {
       <PageHeader crumbs={[{ label: "Flagged responses" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex flex-col gap-1">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Flagged responses</h1>
             <p className="text-[14px] leading-[20px] text-muted-foreground">Answers staff reported as wrong or incomplete. Open one to review the source content, then resolve.</p>
           </div>
+
+          {/* Locked: the screen keeps its identity above, and its working
+              surface becomes one statement plus the one useful action. */}
+          {locked ? (
+            <ManageLockedPanel task="reviewing flagged responses" />
+          ) : (
+            <>
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={setQuery} placeholder="Search flagged responses" className="w-full sm:w-[280px]" />
@@ -80,9 +85,7 @@ export default function AdminFlaggedPage() {
             </div>
           </div>
 
-          {locked ? (
-            <LockedEmpty what="flagged responses" />
-          ) : sorted.length === 0 ? (
+          {sorted.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">
                 {q || statusFilter || reasonFilter || sourceFilter ? "No flagged responses match these filters." : "No flagged responses. Reports from the AI chat will appear here."}
@@ -133,6 +136,8 @@ export default function AdminFlaggedPage() {
                   ))}
                 </TableBody>
               </Table>
+            </>
+          )}
             </>
           )}
         </div>

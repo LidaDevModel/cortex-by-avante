@@ -93,8 +93,7 @@ export function CortexSidebar() {
   const canManage = useManageAccess();
   // The Manage nav shows to every admin, cleared or not: an admin who was
   // cleared yesterday and lost it to a newly-required module reads a vanished
-  // section as a fault. Locked, the screens still render — chrome, no records,
-  // writes disabled, reason stated — so the door stays where they left it.
+  // section as a fault. Locked, each screen keeps its title and explains itself.
   const showManage = role === "admin";
   const manageLocked = showManage && !canManage;
   // Keeps the `defaultOpen` reads below current after a manual toggle — see
@@ -144,10 +143,9 @@ export function CortexSidebar() {
         <SidebarMenu>
           {showManage ? (
             <>
-              {/* Manage — the admin's primary work, top-level. While locked a
-                  single padlock on the section header carries the state; the
-                  rows stay reachable and each screen explains itself. One mark,
-                  not one per row. */}
+              {/* Manage — the admin's primary work, top-level. One padlock for
+                  the whole section while locked; the rows stay reachable and
+                  each screen states its own reason. */}
               {manageLocked && (
                 <SidebarMenuItem>
                   <div className="flex items-center gap-1.5 px-3 pt-1 pb-2 text-muted-foreground group-data-[collapsible=icon]:hidden">
