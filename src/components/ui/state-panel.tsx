@@ -67,6 +67,12 @@ export function StatePanel({
 
   return (
     <div
+      // data-slot follows the house convention and makes the panel findable:
+      // the screenshot harness asserts one is present before it shoots, so a
+      // "panel screen" can never be filed without its panel.
+      data-slot="state-panel"
+      data-tone={tone}
+      data-size={size}
       className={cn(
         "flex-1 flex flex-col items-center justify-center text-center px-6",
         sm ? "gap-3 py-6" : "gap-4 py-16",
