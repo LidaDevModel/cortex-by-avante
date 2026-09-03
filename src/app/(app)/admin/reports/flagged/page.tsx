@@ -11,6 +11,7 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCar
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
+import { useManageLock, LockedEmpty, NO_RECORDS } from "@/components/admin/manage-lock";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -25,7 +26,10 @@ function FlagPill({ status }: { status: FlagStatus }) {
 export default function AdminFlaggedPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const flags = useFlags();
+  const allFlags = useFlags();
+  const { locked } = useManageLock();
+  // No records while locked — the reason renders in their place.
+  const flags = locked ? NO_RECORDS : allFlags;
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -76,7 +80,9 @@ export default function AdminFlaggedPage() {
             </div>
           </div>
 
-          {sorted.length === 0 ? (
+          {locked ? (
+            <LockedEmpty what="flagged responses" />
+          ) : sorted.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">
                 {q || statusFilter || reasonFilter || sourceFilter ? "No flagged responses match these filters." : "No flagged responses. Reports from the AI chat will appear here."}

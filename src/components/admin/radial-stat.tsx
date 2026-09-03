@@ -28,6 +28,7 @@ export function RadialStat({
   centerLabel,
   series,
   animate,
+  unavailable = false,
 }: {
   title: string;
   href?: string;
@@ -35,6 +36,8 @@ export function RadialStat({
   centerLabel: string;
   series: [Series, Series];
   animate: boolean;
+  /** No figure to show (Manage locked). A dash, never a 0 — zero is a claim. */
+  unavailable?: boolean;
 }) {
   const size = 164;
   const stroke = 14;
@@ -80,7 +83,11 @@ export function RadialStat({
           className="relative shrink-0"
           style={{ width: size, height: size }}
           role="img"
-          aria-label={`${total} ${centerLabel}: ${series.map((s) => `${s.value} ${s.label}`).join(", ")}`}
+          aria-label={
+            unavailable
+              ? `${title}: hidden until you're cleared for duty`
+              : `${total} ${centerLabel}: ${series.map((s) => `${s.value} ${s.label}`).join(", ")}`
+          }
         >
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
             {radii.map((r, i) => (
@@ -169,7 +176,9 @@ export function RadialStat({
                 </>
               ) : (
                 <>
-                  <span className="text-[24px] leading-[28px] font-bold tabular-nums text-foreground">{tc}</span>
+                  <span className="text-[24px] leading-[28px] font-bold tabular-nums text-foreground">
+                    {unavailable ? "—" : tc}
+                  </span>
                   <span className="text-[11px] leading-[14px] text-muted-foreground">{centerLabel}</span>
                 </>
               )}

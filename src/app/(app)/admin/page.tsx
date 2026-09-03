@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Flag, Mail, FileText,
   CheckCircle2, ArrowUpRight, Plus, type LucideIcon,
+  Lock,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -21,6 +22,7 @@ import { useModules } from "@/lib/training-store";
 import { useFlags } from "@/lib/flags-store";
 import { useActivity } from "@/lib/activity-log";
 import { withReturn } from "@/lib/admin-nav";
+import { useManageLock, LOCKED_HINT, NO_RECORDS } from "@/components/admin/manage-lock";
 
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -34,9 +36,17 @@ export default function AdminHomePage() {
   // Row cascade — shared with every list table, one key per Home table.
   const attnRow = useRowStagger("home-attention");
   const activityRow = useRowStagger("home-activity");
-  const users = useAdminUsers();
-  const flags = useFlags();
-  const activity = useActivity();
+  const { locked } = useManageLock();
+  // Every number on this screen is a claim about the org. While locked there
+  // are no records to count, so the tiles read zero and the notice explains.
+  // Hooks always run — only the VALUES are gated (conditional hooks break the
+  // Rules of Hooks).
+  const allUsers = useAdminUsers();
+  const allFlags = useFlags();
+  const allActivity = useActivity();
+  const users = locked ? NO_RECORDS : allUsers;
+  const flags = locked ? NO_RECORDS : allFlags;
+  const activity = locked ? NO_RECORDS : allActivity;
   const [newContentOpen, setNewContentOpen] = useState(false);
 
   // Date meta, set after mount (client clock ≠ prerender clock).
@@ -45,8 +55,13 @@ export default function AdminHomePage() {
     setDateMeta(new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
-  const lib = useLibrary();
-  const modules = useModules();
+  const allLib = useLibrary();
+  const allModules = useModules();
+  const lib = useMemo(
+    () => (locked ? { ...allLib, folders: [], topLevel: [] } : allLib),
+    [locked, allLib]
+  );
+  const modules = locked ? NO_RECORDS : allModules;
 
   /* ─── Team pulse ─── */
   const active = users.filter((u) => u.status === "active").length;
@@ -91,7 +106,14 @@ export default function AdminHomePage() {
               Carries the readiness card's glow: it is this screen's hero. */}
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)", boxShadow: "var(--card-glow-shadow)" }}>
             <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Needs attention</h2>
-            {attention.length === 0 ? (
+            {locked ? (
+              <div className="flex items-center gap-2.5 py-2">
+                <Lock size={16} strokeWidth={1.5} className="shrink-0 text-muted-foreground" />
+                <span className="text-[14px] leading-[20px] text-muted-foreground">
+                  Hidden until you&apos;re cleared for duty — this isn&apos;t &ldquo;all clear&rdquo;.
+                </span>
+              </div>
+            ) : attention.length === 0 ? (
               <div className="flex items-center gap-2.5 py-2">
                 <CheckCircle2 size={16} strokeWidth={1.5} style={{ color: "var(--success)" }} />
                 <span className="text-[14px] leading-[20px] text-muted-foreground">All clear — nothing needs your review.</span>
@@ -126,6 +148,7 @@ export default function AdminHomePage() {
               total={users.length}
               centerLabel="staff"
               animate={animateStats}
+              unavailable={locked}
               series={[
                 { label: "Active", value: active, color: "var(--match-pair-2-border)" },
                 { label: "Shift-ready", value: ready, color: "var(--success)" },
@@ -137,6 +160,7 @@ export default function AdminHomePage() {
               total={requiredCerts + optionalCerts}
               centerLabel="certs"
               animate={animateStats}
+              unavailable={locked}
               series={[
                 { label: "Required", value: requiredCerts, color: "var(--success)" },
                 { label: "Optional", value: optionalCerts, color: "var(--match-pair-2-border)" },
@@ -148,6 +172,7 @@ export default function AdminHomePage() {
               total={openFlags + resolvedFlags}
               centerLabel="flags"
               animate={animateStats}
+              unavailable={locked}
               series={[
                 { label: "Open", value: openFlags, color: "var(--match-pair-2-border)" },
                 { label: "Resolved", value: resolvedFlags, color: "var(--success)" },
@@ -158,7 +183,7 @@ export default function AdminHomePage() {
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
-              <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
+              <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
                 <Plus size={16} strokeWidth={1.5} /> Add content
               </Button>
             </div>
@@ -181,11 +206,11 @@ export default function AdminHomePage() {
                     <TableBody>
                       <TableRow>
                         <TableCell className="flex-1 min-w-0 text-muted-foreground">Published</TableCell>
-                        <TableCell className="w-16 text-right tabular-nums text-foreground">{t.published}</TableCell>
+                        <TableCell className="w-16 text-right tabular-nums text-foreground">{locked ? "—" : t.published}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell className="flex-1 min-w-0 text-muted-foreground">Draft</TableCell>
-                        <TableCell className="w-16 text-right tabular-nums text-foreground">{t.draft}</TableCell>
+                        <TableCell className="w-16 text-right tabular-nums text-foreground">{locked ? "—" : t.draft}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>

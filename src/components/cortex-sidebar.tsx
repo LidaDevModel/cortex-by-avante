@@ -43,6 +43,7 @@ import {
   Folder,
   Flag,
   History,
+  Lock,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
@@ -90,6 +91,12 @@ export function CortexSidebar() {
   // admin navigates as a learner (same nav as a field agent) until they finish
   // their required training.
   const canManage = useManageAccess();
+  // The Manage nav shows to every admin, cleared or not: an admin who was
+  // cleared yesterday and lost it to a newly-required module reads a vanished
+  // section as a fault. Locked, the screens still render — chrome, no records,
+  // writes disabled, reason stated — so the door stays where they left it.
+  const showManage = role === "admin";
+  const manageLocked = showManage && !canManage;
   // Keeps the `defaultOpen` reads below current after a manual toggle — see
   // nav-groups for why a bare module write is not enough.
   useNavGroups();
@@ -135,10 +142,22 @@ export function CortexSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarMenu>
-          {canManage ? (
+          {showManage ? (
             <>
-              {/* Manage — the admin's primary work, top-level. (Content and
-                  Reports arrive with their phases.) */}
+              {/* Manage — the admin's primary work, top-level. While locked a
+                  single padlock on the section header carries the state; the
+                  rows stay reachable and each screen explains itself. One mark,
+                  not one per row. */}
+              {manageLocked && (
+                <SidebarMenuItem>
+                  <div className="flex items-center gap-1.5 px-3 pt-1 pb-2 text-muted-foreground group-data-[collapsible=icon]:hidden">
+                    <Lock size={12} strokeWidth={2} className="shrink-0" />
+                    <span className="text-[11px] leading-[14px] font-semibold uppercase tracking-wide">
+                      Locked until cleared
+                    </span>
+                  </div>
+                </SidebarMenuItem>
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/admin"} tooltip="Home" className="gap-3 rounded-lg">
                   <Link href="/admin">

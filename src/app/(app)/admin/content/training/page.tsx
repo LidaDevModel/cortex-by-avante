@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
+import { useManageLock, LockedEmpty, LOCKED_HINT, NO_RECORDS } from "@/components/admin/manage-lock";
 
 const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORY_OPTIONS.map((c) => [c.value, c.label]));
 
@@ -31,7 +32,10 @@ function formatDate(iso: string) {
 export default function AdminTrainingPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const modules = useModules();
+  const allModules = useModules();
+  const { locked } = useManageLock();
+  // No records while locked — the reason renders in their place.
+  const modules = locked ? NO_RECORDS : allModules;
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [requirementFilter, setRequirementFilter] = useState("");
@@ -117,7 +121,7 @@ export default function AdminTrainingPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Modules</h1>
-            <Button size="cta" onClick={() => setNewOpen(true)}>
+            <Button size="cta" onClick={() => setNewOpen(true)} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
               <FilePlus2 size={16} strokeWidth={1.5} /> New module
             </Button>
           </div>
@@ -132,7 +136,9 @@ export default function AdminTrainingPage() {
             </div>
           </div>
 
-          {rows.length === 0 ? (
+          {locked ? (
+            <LockedEmpty what="modules" />
+          ) : rows.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "No modules match that search." : "No modules yet. Create one with New module."}</p>
             </div>

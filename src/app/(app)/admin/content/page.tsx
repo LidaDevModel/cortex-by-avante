@@ -21,6 +21,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished, setFolderPublished } from "@/lib/content-store";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
+import { useManageLock, LockedEmpty, LOCKED_HINT, NO_RECORDS } from "@/components/admin/manage-lock";
 
 type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
 
@@ -48,7 +49,14 @@ type KindTab = (typeof KIND_TABS)[number]["value"];
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const lib = useLibrary();
+  const allLib = useLibrary();
+  const { locked } = useManageLock();
+  // No records while locked — the reason renders in their place.
+  // Memoised: a fresh object each render would invalidate every useMemo below.
+  const lib = useMemo(
+    () => (locked ? { ...allLib, docs: NO_RECORDS, folders: NO_RECORDS } : allLib),
+    [locked, allLib]
+  );
   const searchParams = useSearchParams();
   const folderId = searchParams.get("folder") ?? undefined;
   const folder = folderId ? getContentFolder(folderId) : undefined;
@@ -181,7 +189,7 @@ export default function AdminContentPage() {
                 {folder.name}
               </h1>
               <div className="flex items-center gap-2">
-                <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
                   <FilePlus2 size={16} strokeWidth={1.5} /> New document
                 </Button>
                 {folder.published !== false ? (
@@ -206,10 +214,10 @@ export default function AdminContentPage() {
                   ariaLabel="Filter by kind"
                 />
                 <div className="flex items-center gap-2">
-                  <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })}>
+                  <Button size="cta" variant="outline" onClick={() => setPrompt({ mode: "new-folder" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
                     <FolderPlus size={16} strokeWidth={1.5} /> New folder
                   </Button>
-                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
+                  <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })} disabled={locked} title={locked ? LOCKED_HINT : undefined}>
                     <FilePlus2 size={16} strokeWidth={1.5} /> New document
                   </Button>
                 </div>
@@ -225,7 +233,9 @@ export default function AdminContentPage() {
             </div>
           </div>
 
-          {shown.length === 0 ? (
+          {locked ? (
+            <LockedEmpty what="documents and folders" />
+          ) : shown.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet. Add one with New document."}</p>
             </div>

@@ -13,6 +13,7 @@ import { withReturn } from "@/lib/admin-nav";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useActivity, ACTIVITY_KIND_OPTIONS } from "@/lib/activity-log";
+import { useManageLock, LockedEmpty, NO_RECORDS } from "@/components/admin/manage-lock";
 
 const SELF = "/admin/reports/activity";
 
@@ -25,7 +26,10 @@ function formatWhen(iso: string) {
 export default function AdminActivityPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const router = useRouter();
-  const all = useActivity();
+  const allEntries = useActivity();
+  const { locked } = useManageLock();
+  // No records while locked — the reason renders in their place.
+  const all = locked ? NO_RECORDS : allEntries;
 
   const [query, setQuery] = useState("");
   const [kindFilter, setKindFilter] = useState("");
@@ -78,7 +82,9 @@ export default function AdminActivityPage() {
             </div>
           </div>
 
-          {entries.length === 0 ? (
+          {locked ? (
+            <LockedEmpty what="activity entries" />
+          ) : entries.length === 0 ? (
             <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <p className="text-[14px] leading-[20px] text-muted-foreground">
                 {q || kindFilter || actorFilter ? "No actions match these filters." : "No activity data yet. Actions across content, people, and flagged responses will appear here."}
