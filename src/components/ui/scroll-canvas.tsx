@@ -1,9 +1,10 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
+import { isDrawerNav } from "@/lib/drawer-nav";
 
 type Props = {
   children: React.ReactNode;
@@ -27,6 +28,10 @@ export const ScrollCanvas = forwardRef<HTMLDivElement, Props>(
     // correct and the padding never appears late.
     const navVisible = useMobileNavVisible();
     const canManage = useManageAccess();
+    // Arriving from a drawer selection: no entrance fade. The drawer is still
+    // sliding off, and two motions at once is what made that close feel wrong.
+    // Read once at mount so a later re-render cannot re-trigger the fade.
+    const [skipEntrance] = useState(isDrawerNav);
     return (
       <div className={cn("relative flex-1 overflow-hidden", className)}>
         <div
@@ -37,7 +42,11 @@ export const ScrollCanvas = forwardRef<HTMLDivElement, Props>(
             navVisible && !canManage && "max-lg:pb-[calc(88px+env(safe-area-inset-bottom))]",
             innerClassName
           )}
-          style={{ maskImage: mask, WebkitMaskImage: mask, animation: "screen-in 200ms ease-out both" }}
+          style={{
+            maskImage: mask,
+            WebkitMaskImage: mask,
+            animation: skipEntrance ? undefined : "screen-in 200ms ease-out both",
+          }}
         >
           {children}
         </div>

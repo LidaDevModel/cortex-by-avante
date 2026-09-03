@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
 import { useIsCompactNav } from "@/hooks/use-nav-shape"
+import { markDrawerNav } from "@/lib/drawer-nav"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -209,7 +210,12 @@ function Sidebar({
           <div
             className="flex h-full w-full flex-col"
             onClick={(e) => {
-              if ((e.target as HTMLElement).closest("a[href]")) setOpenMobile(false)
+              if (!(e.target as HTMLElement).closest("a[href]")) return
+              // Tell the incoming screen to skip its entrance fade, so the
+              // drawer's slide is the only motion and it reveals a page that
+              // is already there.
+              markDrawerNav()
+              setOpenMobile(false)
             }}
           >
             {children}
