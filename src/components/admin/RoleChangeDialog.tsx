@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, Check, ArrowRight } from "lucide-react";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
+import { Button } from "@/components/ui/button";
 
 /** What each role can do — shown before a role change is committed, so the
  *  admin understands the capabilities (or restrictions) they're granting. */
@@ -93,9 +94,9 @@ export function RoleChangeDialog({
           <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
             Cancel
           </button>
-          <button onClick={onConfirm} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90">
+          <Button size="cta" onClick={onConfirm}>
             Change role
-          </button>
+          </Button>
         </div>
       </div>
     </div>

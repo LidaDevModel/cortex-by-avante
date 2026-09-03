@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, Copy } from "lucide-react";
 import { showToast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
 
 /**
  * The activation-PIN chip: big spaced digits + copy. Shared by the invite
@@ -61,9 +62,9 @@ export function PinDialog({ title, description, pin, onClose }: { title: string;
         </div>
         <PinCode pin={pin} />
         <div className="flex justify-end">
-          <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90">
+          <Button size="cta" onClick={onClose}>
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </div>

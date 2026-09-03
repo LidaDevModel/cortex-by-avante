@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 /**
  * Small single-field modal used for New folder, New document, and Rename. Modal
@@ -72,13 +73,9 @@ export function NamePromptModal({
           <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
             Cancel
           </button>
-          <button
-            onClick={submit}
-            disabled={!value.trim()}
-            className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground disabled:opacity-50 transition-opacity duration-100 hover:opacity-90"
-          >
+          <Button size="cta" onClick={submit} disabled={!value.trim()}>
             {submitLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

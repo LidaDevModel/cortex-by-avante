@@ -23,6 +23,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useAdminUsers, updateUserRole, setUserStatus, getUserPin, regeneratePin } from "@/lib/admin-store";
 import { type ModuleCategory } from "@/lib/training-mock";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
+import { Button } from "@/components/ui/button";
 
 const ROLE_OPTIONS = [
   { value: "field-agent", label: ROLE_LABEL["field-agent"] },
@@ -244,27 +245,34 @@ export default function AdminPersonPage() {
               {user.status === "invited" ? (
                 <div className="flex items-center gap-3">
                   <span className="text-[12px] leading-[16px] text-muted-foreground">Invited {formatDate(user.memberSince)}</span>
-                  <button
+                  <Button
+                    variant="cta-secondary"
+                    size="cta"
                     onClick={() => { const next = regeneratePin(user.id); if (next) { setResentPin(next); if (pin) setPin(next); } }}
-                    className="h-9 px-4 rounded-[8px] text-[13px] font-semibold border border-primary text-primary transition-opacity duration-100 hover:opacity-70"
                   >
                     Resend invite
-                  </button>
+                  </Button>
                 </div>
               ) : user.status === "deactivated" ? (
-                <button
+                <Button
+                  variant="cta-secondary"
+                  size="cta"
                   onClick={() => { setUserStatus(user.id, "active"); showToast({ title: "Account reactivated" }); }}
-                  className="h-9 px-4 rounded-[8px] text-[13px] font-semibold border border-primary text-primary transition-opacity duration-100 hover:opacity-70"
                 >
                   Reactivate
-                </button>
+                </Button>
               ) : (
-                <button
+                /* Neutral outline with destructive TEXT, not a red fill: the
+                   label carries the weight (VISION names the action), and the
+                   real guard is the confirm dialog this opens. */
+                <Button
+                  variant="outline"
+                  size="cta"
+                  className="text-destructive hover:text-destructive"
                   onClick={() => setConfirmDeactivate(true)}
-                  className="h-9 px-4 rounded-[8px] text-[13px] font-semibold border border-border text-destructive transition-opacity duration-100 hover:opacity-70"
                 >
                   Deactivate
-                </button>
+                </Button>
               )}
             </div>
 
@@ -280,12 +288,13 @@ export default function AdminPersonPage() {
                   {pin ? (
                     <span className="text-[18px] leading-[24px] font-semibold tracking-[0.2em] tabular-nums text-foreground">{pin}</span>
                   ) : (
-                    <button
+                    <Button
+                      variant="cta-secondary"
+                      size="cta"
                       onClick={() => setPin(getUserPin(user.id) ?? null)}
-                      className="h-9 px-4 rounded-[8px] text-[13px] font-semibold border border-primary text-primary transition-opacity duration-100 hover:opacity-70"
                     >
                       Show activation PIN
-                    </button>
+                    </Button>
                   )}
                 </div>
               </>

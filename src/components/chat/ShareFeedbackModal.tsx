@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const FEEDBACK_OPTIONS = ["Incomplete", "Wrong info", "Other"] as const;
 type FeedbackOption = typeof FEEDBACK_OPTIONS[number];
@@ -91,13 +92,9 @@ export function ShareFeedbackModal({
           >
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground disabled:opacity-50 transition-opacity duration-100"
-          >
+          <Button size="cta" onClick={handleSubmit} disabled={!canSubmit}>
             Submit feedback
-          </button>
+          </Button>
         </div>
       </div>
     </div>

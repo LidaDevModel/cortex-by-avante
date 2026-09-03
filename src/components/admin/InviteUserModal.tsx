@@ -8,6 +8,7 @@ import { showToast } from "@/components/ui/toast";
 import { PinCode } from "@/components/admin/PinDialog";
 import { inviteUser } from "@/lib/admin-store";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
+import { Button } from "@/components/ui/button";
 
 const ROLE_OPTIONS = [
   { value: "field-agent", label: ROLE_LABEL["field-agent"] },
@@ -73,9 +74,9 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
             </div>
             <PinCode pin={result.pin} />
             <div className="flex justify-end">
-              <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90">
+              <Button size="cta" onClick={onClose}>
                 Done
-              </button>
+              </Button>
             </div>
           </>
         ) : (
@@ -108,9 +109,9 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
               <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
                 Cancel
               </button>
-              <button onClick={submit} className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold bg-primary text-primary-foreground transition-opacity duration-100 hover:opacity-90">
+              <Button size="cta" onClick={submit}>
                 <Check size={14} /> Send invite
-              </button>
+              </Button>
             </div>
           </>
         )}

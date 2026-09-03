@@ -357,9 +357,9 @@ export default function AdminDocumentEditorPage() {
             </section>
           ))}
 
-          <button onClick={addSection} className="self-start flex items-center gap-2 h-9 px-3 rounded-[8px] text-[13px] font-semibold border border-primary text-primary transition-opacity duration-100 hover:opacity-70">
+          <Button variant="cta-secondary" size="cta" onClick={addSection} className="self-start">
             <Plus size={16} strokeWidth={1.5} /> Add section
-          </button>
+          </Button>
         </div>
       </ScrollCanvas>
 
