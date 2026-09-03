@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { X, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { showToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 /**
  * The activation-PIN chip: big spaced digits + copy. Shared by the invite
@@ -30,43 +30,14 @@ export function PinCode({ pin }: { pin: string }) {
  * scale-in, outside-click and Escape close, body scroll lock.
  */
 export function PinDialog({ title, description, pin, onClose }: { title: string; description: string; pin: string; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div
-        className="relative w-[380px] max-w-[calc(100vw-32px)] rounded-[12px] bg-surface-raised p-6 flex flex-col gap-5"
-        style={{ boxShadow: "var(--shadow-modal-panel)", animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
-          aria-label="Close"
-        >
-          <X size={15} />
-        </button>
-
-        <div className="flex flex-col gap-1">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">{title}</h2>
-          <p className="text-[14px] leading-[20px] text-muted-foreground">{description}</p>
-        </div>
-        <PinCode pin={pin} />
-        <div className="flex justify-end">
-          <Button size="cta" onClick={onClose}>
-            Done
-          </Button>
-        </div>
+    <Modal open onClose={onClose} title={title} description={description}>
+      <PinCode pin={pin} />
+      <div className="flex justify-end">
+        <Button size="cta" onClick={onClose}>
+          Done
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }

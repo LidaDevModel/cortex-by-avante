@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { X, Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 /** What each role can do — shown before a role change is committed, so the
  *  admin understands the capabilities (or restrictions) they're granting. */
@@ -38,67 +38,42 @@ export function RoleChangeDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
   const info = ROLE_INFO[toRole];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div
-        className="relative w-[440px] max-w-[calc(100vw-32px)] rounded-[12px] bg-surface-raised p-6 flex flex-col gap-5"
-        style={{ boxShadow: "var(--shadow-modal-panel)", animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both" }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Modal open onClose={onClose} title={`Change ${name}\u2019s role?`} className="w-[440px]">
+      <div className="flex items-center gap-2 text-[14px] leading-[20px] text-muted-foreground -mt-3">
+        <span className="font-medium text-foreground">{ROLE_LABEL[fromRole]}</span>
+        <ArrowRight size={15} strokeWidth={1.5} />
+        <span className="font-medium text-foreground">{ROLE_LABEL[toRole]}</span>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-[8px] p-4 bg-surface-chip" style={{ border: "1px solid var(--border)" }}>
+        <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+          As {ROLE_LABEL[toRole]}, they can
+        </span>
+        <ul className="flex flex-col gap-2">
+          {info.gains.map((g) => (
+            <li key={g} className="flex items-start gap-2 text-[14px] leading-[20px] text-foreground">
+              <Check size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" style={{ color: "var(--success)" }} />
+              <span>{g}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[13px] leading-[18px] text-muted-foreground">{info.note}</p>
+      </div>
+
+      <div className="flex items-center justify-between">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
-          aria-label="Close"
+          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
-          <X size={15} />
+          Cancel
         </button>
-
-        <div className="flex flex-col gap-2">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground pr-6">Change {name}’s role?</h2>
-          <div className="flex items-center gap-2 text-[14px] leading-[20px] text-muted-foreground">
-            <span className="font-medium text-foreground">{ROLE_LABEL[fromRole]}</span>
-            <ArrowRight size={15} strokeWidth={1.5} />
-            <span className="font-medium text-foreground">{ROLE_LABEL[toRole]}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 rounded-[8px] p-4 bg-surface-chip" style={{ border: "1px solid var(--border)" }}>
-          <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
-            As {ROLE_LABEL[toRole]}, they can
-          </span>
-          <ul className="flex flex-col gap-2">
-            {info.gains.map((g) => (
-              <li key={g} className="flex items-start gap-2 text-[14px] leading-[20px] text-foreground">
-                <Check size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" style={{ color: "var(--success)" }} />
-                <span>{g}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-[13px] leading-[18px] text-muted-foreground">{info.note}</p>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
-            Cancel
-          </button>
-          <Button size="cta" onClick={onConfirm}>
-            Change role
-          </Button>
-        </div>
+        <Button size="cta" onClick={onConfirm}>
+          Change role
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }

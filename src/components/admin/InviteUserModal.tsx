@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, Check } from "lucide-react";
+import { useState } from "react";
+import { Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { showToast } from "@/components/ui/toast";
@@ -9,6 +9,7 @@ import { PinCode } from "@/components/admin/PinDialog";
 import { inviteUser } from "@/lib/admin-store";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 const ROLE_OPTIONS = [
   { value: "field-agent", label: ROLE_LABEL["field-agent"] },
@@ -28,17 +29,6 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
   const [emailError, setEmailError] = useState(false);
   const [result, setResult] = useState<{ pin: string; email: string } | null>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
   function submit() {
     if (!email.includes("@")) {
       setEmailError(true);
@@ -49,73 +39,60 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
     setResult({ pin, email: email.trim() });
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div
-        className="relative w-[380px] max-w-[calc(100vw-32px)] rounded-[12px] bg-surface-raised p-6 flex flex-col gap-5"
-        style={{ boxShadow: "var(--shadow-modal-panel)", animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both" }}
-        onClick={(e) => e.stopPropagation()}
-      >
+  // Two views in one dialog, so the TITLE has to change with them — a static
+  // title would leave a screen reader announcing "Invite user" over a screen
+  // that now shows a created invitation.
+  return result ? (
+    <Modal
+      open
+      onClose={onClose}
+      title="Invitation created"
+      description={`Share this PIN with ${result.email}. They activate at the sign-in screen. A live system emails it.`}
+    >
+      <PinCode pin={result.pin} />
+      <div className="flex justify-end">
+        <Button size="cta" onClick={onClose}>
+          Done
+        </Button>
+      </div>
+    </Modal>
+  ) : (
+    <Modal
+      open
+      onClose={onClose}
+      title="Invite user"
+      description="They get a one-time PIN to activate their account."
+    >
+      <div className="flex flex-col gap-4">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[14px] leading-[20px] font-semibold text-foreground">Email</span>
+          <Input
+            type="email"
+            autoFocus
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(false); }}
+            placeholder="name@avante.security"
+            className={emailError ? "field-error" : undefined}
+            aria-invalid={emailError}
+          />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[14px] leading-[20px] font-semibold text-foreground">Role</span>
+          <FilterSelect value={role} onChange={(v) => setRole(v as Role)} options={ROLE_OPTIONS} />
+        </label>
+      </div>
+
+      <div className="flex items-center justify-between">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
-          aria-label="Close"
+          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
-          <X size={15} />
+          Cancel
         </button>
-
-        {result ? (
-          <>
-            <div className="flex flex-col gap-1">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Invitation created</h2>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
-                Share this PIN with {result.email}. They activate at the sign-in screen. A live system emails it.
-              </p>
-            </div>
-            <PinCode pin={result.pin} />
-            <div className="flex justify-end">
-              <Button size="cta" onClick={onClose}>
-                Done
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-col gap-1">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Invite user</h2>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">They get a one-time PIN to activate their account.</p>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-[14px] leading-[20px] font-semibold text-foreground">Email</span>
-                <Input
-                  type="email"
-                  autoFocus
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(false); }}
-                  placeholder="name@avante.security"
-                  className={emailError ? "field-error" : undefined}
-                  aria-invalid={emailError}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className="text-[14px] leading-[20px] font-semibold text-foreground">Role</span>
-                <FilterSelect value={role} onChange={(v) => setRole(v as Role)} options={ROLE_OPTIONS} />
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
-                Cancel
-              </button>
-              <Button size="cta" onClick={submit}>
-                <Check size={14} /> Send invite
-              </Button>
-            </div>
-          </>
-        )}
+        <Button size="cta" onClick={submit}>
+          <Check size={14} /> Send invite
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }

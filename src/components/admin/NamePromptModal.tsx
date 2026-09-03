@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 /**
  * Small single-field modal used for New folder, New document, and Rename. Modal
@@ -27,17 +27,6 @@ export function NamePromptModal({
 }) {
   const [value, setValue] = useState(initial);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
   function submit() {
     const v = value.trim();
     if (!v) return;
@@ -48,36 +37,25 @@ export function NamePromptModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div
-        className="relative w-[380px] max-w-[calc(100vw-32px)] rounded-[12px] bg-surface-raised p-6 flex flex-col gap-5"
-        style={{ boxShadow: "var(--shadow-modal-panel)", animation: "modal-in 200ms cubic-bezier(0.32,0.72,0,1) both" }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Modal open onClose={onClose} title={title}>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-[14px] leading-[20px] font-semibold text-foreground">{label}</span>
+        <Input autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
+      </label>
+
+      <div className="flex items-center justify-between">
+        {/* min-h-11: a tertiary text link is still a tap target. VISION keeps it
+            a link visually; only the target grows. */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100"
-          aria-label="Close"
+          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
-          <X size={15} />
+          Cancel
         </button>
-
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">{title}</h2>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-[14px] leading-[20px] font-semibold text-foreground">{label}</span>
-          <Input autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
-        </label>
-
-        <div className="flex items-center justify-between">
-          <button onClick={onClose} className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1">
-            Cancel
-          </button>
-          <Button size="cta" onClick={submit} disabled={!value.trim()}>
-            {submitLabel}
-          </Button>
-        </div>
+        <Button size="cta" onClick={submit} disabled={!value.trim()}>
+          {submitLabel}
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }
