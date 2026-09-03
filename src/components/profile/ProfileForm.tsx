@@ -6,7 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthProfile, saveAuthProfile } from "@/lib/auth-mock";
-import { USER } from "@/lib/user-mock";
+import { USER, ROLE_LABEL } from "@/lib/user-mock";
+import { useCurrentRole } from "@/lib/current-role";
 
 const MAX_DESCRIPTION = 160;
 
@@ -25,6 +26,9 @@ export function ProfileForm({
   /** Called after save (and after skip, in onboarding). */
   onDone: () => void;
 }) {
+  // Live access role — the Role field is read-only, but it must still track
+  // the signed-in role rather than a constant baked into user-mock.
+  const role = useCurrentRole();
   const fileRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState(() => getAuthProfile());
   // Snapshot the initial values so Save can disable when nothing changed.
@@ -94,7 +98,7 @@ export function ProfileForm({
           [
             ["full-name", "Full name", USER.fullName],
             ["profile-email", "Email", USER.email],
-            ["role", "Role", USER.role],
+            ["role", "Role", ROLE_LABEL[role]],
           ] as const
         ).map(([id, label, value]) => (
           <div key={id} className="flex flex-col gap-1.5">

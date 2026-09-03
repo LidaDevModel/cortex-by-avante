@@ -18,7 +18,7 @@ import { type ModuleCategory, isShiftReady } from "@/lib/training-mock";
 import { learnerModules, getLearnerCertified, getLearnerRequired } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { getPersona } from "@/lib/demo-persona";
-import { USER } from "@/lib/user-mock";
+import { USER, ROLE_LABEL } from "@/lib/user-mock";
 
 function memberSinceLabel(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
@@ -111,7 +111,10 @@ export default function ProfilePage() {
                   </h1>
                   {cleared && <ClearedBadge requiredCount={getLearnerRequired(role).length} />}
                 </div>
-                <p className="text-[14px] leading-[20px] text-muted-foreground">{USER.role}</p>
+                {/* The live access role, not a baked-in string — the sidebar
+                    footer two inches away shows the same fact, and a frozen
+                    value here made the two disagree. */}
+                <p className="text-[14px] leading-[20px] text-muted-foreground">{ROLE_LABEL[role]}</p>
                 {profile.description && (
                   <p className="text-[14px] leading-[20px] text-foreground pt-1">{profile.description}</p>
                 )}

@@ -20,7 +20,8 @@ import {
 import { isShiftReady } from "@/lib/training-mock";
 import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store";
 import { getLearnerRecent, useLibrary } from "@/lib/content-store";
-import { USER } from "@/lib/user-mock";
+import { USER, ROLE_LABEL } from "@/lib/user-mock";
+import { toLearnerRole } from "@/lib/learner-role";
 import { useCurrentRole } from "@/lib/current-role";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { useLearnerNav } from "@/lib/learner-crumbs";
@@ -82,7 +83,7 @@ export default function DashboardPage() {
     <NewRequirementCard
       modules={newlyRequired}
       requiredModules={requiredModules}
-      role={USER.role}
+      role={ROLE_LABEL[toLearnerRole(role)]}
       wasCleared={wasClearedBefore(role, newlyRequired)}
       onDismiss={() => acknowledgeRequired(role)}
     />
@@ -122,7 +123,7 @@ export default function DashboardPage() {
           ) : (
             /* ── State A — pre-shift onboarding: readiness board is the hero ── */
             <>
-              <ReadinessBoard requiredModules={requiredModules} role={USER.role} />
+              <ReadinessBoard requiredModules={requiredModules} role={ROLE_LABEL[toLearnerRole(role)]} />
               <Row>
                 {continueLearning}
                 {quickPractice}

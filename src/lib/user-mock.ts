@@ -1,16 +1,20 @@
 import { type ModuleCategory } from "./training-mock";
 
 /**
- * The signed-in demo user — single source of truth for name, initials, and role.
- * VISION requires the active role to be visible near the avatar; every screen
- * that greets the user or shows identity reads from here.
+ * The signed-in demo user — single source of truth for name and initials.
+ *
+ * NOT the role. The role is live state (current-role.ts + ROLE_LABEL below),
+ * because the demo can switch it. A frozen `role: "Field Agent"` used to live
+ * here and four screens read it, so the profile page kept saying "Field Agent"
+ * while the sidebar footer two inches away said "Admin". Identity screens read
+ * ROLE_LABEL[useCurrentRole()]; the readiness board names the CURRICULUM, so it
+ * reads ROLE_LABEL[toLearnerRole(role)] — admins learn as field agents.
  */
 export const USER = {
   firstName: "Mike",
   fullName: "Mike Martinez",
   initials: "MM",
   email: "mike.martinez@avante.security",
-  role: "Field Agent",
   /** Provisioned by Avante — the hire date shown on the internal profile. */
   memberSince: "2026-03-02",
 } as const;
