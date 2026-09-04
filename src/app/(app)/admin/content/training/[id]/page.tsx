@@ -14,6 +14,8 @@ import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { showToast } from "@/components/ui/toast";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useModules, getAdminModule, updateModule, updateChapters, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
+import { PublishImpactDialog } from "@/components/admin/PublishImpactDialog";
+import { usePublishImpact } from "@/hooks/use-publish-impact";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { MODULE_CHAPTERS, type ModuleCategory, type Chapter, type Quiz } from "@/lib/training-mock";
 import { ROLE_LABEL, type Role } from "@/lib/user-mock";
@@ -67,6 +69,9 @@ export default function AdminModuleEditorPage() {
   const [chapters, setChapters] = useState<ChapterDraft[]>([]);
   const [confirmExit, setConfirmExit] = useState(false);
   const [confirmUnpublish, setConfirmUnpublish] = useState(false);
+  const [publishConfirm, setPublishConfirm] = useState(false);
+  // Reads the DRAFT roles, so the count matches what is about to be saved.
+  const impact = usePublishImpact(roles);
   const initialRef = useRef("");
 
   useEffect(() => setMounted(true), []);
@@ -184,6 +189,16 @@ export default function AdminModuleEditorPage() {
     showToast({ title: "Saved", description: "The module was updated." });
     leaveAfterWrite();
   }
+  /* Publishing a REQUIRED module assigns it to every guard in its roles and
+     starts each one's clearance deadline (D11), so it asks first. Unpublishing
+     and optional modules are unchanged — no workforce consequence, no dialog. */
+  function requestPublish(next: boolean) {
+    if (next && required) {
+      setPublishConfirm(true);
+      return;
+    }
+    applyPublish(next);
+  }
   function applyPublish(next: boolean) {
     setModulePublished(id, next);
     const undo = { label: "Undo", onClick: () => setModulePublished(id, !next) };
@@ -222,7 +237,7 @@ export default function AdminModuleEditorPage() {
                 onClick={() => {
                   // Unpublish pulls live content from learners — confirm first.
                   if (found!.published !== false) setConfirmUnpublish(true);
-                  else applyPublish(true);
+                  else requestPublish(true);
                 }}
               >
                 {found.published !== false ? "Unpublish" : "Publish"}
@@ -396,6 +411,17 @@ export default function AdminModuleEditorPage() {
         exitLabel="Unpublish"
         cancelLabel="Keep published"
         onExit={() => { setConfirmUnpublish(false); applyPublish(false); }}
+      />
+
+      {/* Required training lands on the whole workforce — say so before it does. */}
+      <PublishImpactDialog
+        open={publishConfirm}
+        onOpenChange={setPublishConfirm}
+        moduleTitle={title || "This module"}
+        roleLabel={impact.roleLabel}
+        affected={impact.affected}
+        clearedNow={impact.clearedNow}
+        onPublish={() => { setPublishConfirm(false); applyPublish(true); }}
       />
     </div>
   );

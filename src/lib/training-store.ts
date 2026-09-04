@@ -234,7 +234,19 @@ export function updateModule(id: string, patch: Partial<Pick<AdminModule, "title
 /** Toggle whether a module is live for learners. */
 export function setModulePublished(id: string, published: boolean) {
   const title = moduleTitle(id);
-  save(load().map((m) => (m.id === id ? { ...m, published, lastModified: today() } : m)));
+  save(
+    load().map((m) => {
+      if (m.id !== id) return m;
+      /* Publishing is the moment learners can first see it, so for a REQUIRED
+         module it is also the moment they owe it — and `assignedDate` is what
+         the 14-day clearance window counts from (D11). Without this a module
+         published today would inherit a seed date months old and be overdue
+         the instant it appeared. Unpublishing leaves the date alone: it is
+         history, not a toggle. */
+      const assigned = published && m.required ? { assignedDate: today() } : {};
+      return { ...m, published, lastModified: today(), ...assigned };
+    })
+  );
   logActivity("edited", `${published ? "Published" : "Unpublished"} module “${title}”`, `/admin/content/training/${id}`);
 }
 // updateModule + updateChapters always fire together on a save — log once here.

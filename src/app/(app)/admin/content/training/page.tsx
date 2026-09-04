@@ -18,6 +18,8 @@ import { PublishBadge } from "@/components/admin/publish-badge";
 import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { withReturn } from "@/lib/admin-nav";
+import { PublishImpactDialog } from "@/components/admin/PublishImpactDialog";
+import { usePublishImpact } from "@/hooks/use-publish-impact";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
@@ -49,6 +51,7 @@ export default function AdminTrainingPage() {
   const [newOpen, setNewOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [unpublishId, setUnpublishId] = useState<string | null>(null);
+  const [publishId, setPublishId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const rowStyle = useRowStagger("admin-modules");
 
@@ -84,6 +87,28 @@ export default function AdminTrainingPage() {
   }, [modules, q, categoryFilter, requirementFilter, roleFilter, statusFilter, sortCol, sortDir]);
   const deleting = modules.find((m) => m.id === deleteId);
   const unpublishing = modules.find((m) => m.id === unpublishId);
+  const publishing = modules.find((m) => m.id === publishId);
+  const impact = usePublishImpact(publishing?.roles);
+
+  /* Publishing a REQUIRED module assigns it to every guard in its roles and
+     starts each one's clearance deadline (D11), so it asks first. An optional
+     module publishes straight away — no workforce consequence. */
+  function requestPublish(m: { id: string; required?: boolean }) {
+    if (m.required) {
+      setPublishId(m.id);
+      return;
+    }
+    doPublish(m.id);
+  }
+  function doPublish(id: string) {
+    const title = modules.find((x) => x.id === id)?.title ?? "This module";
+    setModulePublished(id, true);
+    showToast({
+      title: "Published",
+      description: `"${title}" is now visible to learners.`,
+      action: { label: "Undo", onClick: () => setModulePublished(id, false) },
+    });
+  }
 
   const totalPages = Math.ceil(rows.length / PER_PAGE);
   const safePage = Math.min(page, totalPages || 1);
@@ -108,7 +133,7 @@ export default function AdminTrainingPage() {
             {m.published !== false ? (
               <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
             ) : (
-              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => { setModulePublished(m.id, true); showToast({ title: "Published", description: `"${m.title}" is now visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, false) } }); }}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => requestPublish(m)}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
             )}
             <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
           </DropdownMenuContent>
@@ -255,6 +280,20 @@ export default function AdminTrainingPage() {
             showToast({ title: "Moved to draft", description: `"${m.title}" is no longer visible to learners.`, action: { label: "Undo", onClick: () => setModulePublished(m.id, true) } });
           }
           setUnpublishId(null);
+        }}
+      />
+
+      {/* Required training lands on the whole workforce — say so before it does. */}
+      <PublishImpactDialog
+        open={!!publishId}
+        onOpenChange={(o) => !o && setPublishId(null)}
+        moduleTitle={publishing?.title ?? "This module"}
+        roleLabel={impact.roleLabel}
+        affected={impact.affected}
+        clearedNow={impact.clearedNow}
+        onPublish={() => {
+          if (publishId) doPublish(publishId);
+          setPublishId(null);
         }}
       />
     </div>

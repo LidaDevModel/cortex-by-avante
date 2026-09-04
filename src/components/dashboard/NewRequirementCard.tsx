@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ModuleIllustration } from "@/components/training/ModuleIllustration";
-import { getRequirementState, type Module } from "@/lib/training-mock";
+import { CLEARANCE_GRACE_DAYS, daysUntilDue, getRequirementState, isWithinGrace, type Module } from "@/lib/training-mock";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -69,11 +69,26 @@ export function NewRequirementCard({
     ? `${modules.length} new required modules`
     : first.title;
 
-  // The reassurance line — the whole point of the card.
+  /* The reassurance line — the whole point of the card.
+     It used to say "Finish it and you're cleared for duty AGAIN", which was
+     true when publishing a required module revoked clearance on the spot. It
+     no longer does (D11): a cleared guard keeps clearance for the grace
+     window. Telling them they had lost it would now be simply false, and it
+     is the opposite of reassuring. So a guard still inside the window is told
+     what is actually true — they are still cleared, and by when. */
+  const inGrace = modules.some(isWithinGrace);
+  const daysLeft = inGrace ? Math.max(0, Math.min(...modules.filter(isWithinGrace).map(daysUntilDue))) : 0;
+  const byWhen =
+    daysLeft <= 0 ? "today" : daysLeft === 1 ? "by tomorrow" : `within ${daysLeft} days`;
+
   const reassurance = wasCleared
-    ? multiple
-      ? `Finish ${multiple ? "them" : "it"} and you're cleared for duty again.`
+    ? inGrace
+      ? `You're still cleared for duty. Certify ${byWhen} to stay that way.`
+      : multiple
+      ? "Finish them and you're cleared for duty again."
       : "Finish it and you're cleared for duty again."
+    : inGrace
+    ? `Added to your required training for ${role}. You have ${CLEARANCE_GRACE_DAYS} days to certify.`
     : `Added to your required training for ${role}.`;
 
   return (

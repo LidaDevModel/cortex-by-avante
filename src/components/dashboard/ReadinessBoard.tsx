@@ -17,6 +17,8 @@ import {
   getRequirementState,
   remainingHours,
   formatHours,
+  daysUntilDue,
+  isWithinGrace,
 } from "@/lib/training-mock";
 import { Button } from "@/components/ui/button";
 
@@ -59,6 +61,22 @@ function Tile({ state, category, delayMs = 0 }: { state: RequirementState; categ
     );
   }
   return <ModuleIcon category={category} size={40} />;
+}
+
+/** "Due in 9 days" / "Due tomorrow" / "Due today" — the clearance deadline. */
+function DueChip({ module: m }: { module: Module }) {
+  const left = daysUntilDue(m);
+  const label = left <= 0 ? "Due today" : left === 1 ? "Due tomorrow" : `Due in ${left} days`;
+  return (
+    <Badge
+      variant="outline"
+      tone="neutral"
+      className="shrink-0"
+      title="Certify by this date to stay cleared for duty."
+    >
+      {label}
+    </Badge>
+  );
 }
 
 function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPrimary: boolean; index: number }) {
@@ -138,12 +156,19 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       <Tile state={state} category={m.category} delayMs={index * 80} />
 
       <div className="relative z-10 flex flex-col gap-1 min-w-0 flex-1">
-        <span
-          className="text-[14px] leading-[20px] font-semibold truncate"
-          style={{ color: "var(--foreground)" }}
-        >
-          {m.title}
-        </span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="text-[14px] leading-[20px] font-semibold truncate"
+            style={{ color: "var(--foreground)" }}
+          >
+            {m.title}
+          </span>
+          {/* The deadline, on the row that owes it (D11). Clearance holds while
+              a required module is inside its 14-day window, so without this the
+              guard would be cleared with no idea anything was due. Neutral, not
+              a warning — it is a date, not a fault. */}
+          {isWithinGrace(m) && <DueChip module={m} />}
+        </div>
 
         {state === "ready-to-certify" && (
           <span className="text-[12px] leading-[16px] font-medium">

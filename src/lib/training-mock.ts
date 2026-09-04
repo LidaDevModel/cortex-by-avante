@@ -176,7 +176,43 @@ export function getCertifiedModules(): Module[] {
   );
 }
 
-/** True when every required module is certified — i.e. the agent is cleared for shift.
+/* ─── Clearance and its deadline (decision D11) ───────────────────────────
+   A newly required module does NOT revoke clearance the moment it is
+   published. It used to: clearance was a plain "every required module is
+   certified", so publishing one required module would un-clear the entire
+   workforce at once — and lock Cortex Manage for every admin — which is not
+   how an operation can run.
+
+   Instead a guard keeps clearance for a GRACE WINDOW after the module is
+   assigned, and the interface counts down to the deadline. After it, the
+   module blocks clearance like any other.
+
+   The window runs from `assignedDate` — when the module was assigned to that
+   role — not from a publish timestamp. Assignment is the moment the guard
+   owes the work, and it is the only date the model actually carries; a guard
+   who joins next month gets a full window from their own assignment rather
+   than inheriting an expired one. */
+export const CLEARANCE_GRACE_DAYS = 14;
+
+/** Days left before this module starts blocking clearance. Negative once past. */
+export function daysUntilDue(m: Module): number {
+  return CLEARANCE_GRACE_DAYS - daysSince(m.assignedDate);
+}
+
+/** A required module still inside its window: owed, but not yet blocking. */
+export function isWithinGrace(m: Module): boolean {
+  return m.required && !isCertified(m) && daysUntilDue(m) >= 0;
+}
+
+/** Required, uncertified and still inside the window — what the countdown shows. */
+export function getDueSoon(modules: Module[] = getModules()): Module[] {
+  return modules.filter(isWithinGrace).sort((a, b) => daysUntilDue(a) - daysUntilDue(b));
+}
+
+/** True when the agent is cleared for shift.
+ *
+ *  Every required module must be certified OR still inside its grace window
+ *  (see above). A module past its deadline blocks, exactly as before.
  *
  *  `required.length > 0` guards the empty set: `Array.every` on an empty list is
  *  true, so without it a learner with no required training assigned reads as
@@ -184,7 +220,7 @@ export function getCertifiedModules(): Module[] {
  *  guard, same reason, as `STAFF`'s `requiredTotal > 0` in `user-mock.ts`. */
 export function isShiftReady(modules: Module[] = getModules()): boolean {
   const required = modules.filter((m) => m.required);
-  return required.length > 0 && required.every(isCertified);
+  return required.length > 0 && required.every((m) => isCertified(m) || isWithinGrace(m));
 }
 
 /** Estimated minutes left to finish a module's reading, from progress. */

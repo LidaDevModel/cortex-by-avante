@@ -22,7 +22,7 @@ import {
   useNewRequirements,
   wasClearedBefore,
 } from "@/lib/required-seen";
-import { isShiftReady } from "@/lib/training-mock";
+import { daysUntilDue, getDueSoon, isShiftReady } from "@/lib/training-mock";
 import { useLearnerModules, getLearnerRecentModules } from "@/lib/training-store";
 import { getLearnerRecent, useLibrary } from "@/lib/content-store";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
@@ -52,6 +52,9 @@ export default function DashboardPage() {
   const modules = useLearnerModules(role);
   const requiredModules = modules.filter((m) => m.required);
   const cleared = isShiftReady(modules);
+  // Required modules still inside their 14-day window (D11): clearance holds,
+  // but the guard owes them, so the deadline has to be on screen.
+  const dueSoon = getDueSoon(requiredModules);
   const [greeting, setGreeting] = useState("Welcome back");
   const [dateMeta, setDateMeta] = useState<string | null>(null);
   useEffect(() => {
@@ -121,7 +124,17 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>
-              {loading ? <Skeleton className="h-7 w-32 rounded-full" /> : cleared && <ClearedBadge requiredCount={requiredModules.length} />}
+              {loading ? (
+                <Skeleton className="h-7 w-32 rounded-full" />
+              ) : (
+                cleared && (
+                  <ClearedBadge
+                    requiredCount={requiredModules.length}
+                    dueCount={dueSoon.length}
+                    daysLeft={dueSoon.length ? daysUntilDue(dueSoon[0]) : undefined}
+                  />
+                )
+              )}
             </div>
             {!canManage && dateMeta && (
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
@@ -147,6 +160,15 @@ export default function DashboardPage() {
             /* ── State B — cleared for shift: Ask Cortex is the hero ── */
             <>
               {askCortex}
+              {/* A guard can now be cleared AND owe a module inside its 14-day
+                  window (D11). The badge above says "1 module due in 9 days";
+                  this is the surface that answers WHICH module and what to do
+                  about it, so it has to be here. Before the grace window
+                  existed, a cleared guard never had an outstanding
+                  requirement, so the board was State A only. */}
+              {dueSoon.length > 0 && (
+                <ReadinessBoard requiredModules={requiredModules} role={ROLE_LABEL[toLearnerRole(role)]} />
+              )}
               {certifications}
               <Row>
                 {continueLearning}
