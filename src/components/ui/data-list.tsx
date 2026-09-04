@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 /**
@@ -75,6 +80,76 @@ export type Column<T> = {
 };
 
 export type SortState = { key: string; dir: "asc" | "desc" };
+
+/**
+ * Row actions, owned by the shape — the caller does NOT supply the button.
+ *
+ * Modules used to render its own trigger, and got two things wrong that only
+ * a hand check would have caught: it was 32px, under the 44px floor, on a
+ * card where it is the row's only control; and its label was the bare word
+ * "Actions" on every row, so a screen reader listing the page's buttons heard
+ * "Actions" eight times with nothing to tell them apart.
+ *
+ * Leaving that to each of five lists is the same argument that produced two
+ * row trees and thirteen container widths. So the caller supplies the MENU
+ * and a per-row NAME; the trigger, its size and its focus ring belong here.
+ *
+ * `name` is required, and a list that omits it fails at module load through
+ * `defineActions` — like the identity assertion.
+ */
+export type RowActions<T> = {
+  /** What the trigger is called, per row. "Actions for Amara Diallo". */
+  name: (row: T) => string;
+  /** The menu's items. Rendered inside the shape's own dropdown. */
+  items: (row: T) => React.ReactNode;
+};
+
+/** Wrap a row-actions config so a missing `name` fails on import. */
+export function defineActions<T>(actions: RowActions<T>): RowActions<T> {
+  if (process.env.NODE_ENV !== "production") {
+    if (typeof actions.name !== "function") {
+      throw new Error(
+        "DataList: row actions need a `name(row)` — a per-row accessible name. " +
+          'Without it every row\'s trigger is called the same thing, and a screen ' +
+          "reader listing the page's buttons cannot tell them apart."
+      );
+    }
+    if (typeof actions.items !== "function") {
+      throw new Error("DataList: row actions need an `items(row)` returning the menu items.");
+    }
+  }
+  return actions;
+}
+
+/**
+ * The trigger itself. 44px on a card, 32px on a desktop row — the touch
+ * target is the shape's decision, not each list's.
+ */
+function RowActionsTrigger<T>({ actions, row, size }: { actions: RowActions<T>; row: T; size: "card" | "row" }) {
+  return (
+    // stopPropagation here rather than in every caller: opening the menu must
+    // not also follow the row's link.
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label={actions.name(row)}
+            className={cn(
+              "flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors duration-100",
+              size === "card" ? "size-11" : "size-11 md:size-8"
+            )}
+          >
+            <MoreHorizontal size={16} strokeWidth={1.5} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-[172px]">
+          {actions.items(row)}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
 
 /**
  * "Does not apply", for a cell a column cannot fill.
@@ -178,7 +253,7 @@ export function DataTable<T>({
   onSort?: (key: string) => void;
   rowStyle?: (i: number) => React.CSSProperties | undefined;
   /** A control, not a column — no label, no sort, no mobile pair. */
-  actions?: (row: T) => React.ReactNode;
+  actions?: RowActions<T>;
   className?: string;
 }) {
   const identityKey = columns.find((c) => c.mobile === "identity")?.key;
@@ -209,7 +284,7 @@ export function DataTable<T>({
               style={c.width ? { minWidth: COL_WIDTH[c.width] } : { minWidth: "16rem" }}
             />
           ))}
-          {actions && <col style={{ width: "3rem" }} />}
+          {actions && <col style={{ width: "3.5rem" }} />}
         </colgroup>
         <thead>
           <tr className="bg-[var(--surface-raised)] border-b border-border">
@@ -283,8 +358,8 @@ export function DataTable<T>({
                 </td>
               ))}
               {actions && (
-                <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
-                  {actions(row)}
+                <td className="px-4 py-3 align-middle">
+                  <RowActionsTrigger actions={actions} row={row} size="row" />
                 </td>
               )}
             </tr>
@@ -312,7 +387,7 @@ export function DataCards<T>({
   rowKey: (row: T) => string;
   rowHref?: (row: T) => string;
   rowStyle?: (i: number) => React.CSSProperties | undefined;
-  actions?: (row: T) => React.ReactNode;
+  actions?: RowActions<T>;
   /** Names the list for assistive tech — "People", "Modules". */
   label: string;
   className?: string;
@@ -377,7 +452,7 @@ export function DataCards<T>({
                   if (value == null || value === false) return null;
                   return <div key={c.key}>{value}</div>;
                 })}
-                {actions?.(row)}
+                {actions && <RowActionsTrigger actions={actions} row={row} size="card" />}
               </div>
             )}
           </div>

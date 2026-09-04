@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lucide-react";
+import { FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
-import { DataTable, DataCards, NotApplicable, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
+import { DataTable, DataCards, NotApplicable, defineActions, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
 import { SortButton } from "@/components/ui/sort-button";
 import { Pagination } from "@/components/ui/pagination";
 import { useRowStagger } from "@/hooks/use-entrance";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { showToast } from "@/components/ui/toast";
 import { NamePromptModal } from "@/components/admin/NamePromptModal";
@@ -188,29 +188,23 @@ export default function AdminTrainingPage() {
   // Edit/Publish/Delete stay reachable on a phone. The stopPropagation wrapper
   // keeps a menu click from also opening the row's preview.
   type ModuleRow = (typeof paginated)[number];
-  function rowActions(m: ModuleRow) {
-    return (
-      <div onClick={(e) => e.stopPropagation()}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="size-11 md:size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors duration-100" aria-label={`Actions for ${m.title}`}>
-              <MoreHorizontal size={16} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[160px]">
-            <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => router.push(withReturn(`/admin/content/training/${m.id}/preview`, "/admin/content/training"))}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
-            {m.published !== false ? (
-              <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => requestPublish(m)}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
-            )}
-            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    );
-  }
+  /* The MENU only. The trigger, its 44px target, its focus ring and its
+     accessible name belong to `DataTable`/`DataCards` — see RowActions. */
+  const rowActions = defineActions<ModuleRow>({
+    name: (m) => `Actions for ${m.title}`,
+    items: (m) => (
+      <>
+        <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => router.push(withReturn(`/admin/content/training/${m.id}/preview`, "/admin/content/training"))}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
+        {m.published !== false ? (
+          <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem disabled={(m.chapters ?? 0) === 0} onSelect={() => requestPublish(m)}><Send size={16} strokeWidth={1.5} /> Publish</DropdownMenuItem>
+        )}
+        <DropdownMenuItem variant="destructive" onSelect={() => setDeleteId(m.id)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
+      </>
+    ),
+  });
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden canvas-glow">
