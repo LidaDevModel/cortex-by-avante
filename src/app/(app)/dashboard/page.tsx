@@ -11,6 +11,8 @@ import { QuickPractice } from "@/components/dashboard/QuickPractice";
 import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf";
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
 import { NewRequirementCard } from "@/components/dashboard/NewRequirementCard";
+import { WelcomeCard } from "@/components/dashboard/WelcomeCard";
+import { clearWelcome, useWelcomePending } from "@/lib/first-visit";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,8 +86,23 @@ export default function DashboardPage() {
   // Requirements added since the learner last looked. Readiness itself is a
   // pure boolean with no memory, so without this the dashboard would silently
   // reshape into the onboarding layout — see NewRequirementCard.
+  // Day one. The app already KNEW this — activation arms the flag — but Home
+  // rendered identically to any other day, and its three lower widgets all
+  // said "you have nothing yet", so the first screen's whole tone was absence.
+  const welcomePending = useWelcomePending();
   const newlyRequired = useNewRequirements(role);
-  const newRequirement = newlyRequired.length > 0 && (
+  const welcome = welcomePending && (
+    <WelcomeCard
+      requiredModules={requiredModules}
+      role={ROLE_LABEL[toLearnerRole(role)]}
+      onDismiss={clearWelcome}
+    />
+  );
+
+  // Both cards are one-time news above the board. They cannot both be day one:
+  // a first visit has nothing it was not told about, since required-seen seeds
+  // silently on its first read. Welcome wins if they ever coincide.
+  const newRequirement = !welcomePending && newlyRequired.length > 0 && (
     <NewRequirementCard
       modules={newlyRequired}
       requiredModules={requiredModules}
@@ -103,7 +120,7 @@ export default function DashboardPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : `${greeting}, ${USER.firstName}`}</h1>
+              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>
               {loading ? <Skeleton className="h-7 w-32 rounded-full" /> : cleared && <ClearedBadge requiredCount={requiredModules.length} />}
             </div>
             {!canManage && dateMeta && (
@@ -113,7 +130,7 @@ export default function DashboardPage() {
 
           {/* Requirements changed — explains the board below before the user
               has to guess why their badge disappeared. */}
-          {!loading && newRequirement}
+          {!loading && (welcome || newRequirement)}
 
           {loading ? (
             /* Mirrors both states' shape: one hero card, a pair, then a card.

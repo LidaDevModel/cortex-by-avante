@@ -2,13 +2,14 @@
 
 import { useSyncExternalStore } from "react";
 import { getLearnerRecent } from "@/lib/content-store";
-import { getLearnerRecentModules } from "@/lib/training-store";
+import { getLearnerRecentModules, learnerModules } from "@/lib/training-store";
 import { getTodaysDailyAttempt } from "@/lib/kc-store";
 import { getCurrentRole } from "@/lib/current-role";
 import { hasManageAccess } from "@/lib/manage-access";
 import { listFlags } from "@/lib/flags-store";
 import { listUsers } from "@/lib/admin-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
+import { toLearnerRole } from "@/lib/learner-role";
 
 /*
  * Notifications — the time-sensitive layer over each role's events. Field
@@ -160,7 +161,19 @@ export function getNotifications(): (CortexNotification & { unread: boolean })[]
     }
   }
 
-  if (prefs.practice && !getTodaysDailyAttempt()) {
+  /* Practice is REINFORCEMENT, so it needs something to reinforce. The nudge
+     used to fire for anyone with no attempt today, including a guard who had
+     read nothing — so the one thing the app proactively told a new hire was to
+     sit a mixed-topic quiz on material nobody had taught him. Worse, "Weak
+     areas" and "Exam simulation" are both disabled on day one, so the Daily 5
+     was the only practice door open, and it was the wrong first step. The
+     Quick-practice card already reasons this way for two of its four tiles;
+     the notification did not. */
+  const hasStartedLearning = learnerModules(toLearnerRole(getCurrentRole())).some(
+    (m) => m.progress > 0
+  );
+
+  if (prefs.practice && hasStartedLearning && !getTodaysDailyAttempt()) {
     items.push({
       id: `daily-${new Date().toDateString()}`,
       category: "practice",

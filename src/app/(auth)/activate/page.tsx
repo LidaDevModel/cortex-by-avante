@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PinInput } from "@/components/ui/pin-input";
 import { ProgressDonut } from "@/components/ui/progress-donut";
-import { showToast } from "@/components/ui/toast";
+import { armWelcome } from "@/lib/first-visit";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { completeActivation } from "@/lib/auth-mock";
-import { USER } from "@/lib/user-mock";
 
 const MIN_PASSWORD_LENGTH = 8;
 const TOTAL_STEPS = 3; // 1 verify PIN · 2 create password · 3 profile setup
@@ -79,7 +78,12 @@ export default function ActivatePage() {
   }
 
   function finishOnboarding() {
-    showToast({ title: `Welcome, ${USER.firstName}.`, description: "Your account is ready." });
+    /* The welcome used to be a toast here: five seconds, bottom-centre, landing
+       on top of the readiness board it was congratulating him into — and the
+       only acknowledgement anywhere. A toast confirms an ACTION; this is the
+       product greeting a person for the first time. It now waits for him on
+       Home as a card he can actually read. See WelcomeCard. */
+    armWelcome();
     router.push("/dashboard");
   }
 
