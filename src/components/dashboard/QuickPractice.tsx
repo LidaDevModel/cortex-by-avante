@@ -47,7 +47,11 @@ export function QuickPractice() {
           <PresetCard
             icon={<span className="text-[17px] font-bold tabular-nums leading-none">5</span>}
             title="Daily 5"
-            meta="5 questions · mixed · ~4 min"
+            /* "exercises", not "questions": a matching exercise scores one point per
+   pair, so five items are worth more than five points. The card said "5
+   questions" and the results said "6 of 8 correct", and a guard had no way
+   to reconcile the two. Each surface now names its own unit. */
+            meta="5 exercises · mixed · ~4 min"
             onClick={go("daily5")}
             className="bg-surface-chip"
           />

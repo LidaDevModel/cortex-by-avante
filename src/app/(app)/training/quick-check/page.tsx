@@ -491,8 +491,9 @@ function QuickCheckContent() {
   useEffect(() => {
     if (phase !== "generating") return;
     const timer = setTimeout(() => {
-      const qs = generateQuestions(selectedFormats, selectedCategories);
-      setGeneratedQuestions(questionCap != null ? qs.slice(0, questionCap) : qs);
+      // The cap goes to the generator, which trims the largest FORMAT section.
+      // Slicing the result here cut the last format off the tail every time.
+      setGeneratedQuestions(generateQuestions(selectedFormats, selectedCategories, questionCap));
       setAnswers({});
       setCurrentQuestionIndex(0);
       setPhase("flow");

@@ -428,12 +428,51 @@ const BRANCHING_BANK: KCBranchingQuestion[] = [
  * simply shorter rather than empty -- an honest short check beats a padded one
  * drawn from subjects the learner did not pick.
  */
-export function generateQuestions(formats: KCFormat[], categories: KCCategory[]): KCQuestion[] {
+/**
+ * Trim a budget to `cap` items by taking from the LARGEST section, never from
+ * the tail.
+ *
+ * Daily 5 used to cap by slicing the first five questions in push order — MC,
+ * then matching, then branching. The all-formats budget is 4 MC + 1 matching +
+ * 1 branching = 6, so the slice cut the branching question every single time.
+ * Not randomly: never. Branching scenarios are the format closest to the job
+ * and the one the certification exam contains, and the most-used practice
+ * entry point could not produce one.
+ *
+ * Trimming the biggest section instead gives 3 MC + 1 matching + 1 branching —
+ * five items, all three formats. No format that had a slot loses its last one.
+ */
+function capBudget(budget: Budget, cap: number): Budget {
+  const out = { ...budget };
+  const keys = ["mc", "matching", "branching"] as const;
+  let total = out.mc + out.matching + out.branching;
+  while (total > cap) {
+    // The largest section above its floor of 1. MC wins ties — it has the
+    // deepest bank, so it is the one that can spare a question.
+    const from = keys
+      .filter((k) => out[k] > 1)
+      .sort((a, b) => out[b] - out[a])[0];
+    // Every format is already down to its last question: the cap cannot be
+    // met without dropping a format, so keep the formats and exceed the cap.
+    if (!from) break;
+    out[from] -= 1;
+    total -= 1;
+  }
+  out.total = total;
+  return out;
+}
+
+export function generateQuestions(
+  formats: KCFormat[],
+  categories: KCCategory[],
+  cap?: number | null
+): KCQuestion[] {
   const wanted = new Set(categories);
   const inScope = <T extends KCQuestion>(bank: T[]) =>
     wanted.size === 0 ? bank : bank.filter((q) => wanted.has(q.category));
 
-  const budget = getBudget(formats);
+  const base = getBudget(formats);
+  const budget = cap != null ? capBudget(base, cap) : base;
   const questions: KCQuestion[] = [];
   if (budget.mc > 0) questions.push(...inScope(MC_BANK).slice(0, budget.mc));
   if (budget.matching > 0) questions.push(...inScope(MATCHING_BANK).slice(0, budget.matching));

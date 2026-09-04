@@ -43,7 +43,9 @@ export function KCResults({
               {pct}%
             </span>
             <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">
-              {totalCorrect} of {totalPoints} correct
+              {/* "points", not "correct": a matching exercise is worth one
+                  point per pair, so the total exceeds the number of items. */}
+              {totalCorrect} of {totalPoints} points
             </span>
           </div>
           {/* The verdict IN TEXT. It used to live only in the colour of the
