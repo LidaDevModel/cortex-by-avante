@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Folder, FileText, Pencil, Eye, EyeOff, Trash2, Send } from "lucide-react";
+import { FolderPlus, FilePlus2, FolderOpen, Folder, FileText, Pencil, Eye, EyeOff, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { Segmented } from "@/components/ui/segmented";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
+import { DataTable, DataCards, defineActions, defineColumns, sortRows, type Column, type SortState } from "@/components/ui/data-list";
+import { SortButton } from "@/components/ui/sort-button";
 import { Pagination } from "@/components/ui/pagination";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { NamePromptModal } from "@/components/admin/NamePromptModal";
 import { BackLink } from "@/components/admin/back-link";
@@ -49,6 +50,48 @@ const KIND_TABS = [
 ] as const;
 type KindTab = (typeof KIND_TABS)[number]["value"];
 
+/**
+ * The admin Library list — folders and documents in one table.
+ *
+ * "Last modified" is accurate here, unlike the Modules list: a library
+ * document's `lastModified` is seeded with a real date and every edit sets it,
+ * so there is nothing to rename and no never-modified case.
+ */
+const COLUMNS: Column<Row>[] = defineColumns<Row>([
+  {
+    key: "name",
+    label: "Name",
+    sortValue: (r) => r.name,
+    mobile: "identity",
+    render: (r) => (
+      <div className="flex items-center gap-2.5 min-w-0 font-medium">
+        {r.type === "folder" ? (
+          <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+        ) : (
+          <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+        )}
+        <span className="block truncate">{r.name}</span>
+      </div>
+    ),
+  },
+  {
+    key: "lastModified",
+    label: "Last modified",
+    width: "date",
+    sortValue: (r) => r.lastModified,
+    sortKind: "date",
+    mobile: "pair",
+    render: (r) => <span className="text-muted-foreground">{formatDate(r.lastModified)}</span>,
+  },
+  {
+    key: "status",
+    label: "Status",
+    width: "narrow",
+    mobile: "trailing",
+    render: (r) => <PublishBadge published={r.published !== false} />,
+  },
+]);
+
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("admin-library");
@@ -65,8 +108,7 @@ export default function AdminContentPage() {
   const [kindFilter, setKindFilter] = useState<KindTab>("all");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [sortCol, setSortCol] = useState<"name" | "lastModified">("lastModified");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sort, setSort] = useState<SortState>({ key: "lastModified", dir: "desc" });
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [unpublishTarget, setUnpublishTarget] = useState<Row | null>(null);
@@ -81,9 +123,8 @@ export default function AdminContentPage() {
   function resetPage<T>(set: (v: T) => void) {
     return (v: T) => { set(v); setPage(1); };
   }
-  function handleSort(col: "name" | "lastModified") {
-    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else { setSortCol(col); setSortDir("asc"); }
+  function handleSort(key: string) {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
     setPage(1);
   }
 
@@ -96,7 +137,7 @@ export default function AdminContentPage() {
 
   const q = query.trim().toLowerCase();
   const shown = useMemo(() => {
-    let list = rows.filter((r) => {
+    const list = rows.filter((r) => {
       if (q && !r.name.toLowerCase().includes(q)) return false;
       if (!folder && kindFilter !== "all" && r.type !== kindFilter) return false;
       // Status applies to files and folders (both publishable); role is file-only.
@@ -104,13 +145,8 @@ export default function AdminContentPage() {
       if (roleFilter && (r.type !== "document" || (r.roles !== undefined && !r.roles.includes(roleFilter)))) return false;
       return true;
     });
-    list = [...list].sort((a, b) => {
-      const mul = sortDir === "asc" ? 1 : -1;
-      if (sortCol === "name") return mul * a.name.localeCompare(b.name);
-      return mul * (new Date(a.lastModified).getTime() - new Date(b.lastModified).getTime());
-    });
-    return list;
-  }, [rows, q, kindFilter, roleFilter, statusFilter, sortCol, sortDir]);
+    return sortRows(list, COLUMNS, sort);
+  }, [rows, q, kindFilter, roleFilter, statusFilter, sort]);
 
   const totalPages = Math.ceil(shown.length / PER_PAGE);
   const safePage = Math.min(page, totalPages || 1);
@@ -122,16 +158,6 @@ export default function AdminContentPage() {
     if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
     else router.push(`/admin/content/${r.id}`);
   }
-  /* Row click: a folder opens; a document EDITS.
-     It used to spawn the learner preview in a new tab — a surprise on a
-     management screen: it left the app shell behind, had no back path, and on
-     a phone a second tab is simply lost. Managing is what this screen is for,
-     so the row does the managing thing, matching the Actions menu's "Edit".
-     Preview is still one tap away, in the same menu. */
-  function handleRowClick(r: Row) {
-    if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
-    else openRow(r);
-  }
   function previewRow(r: Row) {
     // Return to exactly where the preview was opened from — inside a folder,
     // that is the folder, not the Library root.
@@ -142,16 +168,11 @@ export default function AdminContentPage() {
   // The per-row actions menu — shared by the desktop table and the mobile card
   // so Open/Rename/Publish/Delete stay reachable on a phone. The stopPropagation
   // wrapper keeps a menu click from also triggering the row's navigation.
-  function rowActions(r: Row) {
-    return (
-      <div onClick={(e) => e.stopPropagation()}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
-              <MoreHorizontal size={16} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[160px]">
+  const rowActions = defineActions<Row>({
+    // Names the row, so eight triggers are not eight buttons called "Actions".
+    name: (r) => `Actions for ${r.name}`,
+    items: (r) => (
+      <>
             {r.type === "folder" ? (
               <>
                 <DropdownMenuItem onSelect={() => openRow(r)}><FolderOpen size={16} strokeWidth={1.5} /> Open</DropdownMenuItem>
@@ -173,12 +194,10 @@ export default function AdminContentPage() {
                 )}
               </>
             )}
-            <DropdownMenuItem variant="destructive" onSelect={() => setDeleteTarget(r)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    );
-  }
+        <DropdownMenuItem variant="destructive" onSelect={() => setDeleteTarget(r)}><Trash2 size={16} strokeWidth={1.5} /> Delete</DropdownMenuItem>
+      </>
+    ),
+  });
 
   const crumbs = folder
     ? [{ label: "Content" }, { label: "Library", href: "/admin/content" }, { label: folder.name }]
@@ -257,6 +276,12 @@ export default function AdminContentPage() {
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder={folder ? "Search this folder" : "Search the Library"} className="w-full sm:w-[280px]" />
+            <SortButton
+              columns={COLUMNS}
+              sort={sort}
+              onChange={(next) => { setSort(next); setPage(1); }}
+              className="md:hidden"
+            />
             <div className="flex items-center gap-2 flex-wrap">
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
@@ -271,59 +296,30 @@ export default function AdminContentPage() {
             <StatePanel description={q ? "Nothing matches that search." : "No documents here yet. Add one with New document."} />
           ) : (
             <>
-              {/* Desktop: full column table */}
-              <Table className="hidden md:block">
-                <TableHeader>
-                  <TableHead className="flex-1" sortDir={sortCol === "name" ? sortDir : null} onSort={() => handleSort("name")}>Name</TableHead>
-                  <TableHead className="w-[124px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-                  <TableHead className="w-[104px]">Status</TableHead>
-                  <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
-                </TableHeader>
-                <TableBody>
-                  {paginated.map((r, i) => (
-                    <TableRow key={r.id} onClick={() => handleRowClick(r)} style={rowStyle(i)}>
-                      <TableCell className="flex-1 min-w-0 font-medium">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          {r.type === "folder"
-                            ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-                            : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />}
-                          <span className="block truncate">{r.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="w-[124px] text-muted-foreground">{formatDate(r.lastModified)}</TableCell>
-                      <TableCell className="w-[104px]">
-                        <PublishBadge published={r.published !== false} />
-                      </TableCell>
-                      <TableCell className="w-8">{rowActions(r)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Mobile: folder/file icon + name lead, last-modified as the meta;
-                  publish badge and the actions menu ride the trailing slot. */}
-              <Table className="md:hidden">
-                <TableBody>
-                  {paginated.map((r, i) => (
-                    <TableCard
-                      key={r.id}
-                      onClick={() => handleRowClick(r)}
-                      style={rowStyle(i)}
-                      leading={r.type === "folder"
-                        ? <Folder size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0 mt-0.5" />
-                        : <FileText size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0 mt-0.5" />}
-                      title={r.name}
-                      meta={<TableCardMeta>{formatDate(r.lastModified)}</TableCardMeta>}
-                      trailing={
-                        <>
-                          <PublishBadge published={r.published !== false} />
-                          {rowActions(r)}
-                        </>
-                      }
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                className="hidden md:block"
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(r) => r.id}
+                /* A folder opens itself; a document opens its editor. Both are
+                   internal paths, so one function covers the pair — the old
+                   `handleRowClick` branch. */
+                rowHref={(r) => (r.type === "folder" ? `/admin/content?folder=${r.id}` : `/admin/content/${r.id}`)}
+                sort={sort}
+                onSort={handleSort}
+                rowStyle={rowStyle}
+                actions={rowActions}
+              />
+              <DataCards
+                className="md:hidden"
+                label={folder ? `Documents in ${folder.name}` : "Library"}
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(r) => r.id}
+                rowHref={(r) => (r.type === "folder" ? `/admin/content?folder=${r.id}` : `/admin/content/${r.id}`)}
+                rowStyle={rowStyle}
+                actions={rowActions}
+              />
             </>
           )}
 

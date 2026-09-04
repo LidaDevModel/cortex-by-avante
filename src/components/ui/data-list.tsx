@@ -247,8 +247,14 @@ export function DataTable<T>({
   rows: T[];
   columns: Column<T>[];
   rowKey: (row: T) => string;
-  /** The row's destination. The identity cell holds the real link. */
-  rowHref?: (row: T) => string;
+  /**
+   * The row's destination. The identity cell holds the real link.
+   *
+   * May return `undefined` PER ROW. The activity log needs that: only some
+   * entries point at something, and a row that leads nowhere must not look or
+   * announce like a link.
+   */
+  rowHref?: (row: T) => string | undefined;
   sort?: SortState;
   onSort?: (key: string) => void;
   rowStyle?: (i: number) => React.CSSProperties | undefined;
@@ -328,25 +334,29 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
+          {rows.map((row, i) => {
+            // Per row, because a list can mix rows that lead somewhere with
+            // rows that do not.
+            const href = rowHref?.(row);
+            return (
             <tr
               key={rowKey(row)}
               style={rowStyle?.(i)}
               className={cn(
                 "border-b border-border last:border-b-0 transition-colors duration-100",
-                rowHref && "cursor-pointer hover:bg-[var(--surface-raised)]"
+                href && "cursor-pointer hover:bg-[var(--surface-raised)]"
               )}
               /* No `role="button"` on a <tr> — that would break the table
                  semantics this rendering exists for. The click is a mouse
                  convenience; the identity cell's link is what a keyboard and a
                  screen reader use. */
-              onClick={rowHref ? () => window.location.assign(rowHref(row)) : undefined}
+              onClick={href ? () => window.location.assign(href) : undefined}
             >
               {columns.map((c) => (
                 <td key={c.key} className="px-4 py-3 align-middle type-meta">
-                  {c.key === identityKey && rowHref ? (
+                  {c.key === identityKey && href ? (
                     <Link
-                      href={rowHref(row)}
+                      href={href}
                       className="block rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -363,7 +373,8 @@ export function DataTable<T>({
                 </td>
               )}
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -385,7 +396,7 @@ export function DataCards<T>({
   rows: T[];
   columns: Column<T>[];
   rowKey: (row: T) => string;
-  rowHref?: (row: T) => string;
+  rowHref?: (row: T) => string | undefined;
   rowStyle?: (i: number) => React.CSSProperties | undefined;
   actions?: RowActions<T>;
   /** Names the list for assistive tech — "People", "Modules". */
@@ -402,7 +413,9 @@ export function DataCards<T>({
       aria-label={label}
       className={cn("rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]", className)}
     >
-      {rows.map((row, i) => (
+      {rows.map((row, i) => {
+        const href = rowHref?.(row);
+        return (
         <li
           key={rowKey(row)}
           style={rowStyle?.(i)}
@@ -410,9 +423,9 @@ export function DataCards<T>({
         >
           <div className="flex items-start gap-3 px-4 py-3">
             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-              {rowHref ? (
+              {href ? (
                 <Link
-                  href={rowHref(row)}
+                  href={href}
                   className="block min-w-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   {cell(identity, row)}
@@ -457,7 +470,8 @@ export function DataCards<T>({
             )}
           </div>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }

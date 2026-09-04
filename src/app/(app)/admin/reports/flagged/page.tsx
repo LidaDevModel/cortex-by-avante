@@ -1,13 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta } from "@/components/ui/table";
+import { DataTable, DataCards, defineColumns, type Column } from "@/components/ui/data-list";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
@@ -26,10 +25,64 @@ function FlagPill({ status }: { status: FlagStatus }) {
   return <Badge tone={open ? "warning" : "success"}>{open ? "Open" : "Resolved"}</Badge>;
 }
 
+/**
+ * Flagged responses. Note the column ORDER: Status comes first, and the
+ * identity column ("Based on") is third. The shape allows that — it asks for
+ * exactly one identity column, not for it to be first — so the desktop order
+ * is unchanged while the card still uses "Based on" as its heading.
+ *
+ * No column is sortable: the list is newest-first and that is the only order
+ * a review queue is read in.
+ */
+type FlagRow = {
+  id: string;
+  status: Parameters<typeof FlagPill>[0]["status"];
+  reason: string;
+  source?: { label: string };
+  date: string;
+  flaggedBy: string;
+};
+
+const COLUMNS: Column<FlagRow>[] = defineColumns<FlagRow>([
+  {
+    key: "status",
+    label: "Status",
+    width: "narrow",
+    mobile: "trailing",
+    render: (f) => <FlagPill status={f.status} />,
+  },
+  {
+    key: "reason",
+    label: "Reason",
+    width: "narrow",
+    mobile: "pair",
+    render: (f) => <span className="text-muted-foreground">{f.reason}</span>,
+  },
+  {
+    key: "source",
+    label: "Based on",
+    mobile: "identity",
+    render: (f) => <span className="block truncate text-foreground">{f.source?.label ?? "Not grounded"}</span>,
+  },
+  {
+    key: "date",
+    label: "Date",
+    width: "date",
+    mobile: "pair",
+    render: (f) => <span className="text-muted-foreground">{formatDate(f.date)}</span>,
+  },
+  {
+    key: "flaggedBy",
+    label: "Flagged by",
+    width: "date",
+    mobile: "pair",
+    render: (f) => <span className="block truncate text-muted-foreground">{f.flaggedBy}</span>,
+  },
+]);
+
 export default function AdminFlaggedPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("admin-flagged");
-  const router = useRouter();
   const flags = useFlags();
   const { locked } = useManageLock();
 
@@ -101,49 +154,23 @@ export default function AdminFlaggedPage() {
             <StatePanel description={q || statusFilter || reasonFilter || sourceFilter ? "No flagged responses match these filters." : "No flagged responses. Reports from the AI chat will appear here."} />
           ) : (
             <>
-              {/* Desktop: full column table */}
-              <Table className="hidden md:block">
-                <TableHeader>
-                  <TableHead className="w-[92px]">Status</TableHead>
-                  <TableHead className="w-[104px]">Reason</TableHead>
-                  <TableHead className="flex-1">Based on</TableHead>
-                  <TableHead className="w-[108px]">Date</TableHead>
-                  <TableHead className="w-[112px]">Flagged by</TableHead>
-                </TableHeader>
-                <TableBody>
-                  {sorted.map((f, i) => (
-                    <TableRow key={f.id} onClick={() => router.push(`/admin/reports/flagged/${f.id}`)} style={rowStyle(i)}>
-                      <TableCell className="w-[92px]"><FlagPill status={f.status} /></TableCell>
-                      <TableCell className="w-[104px] text-muted-foreground">{f.reason}</TableCell>
-                      <TableCell className="flex-1 min-w-0 text-foreground">
-                        <span className="block truncate">{f.source?.label ?? "Not grounded"}</span>
-                      </TableCell>
-                      <TableCell className="w-[108px] text-muted-foreground">{formatDate(f.date)}</TableCell>
-                      <TableCell className="w-[112px] min-w-0 text-muted-foreground">
-                        <span className="block truncate">{f.flaggedBy}</span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Mobile: the five columns collapse into card rows — the source
-                  it's based on over a reason · who · date meta line, status
-                  badge as the scan anchor. */}
-              <Table className="md:hidden">
-                <TableBody>
-                  {sorted.map((f, i) => (
-                    <TableCard
-                      key={f.id}
-                      onClick={() => router.push(`/admin/reports/flagged/${f.id}`)}
-                      style={rowStyle(i)}
-                      title={f.source?.label ?? "Not grounded"}
-                      meta={<TableCardMeta>{f.reason} · {f.flaggedBy} · {formatDate(f.date)}</TableCardMeta>}
-                      trailing={<FlagPill status={f.status} />}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                className="hidden md:block"
+                rows={sorted}
+                columns={COLUMNS}
+                rowKey={(f) => f.id}
+                rowHref={(f) => `/admin/reports/flagged/${f.id}`}
+                rowStyle={rowStyle}
+              />
+              <DataCards
+                className="md:hidden"
+                label="Flagged responses"
+                rows={sorted}
+                columns={COLUMNS}
+                rowKey={(f) => f.id}
+                rowHref={(f) => `/admin/reports/flagged/${f.id}`}
+                rowStyle={rowStyle}
+              />
             </>
           )}
             </>
