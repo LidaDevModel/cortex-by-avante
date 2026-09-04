@@ -276,8 +276,9 @@
     border: none;
   }
   .section-label {
-    font-size: 12px;
-    line-height: 16px;
+    /* On the scale: the caption role, in rem, with its >=150% leading. */
+    font-size: 0.75rem;   /* 12px */
+    line-height: 1.125rem; /* 18px */
     font-weight: 500;
     color: var(--muted-foreground);
     text-transform: uppercase;
@@ -729,6 +730,16 @@ select:disabled {
     font-size: 1rem;          /* 16px */
     line-height: 1.25rem;     /* 20px */
     font-weight: 600;
+  }
+
+  /* Navigation labels. VISION keeps "Nav item" as its own role, and the D2
+     decision (body and buttons to 16px) did not touch it: the sidebar is
+     160px wide and a 16px "Flagged responses" would wrap or truncate. One
+     line by design, so it may sit tighter than 150%. */
+  .type-nav {
+    font-size: 0.875rem;      /* 14px */
+    line-height: 1.25rem;     /* 20px */
+    font-weight: 500;
   }
 
   /* Secondary text: meta lines, hints, timestamps. Wraps, so >= 150%. */

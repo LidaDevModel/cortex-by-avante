@@ -131,10 +131,10 @@ export function CortexSidebar() {
     <Sidebar collapsible="icon" variant="inset" className="border-none bg-transparent">
       <SidebarHeader className="px-4 pt-5 pb-4">
         {/* Collapsed: "C" placeholder. Expanded: "Cortex" */}
-        <span className="text-base font-semibold text-foreground tracking-tight group-data-[collapsible=icon]:hidden">
+        <span className="type-label text-foreground tracking-tight group-data-[collapsible=icon]:hidden">
           Cortex
         </span>
-        <span className="text-base font-semibold text-foreground tracking-tight hidden group-data-[collapsible=icon]:block">
+        <span className="type-label text-foreground tracking-tight hidden group-data-[collapsible=icon]:block">
           C
         </span>
       </SidebarHeader>
@@ -334,13 +334,13 @@ export function CortexSidebar() {
                 >
                   <Avatar className="h-7 w-7 rounded-full shrink-0">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-                    <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-xs">
+                    <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">
                       {USER.initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start min-w-0 group-data-[collapsible=icon]:hidden">
-                    <span className="text-sm font-medium leading-tight truncate">{USER.fullName}</span>
-                    <span className="text-xs text-muted-foreground leading-tight truncate">
+                    <span className="type-nav truncate">{USER.fullName}</span>
+                    <span className="type-caption text-muted-foreground truncate">
                       {ROLE_LABEL[role]}
                     </span>
                   </div>
