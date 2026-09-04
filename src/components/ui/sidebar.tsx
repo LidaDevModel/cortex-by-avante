@@ -190,7 +190,12 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          /* `showCloseButton={false}`, not `[&>button]:hidden`. That selector
+             only worked while the close was a direct child of SheetContent;
+             it now lives inside SheetHeader, so the hack would have let the
+             button appear over the drawer's own nav. */
+          showCloseButton={false}
+          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, FileText, Flag, Mail, Target, X } from "lucide-react";
+import { Bell, BookOpen, FileText, Flag, Mail, Target } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMobileNavVisible } from "@/hooks/use-mobile-nav";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
@@ -194,10 +194,6 @@ export function NotificationsBell() {
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent
             side="right"
-            // showCloseButton off: the default sheet "×" is absolutely floated
-            // into the corner, so it never shares the title's row. We render our
-            // own close inside the header row instead (aligned with the title).
-            showCloseButton={false}
             className="w-[320px] bg-surface p-0 gap-0 flex flex-col"
             // Initial focus must not land on "Mark all as read" (Radix's
             // first-focusable default) — an accidental activation would wipe
@@ -207,23 +203,14 @@ export function NotificationsBell() {
               (e.target as HTMLElement | null)?.focus?.();
             }}
           >
+            {/* SheetHeader IS the row now, and it renders the shared close —
+                this panel's hand-rolled one was the workaround that became
+                the standard. */}
             <SheetHeader className="px-4 pt-4 pb-0">
-              {/* Title + close share one row, vertically centered. */}
-              <div className="flex items-center justify-between gap-2">
-                <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
-                  <Bell size={16} strokeWidth={1.5} />
-                  Notifications
-                </SheetTitle>
-                <SheetClose asChild>
-                  <button
-                    type="button"
-                    aria-label="Close"
-                    className="-mr-1.5 flex items-center justify-center size-11 md:size-10 rounded-lg text-muted-foreground transition-[colors,transform] duration-100 hover:text-foreground hover:bg-foreground/5 active:scale-95 cursor-pointer"
-                  >
-                    <X size={18} strokeWidth={1.5} />
-                  </button>
-                </SheetClose>
-              </div>
+              <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
+                <Bell size={16} strokeWidth={1.5} />
+                Notifications
+              </SheetTitle>
             </SheetHeader>
             <PanelBody onOpen={openItem} showTitle={false} />
           </SheetContent>

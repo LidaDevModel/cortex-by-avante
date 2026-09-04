@@ -48,6 +48,21 @@ function SheetOverlay({
   )
 }
 
+/* Whether this sheet shows a close button. It is declared on `SheetContent`
+   (where it always was) but RENDERED by `SheetHeader`, so the icon, the title
+   and the close sit on one row with a shared vertical centre.
+
+   Before, the button was `position: absolute; top: 12px` against the panel,
+   while the title was laid out inside a header padded `16px 16px 0`. Their
+   centres were 34px and 26px from the panel top — the button 8px low in every
+   sheet that showed one. The 44px target had made it worse: at 32px its centre
+   happened to land near the title's.
+
+   Notifications had already worked around this by turning the shared button
+   off and rendering its own inside the header row. That workaround is what
+   this makes standard. */
+const SheetCloseContext = React.createContext(false);
+
 function SheetContent({
   className,
   children,
@@ -76,34 +91,49 @@ function SheetContent({
         )}
         {...props}
       >
-        {children}
-        {showCloseButton && (
-          <SheetPrimitive.Close data-slot="sheet-close" asChild>
-            <Button
-              variant="ghost"
-              /* 44px target (was 32px via icon-sm). A sheet is a mobile-first
-                 surface, so its only way out must clear the thumb floor. */
-              className="absolute top-3 right-3 size-11"
-              size="icon-sm"
-            >
-              <XIcon
-              />
-              <span className="sr-only">Close</span>
-            </Button>
-          </SheetPrimitive.Close>
-        )}
+        <SheetCloseContext.Provider value={showCloseButton}>
+          {children}
+        </SheetCloseContext.Provider>
       </SheetPrimitive.Content>
     </SheetPortal>
   )
 }
 
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * The header ROW: whatever the caller puts in it on the left, the close button
+ * on the right, one shared vertical centre.
+ *
+ * Children keep stacking (a title over a description) inside their own column,
+ * so `items-center` centres the close against a single-line title without
+ * pulling it into the middle of a two-line block. Only single-line headers
+ * show a close button in practice — the two that stack a description both
+ * pass `showCloseButton={false}`.
+ */
+function SheetHeader({ className, children, ...props }: React.ComponentProps<"div">) {
+  const showClose = React.useContext(SheetCloseContext)
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 p-4", className)}
+      className={cn("flex items-center justify-between gap-2 p-4", className)}
       {...props}
-    />
+    >
+      <div className="flex flex-col gap-1.5 min-w-0">{children}</div>
+      {showClose && (
+        <SheetPrimitive.Close data-slot="sheet-close" asChild>
+          <Button
+            variant="ghost"
+            /* 44px, the thumb floor. `-mr-1.5` pulls the button's own padding
+               back so its ICON lines up with the header's right edge, without
+               shrinking the target. */
+            className="-mr-1.5 size-11 shrink-0"
+            size="icon-sm"
+          >
+            <XIcon />
+            <span className="sr-only">Close</span>
+          </Button>
+        </SheetPrimitive.Close>
+      )}
+    </div>
   )
 }
 
