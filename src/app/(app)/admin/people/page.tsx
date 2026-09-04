@@ -19,6 +19,8 @@ import { InviteUserModal } from "@/components/admin/InviteUserModal";
 import { StatusPill } from "@/components/admin/status-pill";
 import { ClearedBadge, NotClearedBadge } from "@/components/dashboard/ClearedBadge";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const PER_PAGE = 8;
 
@@ -39,6 +41,7 @@ function formatDate(iso?: string) {
 
 export default function AdminPeoplePage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("admin-people");
   const router = useRouter();
   const users = useAdminUsers();
   const { locked } = useManageLock();
@@ -98,6 +101,10 @@ export default function AdminPeoplePage() {
               surface becomes one statement plus the one useful action. */}
           {locked ? (
             <ManageLockedPanel task="managing people" />
+          ) : loading ? (
+            /* First load of the session only — a real backend's latency drives
+               this later. Mirrors the toolbar + rows + pagination shape. */
+            <SkeletonList filters={2} />
           ) : (
             <>
 

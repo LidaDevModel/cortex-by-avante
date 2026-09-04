@@ -12,6 +12,8 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -25,6 +27,7 @@ function FlagPill({ status }: { status: FlagStatus }) {
 
 export default function AdminFlaggedPage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("admin-flagged");
   const router = useRouter();
   const flags = useFlags();
   const { locked } = useManageLock();
@@ -73,6 +76,10 @@ export default function AdminFlaggedPage() {
               surface becomes one statement plus the one useful action. */}
           {locked ? (
             <ManageLockedPanel task="reviewing flagged responses" />
+          ) : loading ? (
+            /* First load of the session only — a real backend's latency drives
+               this later. Mirrors the toolbar + rows + pagination shape. */
+            <SkeletonList filters={3} />
           ) : (
             <>
 

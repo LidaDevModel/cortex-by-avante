@@ -12,6 +12,9 @@ import { CertificationsShelf } from "@/components/dashboard/CertificationsShelf"
 import { RecencyFeed } from "@/components/dashboard/RecencyFeed";
 import { NewRequirementCard } from "@/components/dashboard/NewRequirementCard";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { useInitialLoad } from "@/hooks/use-initial-load";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonCard } from "@/components/ui/skeleton-blocks";
 import {
   acknowledgeRequired,
   useNewRequirements,
@@ -58,6 +61,9 @@ export default function DashboardPage() {
 
   // Header turns glass once the canvas scrolls (shared canvas-glow behavior).
   const { headerClassName, onScroll } = useGlassHeader();
+  // Home is the screen a guard opens first on a phone with poor signal, and it
+  // was the one data screen with no loading shape at all.
+  const loading = useInitialLoad("dashboard");
 
   const inProgress = modules.filter((m) => m.status === "in-progress");
 
@@ -98,7 +104,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : `${greeting}, ${USER.firstName}`}</h1>
-              {cleared && <ClearedBadge requiredCount={requiredModules.length} />}
+              {loading ? <Skeleton className="h-7 w-32 rounded-full" /> : cleared && <ClearedBadge requiredCount={requiredModules.length} />}
             </div>
             {!canManage && dateMeta && (
               <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
@@ -107,9 +113,20 @@ export default function DashboardPage() {
 
           {/* Requirements changed — explains the board below before the user
               has to guess why their badge disappeared. */}
-          {newRequirement}
+          {!loading && newRequirement}
 
-          {cleared ? (
+          {loading ? (
+            /* Mirrors both states' shape: one hero card, a pair, then a card.
+               Which state it turns out to be does not change the silhouette. */
+            <>
+              <SkeletonCard lines={2} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
+              <SkeletonCard lines={2} />
+            </>
+          ) : cleared ? (
             /* ── State B — cleared for shift: Ask Cortex is the hero ── */
             <>
               {askCortex}

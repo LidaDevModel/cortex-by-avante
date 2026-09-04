@@ -22,6 +22,8 @@ import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, dele
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 
 type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
 
@@ -48,6 +50,7 @@ type KindTab = (typeof KIND_TABS)[number]["value"];
 
 export default function AdminContentPage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("admin-library");
   const router = useRouter();
   const lib = useLibrary();
   const { locked } = useManageLock();
@@ -197,6 +200,10 @@ export default function AdminContentPage() {
               </div>
               <ManageLockedPanel task="managing the content library" />
             </>
+          ) : loading ? (
+            /* First load of the session only — a real backend's latency drives
+               this later. Mirrors the toolbar + rows + pagination shape. */
+            <SkeletonList filters={2} />
           ) : (
           <>
           {folder && <BackLink {...resolveBack(searchParams.get("return"), { href: "/admin/content", label: "Back to Library" })} />}

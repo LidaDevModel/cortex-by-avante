@@ -21,6 +21,8 @@ import { withReturn } from "@/lib/admin-nav";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORY_OPTIONS.map((c) => [c.value, c.label]));
 
@@ -32,6 +34,7 @@ function formatDate(iso: string) {
 
 export default function AdminTrainingPage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("admin-modules");
   const router = useRouter();
   const modules = useModules();
   const { locked } = useManageLock();
@@ -135,6 +138,10 @@ export default function AdminTrainingPage() {
               surface becomes one statement plus the one useful action. */}
           {locked ? (
             <ManageLockedPanel task="managing training modules" />
+          ) : loading ? (
+            /* First load of the session only — a real backend's latency drives
+               this later. Mirrors the toolbar + rows + pagination shape. */
+            <SkeletonList filters={2} />
           ) : (
             <>
 

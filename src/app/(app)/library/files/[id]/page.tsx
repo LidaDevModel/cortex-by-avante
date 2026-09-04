@@ -5,6 +5,8 @@ import { useParams, useSearchParams } from "next/navigation";
 import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText, LayoutGrid, TableOfContents as TableOfContentsIcon } from "lucide-react";
 import { PageHeader, DetailHeader } from "@/components/ui/page-header";
 import { NotFoundState } from "@/components/ui/not-found-state";
+import { SkeletonReader } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 import { SearchInput } from "@/components/ui/search-input";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -652,6 +654,9 @@ function IconButton({
 
 export default function FileViewPage() {
   const { id } = useParams<{ id: string }>();
+  // Keyed per document: a real backend fetches each body separately, so a new
+  // document shows the shape and a return to one already read stays instant.
+  const loading = useInitialLoad(`doc-${id}`);
   const searchParams = useSearchParams();
   const role = useCurrentRole();
   useLibrary(); // subscribe so a publish/edit re-renders the viewer
@@ -936,7 +941,14 @@ export default function FileViewPage() {
       />
 
       {/* Document canvas */}
-      {viewMode === "single" ? (
+      {loading ? (
+        /* The reading surface only. The toolbar and contents panel stay real:
+           a document's chrome is known before its body arrives, and blanking
+           it would make the whole screen appear to reload. */
+        <div className="flex-1 min-h-0 overflow-hidden flex justify-center pt-10 px-6">
+          <SkeletonReader className="w-full max-w-[640px]" />
+        </div>
+      ) : viewMode === "single" ? (
         <DocumentPage
           sections={sections}
           activeId={activeId}

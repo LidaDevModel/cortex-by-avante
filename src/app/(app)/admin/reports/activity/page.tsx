@@ -14,6 +14,8 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useActivity, ACTIVITY_KIND_OPTIONS } from "@/lib/activity-log";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const SELF = "/admin/reports/activity";
 
@@ -25,6 +27,7 @@ function formatWhen(iso: string) {
 
 export default function AdminActivityPage() {
   const { headerClassName, onScroll } = useGlassHeader();
+  const loading = useInitialLoad("admin-activity");
   const router = useRouter();
   const all = useActivity();
   const { locked } = useManageLock();
@@ -76,6 +79,10 @@ export default function AdminActivityPage() {
               surface becomes one statement plus the one useful action. */}
           {locked ? (
             <ManageLockedPanel task="reviewing the activity log" />
+          ) : loading ? (
+            /* First load of the session only — a real backend's latency drives
+               this later. Mirrors the toolbar + rows + pagination shape. */
+            <SkeletonList filters={3} />
           ) : (
             <>
 

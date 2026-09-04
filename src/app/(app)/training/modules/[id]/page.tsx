@@ -10,6 +10,8 @@ import { StatePanel } from "@/components/ui/state-panel";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Highlight } from "@/components/ui/highlight";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
+import { SkeletonReader } from "@/components/ui/skeleton-blocks";
+import { useInitialLoad } from "@/hooks/use-initial-load";
 import { SplitPanel } from "@/components/ui/split-panel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { DocumentToolbar } from "@/components/ui/document-toolbar";
@@ -300,6 +302,9 @@ export default function ModuleDetailPage() {
   const { group } = useLearnerNav(true);
   const params = useParams<{ id: string }>();
   const moduleId = params?.id ?? "1";
+  // Keyed per module: a real backend fetches each module's chapters, so opening
+  // a different one shows the shape again. Bouncing back stays instant.
+  const loading = useInitialLoad(`module-${moduleId}`);
   const role = useCurrentRole();
   const trainingModule = getLearnerModule(moduleId, role);
   const initialProgress = trainingModule?.progress ?? 0;
@@ -607,6 +612,9 @@ export default function ModuleDetailPage() {
             />
 
             <ScrollCanvas ref={scrollRef} onScroll={handleScroll} fadeBottom={64}>
+              {loading ? (
+                <SkeletonReader className="max-w-[640px] mx-auto px-4 sm:px-8 pt-8 pb-24" />
+              ) : (
               <div
                 key={currentChapter.id}
                 style={{ animation: "msg-in 200ms ease-out both" }}
@@ -703,6 +711,7 @@ export default function ModuleDetailPage() {
                   </div>
                 )}
               </div>
+              )}
             </ScrollCanvas>
           </div>
         }
