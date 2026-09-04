@@ -473,7 +473,7 @@ function BranchingQuestion({
 
   return (
     <div className="flex flex-col w-full flex-1 gap-0 pt-12" style={{ minHeight: 500 }}>
-      <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
+      <div className="flex flex-col gap-1">
         <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
         <div className="flex flex-col gap-1">
           <p className="type-h2 font-semibold text-foreground">{question.title}</p>
@@ -577,7 +577,7 @@ export function KCQuestionFlow({
 
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto scroll-thin">
-          <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-4">
+          <div className="container-read pt-8 pb-12 flex flex-col gap-4">
 
             {/* Title row */}
             <div className="flex items-center justify-between gap-3">

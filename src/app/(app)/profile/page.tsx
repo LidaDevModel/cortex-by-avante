@@ -91,7 +91,7 @@ export default function ProfilePage() {
       <PageHeader crumbs={[{ label: "Profile" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="container-read pt-8 pb-12 flex flex-col gap-8">
           {/* Identity */}
           <section
             className="rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"

@@ -66,13 +66,14 @@ export function RadialStat({
      two rows — title, chart — and each card spans both and adopts them with
      `grid-template-rows: subgrid`. The alternative was measuring the tallest
      title in JavaScript, which would lag a resize and flash on first paint.
-     Below `md` the cards stack full-width, one per row, so there is nothing
-     to align and the card falls back to a plain flex column. The breakpoint is
-     `md` (768) and not `sm` (640): three columns of a 640px viewport leaves
-     about 200px each, which the previous flex layout avoided by wrapping. */
+     The subgrid only applies while the cards are SIDE BY SIDE. That is a
+     container query on the row (`.card-row-grid` at 700px), not a viewport
+     breakpoint — with a fixed 256px sidebar the viewport says nothing about
+     how much room the row actually has. Stacked, there is nothing to align, so
+     the card is a plain flex column. */
   const cls =
     "group min-w-0 rounded-[12px] p-4 sm:p-5 flex flex-col gap-4 bg-surface-raised " +
-    "md:grid md:row-span-2 md:[grid-template-rows:subgrid] md:gap-0";
+    "card-row-item";
   const inner = (
     <>
       {/* items-start, not items-center: with a shared row height a one-line
@@ -91,7 +92,7 @@ export function RadialStat({
           </span>
         )}
       </div>
-      <div className="flex justify-center items-start py-1 md:pt-4">
+      <div className="flex justify-center items-start py-1">
         <div
           className="relative shrink-0"
           style={{ width: size, height: size }}

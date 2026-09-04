@@ -583,7 +583,10 @@ function QuickCheckContent() {
           {/* Listing */}
           {phase === "listing" && (
             <ScrollCanvas onScroll={onScroll}>
-              <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
+              {/* The listing BROWSES — presets and past attempts — so it takes
+                  the wide container. Every phase below it is answering, and
+                  takes `read`. The width changes between the two on purpose. */}
+              <div className="container-wide pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
                 <div className="flex flex-col gap-1">
                   <h1 className="type-h1 font-bold text-foreground">
@@ -655,7 +658,7 @@ function QuickCheckContent() {
           {/* Review */}
           {phase === "review" && (
             <div className="flex flex-col h-full overflow-hidden">
-              <div className="max-w-[920px] mx-auto w-full px-4 sm:px-8 pt-8 pb-4 flex flex-col gap-4 shrink-0">
+              <div className="container-read pt-8 pb-4 flex flex-col gap-4 shrink-0">
                 <div className="flex items-center justify-between gap-3">
                   <h1 className="type-h1 font-bold text-foreground capitalize min-w-0 truncate">
                     {selectedCategories.length === 0 || selectedCategories.length === ALL_CATEGORIES.length
@@ -684,7 +687,10 @@ function QuickCheckContent() {
                 />
               </div>
               <ScrollCanvas onScroll={onScroll}>
-                <div className="max-w-[920px] mx-auto px-4 sm:px-8 pb-12">
+                {/* One container, not two: KCReview used to cap itself at
+                    640 inside this 920, so the inner cap is now dead weight —
+                    see its own file. */}
+                <div className="container-read pb-12">
                   <KCReview
                     questions={generatedQuestions}
                     answers={answers}
@@ -700,7 +706,7 @@ function QuickCheckContent() {
           {/* Results */}
           {phase === "results" && (
             <ScrollCanvas onScroll={onScroll}>
-              <div className="max-w-[920px] mx-auto px-4 sm:px-8">
+              <div className="container-read">
                 <KCResults
                   questions={generatedQuestions}
                   answers={answers}

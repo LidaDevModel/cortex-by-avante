@@ -118,7 +118,7 @@ export function ReviewSubmit({
   return (
     <div className="flex-1 overflow-y-auto scroll-thin" style={{ maskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 48px), transparent 100%)" }}>
       <div
-        className="max-w-[640px] mx-auto px-4 sm:px-8 py-12 flex flex-col gap-6 animate-in fade-in duration-200"
+        className="container-read py-12 flex flex-col gap-6 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         <div className="flex flex-col gap-1">

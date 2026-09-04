@@ -189,7 +189,7 @@ export default function AdminContentPage() {
       <PageHeader crumbs={crumbs} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           {/* Locked: one identity line and one statement. The folder view's own
               title row and actions are skipped too — with the section locked
               there is no folder to be inside. */}

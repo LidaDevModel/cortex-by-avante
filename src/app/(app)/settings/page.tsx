@@ -80,7 +80,7 @@ export default function SettingsPage() {
       <PageHeader crumbs={[{ label: "Settings" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="container-read pt-8 pb-12 flex flex-col gap-8">
           <h1 className="type-h1 font-bold text-foreground">
             Settings
           </h1>

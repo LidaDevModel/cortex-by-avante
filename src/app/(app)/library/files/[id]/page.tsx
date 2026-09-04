@@ -952,7 +952,7 @@ export default function FileViewPage() {
            a document's chrome is known before its body arrives, and blanking
            it would make the whole screen appear to reload. */
         <div className="flex-1 min-h-0 overflow-hidden flex justify-center pt-10 px-6">
-          <SkeletonReader className="w-full max-w-[640px]" />
+          <SkeletonReader className="container-read" />
         </div>
       ) : viewMode === "single" ? (
         <DocumentPage

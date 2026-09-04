@@ -120,7 +120,7 @@ export default function DashboardPage() {
       <PageHeader crumbs={[...group, { label: isAdmin ? "Overview" : "Home" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="type-h1 font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>

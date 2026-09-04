@@ -209,7 +209,7 @@ export default function AdminDocumentEditorPage() {
       <PageHeader crumbs={[{ label: "Content" }, { label: "Library", href: "/admin/content" }, { label: found.doc.name }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
               <h1 className="type-h1 font-bold text-foreground">{isNew ? "Create document" : "Edit document"}</h1>

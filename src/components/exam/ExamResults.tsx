@@ -140,7 +140,7 @@ export function ExamResults({
       }}
     >
       <div
-        className="max-w-[640px] mx-auto px-4 sm:px-8 py-16 flex flex-col gap-10 animate-in fade-in duration-200"
+        className="container-read py-16 flex flex-col gap-10 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         {/* Heading + score */}

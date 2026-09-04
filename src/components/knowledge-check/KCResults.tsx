@@ -23,7 +23,7 @@ export function KCResults({
 
   return (
     <div
-      className="max-w-[640px] mx-auto py-16 flex flex-col gap-10 animate-in fade-in duration-200"
+      className="py-16 flex flex-col gap-10 animate-in fade-in duration-200"
       style={{ animationTimingFunction: "ease-out" }}
     >
       {/* Heading + score */}

@@ -497,7 +497,7 @@ export default function ExamPage() {
 
       {phase === "branching" && (
         <div className="flex flex-col flex-1 overflow-hidden gap-0 pt-12">
-          <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
+          <div className="container-read flex flex-col gap-1">
             <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
             <div className="flex flex-col gap-1">
               <p className="type-h2 font-semibold text-foreground">{exam.branching.title}</p>

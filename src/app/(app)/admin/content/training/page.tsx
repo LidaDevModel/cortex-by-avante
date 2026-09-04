@@ -147,7 +147,7 @@ export default function AdminTrainingPage() {
       <PageHeader crumbs={[{ label: "Content" }, { label: "Modules" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex flex-col gap-1">
               <h1 className="type-h1 font-bold text-foreground">Modules</h1>

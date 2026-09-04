@@ -80,7 +80,7 @@ export default function AdminHomePage() {
       <PageHeader crumbs={[{ label: "Home" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           {/* Title + the actions admins repeat daily */}
           <div className="flex items-end justify-between gap-3 flex-wrap">
             <div className="flex flex-col gap-1">
@@ -130,10 +130,13 @@ export default function AdminHomePage() {
 
           {/* Team pulse — point-in-time snapshot of the workforce. The readiness
               donut merges active + shift-ready; certifications held sits beside it. */}
-          {/* Grid, not flex, so the three cards can share a title-row height
-              through subgrid — see RadialStat. Two explicit rows (title,
-              chart); each card spans both. */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-x-6 md:gap-y-4 md:grid-rows-[auto_auto]">
+          {/* All three cards in one row, or all three in one column — never
+              two and one. The switch is a CONTAINER query at 700px, because
+              with a fixed sidebar the viewport is the wrong measure. The three
+              also share one title-row height through subgrid. Both rules live
+              in `.card-row` / `.card-row-grid` — see globals.css. */}
+          <div className="card-row">
+            <div className="card-row-grid">
             <RadialStat
               title="Team readiness"
               href="/admin/people"
@@ -167,6 +170,7 @@ export default function AdminHomePage() {
                 { label: "Resolved", value: resolvedFlags, color: "var(--success)" },
               ]}
             />
+            </div>
           </div>
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>

@@ -612,7 +612,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
             >
               <div ref={messagesContentRef} className="min-h-full flex flex-col">
                 <div className="flex-1 px-4 sm:px-6 pt-8 pb-4">
-                  <div className="max-w-[560px] mx-auto flex flex-col gap-8">
+                  <div className="container-read flex flex-col gap-8">
                     {messages.map(msg =>
                       msg.role === "user"
                         ? <UserMessage key={msg.id} content={msg.content ?? ""} attachments={msg.attachments} onEdit={() => handleEditToInput(msg.content ?? "")} />
@@ -625,7 +625,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                     padding clears the home-indicator safe area now that the
                     mobile nav yields on chat (nothing sits below the composer). */}
                 <div ref={inputBarRef} className="sticky bottom-0 px-4 sm:px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-2 flex flex-col items-center gap-2 bg-surface">
-                  <div className="w-full max-w-[560px] relative">
+                  <div className="container-read relative">
                     <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
                   </div>
                   <p className="type-caption text-muted-foreground">
@@ -640,7 +640,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
           <div
             className="relative flex-1 flex flex-col items-center justify-start overflow-hidden px-4 sm:px-6 pt-[30vh]"
           >
-            <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center text-center gap-8" style={{ animation: "msg-in 200ms ease-out both" }}>
+            <div className="container-read relative z-10 flex flex-col items-center text-center gap-8" style={{ animation: "msg-in 200ms ease-out both" }}>
               <div className="flex flex-col items-center gap-2">
                 <h1 className="type-h2 leading-none text-primary">
                   How can I help you {USER.firstName}?

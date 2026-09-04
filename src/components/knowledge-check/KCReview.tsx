@@ -87,7 +87,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
   }).length;
 
   return (
-    <div className="flex flex-col gap-6 max-w-[640px] mx-auto py-8">
+    <div className="flex flex-col gap-6 py-8">
       <div className="flex flex-col gap-1">
         <h2 className="type-h2 font-semibold text-foreground">Review your answers</h2>
         <p className="type-label text-muted-foreground">

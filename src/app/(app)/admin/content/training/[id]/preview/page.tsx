@@ -34,7 +34,7 @@ export default function AdminModulePreviewPage() {
       <PreviewBanner note="This is the content learners see." backHref={back.href} backLabel={back.label} />
 
       <ScrollCanvas>
-        <div className="max-w-[760px] mx-auto px-4 sm:px-8 pt-10 pb-16 flex flex-col gap-8">
+        <div className="container-read pt-10 pb-16 flex flex-col gap-8">
           <h1 className="type-h1 font-bold text-foreground">{m.title}</h1>
 
           {chapters.length === 0 ? (

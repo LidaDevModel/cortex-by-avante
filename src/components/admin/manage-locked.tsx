@@ -26,7 +26,7 @@ export function ManageLocked() {
       <PageHeader crumbs={[{ label: "Cortex Manage" }]} className="bg-transparent" />
 
       <ScrollCanvas>
-        <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-wide pt-8 pb-12 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full type-caption font-medium bg-surface-raised text-muted-foreground" style={{ border: "1px solid var(--border)" }}>
               <Lock size={13} strokeWidth={1.75} />

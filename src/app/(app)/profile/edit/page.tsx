@@ -14,7 +14,7 @@ export default function ProfileEditPage() {
       <PageHeader crumbs={[{ label: "Profile", href: "/profile" }, { label: "Edit" }]} className="bg-transparent" />
 
       <ScrollCanvas>
-        <div className="max-w-[400px] mx-auto px-4 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-form pt-8 pb-12 flex flex-col gap-6">
           <DetailHeader backHref="/profile" backLabel="Back to profile" title="Edit profile" />
           <ProfileForm
             mode="edit"

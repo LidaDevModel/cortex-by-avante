@@ -103,7 +103,7 @@ export default function AdminPersonPage() {
       <PageHeader crumbs={[{ label: "People", href: "/admin/people" }, { label: user.fullName }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-read pt-8 pb-12 flex flex-col gap-6">
           <BackLink href={back.href} label={back.label} />
 
           {/* Identity */}

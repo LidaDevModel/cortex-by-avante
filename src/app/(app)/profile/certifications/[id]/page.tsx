@@ -47,7 +47,7 @@ export default function CertificationDetailPage() {
       />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-read pt-8 pb-12 flex flex-col gap-6">
           <Link
             href={backHref}
             className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"

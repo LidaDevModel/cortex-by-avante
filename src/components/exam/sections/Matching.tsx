@@ -105,7 +105,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
       }}
     >
       <div
-        className="max-w-[720px] mx-auto px-4 sm:px-8 py-12 flex flex-col gap-8 animate-in fade-in duration-200"
+        className="container-read py-12 flex flex-col gap-8 animate-in fade-in duration-200"
         style={{ animationTimingFunction: "ease-out" }}
       >
         {/* Header */}

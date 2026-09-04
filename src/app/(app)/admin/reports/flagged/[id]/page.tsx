@@ -62,7 +62,7 @@ export default function AdminFlagDetailPage() {
       <PageHeader crumbs={[{ label: "Flagged responses", href: "/admin/reports/flagged" }, { label: "Response" }]} className={headerClassName} />
 
       <ScrollCanvas onScroll={onScroll}>
-        <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
+        <div className="container-read pt-8 pb-12 flex flex-col gap-6">
           <BackLink href={back.href} label={back.label} />
 
           <div className="flex items-center justify-between gap-3 flex-wrap">
