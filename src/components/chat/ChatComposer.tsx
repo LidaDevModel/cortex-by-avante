@@ -8,6 +8,7 @@ import { AttachmentChip, type Attachment } from "@/components/chat/AttachmentChi
 import { EdgeFadeScroller } from "@/components/ui/edge-fade-scroller";
 import { DetailDial } from "@/components/chat/DetailDial";
 import { type DetailLevel } from "@/lib/chat-mock";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 
 const MAX_HEIGHT = 160;
 const LINE_HEIGHT = 24;
@@ -118,8 +119,19 @@ export function ChatComposer({
   const dictationBaseRef = useRef(""); // text present before dictation started
   const preRecordValueRef = useRef(""); // full value to restore on cancel
 
+  /* Offline (P5-07). The chat is this product's primary use case for exactly
+     the person most likely to have no signal, and no offline state existed for
+     it at all: with "You're offline. Showing saved copies." on screen, the
+     composer stayed fully enabled and the mock answered confidently, complete
+     with citation chips. That sets a false expectation now — anyone demoing in
+     a dead spot concludes the AI works offline — and once a real model is
+     behind it, an offline guard types a question, waits, and gets a failure.
+     Cached documents stay readable; asking is what needs a signal, and the
+     composer now says so instead of pretending. */
+  const online = useOnlineStatus();
+
   const hasText = inputValue.trim().length > 0;
-  const canSend = hasText || attachments.length > 0;
+  const canSend = (hasText || attachments.length > 0) && online;
   const attachmentsFull = attachments.length >= MAX_ATTACHMENTS;
   const isScrollable = textareaHeight >= MAX_HEIGHT;
 
@@ -356,7 +368,7 @@ export function ChatComposer({
                 }
               }}
               rows={1}
-              placeholder={placeholder}
+              placeholder={online ? placeholder : "No signal — you can ask again once you\u2019re back online"}
               // Enter submits (Shift+Enter is a newline), so the phone's action
               // key should read "send" rather than "return".
               enterKeyHint="send"
@@ -427,7 +439,7 @@ export function ChatComposer({
                     type="button"
                     className={`${iconBtn} text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-muted-foreground`}
                     aria-label="Attach files"
-                    disabled={attachmentsFull}
+                    disabled={attachmentsFull || !online}
                     onClick={() => { if (!attachmentsFull) fileInputRef.current?.click(); }}
                   >
                     <Paperclip size={16} />

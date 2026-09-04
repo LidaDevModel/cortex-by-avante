@@ -76,7 +76,40 @@ export function getSession(): Session | null {
   }
 }
 
+/* ─── Expiry ───────────────────────────────────────────────────────────────
+   VISION's phrasing table has always carried a row for this — "Your session
+   has ended" / "Sign in again to continue." — and nothing implemented it.
+   `signedInAt` was written on every sign-in and never read once, so the
+   session simply never ended; `signOut` was the only thing that cleared it.
+
+   It matters most in this product's real context: a handset passed between
+   shifts. Without expiry the next guard inherits the previous guard's
+   session, their progress, their certifications — and if that person was an
+   admin, Cortex Manage.
+
+   A client cannot ENFORCE a session lifetime; a real backend must. This makes
+   the designed state real and testable, and is the seam that backend
+   replaces. Twelve hours covers the longest single shift without ending a
+   session in the middle of one. */
+export const SESSION_HOURS = 12;
+
+/** True when the stored session is older than the window. */
+export function isSessionExpired(): boolean {
+  const s = getSession();
+  if (!s) return false;
+  const started = new Date(s.signedInAt).getTime();
+  if (Number.isNaN(started)) return true;
+  return Date.now() - started > SESSION_HOURS * 3_600_000;
+}
+
 export function isSignedIn(): boolean {
+  // An expired session is not a session. Clearing it here means every caller
+  // — the gate, the sign-in redirect, the shell — agrees without each having
+  // to remember to ask.
+  if (isSessionExpired()) {
+    signOut();
+    return false;
+  }
   return getSession() !== null;
 }
 

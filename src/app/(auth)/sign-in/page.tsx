@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { demoSignIn, isSignedIn } from "@/lib/auth-mock";
 import { hasManageAccess } from "@/lib/manage-access";
+import { isInternalPath } from "@/lib/admin-nav";
 
 /** A cleared admin's home is Cortex Manage (`/admin`); everyone else lands on
  *  the learner home. Read after sign-in, once the returning persona is set. */
@@ -17,6 +18,18 @@ function landingRoute() {
 
 export default function SignInPage() {
   const router = useRouter();
+  const search = useSearchParams();
+  /* Where to go after signing in. `AuthGate` puts the intended path here when
+     it bounces a deep link, so a notification tapped on a lapsed session lands
+     on the document rather than on Home. Validated with the same
+     `isInternalPath` every other return param in the app uses — an unvalidated
+     one is an open redirect. */
+  const nextPath = search.get("return");
+  const expired = search.get("expired") === "1";
+  const afterSignIn = useCallback(
+    () => (isInternalPath(nextPath) ? nextPath : landingRoute()),
+    [nextPath]
+  );
   const [email, setEmail] = useState("");
   // Whether the field has been left once. An email is invalid for as long as
   // you are typing it -- "l", "li", "lida" -- so showing the error on the
@@ -28,8 +41,8 @@ export default function SignInPage() {
 
   // Already signed in → straight to the app.
   useEffect(() => {
-    if (isSignedIn()) router.replace(landingRoute());
-  }, [router]);
+    if (isSignedIn()) router.replace(afterSignIn());
+  }, [router, afterSignIn]);
 
   // Presentation gating: both fields must be filled and the email must look
   // like one (contain "@") to enable the button — but any dummy values pass.
@@ -42,7 +55,7 @@ export default function SignInPage() {
     e.preventDefault();
     if (!canSubmit) return;
     demoSignIn();
-    router.push(landingRoute());
+    router.push(afterSignIn());
   }
 
   return (
@@ -55,7 +68,12 @@ export default function SignInPage() {
           Sign in
         </h1>
         <p className="text-[14px] leading-[20px] text-muted-foreground">
-          Welcome back — enter your details to continue.
+          {/* VISION's phrasing-table row for an expired session, which was
+              written and never used. A guard whose shift ran past the window
+              is told what happened, not handed a bare form. */}
+          {expired
+            ? "Your session has ended. Sign in again to continue."
+            : "Welcome back — enter your details to continue."}
         </p>
       </div>
 

@@ -184,6 +184,28 @@ export default function ExamPage() {
     return () => clearInterval(id);
   }, [isActivePhase]);
 
+  /* Reload, tab close, or the app being evicted mid-exam.
+     The BACK button was carefully intercepted below and nothing else was, so
+     the deliberate exit had a guard and the accidental one had none — on a
+     phone mid-shift, where an incoming call or a low-memory eviction is the
+     likely path, not a decision anyone made. The attempt, the answers and the
+     elapsed timer all went with it.
+
+     This is the cheap half: the browser's own "leave site?" prompt. Persisting
+     the in-flight attempt so a dropped exam RESUMES is the better answer and
+     needs the same storage seam as saving chapter progress — still open. */
+  useEffect(() => {
+    if (!isActivePhase) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Browsers ignore custom text now and show their own wording; assigning
+      // returnValue is still what triggers the prompt at all.
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isActivePhase]);
+
   // Back button interception
   useEffect(() => {
     if (phase === "preExam" || phase === "results") return;
