@@ -26,10 +26,19 @@ function FlagPill({ status }: { status: FlagStatus }) {
 }
 
 /**
- * Flagged responses. Note the column ORDER: Status comes first, and the
- * identity column ("Based on") is third. The shape allows that — it asks for
- * exactly one identity column, not for it to be first — so the desktop order
- * is unchanged while the card still uses "Based on" as its heading.
+ * Flagged responses.
+ *
+ * "Based on" is FIRST at both widths. It used to be third, with Status
+ * leading the desktop table while the card headed with "Based on" — one
+ * record with two entry points, so the column you scanned changed when you
+ * picked up a phone.
+ *
+ * "Based on" won rather than Status for two reasons. It is what you are
+ * looking FOR — which answer got flagged — where the status only says whether
+ * someone has dealt with it yet; and the identity column carries the row's
+ * link, so making Status the identity would make a state badge the thing you
+ * click. Status stays immediately beside it, second, so nothing is harder to
+ * see than before.
  *
  * No column is sortable: the list is newest-first and that is the only order
  * a review queue is read in.
@@ -45,6 +54,12 @@ type FlagRow = {
 
 const COLUMNS: Column<FlagRow>[] = defineColumns<FlagRow>([
   {
+    key: "source",
+    label: "Based on",
+    mobile: "identity",
+    render: (f) => <span className="block truncate text-foreground">{f.source?.label ?? "Not grounded"}</span>,
+  },
+  {
     key: "status",
     label: "Status",
     width: "narrow",
@@ -57,12 +72,6 @@ const COLUMNS: Column<FlagRow>[] = defineColumns<FlagRow>([
     width: "narrow",
     mobile: "pair",
     render: (f) => <span className="text-muted-foreground">{f.reason}</span>,
-  },
-  {
-    key: "source",
-    label: "Based on",
-    mobile: "identity",
-    render: (f) => <span className="block truncate text-foreground">{f.source?.label ?? "Not grounded"}</span>,
   },
   {
     key: "date",

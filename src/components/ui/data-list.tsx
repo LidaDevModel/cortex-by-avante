@@ -43,6 +43,8 @@ export const COL_WIDTH = {
   date: "8rem",
   /** A longer marker — two badges side by side. */
   wide: "10rem",
+  /** One icon or one control. The width the actions column already used. */
+  icon: "3.5rem",
 } as const;
 
 export type ColWidth = keyof typeof COL_WIDTH;
@@ -77,6 +79,18 @@ export type Column<T> = {
   mobile: MobileSlot;
   /** Only when the card needs something other than `render`. */
   mobileRender?: (row: T) => React.ReactNode;
+  /**
+   * Draw no header text, but keep the label for assistive tech — the same
+   * treatment the actions column already gets.
+   *
+   * For a column that is an AFFORDANCE rather than data: the activity log's
+   * "this entry opens something" arrow. Without it that arrow had nowhere to
+   * live but inside the identity cell, which put Activity's only control in
+   * the FIRST cell while Library's and Modules' sit in the last — one list
+   * looking unlike the other four. A visible "OPENS" heading over an icon
+   * column would have been the other kind of wrong.
+   */
+  headerHidden?: boolean;
 };
 
 export type SortState = { key: string; dir: "asc" | "desc" };
@@ -290,7 +304,7 @@ export function DataTable<T>({
               style={c.width ? { minWidth: COL_WIDTH[c.width] } : { minWidth: "16rem" }}
             />
           ))}
-          {actions && <col style={{ width: "3.5rem" }} />}
+          {actions && <col style={{ width: COL_WIDTH.icon }} />}
         </colgroup>
         <thead>
           <tr className="bg-[var(--surface-raised)] border-b border-border">
@@ -309,7 +323,9 @@ export function DataTable<T>({
                 }
                 className="px-4 py-[10px] type-caption font-semibold text-muted-foreground uppercase tracking-wide"
               >
-                {c.sortValue && onSort ? (
+                {c.headerHidden ? (
+                  <span className="sr-only">{c.label}</span>
+                ) : c.sortValue && onSort ? (
                   <button
                     onClick={() => onSort(c.key)}
                     /* `uppercase` repeated on the button: Tailwind's preflight

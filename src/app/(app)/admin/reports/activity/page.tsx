@@ -45,14 +45,7 @@ const COLUMNS: Column<ActivityRow>[] = defineColumns<ActivityRow>([
     key: "action",
     label: "Action",
     mobile: "identity",
-    render: (e) => (
-      <span className="flex items-center gap-2 min-w-0">
-        <span className="block truncate">{e.action}</span>
-        {e.href && (
-          <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" aria-hidden />
-        )}
-      </span>
-    ),
+    render: (e) => <span className="block truncate">{e.action}</span>,
   },
   {
     key: "actor",
@@ -67,6 +60,26 @@ const COLUMNS: Column<ActivityRow>[] = defineColumns<ActivityRow>([
     width: "date",
     mobile: "pair",
     render: (e) => <span className="text-muted-foreground tabular-nums">{formatWhen(e.ts)}</span>,
+  },
+  {
+    /* The "this entry opens something" arrow, in the LAST cell — where
+       Library's and Modules' row control sits. It was inside the action cell,
+       which made Activity the only list with its control on the left. */
+    key: "opens",
+    label: "Opens",
+    headerHidden: true,
+    width: "icon",
+    mobile: "trailing",
+    render: (e) =>
+      e.href ? (
+        <span className="flex justify-end">
+          <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground" aria-hidden />
+        </span>
+      ) : (
+        // Nothing, not a dash: the row simply does not open, and the absence
+        // of the arrow beside its neighbours is the whole signal.
+        null
+      ),
   },
 ]);
 
