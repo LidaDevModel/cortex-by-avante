@@ -60,10 +60,26 @@ export function RadialStat({
   const pointerTypeRef = useRef<string>("mouse");
   const tc = useCountUp(total, animate);
 
-  const cls = "group flex-1 min-w-[200px] rounded-[12px] p-4 sm:p-5 flex flex-col gap-4 bg-surface-raised";
+  /* The three cards share ONE title-row height, so a title that wraps to two
+     lines gives the other two a second line as well and the charts stay on the
+     same baseline. That is CSS subgrid: the parent (admin Home) is a grid with
+     two rows — title, chart — and each card spans both and adopts them with
+     `grid-template-rows: subgrid`. The alternative was measuring the tallest
+     title in JavaScript, which would lag a resize and flash on first paint.
+     Below `md` the cards stack full-width, one per row, so there is nothing
+     to align and the card falls back to a plain flex column. The breakpoint is
+     `md` (768) and not `sm` (640): three columns of a 640px viewport leaves
+     about 200px each, which the previous flex layout avoided by wrapping. */
+  const cls =
+    "group min-w-0 rounded-[12px] p-4 sm:p-5 flex flex-col gap-4 bg-surface-raised " +
+    "md:grid md:row-span-2 md:[grid-template-rows:subgrid] md:gap-0";
   const inner = (
     <>
-      <div className="flex items-center justify-between gap-2">
+      {/* items-start, not items-center: with a shared row height a one-line
+          title would otherwise float in the middle of a two-line cell and its
+          arrow would sit lower than its neighbours'. Top-aligned, all three
+          arrows land on the same line. */}
+      <div className="flex items-start justify-between gap-2">
         <h2 className="type-h2 font-semibold text-foreground">{title}</h2>
         {href && (
           <span
@@ -75,7 +91,7 @@ export function RadialStat({
           </span>
         )}
       </div>
-      <div className="flex justify-center py-1">
+      <div className="flex justify-center items-start py-1 md:pt-4">
         <div
           className="relative shrink-0"
           style={{ width: size, height: size }}

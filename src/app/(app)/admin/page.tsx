@@ -130,7 +130,10 @@ export default function AdminHomePage() {
 
           {/* Team pulse — point-in-time snapshot of the workforce. The readiness
               donut merges active + shift-ready; certifications held sits beside it. */}
-          <div className="flex gap-6 flex-wrap">
+          {/* Grid, not flex, so the three cards can share a title-row height
+              through subgrid — see RadialStat. Two explicit rows (title,
+              chart); each card spans both. */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-x-6 md:gap-y-4 md:grid-rows-[auto_auto]">
             <RadialStat
               title="Team readiness"
               href="/admin/people"
