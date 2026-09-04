@@ -23,6 +23,12 @@ import { useManageAccess } from "@/hooks/use-admin-unlocked";
  * 768 (see MobileTabBar's `inManage` guard and PageHeader's `canManage`
  * burger). Only the boundary moves.
  *
+ * HEIGHT MATTERS TOO (D4). Portrait is the supported orientation on a phone,
+ * and the rotate notice says so — but WCAG 1.3.4 means it has to be
+ * dismissible, so the landscape a guard continues into must still work. A
+ * viewport under 500px tall is a phone on its side: it gets the compact nav,
+ * not a 256px sidebar over 334px of usable height.
+ *
  * NOTE: this is deliberately NOT `useIsMobile`. That hook stays at 768 and
  * keeps deciding sheet-vs-popover for the bell, citation chips and dialogs —
  * touch-ergonomics questions, not nav-shape ones. Widening it would have
@@ -31,6 +37,8 @@ import { useManageAccess } from "@/hooks/use-admin-unlocked";
 
 /** Below this width the sidebar yields to a drawer or the floating pill. */
 export const NAV_SIDEBAR_BREAKPOINT = 1024;
+/** …and below this HEIGHT too — a phone on its side. */
+export const NAV_SHORT_VIEWPORT = 500;
 
 /**
  * True below `NAV_SIDEBAR_BREAKPOINT`. Starts false so the first paint matches
@@ -41,8 +49,13 @@ export function useIsCompactNav(): boolean {
   const [compact, setCompact] = React.useState(false);
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${NAV_SIDEBAR_BREAKPOINT - 1}px)`);
-    const onChange = () => setCompact(window.innerWidth < NAV_SIDEBAR_BREAKPOINT);
+    const mql = window.matchMedia(
+      `(max-width: ${NAV_SIDEBAR_BREAKPOINT - 1}px), (max-height: ${NAV_SHORT_VIEWPORT - 1}px)`
+    );
+    const onChange = () =>
+      setCompact(
+        window.innerWidth < NAV_SIDEBAR_BREAKPOINT || window.innerHeight < NAV_SHORT_VIEWPORT
+      );
     mql.addEventListener("change", onChange);
     onChange();
     return () => mql.removeEventListener("change", onChange);
