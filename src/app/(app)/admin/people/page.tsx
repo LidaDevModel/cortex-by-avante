@@ -9,7 +9,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DataTable, DataCards, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
+import { DataTable, DataCards, NotApplicable, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
 import { SortButton } from "@/components/ui/sort-button";
 import { Pagination } from "@/components/ui/pagination";
 import { useGlassHeader } from "@/hooks/use-glass-header";
@@ -100,7 +100,7 @@ const COLUMNS = defineColumns<StaffMember>([
       u.role === "field-agent" && u.status === "active" ? (
         u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
       ) : (
-        <span className="text-muted-foreground">—</span>
+        <NotApplicable reason="Shift-ready does not apply to this person" />
       ),
     // The desktop column keeps its em dash — a column with a hole in it reads
     // as a bug. At a card's trailing edge an em-dash badge is just noise, so
@@ -120,7 +120,14 @@ const COLUMNS = defineColumns<StaffMember>([
     sortValue: (u) => u.lastActive,
     sortKind: "date",
     mobile: "pair",
-    render: (u) => <span className="text-muted-foreground">{formatDate(u.lastActive)}</span>,
+    render: (u) =>
+      u.lastActive ? (
+        <span className="text-muted-foreground">{formatDate(u.lastActive)}</span>
+      ) : (
+        // An invited person who has never signed in. Same treatment as
+        // Shift-ready: the dash is decoration, the sentence is the content.
+        <NotApplicable reason="Never signed in" />
+      ),
   },
 ]);
 

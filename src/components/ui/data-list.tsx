@@ -77,6 +77,28 @@ export type Column<T> = {
 export type SortState = { key: string; dir: "asc" | "desc" };
 
 /**
+ * "Does not apply", for a cell a column cannot fill.
+ *
+ * An em dash is a typographic convention a sighted reader learns in one row.
+ * To a screen reader it is either skipped or read as "em dash" or "minus",
+ * none of which means "this person cannot be shift-ready". So the glyph is
+ * hidden and the sentence is carried in text only assistive tech reads.
+ *
+ * `reason` names the column, because "not applicable" alone in a run of cells
+ * gives no clue which fact is missing.
+ */
+export function NotApplicable({ reason }: { reason: string }) {
+  return (
+    <>
+      <span aria-hidden="true" className="text-muted-foreground">
+        —
+      </span>
+      <span className="sr-only">{reason}</span>
+    </>
+  );
+}
+
+/**
  * Wrap every column list in this. It asserts the one structural rule at MODULE
  * LOAD — so a bad definition throws on import in development, rather than
  * being discovered on a phone.
@@ -164,25 +186,30 @@ export function DataTable<T>({
   return (
     <div className={cn("rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]", className)}>
       <table className="w-full border-collapse text-left">
+        {/* THE NAMED WIDTHS ARE MINIMUMS, NOT FIXED WIDTHS, and there is no
+            spacer column. Surplus is shared across the columns by the
+            browser's own auto table layout.
+
+            The first attempt fixed each width and gave the remainder to an
+            empty trailing column — which put back the dead space the
+            container work had just removed: the table stopped near 1040px
+            and left about 400px blank inside its own border. Narrowing the
+            table instead would mean either a per-list container width (the
+            drift the three tokens exist to end) or a table that stops short
+            while the toolbar and pagination above and below it do not.
+
+            So the surplus goes to the columns. The cost is real and worth
+            stating: at a very wide viewport the columns are loose and the
+            eye travels further from a name to a date. That is the better
+            trade than a blank region inside a bordered box. */}
         <colgroup>
           {columns.map((c) => (
             <col
               key={c.key}
-              style={
-                c.width
-                  ? { width: COL_WIDTH[c.width] }
-                  : /* The identity column absorbs the slack, but stops: a name
-                       stretched across 900px is not more readable. Surplus
-                       beyond this goes to the spacer column below. */
-                    { minWidth: "16rem", maxWidth: "32rem" }
-              }
+              style={c.width ? { minWidth: COL_WIDTH[c.width] } : { minWidth: "16rem" }}
             />
           ))}
           {actions && <col style={{ width: "3rem" }} />}
-          {/* Unnamed spacer — no header, no content. It takes whatever the
-              container has beyond the columns' own needs, so a wide table
-              reads as content on the left with room on the right. */}
-          <col />
         </colgroup>
         <thead>
           <tr className="bg-[var(--surface-raised)] border-b border-border">
@@ -208,7 +235,7 @@ export function DataTable<T>({
                        sets `button { text-transform: none }`, so a sortable
                        header rendered in sentence case next to its uppercase
                        siblings. */
-                    className="flex items-center gap-1 uppercase hover:text-foreground transition-colors duration-100"
+                    className="flex items-center gap-1 uppercase rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors duration-100"
                   >
                     {c.label}
                     <SortIcon dir={sort?.key === c.key ? sort.dir : null} />
@@ -223,7 +250,6 @@ export function DataTable<T>({
                 <span className="sr-only">Actions</span>
               </th>
             )}
-            <th />
           </tr>
         </thead>
         <tbody>
@@ -261,7 +287,6 @@ export function DataTable<T>({
                   {actions(row)}
                 </td>
               )}
-              <td />
             </tr>
           ))}
         </tbody>
