@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
@@ -9,11 +9,13 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
+import { DataTable, DataCards, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
+import { SortButton } from "@/components/ui/sort-button";
 import { Pagination } from "@/components/ui/pagination";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { useAdminUsers } from "@/lib/admin-store";
+import type { StaffMember } from "@/lib/user-mock";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { InviteUserModal } from "@/components/admin/InviteUserModal";
 import { StatusPill } from "@/components/admin/status-pill";
@@ -40,10 +42,91 @@ function formatDate(iso?: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/**
+ * The People list, defined ONCE. Both the desktop table and the mobile cards
+ * render from this — so the card labels are these labels, sorting works at
+ * both widths, and a column cannot quietly disappear on a phone.
+ *
+ * `defineColumns` asserts the one structural rule (exactly one identity
+ * column) at module load, so a bad edit throws on import rather than shipping.
+ */
+const COLUMNS = defineColumns<StaffMember>([
+  {
+    key: "name",
+    label: "Name",
+    // No width: the identity column absorbs the remaining space, capped.
+    sortValue: (u) => u.fullName,
+    mobile: "identity",
+    render: (u) => (
+      <div className="flex items-center gap-3 min-w-0">
+        <Avatar className="h-8 w-8 rounded-full shrink-0">
+          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">
+            {u.initials}
+          </AvatarFallback>
+        </Avatar>
+        {/* Email is a SUBTITLE of identity, not a column of its own — it would
+            otherwise gain an "Email" label and a sort control it never had. */}
+        <div className="flex flex-col min-w-0">
+          <span className="type-meta font-medium text-foreground truncate">{u.fullName}</span>
+          <span className="type-caption text-muted-foreground truncate">{u.email}</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: "role",
+    label: "Role",
+    width: "narrow",
+    mobile: "pair",
+    render: (u) => <span className="text-foreground">{ROLE_LABEL[u.role]}</span>,
+  },
+  {
+    key: "status",
+    label: "Status",
+    width: "narrow",
+    mobile: "trailing",
+    render: (u) => <StatusPill status={u.status} />,
+  },
+  {
+    key: "shiftReady",
+    label: "Shift-ready",
+    width: "wide",
+    /* A PAIR on the card, not a trailing badge. Stacked with the status pill
+       it took most of a 390px row and squeezed the email down to
+       "amara.diallo@avante.s…". As a labelled pair it also stops being a bare
+       badge whose meaning you infer. */
+    mobile: "pair",
+    render: (u) =>
+      u.role === "field-agent" && u.status === "active" ? (
+        u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      ),
+    // The desktop column keeps its em dash — a column with a hole in it reads
+    // as a bug. At a card's trailing edge an em-dash badge is just noise, so
+    // the card shows nothing for anyone who cannot be shift-ready.
+    mobileRender: (u) =>
+      u.role === "field-agent" && u.status === "active"
+        ? u.shiftReady
+          ? <ClearedBadge />
+          : <NotClearedBadge />
+        : null,
+  },
+  {
+    key: "lastActive",
+    label: "Last active",
+    width: "date",
+    // Owner's call: this is the column people sort by.
+    sortValue: (u) => u.lastActive,
+    sortKind: "date",
+    mobile: "pair",
+    render: (u) => <span className="text-muted-foreground">{formatDate(u.lastActive)}</span>,
+  },
+]);
+
 export default function AdminPeoplePage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("admin-people");
-  const router = useRouter();
   const users = useAdminUsers();
   const { locked } = useManageLock();
   const [query, setQuery] = useState("");
@@ -57,7 +140,14 @@ export default function AdminPeoplePage() {
   const inviteParam = useSearchParams().get("invite");
   useEffect(() => { if (inviteParam === "1") setInviteOpen(true); }, [inviteParam]);
 
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  // One sort state for both renderings. It was `sortDir` alone, with the
+  // column implied, which is why sorting could not be offered anywhere but
+  // the header row.
+  const [sort, setSort] = useState<SortState>({ key: "name", dir: "asc" });
+  function handleSort(key: string) {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+    setPage(1);
+  }
 
   // Any filter/search/sort change resets to the first page so results stay in view.
   function resetPage<T>(set: (v: T) => void) {
@@ -72,9 +162,10 @@ export default function AdminPeoplePage() {
       if (q && !u.fullName.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
       return true;
     });
-    const mul = sortDir === "asc" ? 1 : -1;
-    return [...list].sort((a, b) => mul * a.fullName.localeCompare(b.fullName));
-  }, [users, roleFilter, statusFilter, q, sortDir]);
+    // The shared comparator, so the null policy (empty sorts last in BOTH
+    // directions) is stated once for every list.
+    return sortRows(list, COLUMNS, sort);
+  }, [users, roleFilter, statusFilter, q, sort]);
 
   const totalPages = Math.ceil(rows.length / PER_PAGE);
   const safePage = Math.min(page, totalPages || 1);
@@ -114,6 +205,14 @@ export default function AdminPeoplePage() {
             <div className="flex items-center gap-2 flex-wrap">
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={ROLE_FILTER} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={STATUS_FILTER} placeholder="All statuses" />
+              {/* Sorting, where there is no header row to click. Reads the
+                  same definition, so it can never offer a different set. */}
+              <SortButton
+                columns={COLUMNS}
+                sort={sort}
+                onChange={(next) => { setSort(next); setPage(1); }}
+                className="md:hidden"
+              />
             </div>
           </div>
 
@@ -125,76 +224,27 @@ export default function AdminPeoplePage() {
             <StatePanel description="No staff match these filters." />
           ) : (
             <>
-              {/* Desktop: full column table */}
-              <Table className="hidden md:block">
-                <TableHeader>
-                  <TableHead className="flex-1" sortDir={sortDir} onSort={() => { setSortDir((d) => (d === "asc" ? "desc" : "asc")); setPage(1); }}>Name</TableHead>
-                  <TableHead className="w-[104px]">Role</TableHead>
-                  <TableHead className="w-[104px]">Status</TableHead>
-                  <TableHead className="w-[150px]">Shift-ready</TableHead>
-                  <TableHead className="w-[116px]">Last active</TableHead>
-                </TableHeader>
-                <TableBody>
-                  {paginated.map((u, i) => (
-                    <TableRow key={u.id} onClick={() => router.push(`/admin/people/${u.id}`)} style={rowStyle(i)}>
-                      <TableCell className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Avatar className="h-8 w-8 rounded-full shrink-0">
-                            <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">{u.initials}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col min-w-0">
-                            <span className="type-meta font-medium text-foreground truncate">{u.fullName}</span>
-                            <span className="type-caption text-muted-foreground truncate">{u.email}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="w-[104px] text-foreground">{ROLE_LABEL[u.role]}</TableCell>
-                      <TableCell className="w-[104px]"><StatusPill status={u.status} /></TableCell>
-                      <TableCell className="w-[150px]">
-                        {u.role === "field-agent" && u.status === "active" ? (
-                          u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="w-[116px] text-muted-foreground">{formatDate(u.lastActive)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Mobile: avatar + name lead; email over role · last active as the
-                  meta; status and (for active field agents) shift-ready badges
-                  stack in the trailing slot so both stay real badges, not text. */}
-              <Table className="md:hidden">
-                <TableBody>
-                  {paginated.map((u, i) => (
-                    <TableCard
-                      key={u.id}
-                      onClick={() => router.push(`/admin/people/${u.id}`)}
-                      style={rowStyle(i)}
-                      leading={
-                        <Avatar className="h-9 w-9 rounded-full shrink-0">
-                          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">{u.initials}</AvatarFallback>
-                        </Avatar>
-                      }
-                      title={u.fullName}
-                      meta={
-                        <>
-                          <TableCardMeta>{u.email}</TableCardMeta>
-                          <TableCardMeta>{ROLE_LABEL[u.role]} · {formatDate(u.lastActive)}</TableCardMeta>
-                        </>
-                      }
-                      trailing={
-                        <div className="flex flex-col items-end gap-1.5">
-                          <StatusPill status={u.status} />
-                          {u.role === "field-agent" && u.status === "active" && (u.shiftReady ? <ClearedBadge /> : <NotClearedBadge />)}
-                        </div>
-                      }
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+              {/* One definition, two renderings: a real <table> here, a
+                  <ul> of records below. */}
+              <DataTable
+                className="hidden md:block"
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(u) => u.id}
+                rowHref={(u) => `/admin/people/${u.id}`}
+                sort={sort}
+                onSort={handleSort}
+                rowStyle={rowStyle}
+              />
+              <DataCards
+                className="md:hidden"
+                label="People"
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(u) => u.id}
+                rowHref={(u) => `/admin/people/${u.id}`}
+                rowStyle={rowStyle}
+              />
             </>
           )}
 
