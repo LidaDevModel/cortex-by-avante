@@ -103,12 +103,29 @@ export function getAdminModule(id: string): AdminModule | undefined {
  * route to certification.
  */
 export function moduleChapters(
-  m: { authoredChapters?: Chapter[] } | undefined,
+  m: { authoredChapters?: Chapter[]; chapters?: number } | undefined,
   { includeFinalQuiz = false }: { includeFinalQuiz?: boolean } = {}
 ): Chapter[] {
   const authored = m?.authoredChapters;
   if (!authored || authored.length === 0) {
-    return includeFinalQuiz ? MODULE_CHAPTERS : MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
+    // The module's own `chapters` count governs how much of the canonical set
+    // it has. Returning the whole set regardless was the second half of P1-01:
+    // a card said "4 chapters", the reader opened the same module and listed
+    // six, and its first chapter scored 1 of 6 — 17% — on a module the rest of
+    // the product counted in quarters. Five of the twelve seeded modules were
+    // affected; only the three that happen to be authored at six agreed.
+    //
+    // Slicing rather than renaming the count keeps the seeded variety real:
+    // the data says how long a module is, and the derived list obeys it.
+    const content = MODULE_CHAPTERS.filter((c) => !c.isFinalQuiz);
+    const n =
+      typeof m?.chapters === "number" && m.chapters > 0
+        ? Math.min(m.chapters, content.length)
+        : content.length;
+    const sliced = content.slice(0, n);
+    if (!includeFinalQuiz) return sliced;
+    const quiz = MODULE_CHAPTERS.find((c) => c.isFinalQuiz);
+    return quiz ? [...sliced, { ...quiz, num: n + 1 }] : sliced;
   }
   if (!includeFinalQuiz) return authored;
   const finalQuiz = MODULE_CHAPTERS.find((c) => c.isFinalQuiz);

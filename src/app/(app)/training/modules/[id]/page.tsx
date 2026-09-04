@@ -347,8 +347,12 @@ export default function ModuleDetailPage() {
   // the two cannot show different content for the same module.
   const CHAPTERS = getLearnerChapters(moduleId, role, { includeFinalQuiz: true });
 
-  const [currentId, setCurrentId] = useState(() => deriveInitialState(initialProgress, CHAPTERS).currentId);
-  const [completedIds, setCompletedIds] = useState(() => deriveInitialState(initialProgress, CHAPTERS).completedIds);
+  // Derived ONCE. It was called twice, and the count it produces is now needed
+  // a third time (below, for the headline percentage) — three copies of one
+  // derivation is how the two screens drifted apart in the first place.
+  const [initial] = useState(() => deriveInitialState(initialProgress, CHAPTERS));
+  const [currentId, setCurrentId] = useState(initial.currentId);
+  const [completedIds, setCompletedIds] = useState(initial.completedIds);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
 
   // Left panel — chapter title filter
@@ -376,7 +380,22 @@ export default function ModuleDetailPage() {
   const isSecondToLast = currentIndex === CHAPTERS.length - 2;
 
   const contentChapters = CHAPTERS.filter((c) => !c.isFinalQuiz);
-  const progress = Math.round((completedIds.size / contentChapters.length) * 100);
+  // P1-01: print the STORED progress, do not re-derive it.
+  //
+  // The stored number is a percentage; chapters are whole. Turning 90% into a
+  // chapter count rounds it to 5 of 6, and turning 5 of 6 back into a
+  // percentage gives 83 — so this screen said 83% while Home and the module
+  // list said 90% for the same module. The round trip, not the data, was the
+  // disagreement.
+  //
+  // The stored value holds until the reader actually moves past it. Completing
+  // a chapter in this session makes `completedIds` larger than the baseline,
+  // and from that point the derived number IS the truthful one — it reflects
+  // reading the stored value cannot know about yet.
+  const progress =
+    completedIds.size === initial.completedIds.size
+      ? initialProgress
+      : Math.round((completedIds.size / contentChapters.length) * 100);
   // Facts the final-quiz panel needs to stop overclaiming.
   const chaptersLeft = Math.max(0, contentChapters.length - completedIds.size);
   const alreadyCertified = Boolean(trainingModule?.certification);
