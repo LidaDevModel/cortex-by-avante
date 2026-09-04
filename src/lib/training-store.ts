@@ -24,8 +24,25 @@ export type AdminModule = Module & { roles: Role[]; published?: boolean; lastMod
 
 const KEY = "cortex-admin-training";
 
-// Seed: every existing module is guard training → Field Agent.
-const SEED: AdminModule[] = MODULES.map((m) => ({ ...m, roles: ["field-agent"], published: true, lastModified: m.assignedDate }));
+/* Seed: every existing module is guard training → Field Agent.
+   `lastModified` is NOT seeded from `assignedDate`. It used to be, which made
+   the admin list's "Last modified" column a restatement of the assignment
+   date for every module — two different facts under one heading, and the
+   reason that column is now "Updated" with an explicit "Never modified" for
+   anything nobody has edited. A few modules carry a real edit date so both
+   states appear in the list; the rest have genuinely never been touched. */
+const EDITED: Record<string, string> = {
+  "1": "2026-06-02",
+  "3": "2026-07-14",
+  "8": "2026-05-28",
+  "11": "2026-07-21",
+};
+const SEED: AdminModule[] = MODULES.map((m) => ({
+  ...m,
+  roles: ["field-agent"],
+  published: true,
+  ...(EDITED[m.id] ? { lastModified: EDITED[m.id] } : {}),
+}));
 
 const listeners = new Set<() => void>();
 let cache: AdminModule[] | null = null;

@@ -6,7 +6,8 @@ import { MoreHorizontal, FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lu
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell, TableCard, TableCardMeta, type SortDir } from "@/components/ui/table";
+import { DataTable, DataCards, NotApplicable, defineColumns, sortRows, type SortState } from "@/components/ui/data-list";
+import { SortButton } from "@/components/ui/sort-button";
 import { Pagination } from "@/components/ui/pagination";
 import { useRowStagger } from "@/hooks/use-entrance";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -20,7 +21,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { withReturn } from "@/lib/admin-nav";
 import { PublishImpactDialog } from "@/components/admin/PublishImpactDialog";
 import { usePublishImpact } from "@/hooks/use-publish-impact";
-import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
+import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS, type AdminModule } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
@@ -35,6 +36,78 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/**
+ * The Modules list, defined once — same shape as People.
+ *
+ * `lastModified` is labelled "Updated" and no longer falls back to
+ * `assignedDate`. Those are two different facts, and one heading over both
+ * meant the column restated the assignment date for every module nobody had
+ * edited. A module never edited now says so.
+ *
+ * Roles is a card pair rather than the hidden column it used to be. It is one
+ * short string, the card already carries three other pairs, and an expander
+ * would be a second disclosure when the editor is one tap away.
+ */
+const COLUMNS = defineColumns<AdminModule>([
+  {
+    key: "title",
+    label: "Module",
+    sortValue: (m) => m.title,
+    mobile: "identity",
+    render: (m) => <span className="block truncate font-medium">{m.title}</span>,
+  },
+  {
+    key: "category",
+    label: "Category",
+    width: "narrow",
+    mobile: "pair",
+    render: (m) => (
+      <span className="text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</span>
+    ),
+  },
+  {
+    key: "requirement",
+    label: "Requirement",
+    width: "narrow",
+    mobile: "pair",
+    render: (m) => <span className="text-muted-foreground">{m.required ? "Required" : "Optional"}</span>,
+  },
+  {
+    key: "roles",
+    label: "Roles",
+    width: "narrow",
+    // Was dropped from the card entirely — the one silently hidden column in
+    // the whole product. It is a pair now.
+    mobile: "pair",
+    render: (m) => (
+      <span className="text-muted-foreground truncate">
+        {m.roles.map((r) => ROLE_LABEL[r]).join(", ")}
+      </span>
+    ),
+  },
+  {
+    key: "status",
+    label: "Status",
+    width: "narrow",
+    mobile: "trailing",
+    render: (m) => <PublishBadge published={m.published !== false} />,
+  },
+  {
+    key: "lastModified",
+    label: "Updated",
+    width: "date",
+    sortValue: (m) => m.lastModified,
+    sortKind: "date",
+    mobile: "pair",
+    render: (m) =>
+      m.lastModified ? (
+        <span className="text-muted-foreground">{formatDate(m.lastModified)}</span>
+      ) : (
+        <NotApplicable reason="Never modified" />
+      ),
+  },
+]);
+
 export default function AdminTrainingPage() {
   const { headerClassName, onScroll } = useGlassHeader();
   const loading = useInitialLoad("admin-modules");
@@ -46,8 +119,7 @@ export default function AdminTrainingPage() {
   const [requirementFilter, setRequirementFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [sortCol, setSortCol] = useState<"title" | "lastModified">("lastModified");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sort, setSort] = useState<SortState>({ key: "lastModified", dir: "desc" });
   const [newOpen, setNewOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [unpublishId, setUnpublishId] = useState<string | null>(null);
@@ -63,9 +135,8 @@ export default function AdminTrainingPage() {
   function resetPage<T>(set: (v: T) => void) {
     return (v: T) => { set(v); setPage(1); };
   }
-  function handleSort(col: "title" | "lastModified") {
-    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else { setSortCol(col); setSortDir("asc"); }
+  function handleSort(key: string) {
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
     setPage(1);
   }
 
@@ -79,12 +150,11 @@ export default function AdminTrainingPage() {
       if (statusFilter && (statusFilter === "published") !== (m.published !== false)) return false;
       return true;
     });
-    const mul = sortDir === "asc" ? 1 : -1;
-    return [...list].sort((a, b) => {
-      if (sortCol === "title") return mul * a.title.localeCompare(b.title);
-      return mul * ((a.lastModified ?? a.assignedDate) > (b.lastModified ?? b.assignedDate) ? 1 : -1);
-    });
-  }, [modules, q, categoryFilter, requirementFilter, roleFilter, statusFilter, sortCol, sortDir]);
+    // The shared comparator: never-modified modules sort last in BOTH
+    // directions, which the old `?? assignedDate` fallback hid by giving
+    // every module a date.
+    return sortRows(list, COLUMNS, sort);
+  }, [modules, q, categoryFilter, requirementFilter, roleFilter, statusFilter, sort]);
   const deleting = modules.find((m) => m.id === deleteId);
   const unpublishing = modules.find((m) => m.id === unpublishId);
   const publishing = modules.find((m) => m.id === publishId);
@@ -123,7 +193,7 @@ export default function AdminTrainingPage() {
       <div onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100" aria-label="Actions">
+            <button className="size-11 md:size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors duration-100" aria-label={`Actions for ${m.title}`}>
               <MoreHorizontal size={16} />
             </button>
           </DropdownMenuTrigger>
@@ -178,6 +248,12 @@ export default function AdminTrainingPage() {
               <FilterSelect value={requirementFilter} onChange={resetPage(setRequirementFilter)} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
+              <SortButton
+                columns={COLUMNS}
+                sort={sort}
+                onChange={(next) => { setSort(next); setPage(1); }}
+                className="md:hidden"
+              />
             </div>
           </div>
 
@@ -189,54 +265,27 @@ export default function AdminTrainingPage() {
             <StatePanel description={q ? "No modules match that search." : "No modules yet. Create one with New module."} />
           ) : (
             <>
-              {/* Desktop: full column table */}
-              <Table className="hidden md:block">
-                <TableHeader>
-                  <TableHead className="flex-1" sortDir={sortCol === "title" ? sortDir : null} onSort={() => handleSort("title")}>Module</TableHead>
-                  <TableHead className="w-[100px]">Category</TableHead>
-                  <TableHead className="w-[104px]">Requirement</TableHead>
-                  <TableHead className="w-[104px]">Roles</TableHead>
-                  <TableHead className="w-[104px]">Status</TableHead>
-                  <TableHead className="w-[112px]" sortDir={sortCol === "lastModified" ? sortDir : null} onSort={() => handleSort("lastModified")}>Last modified</TableHead>
-                  <TableHead className="w-8"><span className="sr-only">Actions</span></TableHead>
-                </TableHeader>
-                <TableBody>
-                  {paginated.map((m, i) => (
-                    <TableRow key={m.id} onClick={() => router.push(`/admin/content/training/${m.id}`)} style={rowStyle(i)}>
-                      <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
-                      <TableCell className="w-[100px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
-                      <TableCell className="w-[104px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
-                      <TableCell className="w-[104px] text-muted-foreground truncate">{m.roles.map((r) => ROLE_LABEL[r]).join(", ")}</TableCell>
-                      <TableCell className="w-[104px]"><PublishBadge published={m.published !== false} /></TableCell>
-                      <TableCell className="w-[112px] text-muted-foreground">{formatDate(m.lastModified ?? m.assignedDate)}</TableCell>
-                      <TableCell className="w-8">{rowActions(m)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Mobile: module title over a category · requirement · date meta
-                  line; publish badge + actions menu in the trailing slot. Roles
-                  are relegated to the edit screen on a phone. */}
-              <Table className="md:hidden">
-                <TableBody>
-                  {paginated.map((m, i) => (
-                    <TableCard
-                      key={m.id}
-                      onClick={() => router.push(`/admin/content/training/${m.id}`)}
-                      style={rowStyle(i)}
-                      title={m.title}
-                      meta={<TableCardMeta>{CATEGORY_LABEL[m.category] ?? m.category} · {m.required ? "Required" : "Optional"} · {formatDate(m.lastModified ?? m.assignedDate)}</TableCardMeta>}
-                      trailing={
-                        <>
-                          <PublishBadge published={m.published !== false} />
-                          {rowActions(m)}
-                        </>
-                      }
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                className="hidden md:block"
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(m) => m.id}
+                rowHref={(m) => `/admin/content/training/${m.id}`}
+                sort={sort}
+                onSort={handleSort}
+                rowStyle={rowStyle}
+                actions={rowActions}
+              />
+              <DataCards
+                className="md:hidden"
+                label="Training modules"
+                rows={paginated}
+                columns={COLUMNS}
+                rowKey={(m) => m.id}
+                rowHref={(m) => `/admin/content/training/${m.id}`}
+                rowStyle={rowStyle}
+                actions={rowActions}
+              />
             </>
           )}
 
