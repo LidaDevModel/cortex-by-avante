@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { deleteTranscript, saveTranscript } from "@/lib/chat-history-store";
+import type { Message } from "@/components/chat/AiMessage";
 
 export type Conversation = {
   id: string;
@@ -19,30 +21,40 @@ export type Conversation = {
   group: "Today" | "Yesterday" | "Last 7 days" | "Last 30 days";
 };
 
+/*
+ * The demo's past conversations.
+ *
+ * Every title is a QUESTION that the resolver actually grounds — because
+ * opening one materialises its transcript from the title (see the chat
+ * screen's restore path), and a title that hits no Library topic came back as
+ * "I don't have anything on it in the Library yet". A history list whose
+ * entries deflect when opened is worse than no history list.
+ *
+ * That is also why they read as questions rather than filenames: in a real
+ * product a conversation's name comes from its first message, so "Queries &
+ * Responses" was never a name a guard could have produced.
+ */
 const MOCK_CONVERSATIONS: Conversation[] = [
-  { id: "1", title: "Security Protocols", group: "Today" },
-  { id: "2", title: "Morning briefing notes", group: "Today" },
-  { id: "3", title: "Safety Guidelines for Guards", group: "Yesterday" },
-  { id: "4", title: "Queries & Responses", group: "Yesterday" },
-  { id: "5", title: "Guard Duty FAQs", group: "Last 7 days" },
-  { id: "6", title: "Security Rules Overview", group: "Last 7 days" },
-  { id: "7", title: "Emergency Procedures", group: "Last 7 days" },
-  { id: "8", title: "Guard Best Practices", group: "Last 7 days" },
+  { id: "1", title: "What are the escalation tiers?", group: "Today" },
+  { id: "2", title: "Who do I tell about a Tier 2 incident?", group: "Today" },
+  { id: "3", title: "How do I log an incident?", group: "Yesterday" },
+  { id: "4", title: "What goes in the incident report?", group: "Yesterday" },
+  { id: "5", title: "How often are perimeter patrols?", group: "Last 7 days" },
+  { id: "6", title: "What do I scan at each checkpoint?", group: "Last 7 days" },
+  { id: "7", title: "What do I do when the fire alarm sounds?", group: "Last 7 days" },
+  { id: "8", title: "First aid responsibilities on shift", group: "Last 7 days" },
   { id: "9", title: "Shift handover checklist", group: "Last 7 days" },
-  { id: "10", title: "Incident Reporting", group: "Last 30 days" },
-  { id: "11", title: "Security Guard Training Topics", group: "Last 30 days" },
-  { id: "12", title: "Access Control Rules", group: "Last 30 days" },
-  { id: "13", title: "Security Guard Communication", group: "Last 30 days" },
-  { id: "14", title: "Patrol Procedures", group: "Last 30 days" },
-  { id: "15", title: "Security Guard Responses", group: "Last 30 days" },
-  { id: "16", title: "Conduct Standards", group: "Last 30 days" },
-  { id: "17", title: "Guard Conflict Resolution", group: "Last 30 days" },
-  { id: "18", title: "Visitor Management", group: "Last 30 days" },
-  { id: "19", title: "Security Guard Emergency", group: "Last 30 days" },
-  { id: "20", title: "Fire evacuation protocol", group: "Last 30 days" },
-  { id: "21", title: "CCTV monitoring guidelines", group: "Last 30 days" },
-  { id: "22", title: "Lone worker policy", group: "Last 30 days" },
-  { id: "23", title: "First aid responsibilities", group: "Last 30 days" },
+  { id: "10", title: "What happens at end of shift?", group: "Last 30 days" },
+  { id: "11", title: "Signing in a contractor at the gatehouse", group: "Last 30 days" },
+  { id: "12", title: "Visitor badge rules", group: "Last 30 days" },
+  { id: "13", title: "Which radio channel for the control room?", group: "Last 30 days" },
+  { id: "14", title: "Radio comms during an emergency", group: "Last 30 days" },
+  { id: "15", title: "Patrol route after hours", group: "Last 30 days" },
+  { id: "16", title: "ID check at the main entrance", group: "Last 30 days" },
+  { id: "17", title: "Reporting an altercation on site", group: "Last 30 days" },
+  { id: "18", title: "When to call emergency services", group: "Last 30 days" },
+  { id: "19", title: "Evacuation assembly points", group: "Last 30 days" },
+  { id: "20", title: "Access control for deliveries", group: "Last 30 days" },
 ];
 
 const GROUPS = ["Today", "Yesterday", "Last 7 days", "Last 30 days"] as const;
@@ -108,6 +120,9 @@ export function useConversations() {
       return prev.filter((c) => c.id !== id);
     });
     if (id.startsWith("arch-")) persistArchived(loadArchived().filter((c) => c.id !== id));
+    // The transcript goes with it — otherwise a deleted conversation's text
+    // would sit in storage for 90 days with nothing pointing at it.
+    deleteTranscript(id);
     showToast({
       title: "Conversation deleted",
       action: { label: "Undo", onClick: () => restore?.() },
@@ -115,12 +130,22 @@ export function useConversations() {
   };
   // Record a just-left conversation into history (most recent first) — updates
   // the live list AND the store, so it shows under "Today" on this same return.
-  const archive = (title: string) => {
+  /**
+   * File the current exchange under history.
+   *
+   * `messages` is the whole point: archiving used to keep the TITLE ONLY, so
+   * reopening a conversation re-asked the title as a fresh question and showed
+   * whatever came back — sometimes a deflection, sometimes a different answer
+   * than the one originally given. The caller already has the full array in
+   * hand at this moment; it just used to discard it.
+   */
+  const archive = (title: string, messages: Message[] = []) => {
     const t = title.trim();
     if (!t) return;
     const convo: Conversation = { id: `arch-${Date.now()}`, title: t, group: "Today" };
     setConversations((prev) => [convo, ...prev]);
     persistArchived([convo, ...loadArchived()]);
+    saveTranscript(convo.id, messages);
   };
   return { conversations, rename, remove, archive };
 }

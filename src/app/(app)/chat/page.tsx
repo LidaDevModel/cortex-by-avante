@@ -6,6 +6,7 @@ import { ArrowDown, ChevronDown, ChevronLeft, ChevronRight, History, Pencil, Squ
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLearnerNav } from "@/lib/learner-crumbs";
 import { ChatHistoryPanel, ChatHistorySheet, useConversations, type Conversation } from "@/components/chat-history-panel";
+import { getTranscript, saveTranscript } from "@/lib/chat-history-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -381,7 +382,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
     if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     setIsAiResponding(false);
     const firstUser = messages.find((m) => m.role === "user");
-    archiveConversation(conversationTitle || firstUser?.content || "New conversation");
+    archiveConversation(conversationTitle || firstUser?.content || "New conversation", messages);
     setMessages([]);
     setConversationTitle(null);
     try {
@@ -402,14 +403,32 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
     const firstUser = messages.find((m) => m.role === "user");
     const currentTitle = conversationTitle || firstUser?.content;
     if (currentTitle && currentTitle !== conversation.title) {
-      archiveConversation(currentTitle);
+      archiveConversation(currentTitle, messages);
     }
+    setConversationTitle(conversation.title);
+
+    /* A REAL restore. This used to feed the conversation's TITLE back to the
+       resolver as a fresh question and render the result — so nothing was
+       restored, the answer could differ from the one originally given, and a
+       title that is not a Library topic ("Morning briefing notes") came back
+       as a deflection. Now the stored transcript is simply put back on screen.
+
+       A conversation from the seeded demo list has no transcript the first
+       time it is opened. It is materialised once, from the title, and STORED —
+       so every later open shows the same words, which is the property the
+       history panel was asserting all along. */
+    const stored = getTranscript(conversation.id);
+    if (stored) {
+      setMessages(stored);
+      jumpToBottom();
+      return;
+    }
+
     const response = chatProvider.getResponse(
       [{ role: "user", text: conversation.title }],
       { detail: detailLevel }
     );
-    setConversationTitle(conversation.title);
-    setMessages([
+    const restored: Message[] = [
       { id: `u-restored-${conversation.id}`, role: "user", content: conversation.title },
       {
         id: `a-restored-${conversation.id}`,
@@ -419,7 +438,9 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
         diagram: response.diagram,
         streamText: getStreamTextFor(response.blocks),
       },
-    ]);
+    ];
+    setMessages(restored);
+    saveTranscript(conversation.id, restored);
     jumpToBottom();
   }
 
