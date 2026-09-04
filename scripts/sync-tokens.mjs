@@ -101,16 +101,28 @@ function contrast(a, b) {
 
 /* ─── read the tokens ───────────────────────────────────────────────────── */
 function block(css, selector) {
-  // The LAST matching block wins, mirroring the cascade.
+  // MERGE every matching block in document order, later declarations winning.
+  //
+  // This first took only the last matching block, "mirroring the cascade".
+  // That was wrong in a way that produced no error, only empty output: the
+  // cascade merges DECLARATIONS, it does not discard whole blocks. When the
+  // container tokens landed, `globals.css` gained two more `:root` blocks
+  // carrying nothing but `--container-pad`, so the last block held no colours
+  // — every light-mode lookup returned null, `--check` reported drift that
+  // did not exist, and a plain `npm run tokens` rewrote all fifteen light
+  // rows to an em dash. The dark table was unaffected, since there is only
+  // one `.dark` block, which is why the failure looked like real drift.
   const re = new RegExp(`${selector}\\s*\\{([^}]*)\\}`, "g");
-  let out = null, m;
-  while ((m = re.exec(css))) out = m[1];
-  if (!out) throw new Error(`no ${selector} block in globals.css`);
   const vars = {};
-  for (const line of out.split("\n")) {
-    const d = line.match(/^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);/i);
-    if (d) vars[d[1]] = d[2].trim();
+  let found = false, m;
+  while ((m = re.exec(css))) {
+    found = true;
+    for (const line of m[1].split("\n")) {
+      const d = line.match(/^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);/i);
+      if (d) vars[d[1]] = d[2].trim();
+    }
   }
+  if (!found) throw new Error(`no ${selector} block in globals.css`);
   return vars;
 }
 
