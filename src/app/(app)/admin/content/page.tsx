@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Folder, FileText, Pencil, EyeOff, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, FolderPlus, FilePlus2, FolderOpen, Folder, FileText, Pencil, Eye, EyeOff, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
@@ -15,7 +15,7 @@ import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import { NamePromptModal } from "@/components/admin/NamePromptModal";
 import { BackLink } from "@/components/admin/back-link";
 import { useRowStagger } from "@/hooks/use-entrance";
-import { resolveBack } from "@/lib/admin-nav";
+import { resolveBack, withReturn } from "@/lib/admin-nav";
 import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLibrary, getContentFolder, createFolder, createDoc, renameItem, deleteItem, setDocPublished, setFolderPublished } from "@/lib/content-store";
@@ -118,10 +118,21 @@ export default function AdminContentPage() {
     if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
     else router.push(`/admin/content/${r.id}`);
   }
-  // Row click: a folder opens; a document previews (the learner view, new tab).
+  /* Row click: a folder opens; a document EDITS.
+     It used to spawn the learner preview in a new tab — a surprise on a
+     management screen: it left the app shell behind, had no back path, and on
+     a phone a second tab is simply lost. Managing is what this screen is for,
+     so the row does the managing thing, matching the Actions menu's "Edit".
+     Preview is still one tap away, in the same menu. */
   function handleRowClick(r: Row) {
     if (r.type === "folder") router.push(`/admin/content?folder=${r.id}`);
-    else window.open(`/admin/content/${r.id}/preview`, "_blank");
+    else openRow(r);
+  }
+  function previewRow(r: Row) {
+    // Return to exactly where the preview was opened from — inside a folder,
+    // that is the folder, not the Library root.
+    const from = folder ? `/admin/content?folder=${folder.id}` : "/admin/content";
+    router.push(withReturn(`/admin/content/${r.id}/preview`, from));
   }
 
   // The per-row actions menu — shared by the desktop table and the mobile card
@@ -150,6 +161,7 @@ export default function AdminContentPage() {
             ) : (
               <>
                 <DropdownMenuItem onSelect={() => openRow(r)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => previewRow(r)}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
                 {r.published !== false ? (
                   <DropdownMenuItem onSelect={() => setUnpublishTarget(r)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
                 ) : (

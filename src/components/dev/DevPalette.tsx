@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDialKitController } from "dialkit";
 import { CORTEX_VERSIONS, VERSION_NAMES } from "./palette-versions";
 import { getCurrentRole, setCurrentRole } from "@/lib/current-role";
+import { armCrash } from "@/lib/dev-crash";
 
 /**
  * DEV-ONLY colour + illustration exploration (dialkit), unified so a named
@@ -259,12 +260,22 @@ export function DevPalette() {
     {
       toggleMode: { type: "action" as const, label: "Toggle light / dark" },
       toggleRole: { type: "action" as const, label: "Toggle role (agent / admin)" },
+      // The app error boundary had no way to be reached: checking it meant
+      // editing a page to throw, and reverting afterwards. This arms the
+      // dev-only /dev/crash route and goes there, so the real error screen —
+      // including its "Try again" and "Back to home" — can be exercised.
+      crash: { type: "action" as const, label: "Trigger a render error" },
     },
     {
       id: "display",
       onAction: (a: string) => {
         if (/role/i.test(a)) {
           setCurrentRole(getCurrentRole() === "admin" ? "field-agent" : "admin");
+        } else if (/error|crash/i.test(a)) {
+          armCrash();
+          // A hard navigation: a soft push can be swallowed by the boundary
+          // that is about to catch the throw.
+          window.location.assign("/dev/crash");
         } else {
           toggleThemeRef.current();
         }

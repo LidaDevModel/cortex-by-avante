@@ -1,6 +1,11 @@
 "use client";
 
-import { Monitor, Moon, Sun } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
+import { signOut } from "@/lib/auth-mock";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { Switch } from "@/components/ui/switch";
@@ -57,6 +62,8 @@ const ADMIN_ROWS: NotificationRow[] = [
  * public showcase colleagues can see.
  */
 export default function SettingsPage() {
+  const router = useRouter();
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const { headerClassName, onScroll } = useGlassHeader();
   const { preference, setPreference } = useTheme();
   // Operational alerts only exist once the admin is cleared for duty (Cortex
@@ -128,8 +135,53 @@ export default function SettingsPage() {
               ))}
             </div>
           </section>
+
+          {/* Session — VISION defines this screen as "Appearance, Notification
+              preferences, and Sign out". Signing out used to be reachable only
+              from the sidebar dropdown or the mobile avatar dial, so a user who
+              looked where the contract says to look did not find it. Same
+              ExitConfirmDialog as both of those, so the confirm reads
+              identically wherever it is reached from. */}
+          <section
+            className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised"
+            style={{ border: "1px solid var(--border)" }}
+          >
+            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Session</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[14px] leading-[20px] font-medium text-foreground">
+                  Signed in on this device
+                </span>
+                <span className="text-[12px] leading-[16px] text-muted-foreground">
+                  Sign out if someone else uses this device.
+                </span>
+              </div>
+              <Button
+                variant="cta-secondary"
+                size="cta"
+                className="w-full sm:w-auto"
+                onClick={() => setSignOutOpen(true)}
+              >
+                <LogOut className="size-4" strokeWidth={1.5} />
+                Sign out
+              </Button>
+            </div>
+          </section>
         </div>
       </ScrollCanvas>
+
+      <ExitConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        title="Sign out?"
+        description="You'll need to sign in again to continue."
+        exitLabel="Sign out"
+        cancelLabel="Stay signed in"
+        onExit={() => {
+          signOut();
+          router.push("/sign-in");
+        }}
+      />
     </div>
   );
 }

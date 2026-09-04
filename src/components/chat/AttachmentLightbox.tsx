@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FileText, X } from "lucide-react";
+import { StatePanel } from "@/components/ui/state-panel";
 import { type Attachment } from "@/components/chat/AttachmentChip";
 
 /**
@@ -77,13 +78,17 @@ export function AttachmentLightbox({ attachment, onClose }: { attachment: Attach
             // PDFs, long text).
             <iframe src={url} title={name} className="w-full h-full border-0" />
           ) : (
-            <div className="flex flex-col items-center justify-center gap-3 h-full px-6 text-center">
-              <span className="flex items-center justify-center w-12 h-12 rounded-[10px] bg-surface-chip text-muted-foreground">
-                <FileText size={22} strokeWidth={1.5} />
-              </span>
-              <p className="text-[14px] leading-[20px] font-medium text-foreground break-all max-w-full">{name}</p>
-              <p className="text-[13px] leading-[18px] text-muted-foreground">Preview isn&apos;t available for this file type.</p>
-            </div>
+            /* The shared centred panel — this was the last of these states
+               still hand-rolled (48px chip well, 14/20 title, 13/18 line).
+               Its container is bg-surface, the same as every other panel's, so
+               the shared tokens read correctly here; the earlier note about a
+               "dark lightbox" was wrong. */
+            <StatePanel
+              icon={FileText}
+              title="Preview isn't available"
+              description={`${name} — this file type can't be shown here.`}
+              className="h-full"
+            />
           )}
         </div>
       )}

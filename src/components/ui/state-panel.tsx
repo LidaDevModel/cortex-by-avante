@@ -104,7 +104,7 @@ export function StatePanel({
         )}
         {description && (
           <p
-            className="text-[15px] leading-[24px] text-muted-foreground max-w-[46ch]"
+            className="text-[15px] leading-[24px] text-muted-foreground max-w-[46ch] break-words"
           >
             {description}
           </p>

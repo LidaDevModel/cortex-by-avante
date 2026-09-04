@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, FilePlus2, EyeOff, Pencil, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, FilePlus2, Eye, EyeOff, Pencil, Trash2, Send } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { SearchInput } from "@/components/ui/search-input";
@@ -17,6 +17,7 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { PublishBadge } from "@/components/admin/publish-badge";
 import { Button } from "@/components/ui/button";
 import { useGlassHeader } from "@/hooks/use-glass-header";
+import { withReturn } from "@/lib/admin-nav";
 import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OPTIONS } from "@/lib/training-store";
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
@@ -99,6 +100,7 @@ export default function AdminTrainingPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[160px]">
             <DropdownMenuItem onSelect={() => router.push(`/admin/content/training/${m.id}`)}><Pencil size={16} strokeWidth={1.5} /> Edit</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => router.push(withReturn(`/admin/content/training/${m.id}/preview`, "/admin/content/training"))}><Eye size={16} strokeWidth={1.5} /> Preview</DropdownMenuItem>
             {m.published !== false ? (
               <DropdownMenuItem onSelect={() => setUnpublishId(m.id)}><EyeOff size={16} strokeWidth={1.5} /> Unpublish</DropdownMenuItem>
             ) : (
@@ -165,7 +167,7 @@ export default function AdminTrainingPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((m, i) => (
-                    <TableRow key={m.id} onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")} style={rowStyle(i)}>
+                    <TableRow key={m.id} onClick={() => router.push(`/admin/content/training/${m.id}`)} style={rowStyle(i)}>
                       <TableCell className="flex-1 min-w-0 font-medium"><span className="block truncate">{m.title}</span></TableCell>
                       <TableCell className="w-[100px] text-muted-foreground">{CATEGORY_LABEL[m.category] ?? m.category}</TableCell>
                       <TableCell className="w-[104px] text-muted-foreground">{m.required ? "Required" : "Optional"}</TableCell>
@@ -186,7 +188,7 @@ export default function AdminTrainingPage() {
                   {paginated.map((m, i) => (
                     <TableCard
                       key={m.id}
-                      onClick={() => window.open(`/admin/content/training/${m.id}/preview`, "_blank")}
+                      onClick={() => router.push(`/admin/content/training/${m.id}`)}
                       style={rowStyle(i)}
                       title={m.title}
                       meta={<TableCardMeta>{CATEGORY_LABEL[m.category] ?? m.category} · {m.required ? "Required" : "Optional"} · {formatDate(m.lastModified ?? m.assignedDate)}</TableCardMeta>}

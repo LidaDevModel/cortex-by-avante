@@ -10,7 +10,10 @@ const BACK_LABELS: { prefix: string; label: string }[] = [
   { prefix: "/admin/reports/activity", label: "Back to activity log" },
   { prefix: "/admin/reports/flagged", label: "Back to flagged responses" },
   { prefix: "/admin/people", label: "Back to People" },
-  { prefix: "/admin/content", label: "Back to content" },
+  // Training modules live under /admin/content, so this must precede it —
+  // otherwise a return to the module list read "Back to content".
+  { prefix: "/admin/content/training", label: "Back to modules" },
+  { prefix: "/admin/content", label: "Back to Library" },
   // Least specific — must stay last so the routes above win the prefix match.
   { prefix: "/admin", label: "Back to home" },
 ];

@@ -147,10 +147,13 @@ function AlertDialogDescription({
   )
 }
 
+/* size defaults to "cta" (48px = VISION size.fieldHeight): a confirm's two
+   buttons are the primary and secondary CTA of that dialog, and the previous
+   36px `default` left every confirm in the app under the 44px hit floor. */
 function AlertDialogAction({
   className,
   variant = "default",
-  size = "default",
+  size = "cta",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
   Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
@@ -168,7 +171,7 @@ function AlertDialogAction({
 function AlertDialogCancel({
   className,
   variant = "outline",
-  size = "default",
+  size = "cta",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> &
   Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {

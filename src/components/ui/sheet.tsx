@@ -81,7 +81,9 @@ function SheetContent({
           <SheetPrimitive.Close data-slot="sheet-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-4 right-4"
+              /* 44px target (was 32px via icon-sm). A sheet is a mobile-first
+                 surface, so its only way out must clear the thumb floor. */
+              className="absolute top-3 right-3 size-11"
               size="icon-sm"
             >
               <XIcon

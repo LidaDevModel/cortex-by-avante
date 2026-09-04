@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { NotFoundState } from "@/components/ui/not-found-state";
+import { clearCrash } from "@/lib/dev-crash";
 
 /**
  * Error boundary for every app route. Renders inside the shell, so a crash
@@ -26,6 +27,11 @@ export default function AppError({
     // A real build sends this to the error reporter. Logged for now so a crash
     // is never silent in dev.
     console.error("[cortex] route error:", error);
+    // Dev only: /dev/crash throws while its flag is armed, and React replays
+    // that render, so the flag cannot clear itself. Reaching this screen means
+    // the crash was delivered — clearing here is what makes "Try again" below
+    // a real recovery. A no-op for every real error.
+    clearCrash();
   }, [error]);
 
   return (

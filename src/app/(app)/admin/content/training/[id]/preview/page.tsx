@@ -1,21 +1,25 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Check } from "lucide-react";
 import { ScrollCanvas } from "@/components/ui/scroll-canvas";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { PreviewBanner } from "@/components/admin/PreviewBanner";
+import { resolveBack } from "@/lib/admin-nav";
 import { useModules, getAdminModule, moduleChapters } from "@/lib/training-store";
 
 export default function AdminModulePreviewPage() {
   const { id } = useParams<{ id: string }>();
+  // Preview now opens in-app, so it needs the same return-param back path
+  // every other admin detail screen uses.
+  const back = resolveBack(useSearchParams().get("return"), { href: "/admin/content/training", label: "Back to modules" });
   useModules();
   const m = getAdminModule(id);
 
   if (!m) {
     return (
       <div className="relative flex flex-col h-full overflow-hidden">
-        <PreviewBanner note="Module preview" />
+        <PreviewBanner note="Module preview" backHref={back.href} backLabel={back.label} />
         <NotFoundState title="Module not found" description="This module may have been removed." actionLabel="Back to modules" actionHref="/admin/content/training" />
       </div>
     );
@@ -27,7 +31,7 @@ export default function AdminModulePreviewPage() {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden">
-      <PreviewBanner note="This is the content learners see." />
+      <PreviewBanner note="This is the content learners see." backHref={back.href} backLabel={back.label} />
 
       <ScrollCanvas>
         <div className="max-w-[760px] mx-auto px-4 sm:px-8 pt-10 pb-16 flex flex-col gap-8">
