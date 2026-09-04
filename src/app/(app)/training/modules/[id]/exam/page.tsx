@@ -46,10 +46,19 @@ function computeScores(
   const matchCorrect = exam.matching.pairs.filter(
     (p) => matchAnswers[p.id] === p.id
   ).length;
-  const matchScore = parseFloat(((matchCorrect / matchPairs) * 25).toFixed(2));
+  // Whole points. A fractional section put "88.75 / 100" on the results
+  // screen, which no exam board would print.
+  const matchScore = Math.round((matchCorrect / matchPairs) * 25);
 
-  // Short answer: mock AI scoring — 20 if answered, 0 if not
-  const saScore = shortAnswerText.trim().length > 20 ? 20 : 0;
+  /* Short answer: mock AI scoring — full marks if answered, 0 if not.
+     It awarded 20 against a section max of 25, and four symptoms followed
+     from that one literal: a flawless exam read 95/100, the short-answer row
+     read 20/25 at full marks, the "didn't fully address the required
+     concepts" note showed even for a perfect answer (its condition is
+     `< 25`), and the "Ace" tier — which needs exactly 100 — was unreachable,
+     though two seeded modules display it.
+     The length heuristic itself is declared mock behaviour and stays. */
+  const saScore = shortAnswerText.trim().length > 20 ? 25 : 0;
 
   // Branching: path-based — 25 if all visited decisions are optimal
   const decisionNodes = exam.branching.nodes.filter((n) => n.type === "decision");
@@ -57,7 +66,7 @@ function computeScores(
   const optimalCount = visitedDecisions.filter((n) => {
     return n.options?.find((o) => o.id === branchDecisions[n.id])?.isOptimal;
   }).length;
-  const branchScore = visitedDecisions.length === 0 ? 0 : parseFloat(((optimalCount / visitedDecisions.length) * 25).toFixed(2));
+  const branchScore = visitedDecisions.length === 0 ? 0 : Math.round((optimalCount / visitedDecisions.length) * 25);
 
   return { mc: mcScore, matching: matchScore, shortAnswer: saScore, branching: branchScore };
 }

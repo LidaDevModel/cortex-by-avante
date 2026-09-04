@@ -174,15 +174,42 @@ function ChapterStepper({
 
 type QuizSubmitState = "idle" | "correct" | "wrong";
 
+/**
+ * The chapter's formative check — the one place inside the reading flow where
+ * a learner should be able to fail safely.
+ *
+ * It used to be one-shot: a wrong answer locked the options, revealed the
+ * right one, and removed the submit button. The learner never got to act on
+ * what they had just been shown, and only navigating away and back reset it —
+ * which discarded their place in the chapter. The quiz is labelled "optional"
+ * and nothing is recorded, so there was no assessment integrity to protect.
+ *
+ * Now: a first wrong answer says "Not quite" and offers "Try again", WITHOUT
+ * giving the answer away — revealing it on attempt one is what made a retry
+ * pointless. The second wrong answer reveals the correct option and stops, so
+ * nobody is left guessing.
+ */
 function QuizCard({ quiz }: { quiz: Quiz }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [submitState, setSubmitState] = useState<QuizSubmitState>("idle");
+  const [attempts, setAttempts] = useState(0);
 
   const submitted = submitState !== "idle";
+  // The answer is shown once it is earned, or once a second attempt has failed.
+  const revealed = submitState === "correct" || (submitState === "wrong" && attempts >= 2);
+  const canRetry = submitState === "wrong" && !revealed;
+  // Options stay live while a retry is on the table.
+  const locked = submitted && !canRetry;
 
   function handleSubmit() {
     if (!selected) return;
+    setAttempts((n) => n + 1);
     setSubmitState(selected === quiz.correctId ? "correct" : "wrong");
+  }
+
+  function handleRetry() {
+    setSelected(null);
+    setSubmitState("idle");
   }
 
   return (
@@ -206,23 +233,23 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
         {quiz.options.map((opt) => {
           const isSelected = selected === opt.id;
           const isCorrect = opt.id === quiz.correctId;
-          const showCorrect = submitted && isCorrect;
+          const showCorrect = revealed && isCorrect;
           const showWrong = submitted && isSelected && !isCorrect;
 
           return (
             <button
               key={opt.id}
-              onClick={() => !submitted && setSelected(opt.id)}
+              onClick={() => !locked && setSelected(opt.id)}
               className="flex items-center gap-3 text-left rounded-[8px] px-3 py-2.5 transition-colors duration-100"
               style={{
                 background: showCorrect
                   ? "color-mix(in srgb, var(--success) 8%, transparent)"
                   : showWrong
                   ? "color-mix(in srgb, var(--destructive) 6%, transparent)"
-                  : isSelected && !submitted
+                  : isSelected && !locked
                   ? "color-mix(in srgb, var(--primary) 6%, transparent)"
                   : "transparent",
-                cursor: submitted ? "default" : "pointer",
+                cursor: locked ? "default" : "pointer",
               }}
             >
               <span
@@ -234,7 +261,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
                     ? "none"
                     : showWrong
                     ? "2px solid var(--destructive)"
-                    : isSelected && !submitted
+                    : isSelected && !locked
                     ? "2px solid var(--primary)"
                     : "1.5px solid var(--control-border)",
                   background: showCorrect ? "var(--success)" : "transparent",
@@ -242,7 +269,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
               >
                 {showCorrect && <Check size={10} strokeWidth={3} color="var(--success-foreground)" />}
                 {showWrong && <X size={10} strokeWidth={3} className="text-destructive" />}
-                {isSelected && !submitted && (
+                {isSelected && !locked && (
                   <span className="rounded-full block" style={{ width: 8, height: 8, background: "var(--primary)" }} />
                 )}
               </span>
@@ -277,16 +304,22 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
             {submitState === "correct" ? <Check size={15} strokeWidth={2.5} /> : <X size={15} strokeWidth={2.5} />}
           </span>
           <span className="text-[13px] leading-[20px] font-semibold">
-            {submitState === "correct" ? "Correct" : "Incorrect"}
+            {submitState === "correct" ? "Correct" : canRetry ? "Not quite" : "Incorrect"}
           </span>
         </div>
       )}
 
-      {!submitted && (
+      {(!submitted || canRetry) && (
         <div className="flex items-center gap-3">
-          <Button size="cta" disabled={!selected} onClick={handleSubmit}>
-            Submit your answer
-          </Button>
+          {canRetry ? (
+            <Button size="cta" variant="cta-secondary" onClick={handleRetry}>
+              Try again
+            </Button>
+          ) : (
+            <Button size="cta" disabled={!selected} onClick={handleSubmit}>
+              Submit your answer
+            </Button>
+          )}
           <span className="text-[12px] leading-[16px] text-muted-foreground">optional</span>
         </div>
       )}

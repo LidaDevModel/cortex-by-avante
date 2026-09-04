@@ -15,6 +15,8 @@ import {
   type ModuleCategory,
   type RequirementState,
   getRequirementState,
+  remainingHours,
+  formatHours,
 } from "@/lib/training-mock";
 import { Button } from "@/components/ui/button";
 
@@ -238,6 +240,9 @@ export function ReadinessBoard({
   ).length;
   const total = requiredModules.length;
   const remaining = total - certifiedCount;
+  // "How long will it take" — the third of the three questions this board is
+  // meant to answer, and the only one it never did.
+  const timeLeft = formatHours(remainingHours(requiredModules));
   const primaryId = pickPrimary(requiredModules);
 
   const pct = total ? Math.round((certifiedCount / total) * 100) : 0;
@@ -282,7 +287,7 @@ export function ReadinessBoard({
           />
           <div className="flex flex-col gap-0.5 min-w-0">
             <p className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">
-              {certifiedCount} certified · {remaining} to go
+              {certifiedCount} certified · {remaining} to go{timeLeft ? ` · ${timeLeft} left` : ""}
             </p>
             <h3 className="text-[18px] leading-[24px] font-semibold text-foreground">
               Shift readiness

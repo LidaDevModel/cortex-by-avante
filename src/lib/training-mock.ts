@@ -106,6 +106,36 @@ export function isCertified(m: Module): boolean {
 }
 
 /** Certification tier, or null when the module isn't certified. Ace = exactly 100. */
+/**
+ * How much of the required training is still ahead, in hours.
+ *
+ * The readiness board answered "what is left" and "in what order" but never
+ * "how long will this take" — the question a new hire asks on day one, and
+ * the one thing that decides whether they start now or put it off.
+ *
+ * A part-read module counts only its unread share, and a module that is read
+ * but not yet certified counts as its exam alone (EXAM_HOURS) — it needs no
+ * more reading. Certified modules count for nothing.
+ */
+const EXAM_HOURS = 0.5;
+
+export function remainingHours(modules: Module[]): number {
+  return modules.reduce((sum, m) => {
+    const state = getRequirementState(m);
+    if (state === "certified") return sum;
+    if (state === "ready-to-certify") return sum + EXAM_HOURS;
+    return sum + m.hours * (1 - Math.min(100, Math.max(0, m.progress)) / 100) + EXAM_HOURS;
+  }, 0);
+}
+
+/** "about 5 hours", "about 1 hour", "under an hour" — never a bare decimal. */
+export function formatHours(hours: number): string {
+  if (hours <= 0) return "";
+  if (hours < 1) return "under an hour";
+  const rounded = Math.round(hours);
+  return `about ${rounded} ${rounded === 1 ? "hour" : "hours"}`;
+}
+
 export function getTier(m: Module): CertificationTier | null {
   if (!m.certification) return null;
   return m.certification.score === 100 ? "ace" : "certified";
