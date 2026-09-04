@@ -16,11 +16,35 @@ const NODE = "var(--diag-node,#E0EEBA)";
 const LINE = "var(--diag-line,#e5e7eb)";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const wrap = (w: number, h: number, body: string) =>
-  `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid meet">${body}</svg>`;
+/**
+ * `role="img"` alone told assistive tech "this is an image" and nothing else.
+ * An SVG's accessible name comes from a <title> child, and its long
+ * description from <desc>; without them the diagram announced as an unlabelled
+ * graphic. Both are now required arguments, so a new diagram cannot be added
+ * without them, and `aria-labelledby` wires them up explicitly (Safari and
+ * older screen readers do not reliably pick up <title> on their own).
+ */
+const wrap = (w: number, h: number, body: string, title: string, desc: string) =>
+  `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" ` +
+  `aria-labelledby="d-t d-d" preserveAspectRatio="xMidYMid meet">` +
+  `<title id="d-t">${esc(title)}</title><desc id="d-d">${esc(desc)}</desc>${body}</svg>`;
+
+/** The text a screen reader gets instead of the picture. Built from the same
+ *  data the drawing is built from, so the two cannot describe different things. */
+export function stepsText(steps: { title: string; detail?: string }[]): string {
+  return `${steps.length} steps. ` + steps
+    .map((s, i) => `Step ${i + 1}: ${s.title}${s.detail ? ` — ${s.detail}` : ""}.`)
+    .join(" ");
+}
+export function flowText(nodes: string[]): string {
+  return `A flow of ${nodes.length} stages: ${nodes.join(", then ")}.`;
+}
+export function treeText(root: string, children: string[]): string {
+  return `${root} branches into ${children.length}: ${children.join(", ")}.`;
+}
 
 /** Vertical numbered step sequence with a connector rail. */
-export function stepsSvg(steps: { title: string; detail?: string }[]): string {
+export function stepsSvg(steps: { title: string; detail?: string }[], title = "Step sequence"): string {
   const W = 560, padX = 18, padY = 16, rowH = 60, r = 15;
   const cx = padX + r;
   const H = padY * 2 + (steps.length - 1) * rowH + r * 2 + 8;
@@ -36,11 +60,11 @@ export function stepsSvg(steps: { title: string; detail?: string }[]): string {
     parts.push(`<text x="${tx}" y="${cy - (s.detail ? 5 : 0)}" dominant-baseline="central" font-size="15" font-weight="600" fill="${TEXT}">${esc(s.title)}</text>`);
     if (s.detail) parts.push(`<text x="${tx}" y="${cy + 13}" dominant-baseline="central" font-size="13" fill="${MUTED}">${esc(s.detail)}</text>`);
   });
-  return wrap(W, H, parts.join(""));
+  return wrap(W, H, parts.join(""), title, stepsText(steps));
 }
 
 /** Horizontal boxes connected left-to-right by arrows. */
-export function flowSvg(nodes: string[]): string {
+export function flowSvg(nodes: string[], title = "Process flow"): string {
   const W = 560, H = 92, padX = 10, gap = 30, boxH = 50;
   const n = nodes.length;
   const boxW = (W - padX * 2 - gap * (n - 1)) / n;
@@ -56,11 +80,11 @@ export function flowSvg(nodes: string[]): string {
       parts.push(`<line x1="${x + boxW + 5}" y1="${H / 2}" x2="${x + boxW + gap - 5}" y2="${H / 2}" stroke="${LINE}" stroke-width="2" marker-end="url(#arr)"/>`);
     }
   });
-  return wrap(W, H, parts.join(""));
+  return wrap(W, H, parts.join(""), title, flowText(nodes));
 }
 
 /** A root box with lines fanning down to a row of child boxes. */
-export function treeSvg(root: string, children: string[]): string {
+export function treeSvg(root: string, children: string[], title = "Breakdown"): string {
   const W = 560, H = 168, boxH = 46, rootW = 220, y0 = 14, y1 = 104, gap = 16, padX = 10;
   const n = children.length;
   const childW = (W - padX * 2 - gap * (n - 1)) / n;
@@ -76,14 +100,14 @@ export function treeSvg(root: string, children: string[]): string {
     parts.push(`<rect x="${x}" y="${y1}" width="${childW}" height="${boxH}" rx="10" fill="none" stroke="${LINE}"/>`);
     parts.push(`<text x="${x + childW / 2}" y="${y1 + boxH / 2}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="${TEXT}">${esc(c)}</text>`);
   });
-  return wrap(W, H, parts.join(""));
+  return wrap(W, H, parts.join(""), title, treeText(root, children));
 }
 
 /** The mock's pre-authored diagrams, keyed by topic. */
 export type SampleDiagram = { svg: string; caption: string };
 export const SAMPLE_DIAGRAMS: Record<string, SampleDiagram> = {
   escalation: {
-    svg: flowSvg(["Log it", "Tell supervisor", "Notify duty manager"]),
+    svg: flowSvg(["Log it", "Tell supervisor", "Notify duty manager"], "Incident escalation"),
     caption: "Incident escalation — the tier decides who to tell, and how fast.",
   },
   patrol: {
@@ -91,7 +115,7 @@ export const SAMPLE_DIAGRAMS: Record<string, SampleDiagram> = {
       { title: "Internal patrol", detail: "Every 2 hours, on the hour" },
       { title: "Perimeter patrol", detail: "Every 4 hours" },
       { title: "Log anomalies", detail: "Scan the wand at each checkpoint" },
-    ]),
+    ], "Patrol routine"),
     caption: "Patrol routine.",
   },
   incident: {
@@ -99,7 +123,7 @@ export const SAMPLE_DIAGRAMS: Record<string, SampleDiagram> = {
       { title: "Log within 30 minutes", detail: "In the incident register" },
       { title: "Written report", detail: "Tier 2–3, within 2 hours of shift end" },
       { title: "Keep it factual", detail: "What you saw and did" },
-    ]),
+    ], "Reporting an incident"),
     caption: "Reporting an incident.",
   },
   emergency: {
@@ -108,7 +132,7 @@ export const SAMPLE_DIAGRAMS: Record<string, SampleDiagram> = {
       { title: "Notify the control room" },
       { title: "Direct people to assembly" },
       { title: "Don't investigate the source" },
-    ]),
+    ], "Fire alarm response"),
     caption: "Fire alarm response.",
   },
 };
@@ -129,5 +153,5 @@ export function autoStepsDiagram(text: string, caption = "Step by step"): Sample
     .filter((c) => c.length > 2)
     .slice(0, 6);
   const steps = (clauses.length ? clauses : [text]).map((c) => ({ title: capFirst(truncate(c, 62)) }));
-  return { svg: stepsSvg(steps), caption };
+  return { svg: stepsSvg(steps, caption), caption };
 }
