@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tokens": "node scripts/sync-tokens.mjs",
+    "tokens:check": "node scripts/sync-tokens.mjs --check"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

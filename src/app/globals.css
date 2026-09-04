@@ -204,7 +204,7 @@
      field it encloses. The shared border gave 1.36-1.91:1. L=0.566 is the
      darkest value clearing 3:1 on all three (background 4.21, surface 3.75,
      surface-raised 3.00). */
-  --input: oklch(0.566 0 0);                 /* #767676 — field outlines, >=3:1 */
+  --input: oklch(0.575 0 0);                 /* field outlines, >=3:1 on all three dark surfaces. Was 0.566, which cleared background and surface but landed at 2.99:1 on surface-raised — a hairline WCAG 1.4.11 miss, caught by the generated contrast check rather than by eye. */
   --ring: oklch(0.75 0.07 170);             /* #7fc3af — lighter teal ring */
   --sidebar: var(--background);
   --sidebar-foreground: var(--foreground);
