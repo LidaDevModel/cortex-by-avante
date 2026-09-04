@@ -20,6 +20,7 @@ import { StatusPill } from "@/components/admin/status-pill";
 import { ClearedBadge, NotClearedBadge } from "@/components/dashboard/ClearedBadge";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const PER_PAGE = 8;
@@ -116,10 +117,12 @@ export default function AdminPeoplePage() {
             </div>
           </div>
 
+          {/* The shared centred panel. These five lists each had their own
+              bordered well at 14/20 — the sixth, seventh and eighth variants
+              of a state the rest of the product already renders one way. */}
+
           {rows.length === 0 ? (
-            <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">No staff match these filters.</p>
-            </div>
+            <StatePanel description="No staff match these filters." />
           ) : (
             <>
               {/* Desktop: full column table */}

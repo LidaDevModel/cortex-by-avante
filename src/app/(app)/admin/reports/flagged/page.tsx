@@ -13,6 +13,7 @@ import { useRowStagger } from "@/hooks/use-entrance";
 import { useFlags, type FlagStatus } from "@/lib/flags-store";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 
 function formatDate(iso: string) {
@@ -92,12 +93,12 @@ export default function AdminFlaggedPage() {
             </div>
           </div>
 
+          {/* The shared centred panel. These five lists each had their own
+              bordered well at 14/20 — the sixth, seventh and eighth variants
+              of a state the rest of the product already renders one way. */}
+
           {sorted.length === 0 ? (
-            <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
-                {q || statusFilter || reasonFilter || sourceFilter ? "No flagged responses match these filters." : "No flagged responses. Reports from the AI chat will appear here."}
-              </p>
-            </div>
+            <StatePanel description={q || statusFilter || reasonFilter || sourceFilter ? "No flagged responses match these filters." : "No flagged responses. Reports from the AI chat will appear here."} />
           ) : (
             <>
               {/* Desktop: full column table */}

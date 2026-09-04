@@ -22,6 +22,7 @@ import { useModules, createModule, deleteModule, setModulePublished, CATEGORY_OP
 import { ROLE_LABEL } from "@/lib/user-mock";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORY_OPTIONS.map((c) => [c.value, c.label]));
@@ -155,10 +156,12 @@ export default function AdminTrainingPage() {
             </div>
           </div>
 
+          {/* The shared centred panel. These five lists each had their own
+              bordered well at 14/20 — the sixth, seventh and eighth variants
+              of a state the rest of the product already renders one way. */}
+
           {rows.length === 0 ? (
-            <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "No modules match that search." : "No modules yet. Create one with New module."}</p>
-            </div>
+            <StatePanel description={q ? "No modules match that search." : "No modules yet. Create one with New module."} />
           ) : (
             <>
               {/* Desktop: full column table */}

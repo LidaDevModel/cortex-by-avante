@@ -23,6 +23,7 @@ import { PublishBadge } from "@/components/admin/publish-badge";
 import { showToast } from "@/components/ui/toast";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 
 type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
@@ -262,10 +263,12 @@ export default function AdminContentPage() {
             </div>
           </div>
 
+          {/* The shared centred panel. These five lists each had their own
+              bordered well at 14/20 — the sixth, seventh and eighth variants
+              of a state the rest of the product already renders one way. */}
+
           {shown.length === 0 ? (
-            <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">{q ? "Nothing matches that search." : "No documents here yet. Add one with New document."}</p>
-            </div>
+            <StatePanel description={q ? "Nothing matches that search." : "No documents here yet. Add one with New document."} />
           ) : (
             <>
               {/* Desktop: full column table */}

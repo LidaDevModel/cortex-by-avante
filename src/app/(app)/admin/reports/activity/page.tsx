@@ -15,6 +15,7 @@ import { useRowStagger } from "@/hooks/use-entrance";
 import { useActivity, ACTIVITY_KIND_OPTIONS } from "@/lib/activity-log";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
+import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
 
 const SELF = "/admin/reports/activity";
@@ -94,12 +95,12 @@ export default function AdminActivityPage() {
             </div>
           </div>
 
+          {/* The shared centred panel. These five lists each had their own
+              bordered well at 14/20 — the sixth, seventh and eighth variants
+              of a state the rest of the product already renders one way. */}
+
           {entries.length === 0 ? (
-            <div className="rounded-[12px] p-10 text-center bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
-                {q || kindFilter || actorFilter ? "No actions match these filters." : "No activity data yet. Actions across content, people, and flagged responses will appear here."}
-              </p>
-            </div>
+            <StatePanel description={q || kindFilter || actorFilter ? "No actions match these filters." : "No activity data yet. Actions across content, people, and flagged responses will appear here."} />
           ) : (
             <>
               {/* Desktop: full column table */}
