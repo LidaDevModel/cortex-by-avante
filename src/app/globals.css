@@ -725,11 +725,23 @@ select:disabled {
     line-height: 1.625rem;    /* 26px — 163% */
   }
 
-  /* Labels, buttons, table cells — one line by design, so it may sit tighter. */
+  /* Labels, buttons, table cells — one line by design, so it may sit tighter.
+     A SIZE ROLE ONLY: it does not set a weight, unlike the headings.
+
+     It used to set 600, and that was the one collision in the whole scale.
+     The mapping from the old hard-coded sizes keyed on size alone, and 14/20
+     had served two jobs: 35 genuine semibold labels, 20 deliberately
+     font-medium, and 47 sites of plain body-weight text — dropdown options,
+     breadcrumbs, dialog copy, form values, page descriptions. Every one of
+     those 47 came out a step bolder than it went in, and the page
+     descriptions were merely the most visible of them.
+
+     A label that wants weight says `font-semibold`, the way `Button`'s `cta`
+     variant already does. 78 sites already do; nothing had to be edited to
+     make this safe. */
   .type-label {
     font-size: 1rem;          /* 16px */
     line-height: 1.25rem;     /* 20px */
-    font-weight: 600;
   }
 
   /* Navigation labels. VISION keeps "Nav item" as its own role, and the D2
