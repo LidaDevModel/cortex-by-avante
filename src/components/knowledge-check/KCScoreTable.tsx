@@ -84,6 +84,28 @@ function SectionRow({
   );
 }
 
+/**
+ * Where to go and read up. Every question in the bank already carries
+ * `sourceDoc` and `sourceSection` — neither results screen rendered them, so a
+ * learner was told they were wrong and not where the answer lives, which is the
+ * whole point of reviewing a practice check.
+ *
+ * TEXT, NOT A LINK, deliberately. The fields are display names
+ * ("Escalation Procedures Manual", "Section 3 — Tier Classification") and the
+ * Library is keyed by id. The names do not match the documents either —
+ * "Escalation Procedures Manual" against the Library's "Escalation Procedures",
+ * and some have no document at all — so a deep link would land on the wrong
+ * page or a dead one. Linking properly needs docId/sectionId added to the
+ * question bank; until then naming the source is the honest half.
+ */
+function SourceLine({ doc, section }: { doc: string; section: string }) {
+  return (
+    <p className="text-[12px] leading-[16px] text-muted-foreground">
+      Read the source: <span className="text-foreground">{doc}</span> · {section}
+    </p>
+  );
+}
+
 /* ─── Wrong answer content per type ─── */
 
 function MCWrong({ question, answer }: {
@@ -102,6 +124,7 @@ function MCWrong({ question, answer }: {
           Correct answer: {question.options[question.correctIndex]}
         </span>
       </WrongAnswerRow>
+      <SourceLine doc={question.sourceDoc} section={question.sourceSection} />
     </div>
   );
 }
@@ -131,6 +154,7 @@ function MatchingWrong({ question, answer }: {
           </div>
         );
       })}
+      <SourceLine doc={question.sourceDoc} section={question.sourceSection} />
     </>
   );
 }
@@ -168,6 +192,7 @@ function BranchingWrong({ question, answer }: {
           </div>
         );
       })}
+      <SourceLine doc={question.sourceDoc} section={question.sourceSection} />
     </>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Check, Lock } from "lucide-react";
 import { Matching } from "@/components/exam/sections/Matching";
+import { McOptions } from "@/components/exam/sections/McOptions";
 import { BranchingGame } from "@/components/exam/sections/BranchingGame";
 import { ExitConfirmDialog } from "@/components/ui/exit-confirm-dialog";
 import type {
@@ -327,27 +328,18 @@ function MCQuestion({
             ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
             : `Question ${questionIndex + 1} of ${totalQuestions}`}
         </span>
-        <p className="text-[20px] leading-[28px] font-semibold text-foreground">{question.question}</p>
+        <p id={`kc-mc-q-${questionIndex}`} className="text-[20px] leading-[28px] font-semibold text-foreground">{question.question}</p>
       </div>
-      <div className="flex flex-col gap-2">
-        {question.options.map((opt, i) => {
-          const isSelected = i === selectedIndex;
-          return (
-            <button
-              key={i}
-              onClick={() => handleSelect(i)}
-              className="px-4 py-3 rounded-[8px] border text-left text-[14px] leading-[20px] transition-colors duration-100"
-              style={
-                isSelected
-                  ? { borderColor: "var(--primary)", background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--foreground)" }
-                  : { borderColor: "var(--border)", background: "var(--surface-raised)", color: "var(--foreground)" }
-              }
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
+      {/* The shared radio group — this list was a second implementation of the
+          exam's, and neither had radio semantics or a non-colour selected
+          state. See McOptions. */}
+      <McOptions
+        options={question.options}
+        selectedIndex={selectedIndex}
+        onSelect={handleSelect}
+        labelledBy={`kc-mc-q-${questionIndex}`}
+        className="gap-2"
+      />
       <div className="flex items-center justify-end pt-2">
         {isLastInSection ? (
           <Button size="cta" onClick={onNext}>

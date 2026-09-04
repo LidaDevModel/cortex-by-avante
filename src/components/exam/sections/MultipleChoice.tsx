@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
 import type { MCQuestion } from "@/lib/exam-mock";
 import { Button } from "@/components/ui/button";
+import { McOptions } from "@/components/exam/sections/McOptions";
 
 type Props = {
   question: MCQuestion;
@@ -100,43 +100,20 @@ export function MultipleChoice({
               ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
               : `Question ${questionIndex + 1} of ${totalQuestions}`}
           </span>
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 id={`mc-q-${questionIndex}`} className="text-[20px] leading-[28px] font-semibold text-foreground">
             {question.question}
           </h2>
         </div>
 
-        {/* Options */}
-        <div className="flex flex-col gap-3">
-          {question.options.map((option, i) => {
-            const isSelected = selectedIndex === i;
-            return (
-              <button
-                key={i}
-                onClick={() => handleSelect(i)}
-                className={cn(
-                  "w-full text-left px-4 py-3.5 rounded-[12px] border-2 text-[14px] leading-[20px] transition-all duration-150 cursor-pointer",
-                  isSelected
-                    ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-foreground"
-                    : "border-border bg-[var(--surface-raised)] text-foreground hover:border-[color-mix(in_srgb,var(--primary)_40%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[11px] font-semibold transition-all duration-150",
-                      isSelected
-                        ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        : "border-border text-muted-foreground"
-                    )}
-                  >
-                    {String.fromCharCode(65 + i)}
-                  </span>
-                  <span>{option}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        {/* Options — the shared radio group (see McOptions). This list used to
+            be duplicated here and in the knowledge check, and neither copy had
+            radio semantics or a non-colour selected state. */}
+        <McOptions
+          options={question.options}
+          selectedIndex={selectedIndex}
+          onSelect={handleSelect}
+          labelledBy={`mc-q-${questionIndex}`}
+        />
 
         {/* Actions */}
         <div className="flex items-center justify-end pt-2">
