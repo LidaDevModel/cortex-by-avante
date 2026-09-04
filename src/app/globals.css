@@ -874,13 +874,22 @@ select:disabled {
 /* Side by side: each card adopts the row's two tracks, so the title cell is
    as tall as the tallest title and every chart starts on the same line. */
 @container (width >= 700px) {
-  /* `.card-row-grid > .card-row-item`, not `.card-row-item` alone. Tailwind's
-     generated utilities land AFTER this file in the bundle, so at equal
-     specificity `flex` on the element wins and `display: grid` is ignored —
-     the cards silently stay flex and the subgrid never applies. Two classes
-     (0,2,0) outrank one utility class (0,1,0), so this holds without
-     `!important`. Verified: the same trap swallowed a `.rotate-notice` rule
-     earlier in this branch. */
+  /* Two classes rather than one. NOT for the reason first recorded here.
+     The original note said Tailwind's utilities beat plain CSS in this bundle.
+     That was wrong, and it was measured against a stale Turbopack CSS cache
+     serving pre-type-scale styles. With the cache cleared, and testing with
+     utilities that actually exist in the project (an unused class is never
+     generated, so probing with one proves nothing):
+
+       UNLAYERED   .card-row-grid + flex      -> grid   (the plain rule wins)
+       @layer      .section-label + text-sm   -> 14px   (the utility wins)
+       @layer      .type-label + font-medium  -> 500    (the utility wins)
+
+     So the LAYER decides, not bundle order: an unlayered rule beats a
+     utility, a rule inside `@layer components` loses to one. These card rules
+     are unlayered, so one class would have been enough. The descendant
+     selector stays because it says what it means — this applies to a card
+     INSIDE the row — but it is not load-bearing. */
   .card-row-grid > .card-row-item {
     display: grid;
     grid-row: span 2;
