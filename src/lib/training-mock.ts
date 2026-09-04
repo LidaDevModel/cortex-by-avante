@@ -79,13 +79,25 @@ export const MODULES: Module[] = [
  * (accessors below + screens) goes through this rather than MODULES directly.
  */
 export function getModules(): Module[] {
-  if (getPersona() === "new") {
+  const persona = getPersona();
+  if (persona === "new") {
     return MODULES.map((m) => ({
       ...m,
       status: "not-started" as const,
       progress: 0,
       certification: undefined,
     }));
+  }
+  /* Mirrors training-store's personaAdjust for the "certifying" guard — read
+     to the end of module 1, exam still to sit. Kept in step deliberately: this
+     audit found several bugs where two sources of the same fact disagreed, and
+     nothing about these two lists should ever differ. */
+  if (persona === "certifying") {
+    return MODULES.map((m) =>
+      m.id === "1" && m.required
+        ? { ...m, status: "completed" as const, progress: 100, certification: undefined }
+        : m
+    );
   }
   return MODULES;
 }

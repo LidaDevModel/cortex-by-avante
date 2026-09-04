@@ -137,14 +137,35 @@ function visibleToLearner(m: AdminModule, role: Role): boolean {
   return m.published !== false && (!m.roles || m.roles.includes(role));
 }
 function personaAdjust(m: AdminModule): Module {
+  const persona = getPersona();
   // A certification earned in THIS session survives the new-hire blanking —
   // otherwise a new hire could pass an exam and never see the result, which is
   // the one story the demo most needs to tell.
-  if (getPersona() === "new" && !sessionCertified.has(m.id)) {
+  if (persona === "new" && !sessionCertified.has(m.id)) {
     return { ...m, status: "not-started", progress: 0, certification: undefined };
+  }
+  /* "certifying": the returning account, minus the certificate on ONE required
+     module. Read to the end, exam still to sit — which is exactly
+     `getRequirementState`'s `ready-to-certify`, the readiness-board row nobody
+     had ever seen. Only the certificate is removed; progress stays at 100, so
+     the module reader also shows its "ready for the final quiz" panel.
+     Session certifications win here too, so passing that exam in the demo
+     moves the row to certified instead of being overwritten back. */
+  if (
+    persona === "certifying" &&
+    m.id === CERTIFYING_PENDING_ID &&
+    m.required &&
+    !sessionCertified.has(m.id)
+  ) {
+    return { ...m, status: "completed", progress: 100, certification: undefined };
   }
   return m;
 }
+
+/** The one required module the "certifying" guard has read but not passed.
+    Module 1 — the first required module, so its row sorts to the top of the
+    readiness board where the state is unmissable. */
+const CERTIFYING_PENDING_ID = "1";
 /**
  * Chapters for a module as the LEARNER sees it — role- and publish-gated, then
  * through the one `moduleChapters` seam. A module the learner may not see

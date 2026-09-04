@@ -5,6 +5,8 @@ import { useDialKitController } from "dialkit";
 import { CORTEX_VERSIONS, VERSION_NAMES } from "./palette-versions";
 import { getCurrentRole, setCurrentRole } from "@/lib/current-role";
 import { armCrash } from "@/lib/dev-crash";
+import { showToast } from "@/components/ui/toast";
+import { cyclePersona, PERSONA_LABEL } from "@/lib/demo-persona";
 
 /**
  * DEV-ONLY colour + illustration exploration (dialkit), unified so a named
@@ -265,12 +267,18 @@ export function DevPalette() {
       // dev-only /dev/crash route and goes there, so the real error screen —
       // including its "Try again" and "Back to home" — can be exercised.
       crash: { type: "action" as const, label: "Trigger a render error" },
+      // Three demo people, one control. The third ("certifying") is the only
+      // way to see the readiness board's "Get certified" row — see
+      // demo-persona.ts for why it cannot be folded into the other two.
+      persona: { type: "action" as const, label: "Next demo person" },
     },
     {
       id: "display",
       onAction: (a: string) => {
         if (/role/i.test(a)) {
           setCurrentRole(getCurrentRole() === "admin" ? "field-agent" : "admin");
+        } else if (/person/i.test(a)) {
+          showToast({ title: "Demo person", description: PERSONA_LABEL[cyclePersona()] });
         } else if (/error|crash/i.test(a)) {
           armCrash();
           // A hard navigation: a soft push can be swallowed by the boundary
