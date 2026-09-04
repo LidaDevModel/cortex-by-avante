@@ -16,6 +16,7 @@ import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
 import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
+import { PageTitle } from "@/components/ui/page-title";
 
 const SELF = "/admin/reports/activity";
 
@@ -127,10 +128,10 @@ export default function AdminActivityPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
-          <div className="flex flex-col gap-1">
-            <h1 className="type-h1 font-bold text-foreground">Activity log</h1>
-            <p className="type-label text-muted-foreground">Who did what across content, people, and flagged responses.</p>
-          </div>
+          <PageTitle
+            title="Activity log"
+            description="Who did what across content, people, and flagged responses."
+          />
 
           {/* Locked: the screen keeps its identity above, and its working
               surface becomes one statement plus the one useful action. */}

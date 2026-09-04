@@ -13,6 +13,7 @@ import { useGlassHeader } from "@/hooks/use-glass-header";
 import { useLearnerLibrary } from "@/lib/content-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useLearnerNav } from "@/lib/learner-crumbs";
+import { PageTitle } from "@/components/ui/page-title";
 
 /**
  * A fixed shortlist, not real recency — there is no view tracking yet, which is
@@ -59,7 +60,7 @@ export default function LibraryPage() {
 
       <ScrollCanvas onScroll={onScroll}>
           <div className="container-wide pt-8 pb-12 flex flex-col gap-8">
-            <h1 className="type-h1 font-bold text-foreground">Library</h1>
+            <PageTitle title="Library" description="Documents and guidelines for your role." />
 
             {loading ? (
               <>

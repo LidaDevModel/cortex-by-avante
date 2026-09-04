@@ -30,6 +30,7 @@ import { toLearnerRole } from "@/lib/learner-role";
 import { useCurrentRole } from "@/lib/current-role";
 import { useManageAccess } from "@/hooks/use-admin-unlocked";
 import { useLearnerNav } from "@/lib/learner-crumbs";
+import { PageTitle } from "@/components/ui/page-title";
 
 /** Two dashboard cards side by side on desktop, stacked below lg. Children
     stretch (each widget card is h-full) so paired cards match heights. */
@@ -121,10 +122,10 @@ export default function DashboardPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-wide pt-8 pb-12 flex flex-col gap-8">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="type-h1 font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>
-              {loading ? (
+          <PageTitle
+            title={canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}
+            badge={
+              loading ? (
                 <Skeleton className="h-7 w-32 rounded-full" />
               ) : (
                 cleared && (
@@ -134,12 +135,12 @@ export default function DashboardPage() {
                     daysLeft={dueSoon.length ? daysUntilDue(dueSoon[0]) : undefined}
                   />
                 )
-              )}
-            </div>
-            {!canManage && dateMeta && (
-              <p className="type-meta text-muted-foreground">{dateMeta}</p>
-            )}
-          </div>
+              )
+            }
+            /* A date, not a description — the separate slot. A cleared admin
+               is on their Learning sub-section, and gets no date line. */
+            meta={!canManage && dateMeta ? dateMeta : undefined}
+          />
 
           {/* Requirements changed — explains the board below before the user
               has to guess why their badge disappeared. */}

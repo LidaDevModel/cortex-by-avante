@@ -27,6 +27,7 @@ import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
 import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
+import { PageTitle } from "@/components/ui/page-title";
 
 const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORY_OPTIONS.map((c) => [c.value, c.label]));
 
@@ -213,10 +214,10 @@ export default function AdminTrainingPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex flex-col gap-1">
-              <h1 className="type-h1 font-bold text-foreground">Modules</h1>
-              <p className="type-label text-muted-foreground">Training modules and their chapters. Publish one to assign it to a role.</p>
-            </div>
+            <PageTitle
+              title="Modules"
+              description="Training modules and their chapters. Publish one to assign it to a role."
+            />
             {!locked && (
             <Button size="cta" onClick={() => setNewOpen(true)}>
               <FilePlus2 size={16} strokeWidth={1.5} /> New module

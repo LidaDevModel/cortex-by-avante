@@ -19,6 +19,7 @@ import {
   setNotificationPref,
   useNotificationsVersion,
 } from "@/lib/notifications-mock";
+import { PageTitle } from "@/components/ui/page-title";
 
 const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
   { value: "light", label: "Light", icon: Sun },
@@ -81,9 +82,10 @@ export default function SettingsPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-read pt-8 pb-12 flex flex-col gap-8">
-          <h1 className="type-h1 font-bold text-foreground">
-            Settings
-          </h1>
+          <PageTitle
+            title="Settings"
+            description="Your appearance, notification and session preferences on this device."
+          />
 
           {/* Appearance */}
           <section

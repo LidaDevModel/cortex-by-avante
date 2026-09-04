@@ -14,6 +14,7 @@ import { useLearnerModules } from "@/lib/training-store";
 import { useCurrentRole } from "@/lib/current-role";
 import { useLearnerNav } from "@/lib/learner-crumbs";
 import { StatePanel } from "@/components/ui/state-panel";
+import { PageTitle } from "@/components/ui/page-title";
 
 /* ─── Types ─── */
 
@@ -129,12 +130,10 @@ export default function InProgressPage() {
                 <ArrowLeft size={14} strokeWidth={2} />
                 <span>Back to modules</span>
               </Link>
-              <h1 className="type-h1 font-bold text-foreground">
-                In progress
-              </h1>
-              <p className="type-meta text-muted-foreground">
-                {sourceModules.length} module{sourceModules.length !== 1 ? "s" : ""} in progress
-              </p>
+              <PageTitle
+                title="In progress"
+                meta={`${sourceModules.length} module${sourceModules.length !== 1 ? "s" : ""} in progress`}
+              />
             </div>
 
             {/* Search + filters */}

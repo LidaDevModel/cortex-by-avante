@@ -24,6 +24,7 @@ import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
 import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
+import { PageTitle } from "@/components/ui/page-title";
 
 const PER_PAGE = 8;
 
@@ -185,10 +186,10 @@ export default function AdminPeoplePage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex flex-col gap-1">
-              <h1 className="type-h1 font-bold text-foreground">People</h1>
-              <p className="type-label text-muted-foreground">Everyone at Avante, their role, and whether they&apos;re cleared for duty.</p>
-            </div>
+            <PageTitle
+              title="People"
+              description="Everyone at Avante, their role, and whether they&apos;re cleared for duty."
+            />
             {!locked && (
             <Button size="cta" onClick={() => setInviteOpen(true)}>
               <UserPlus size={16} strokeWidth={1.5} /> Invite user

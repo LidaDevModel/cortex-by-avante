@@ -20,6 +20,7 @@ import { useCurrentRole } from "@/lib/current-role";
 import { getPersona } from "@/lib/demo-persona";
 import { USER, ROLE_LABEL } from "@/lib/user-mock";
 import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/ui/page-title";
 
 function memberSinceLabel(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
@@ -106,12 +107,10 @@ export default function ProfilePage() {
               </Avatar>
 
               <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="type-h1 font-bold text-foreground">
-                    {USER.fullName}
-                  </h1>
-                  {cleared && <ClearedBadge requiredCount={getLearnerRequired(role).length} />}
-                </div>
+                <PageTitle
+                  title={USER.fullName}
+                  badge={cleared && <ClearedBadge requiredCount={getLearnerRequired(role).length} />}
+                />
                 {/* The live access role, not a baked-in string — the sidebar
                     footer two inches away shows the same fact, and a frozen
                     value here made the two disagree. */}

@@ -22,6 +22,7 @@ import { useFlags } from "@/lib/flags-store";
 import { useActivity } from "@/lib/activity-log";
 import { withReturn } from "@/lib/admin-nav";
 import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock";
+import { PageTitle } from "@/components/ui/page-title";
 
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -83,10 +84,7 @@ export default function AdminHomePage() {
         <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
           {/* Title + the actions admins repeat daily */}
           <div className="flex items-end justify-between gap-3 flex-wrap">
-            <div className="flex flex-col gap-1">
-              <h1 className="type-h1 font-bold text-foreground">Home</h1>
-              {dateMeta && <p className="type-meta text-muted-foreground">{dateMeta}</p>}
-            </div>
+            <PageTitle title="Home" meta={dateMeta ?? undefined} />
           </div>
 
           {/* Locked: the screen keeps its identity above, and its working

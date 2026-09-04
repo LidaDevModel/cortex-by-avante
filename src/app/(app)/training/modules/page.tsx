@@ -15,6 +15,7 @@ import { InProgressCard, ModuleCard } from "@/components/training/ModuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLearnerNav } from "@/lib/learner-crumbs";
 import { StatePanel } from "@/components/ui/state-panel";
+import { PageTitle } from "@/components/ui/page-title";
 
 /* ─── Page ─── */
 
@@ -70,9 +71,7 @@ export default function ModulesPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="relative container-wide pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
-          <h1 className="type-h1 font-bold text-foreground">
-            Modules
-          </h1>
+          <PageTitle title="Modules" description="Training assigned to your role." />
 
           {loading ? (
             <>

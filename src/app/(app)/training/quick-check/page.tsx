@@ -37,6 +37,7 @@ import { useRowStagger } from "@/hooks/use-entrance";
 import { useLearnerNav } from "@/lib/learner-crumbs";
 import { StatePanel } from "@/components/ui/state-panel";
 import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/ui/page-title";
 
 /* ─── Types ─── */
 
@@ -588,14 +589,10 @@ function QuickCheckContent() {
                   takes `read`. The width changes between the two on purpose. */}
               <div className="container-wide pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
-                <div className="flex flex-col gap-1">
-                  <h1 className="type-h1 font-bold text-foreground">
-                    Knowledge check
-                  </h1>
-                  <p className="type-label text-muted-foreground">
-                    Test your knowledge across topics and formats without time pressure.
-                  </p>
-                </div>
+                <PageTitle
+                  title="Knowledge check"
+                  description="Test your knowledge across topics and formats without time pressure."
+                />
 
                 {/* Start a check — presets + custom */}
                 <KCStartSection

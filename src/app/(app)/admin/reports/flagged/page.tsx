@@ -14,6 +14,7 @@ import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
 import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
+import { PageTitle } from "@/components/ui/page-title";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -130,10 +131,10 @@ export default function AdminFlaggedPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="container-wide pt-8 pb-12 flex flex-col gap-6 min-h-full">
-          <div className="flex flex-col gap-1">
-            <h1 className="type-h1 font-bold text-foreground">Flagged responses</h1>
-            <p className="type-label text-muted-foreground">Answers staff reported as wrong or incomplete. Open one to review the source content, then resolve.</p>
-          </div>
+          <PageTitle
+            title="Flagged responses"
+            description="Answers staff reported as wrong or incomplete. Open one to review the source content, then resolve."
+          />
 
           {/* Locked: the screen keeps its identity above, and its working
               surface becomes one statement plus the one useful action. */}

@@ -26,6 +26,7 @@ import { useManageLock, ManageLockedPanel } from "@/components/admin/manage-lock
 import { SkeletonList } from "@/components/ui/skeleton-blocks";
 import { StatePanel } from "@/components/ui/state-panel";
 import { useInitialLoad } from "@/hooks/use-initial-load";
+import { PageTitle } from "@/components/ui/page-title";
 
 type Row = { id: string; name: string; type: "folder" | "document"; lastModified: string; published?: boolean; roles?: string[]; hasContent?: boolean };
 
@@ -214,10 +215,10 @@ export default function AdminContentPage() {
               there is no folder to be inside. */}
           {locked ? (
             <>
-              <div className="flex flex-col gap-1">
-                <h1 className="type-h1 font-bold text-foreground">Library</h1>
-                <p className="type-label text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
-              </div>
+              <PageTitle
+                title="Library"
+                description="Documents and folders staff can read. Publish one to make it visible to learners."
+              />
               <ManageLockedPanel task="managing the content library" />
             </>
           ) : loading ? (
@@ -231,9 +232,7 @@ export default function AdminContentPage() {
             // Folder view: name + its actions (New document, Publish/Unpublish
             // the folder) share the title row.
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <h1 className="type-h1 font-bold text-foreground">
-                {folder.name}
-              </h1>
+              <PageTitle title={folder.name} />
               <div className="flex items-center gap-2">
                 <Button size="cta" onClick={() => setPrompt({ mode: "new-doc" })}>
                   <FilePlus2 size={16} strokeWidth={1.5} /> New document
@@ -251,10 +250,10 @@ export default function AdminContentPage() {
             </div>
           ) : (
             <>
-              <div className="flex flex-col gap-1">
-                <h1 className="type-h1 font-bold text-foreground">Library</h1>
-                <p className="type-label text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
-              </div>
+              <PageTitle
+                title="Library"
+                description="Documents and folders staff can read. Publish one to make it visible to learners."
+              />
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <Segmented
                   options={KIND_TABS}
