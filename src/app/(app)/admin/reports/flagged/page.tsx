@@ -149,7 +149,7 @@ export default function AdminFlaggedPage() {
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={setQuery} placeholder="Search flagged responses" className="w-full sm:w-[280px]" />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-row">
               <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: "open", label: "Open" }, { value: "resolved", label: "Resolved" }]} placeholder="All statuses" />
               <FilterSelect value={reasonFilter} onChange={setReasonFilter} options={[{ value: "Incomplete", label: "Incomplete" }, { value: "Wrong info", label: "Wrong info" }, { value: "Other", label: "Other" }]} placeholder="All reasons" />
               <FilterSelect value={sourceFilter} onChange={setSourceFilter} options={sourceOptions} placeholder="All sources" />

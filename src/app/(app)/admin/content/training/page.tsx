@@ -238,7 +238,7 @@ export default function AdminTrainingPage() {
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder="Search modules" className="w-full sm:w-[280px]" />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-row">
               <FilterSelect value={categoryFilter} onChange={resetPage(setCategoryFilter)} options={CATEGORY_OPTIONS} placeholder="All categories" />
               <FilterSelect value={requirementFilter} onChange={resetPage(setRequirementFilter)} options={[{ value: "required", label: "Required" }, { value: "optional", label: "Optional" }]} placeholder="All requirements" />
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />

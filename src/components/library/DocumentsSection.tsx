@@ -39,12 +39,18 @@ function formatDate(iso: string) {
 /* ─── Sub-components ─── */
 
 function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "list" | "grid") => void }) {
+  // `min-w-max` is load-bearing. A flex item's automatic minimum size is
+  // content-based ONLY while its overflow is visible — `overflow-hidden`
+  // (here to clip the corners) drops that floor to zero. So the filter row
+  // handed this box a 73px share while its two buttons held 48px each, and
+  // the grid button was clipped out of sight. With the floor restored the
+  // pair wraps to its own line and fills it.
   return (
-    <div className="flex items-center rounded-[8px] overflow-hidden border border-border">
+    <div className="flex items-center min-w-max rounded-[8px] overflow-hidden border border-border">
       <button
         onClick={() => onChange("list")}
         className={cn(
-          "flex items-center justify-center w-12 h-12 transition-colors duration-100",
+          "flex-1 min-w-12 flex items-center justify-center h-12 transition-colors duration-100",
           view === "list" ? "bg-[var(--accent-subtle)]" : "bg-[var(--surface)]"
         )}
         aria-label="List view"
@@ -54,7 +60,7 @@ function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (v: "
       <button
         onClick={() => onChange("grid")}
         className={cn(
-          "flex items-center justify-center w-12 h-12 border-l border-border transition-colors duration-100",
+          "flex-1 min-w-12 flex items-center justify-center h-12 border-l border-border transition-colors duration-100",
           view === "grid" ? "bg-[var(--accent-subtle)]" : "bg-[var(--surface)]"
         )}
         aria-label="Grid view"
@@ -174,12 +180,12 @@ export function DocumentsSection() {
           />
 
           {/* Right controls */}
-          <div className="flex items-center gap-2">
+          <div className="filter-row">
             <FilterSelect
               value={kindFilter}
               onChange={handleKind}
               placeholder="All types"
-              className="flex-1 sm:flex-none sm:w-[120px]"
+              className="sm:flex-none sm:w-[120px]"
               options={[
                 { value: "document", label: "Documents" },
                 { value: "folder", label: "Folders" },
@@ -191,7 +197,7 @@ export function DocumentsSection() {
             <FilterSelect
               value={gridSort}
               onChange={handleGridSort}
-              className={cn("flex-1 sm:flex-none sm:w-[140px]", view === "list" && "sm:hidden")}
+              className={cn("sm:flex-none sm:w-[140px]", view === "list" && "sm:hidden")}
               options={[
                 { value: "date-desc", label: "Newest first" },
                 { value: "date-asc",  label: "Oldest first" },

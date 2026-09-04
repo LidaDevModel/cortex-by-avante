@@ -210,7 +210,7 @@ export default function AdminPeoplePage() {
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder="Search name or email" className="w-full sm:w-[280px]" />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-row">
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={ROLE_FILTER} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={STATUS_FILTER} placeholder="All statuses" />
               {/* Sorting, where there is no header row to click. Reads the

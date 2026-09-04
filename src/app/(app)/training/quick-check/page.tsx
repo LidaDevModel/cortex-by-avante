@@ -230,7 +230,7 @@ function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onV
           Previous checks
         </p>
         {attempts.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="filter-row">
             <FilterSelect
               value={categoryFilter}
               onChange={setCategoryFilter}

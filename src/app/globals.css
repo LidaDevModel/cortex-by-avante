@@ -911,3 +911,55 @@ select:disabled {
     row-gap: 1rem;
   }
 }
+
+/* ─── Filter row: on a phone, no control sits alone on a half-empty line ───
+   A list toolbar's filters wrap. On a phone the wrapped lines were left
+   ragged: three 250px dropdowns each on its own line of a 343px canvas, with
+   90px of dead space beside each one. The search field above them was already
+   `w-full`, so the toolbar disagreed with itself line by line.
+
+   The rule is per LINE, not per control: a line holding one control fills the
+   width, a line holding two splits it. Flexbox already expresses exactly
+   that. Lines are collected using each item's content width, and free space
+   is then distributed WITHIN each line — so `flex: 1 1 0%` on the children
+   fills whatever line each one landed on, with no breakpoint arithmetic and
+   no count of how many filters a page happens to have.
+
+   `0%` rather than `auto` for the basis: both break lines at the same place
+   (a flex item's `min-width: auto` floors the hypothetical size at
+   min-content either way), but `auto` shares only the LEFTOVER space, which
+   leaves two controls on one line at unequal widths. `0%` shares the whole
+   line, so they come out as equal halves.
+
+   Nine toolbars had converged on two different answers to this. Eight left
+   the lines ragged; `training/modules` hand-wrote the right behaviour with
+   `grid-cols-2` plus a `col-span-2` on the third filter — correct, but only
+   for exactly three filters, and it silently breaks at four. This class is
+   the one answer, and it is count-agnostic.
+
+   A media query, not a container query — unlike `.card-row`, which asks how
+   much room it has: `sm` (640px) is where the same toolbars already switch
+   the search field and the row direction, so a second, different threshold
+   here would be the drift. */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (width < 40rem) {
+  /* Full width first — children can only fill the line their parent has. */
+  .filter-row {
+    width: 100%;
+  }
+  .filter-row > * {
+    flex: 1 1 0%;
+  }
+  /* No opt-out for a fixed-size member. The Library's list/grid toggle was
+     first given one, and it then sat alone on the last line with 245px of
+     dead space beside it — the exact ragged line this class removes. A
+     control that grows is the rule; a control that cannot grow has to be
+     made able to. See `ViewToggle`, whose buttons now carry a min-width so
+     the pair has a floor of its own instead of needing protection here. */
+}

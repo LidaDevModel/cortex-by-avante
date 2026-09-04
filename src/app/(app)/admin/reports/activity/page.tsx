@@ -146,7 +146,7 @@ export default function AdminActivityPage() {
 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <SearchInput value={query} onChange={resetPage(setQuery)} placeholder="Search actions" className="w-full sm:w-[280px]" />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-row">
               <FilterSelect value={kindFilter} onChange={resetPage(setKindFilter)} options={ACTIVITY_KIND_OPTIONS} placeholder="All actions" />
               <FilterSelect value={actorFilter} onChange={resetPage(setActorFilter)} options={actorOptions} placeholder="All admins" />
             </div>

@@ -140,12 +140,12 @@ export default function ModulesPage() {
             />
 
             {/* Filter pills — two-per-row grid on mobile, fixed widths inline on desktop */}
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-1 sm:shrink-0">
+            <div className="filter-row sm:shrink-0">
               <FilterSelect
                 value={categoryFilter}
                 onChange={setCategoryFilter}
                 placeholder="All categories"
-                className="w-full sm:w-[148px]"
+                className="sm:w-[148px]"
                 options={[
                   { value: "first-aid", label: "First aid" },
                   { value: "escalations", label: "Escalations" },
@@ -157,7 +157,7 @@ export default function ModulesPage() {
                 value={requirementFilter}
                 onChange={setRequirementFilter}
                 placeholder="Show all"
-                className="w-full sm:w-[110px]"
+                className="sm:w-[110px]"
                 options={[
                   { value: "required", label: "Required" },
                   { value: "optional", label: "Optional" },
@@ -167,7 +167,7 @@ export default function ModulesPage() {
                 value={statusFilter}
                 onChange={setStatusFilter}
                 placeholder="All statuses"
-                className="w-full col-span-2 sm:col-span-1 sm:w-[132px]"
+                className="sm:w-[132px]"
                 options={[
                   { value: "in-progress", label: "In progress" },
                   { value: "completed", label: "Completed" },

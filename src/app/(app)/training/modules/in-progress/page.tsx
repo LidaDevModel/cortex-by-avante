@@ -137,19 +137,19 @@ export default function InProgressPage() {
             </div>
 
             {/* Search + filters */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
               <SearchInput
                 value={search}
                 onChange={setSearch}
                 placeholder="Search modules"
                 className="w-full sm:w-[280px]"
               />
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="filter-row sm:shrink-0">
                 <FilterSelect
                   value={categoryFilter}
                   onChange={setCategoryFilter}
                   placeholder="All categories"
-                  className="w-[148px]"
+                  className="sm:w-[148px]"
                   options={[
                     { value: "first-aid", label: "First aid" },
                     { value: "escalations", label: "Escalations" },
@@ -161,7 +161,7 @@ export default function InProgressPage() {
                   value={requirementFilter}
                   onChange={setRequirementFilter}
                   placeholder="Show all"
-                  className="w-[110px]"
+                  className="sm:w-[110px]"
                   options={[
                     { value: "required", label: "Required" },
                     { value: "optional", label: "Optional" },

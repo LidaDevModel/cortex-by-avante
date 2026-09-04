@@ -281,7 +281,7 @@ export default function AdminContentPage() {
               onChange={(next) => { setSort(next); setPage(1); }}
               className="md:hidden"
             />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="filter-row">
               <FilterSelect value={roleFilter} onChange={resetPage(setRoleFilter)} options={[{ value: "field-agent", label: "Field Agent" }, { value: "admin", label: "Admin" }]} placeholder="All roles" />
               <FilterSelect value={statusFilter} onChange={resetPage(setStatusFilter)} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} placeholder="All statuses" />
             </div>
