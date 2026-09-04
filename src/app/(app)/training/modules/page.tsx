@@ -70,7 +70,7 @@ export default function ModulesPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="relative max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           {/* Page title */}
-          <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+          <h1 className="type-h1 font-bold text-foreground">
             Modules
           </h1>
 
@@ -113,7 +113,7 @@ export default function ModulesPage() {
                 {totalInProgress > 3 && (
                   <Link
                     href="/training/modules/in-progress"
-                    className="text-[13px] leading-[16px] font-medium transition-colors duration-100"
+                    className="type-meta font-medium transition-colors duration-100"
                     style={{ color: "var(--primary)" }}
                   >
                     See all

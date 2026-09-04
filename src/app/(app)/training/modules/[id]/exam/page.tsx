@@ -340,18 +340,18 @@ export default function ExamPage() {
         >
           <div className="flex flex-col gap-2">
             <h2
-              className="text-[22px] leading-[30px] font-bold"
+              className="type-h1 font-bold"
               style={{ color: "var(--primary)" }}
             >
               {examKindLabel}
             </h2>
-            <p className="text-[14px] text-muted-foreground">
+            <p className="type-label text-muted-foreground">
               {exam.moduleName}{isSimulation ? " · practice run" : ""}
             </p>
           </div>
 
           {/* Time badge */}
-          <div className="self-start flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-[var(--surface-raised)] text-[12px] font-medium text-muted-foreground">
+          <div className="self-start flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-[var(--surface-raised)] type-caption font-medium text-muted-foreground">
             <Clock size={12} />
             {Math.round(exam.timeLimitSeconds / 60)} minutes
           </div>
@@ -359,8 +359,8 @@ export default function ExamPage() {
           {/* Rules */}
           <ul className="flex flex-col gap-3">
             {preExamRules.map((rule, i) => (
-              <li key={i} className="flex items-start gap-3 text-[14px] text-foreground">
-                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] flex items-center justify-center text-[11px] font-semibold">
+              <li key={i} className="flex items-start gap-3 type-label text-foreground">
+                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] flex items-center justify-center type-caption font-semibold">
                   {i + 1}
                 </span>
                 {rule}
@@ -374,7 +374,7 @@ export default function ExamPage() {
             </Button>
             <button
               onClick={() => router.push(exitHref)}
-              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer text-center"
+              className="type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer text-center"
             >
               Cancel
             </button>
@@ -390,9 +390,9 @@ export default function ExamPage() {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--background)]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-200">
           <Clock size={48} color="var(--destructive)" strokeWidth={1.5} />
-          <h1 className="text-[32px] leading-[40px] font-bold text-foreground">Time&apos;s up</h1>
-          <p className="text-[14px] text-muted-foreground">Your answers have been submitted.</p>
-          <p className="text-[13px] text-muted-foreground animate-pulse">
+          <h1 className="type-h1 font-bold text-foreground">Time&apos;s up</h1>
+          <p className="type-label text-muted-foreground">Your answers have been submitted.</p>
+          <p className="type-meta text-muted-foreground animate-pulse">
             Taking you to your results…
           </p>
         </div>
@@ -498,10 +498,10 @@ export default function ExamPage() {
       {phase === "branching" && (
         <div className="flex flex-col flex-1 overflow-hidden gap-0 pt-12">
           <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
-            <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
+            <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
             <div className="flex flex-col gap-1">
-              <p className="text-[20px] leading-[28px] font-semibold text-foreground">{exam.branching.title}</p>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">Each decision is final. Choose carefully.</p>
+              <p className="type-h2 font-semibold text-foreground">{exam.branching.title}</p>
+              <p className="type-label text-muted-foreground">Each decision is final. Choose carefully.</p>
             </div>
           </div>
           <BranchingGame

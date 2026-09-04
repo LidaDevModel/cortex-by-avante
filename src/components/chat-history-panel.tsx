@@ -186,7 +186,7 @@ function ConversationItem({
           if (e.key === "Enter") save();
           if (e.key === "Escape") setIsRenaming(false);
         }}
-        className="w-full text-[13px] text-foreground bg-transparent border border-primary rounded px-2 py-0.5 outline-none focus:ring-1 focus:ring-primary"
+        className="w-full type-meta text-foreground bg-transparent border border-primary rounded px-2 py-0.5 outline-none focus:ring-1 focus:ring-primary"
       />
     );
   }
@@ -196,7 +196,7 @@ function ConversationItem({
       className="group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent transition-colors duration-100"
       onClick={() => onSelect(conversation)}
     >
-      <span className="flex-1 text-[13px] text-foreground truncate min-w-0">
+      <span className="flex-1 type-meta text-foreground truncate min-w-0">
         {conversation.title}
       </span>
       <DropdownMenu>
@@ -285,7 +285,7 @@ function HistoryBody({ conversations, onSelect, onRename, onDelete }: HistoryLis
         >
           <div className="px-2 pb-4">
             {filtered.length === 0 ? (
-              <p className="px-2 pt-3 text-[13px] text-muted-foreground">
+              <p className="px-2 pt-3 type-meta text-muted-foreground">
                 {conversations.length === 0
                   ? "No previous conversations."
                   : "No conversations found."}
@@ -296,7 +296,7 @@ function HistoryBody({ conversations, onSelect, onRename, onDelete }: HistoryLis
                 if (!items.length) return null;
                 return (
                   <div key={group}>
-                    <p className="px-2 pt-3 pb-1 text-[13px] font-medium text-foreground/70">
+                    <p className="px-2 pt-3 pb-1 type-meta font-medium text-foreground/70">
                       {group}
                     </p>
                     {items.map((conv) => (
@@ -364,7 +364,7 @@ export function ChatHistoryPanel({
         )}
       >
         <History size={15} className="shrink-0" />
-        <span className="text-[13px] font-semibold" style={fadeStyle}>
+        <span className="type-meta font-semibold" style={fadeStyle}>
           Old conversations
         </span>
       </button>
@@ -401,7 +401,7 @@ export function ChatHistorySheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
         <SheetHeader className="px-4 pt-4 pb-3">
-          <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
+          <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
             <History size={15} className="shrink-0" />
             Old conversations
           </SheetTitle>

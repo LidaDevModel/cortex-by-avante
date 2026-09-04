@@ -65,7 +65,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
     >
       <div className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-[14px] leading-[20px] font-semibold text-foreground">Email</span>
+          <span className="type-label font-semibold text-foreground">Email</span>
           <Input
             type="email"
             autoFocus
@@ -77,7 +77,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-[14px] leading-[20px] font-semibold text-foreground">Role</span>
+          <span className="type-label font-semibold text-foreground">Role</span>
           <FilterSelect value={role} onChange={(v) => setRole(v as Role)} options={ROLE_OPTIONS} />
         </label>
       </div>
@@ -85,7 +85,7 @@ export function InviteUserModal({ onClose }: { onClose: () => void }) {
       <div className="flex items-center justify-between">
         <button
           onClick={onClose}
-          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="min-h-11 -ml-1 px-1 type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           Cancel
         </button>

@@ -68,10 +68,10 @@ export function RotateNotice() {
         <RotateCcw size={24} strokeWidth={1.5} />
       </span>
       <div className="flex flex-col gap-1">
-        <p id="rotate-title" className="text-[20px] leading-[28px] font-semibold text-foreground">
+        <p id="rotate-title" className="type-h2 font-semibold text-foreground">
           Turn your phone upright
         </p>
-        <p className="text-[15px] leading-[24px] text-muted-foreground max-w-[36ch]">
+        <p className="type-body text-muted-foreground max-w-[36ch]">
           Cortex is built for portrait on a phone. Sideways leaves too little room to read.
         </p>
       </div>

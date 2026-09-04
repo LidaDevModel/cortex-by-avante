@@ -46,10 +46,10 @@ function Row({ n, onOpen }: { n: CortexNotification & { unread: boolean }; onOpe
         <Icon size={16} strokeWidth={1.5} />
       </span>
       <span className="flex flex-col gap-0.5 min-w-0 flex-1">
-        <span className={`text-[14px] leading-[20px] text-foreground ${n.unread ? "font-semibold" : "font-medium"}`}>
+        <span className={`type-label text-foreground ${n.unread ? "font-semibold" : "font-medium"}`}>
           {n.title}
         </span>
-        <span className="text-[12px] leading-[16px] text-muted-foreground">{n.meta}</span>
+        <span className="type-caption text-muted-foreground">{n.meta}</span>
       </span>
       {n.unread && (
         <span className="mt-1.5 w-2 h-2 rounded-full shrink-0" style={{ background: "var(--primary)" }} aria-label="Unread" />
@@ -83,7 +83,7 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
           }`}
         >
           {showTitle && (
-            <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">
               Notifications
             </span>
           )}
@@ -96,7 +96,7 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
             disabled={unread === 0}
             aria-hidden={unread === 0}
             tabIndex={unread === 0 ? -1 : 0}
-            className={`text-[12px] leading-[16px] font-medium transition-opacity duration-100 ${
+            className={`type-caption font-medium transition-opacity duration-100 ${
               unread > 0 ? "opacity-100 hover:opacity-70 cursor-pointer" : "opacity-0 pointer-events-none"
             }`}
             style={{ color: "var(--primary)" }}
@@ -108,8 +108,8 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
 
       {items.length === 0 ? (
         <div className="flex flex-col gap-1 px-4 py-8 text-center">
-          <p className="text-[14px] leading-[20px] font-medium text-foreground">No new notifications.</p>
-          <p className="text-[12px] leading-[16px] text-muted-foreground">
+          <p className="type-label font-medium text-foreground">No new notifications.</p>
+          <p className="type-caption text-muted-foreground">
             {canManage
               ? "Flagged responses, pending invites, and content updates will appear here."
               : "Updates about your modules and documents will appear here."}
@@ -119,7 +119,7 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
         <div className="flex flex-col overflow-y-auto scroll-thin pb-2">
           {today.length > 0 && (
             <>
-              <p className="px-4 pt-1 pb-0.5 text-[11px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="px-4 pt-1 pb-0.5 type-caption font-medium uppercase tracking-wider text-muted-foreground">
                 Today
               </p>
               {today.map((n) => <Row key={n.id} n={n} onOpen={onOpen} />)}
@@ -127,7 +127,7 @@ function PanelBody({ onOpen, showTitle = true }: { onOpen: (n: CortexNotificatio
           )}
           {earlier.length > 0 && (
             <>
-              <p className="px-4 pt-2 pb-0.5 text-[11px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="px-4 pt-2 pb-0.5 type-caption font-medium uppercase tracking-wider text-muted-foreground">
                 Earlier
               </p>
               {earlier.map((n) => <Row key={n.id} n={n} onOpen={onOpen} />)}
@@ -210,7 +210,7 @@ export function NotificationsBell() {
             <SheetHeader className="px-4 pt-4 pb-0">
               {/* Title + close share one row, vertically centered. */}
               <div className="flex items-center justify-between gap-2">
-                <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
+                <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
                   <Bell size={16} strokeWidth={1.5} />
                   Notifications
                 </SheetTitle>

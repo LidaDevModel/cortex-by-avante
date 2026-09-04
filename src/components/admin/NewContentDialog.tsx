@@ -37,8 +37,8 @@ function OptionList({ onChoose }: { onChoose: (k: NewContentKind) => void }) {
             <o.icon size={18} strokeWidth={1.5} />
           </span>
           <span className="flex flex-col min-w-0">
-            <span className="text-[14px] leading-[20px] font-semibold text-foreground">{o.title}</span>
-            <span className="text-[12px] leading-[16px] text-muted-foreground">{o.desc}</span>
+            <span className="type-label font-semibold text-foreground">{o.title}</span>
+            <span className="type-caption text-muted-foreground">{o.desc}</span>
           </span>
         </button>
       ))}
@@ -76,8 +76,8 @@ export function NewContentDialog({
         >
           <div aria-hidden className="mx-auto mb-4 h-1 w-9 rounded-full bg-border" />
           <SheetHeader className="p-0 gap-1.5 text-left">
-            <SheetTitle className="text-[18px] leading-[24px] font-semibold text-foreground">Add content</SheetTitle>
-            <SheetDescription className="text-[14px] leading-[20px] text-muted-foreground">
+            <SheetTitle className="type-h3 font-semibold text-foreground">Add content</SheetTitle>
+            <SheetDescription className="type-label text-muted-foreground">
               What would you like to add?
             </SheetDescription>
           </SheetHeader>
@@ -93,8 +93,8 @@ export function NewContentDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="gap-4">
         <AlertDialogHeader className="gap-1.5">
-          <AlertDialogTitle className="text-[20px] leading-[28px] font-semibold text-foreground">Add content</AlertDialogTitle>
-          <AlertDialogDescription className="text-[14px] leading-[20px] text-muted-foreground">
+          <AlertDialogTitle className="type-h2 font-semibold text-foreground">Add content</AlertDialogTitle>
+          <AlertDialogDescription className="type-label text-muted-foreground">
             What would you like to add?
           </AlertDialogDescription>
         </AlertDialogHeader>

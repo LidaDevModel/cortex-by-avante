@@ -86,7 +86,7 @@ export function PageHeader({ crumbs, className }: { crumbs: Crumb[]; className?:
           <Menu size={20} strokeWidth={1.75} />
         </button>
       )}
-      <div className="hidden md:flex flex-1 items-center gap-1.5 text-[14px] leading-[20px] min-w-0">
+      <div className="hidden md:flex flex-1 items-center gap-1.5 type-label min-w-0">
         {shown.map((item, i) => (
           <span key={i} className="flex items-center gap-1.5 min-w-0">
             {i > 0 && (
@@ -138,14 +138,14 @@ export function DetailHeader({ backHref, backLabel, title, meta, className }: De
     <div className={cn("flex flex-col gap-2", className)}>
       <Link
         href={backHref}
-        className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+        className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"
       >
         <ArrowLeft size={14} strokeWidth={2} />
         <span>{backLabel}</span>
       </Link>
-      <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{title}</h1>
+      <h1 className="type-h1 font-bold text-foreground">{title}</h1>
       {meta && (
-        <p className="text-[13px] leading-[20px] text-muted-foreground">{meta}</p>
+        <p className="type-meta text-muted-foreground">{meta}</p>
       )}
     </div>
   );

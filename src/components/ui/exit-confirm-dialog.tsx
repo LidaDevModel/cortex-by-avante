@@ -54,10 +54,10 @@ export function ExitConfirmDialog({
           {/* Grab handle — the bottom-sheet affordance */}
           <div aria-hidden className="mx-auto mb-4 h-1 w-9 rounded-full bg-border" />
           <SheetHeader className="p-0 gap-1.5 text-left">
-            <SheetTitle className="text-[18px] leading-[24px] font-semibold text-foreground">
+            <SheetTitle className="type-h3 font-semibold text-foreground">
               {title}
             </SheetTitle>
-            <SheetDescription className="text-[14px] leading-[20px] text-muted-foreground">
+            <SheetDescription className="type-label text-muted-foreground">
               {description}
             </SheetDescription>
           </SheetHeader>

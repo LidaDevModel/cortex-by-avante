@@ -137,7 +137,7 @@ export default function FolderDetailPage() {
 
             <div className="flex flex-col gap-4">
               {paged.length === 0 ? (
-                <p className="text-[14px] text-muted-foreground py-8 text-center">No documents available.</p>
+                <p className="type-label text-muted-foreground py-8 text-center">No documents available.</p>
               ) : (
                 <>
                 {/* Desktop: full column table */}

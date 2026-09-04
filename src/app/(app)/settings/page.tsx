@@ -81,7 +81,7 @@ export default function SettingsPage() {
 
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
-          <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+          <h1 className="type-h1 font-bold text-foreground">
             Settings
           </h1>
 
@@ -90,11 +90,11 @@ export default function SettingsPage() {
             className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Appearance</h2>
+            <h2 className="type-h2 font-semibold text-foreground">Appearance</h2>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground">Theme</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">
+                <span className="type-label font-medium text-foreground">Theme</span>
+                <span className="type-caption text-muted-foreground">
                   System follows your device. Applies on this device.
                 </span>
               </div>
@@ -114,7 +114,7 @@ export default function SettingsPage() {
             className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Notifications</h2>
+            <h2 className="type-h2 font-semibold text-foreground">Notifications</h2>
             <div className="flex flex-col gap-1">
               {notificationRows.map((row) => (
                 // The whole row is the label, so the full width toggles.
@@ -123,8 +123,8 @@ export default function SettingsPage() {
                   className="flex items-center justify-between gap-4 py-2.5 cursor-pointer"
                 >
                   <span className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-[14px] leading-[20px] font-medium text-foreground">{row.label}</span>
-                    <span className="text-[12px] leading-[16px] text-muted-foreground">{row.meta}</span>
+                    <span className="type-label font-medium text-foreground">{row.label}</span>
+                    <span className="type-caption text-muted-foreground">{row.meta}</span>
                   </span>
                   <Switch
                     checked={prefs[row.key]}
@@ -146,13 +146,13 @@ export default function SettingsPage() {
             className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised"
             style={{ border: "1px solid var(--border)" }}
           >
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Session</h2>
+            <h2 className="type-h2 font-semibold text-foreground">Session</h2>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground">
+                <span className="type-label font-medium text-foreground">
                   Signed in on this device
                 </span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">
+                <span className="type-caption text-muted-foreground">
                   Sign out if someone else uses this device.
                 </span>
               </div>

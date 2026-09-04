@@ -22,7 +22,7 @@ export default function AppLayout({
             ignored as a non-focusable element. */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:h-11 focus:px-4 focus:inline-flex focus:items-center focus:rounded-lg focus:bg-primary focus:text-primary-foreground focus:text-[14px] focus:font-semibold focus:shadow-lg"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:h-11 focus:px-4 focus:inline-flex focus:items-center focus:rounded-lg focus:bg-primary focus:text-primary-foreground focus:type-label focus:font-semibold focus:shadow-lg"
         >
           Skip to content
         </a>

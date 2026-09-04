@@ -375,7 +375,7 @@ export function ChatComposer({
               // The placeholder is not an accessible name: it changes with
               // context and screen readers may not announce it at all.
               aria-label="Ask Cortex a question"
-              className="w-full resize-none bg-transparent text-[16px] leading-[24px] text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:text-[14px]"
+              className="w-full resize-none bg-transparent type-body text-foreground outline-none p-0 placeholder:text-muted-foreground placeholder:type-label"
               onScroll={updateTaScroll}
               style={{ maxHeight: `${MAX_HEIGHT}px`, overflowY: isScrollable ? "auto" : "hidden" }}
             />
@@ -445,7 +445,7 @@ export function ChatComposer({
                     <Paperclip size={16} />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
+                <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background type-caption font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
                   {attachmentsFull ? `Up to ${MAX_ATTACHMENTS} per message` : "Attach files"}
                 </TooltipContent>
               </Tooltip>
@@ -479,7 +479,7 @@ export function ChatComposer({
                       <Mic size={16} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background text-[12px] font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
+                  <TooltipContent side="top" sideOffset={8} className="rounded-[8px] bg-foreground text-background type-caption font-medium px-2.5 py-1.5 [corner-shape:squircle] [&_svg]:hidden">
                     Dictate
                   </TooltipContent>
                 </Tooltip>

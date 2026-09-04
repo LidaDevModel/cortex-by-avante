@@ -32,8 +32,8 @@ function SectionBlock({
     <div className="rounded-[12px] border border-border overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-[var(--surface-raised)]">
         <div className="flex items-center gap-2">
-          <span className="text-[14px] font-medium text-foreground">{label}</span>
-          <span className={cn("text-[12px]", ok ? "text-muted-foreground" : "text-destructive")}>
+          <span className="type-label font-medium text-foreground">{label}</span>
+          <span className={cn("type-caption", ok ? "text-muted-foreground" : "text-destructive")}>
             {status}
           </span>
         </div>
@@ -41,7 +41,7 @@ function SectionBlock({
           {onEdit && (
             <button
               onClick={onEdit}
-              className="text-[13px] font-medium text-[var(--primary)] hover:opacity-70 transition-opacity duration-100"
+              className="type-meta font-medium text-[var(--primary)] hover:opacity-70 transition-opacity duration-100"
             >
               Edit
             </button>
@@ -89,8 +89,8 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
   return (
     <div className="flex flex-col gap-6 max-w-[640px] mx-auto py-8">
       <div className="flex flex-col gap-1">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Review your answers</h2>
-        <p className="text-[14px] leading-[20px] text-muted-foreground">
+        <h2 className="type-h2 font-semibold text-foreground">Review your answers</h2>
+        <p className="type-label text-muted-foreground">
           Check each section before submitting.
         </p>
       </div>
@@ -117,10 +117,10 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
                 const selected = ans?.selectedIndex ?? null;
                 return (
                   <div key={q.id} className="flex flex-col gap-1">
-                    <span className="text-[12px] text-muted-foreground">Q{i + 1} — {q.question}</span>
+                    <span className="type-caption text-muted-foreground">Q{i + 1} — {q.question}</span>
                     <span
                       className={cn(
-                        "text-[13px] font-medium pl-2 border-l-2",
+                        "type-meta font-medium pl-2 border-l-2",
                         selected !== null
                           ? "text-[var(--primary)] border-[var(--primary)]"
                           : "text-muted-foreground border-[var(--border)]"
@@ -159,10 +159,10 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
                     // MC and branching review rows, so all three read alike and
                     // the definition gets full width on narrow screens.
                     <div key={pair.id} className="flex flex-col gap-0.5">
-                      <span className="text-[12px] text-muted-foreground">{pair.term}</span>
+                      <span className="type-caption text-muted-foreground">{pair.term}</span>
                       <span
                         className={cn(
-                          "text-[13px] font-medium pl-2 border-l-2",
+                          "type-meta font-medium pl-2 border-l-2",
                           matchedDef
                             ? "text-[var(--primary)] border-[var(--primary)]"
                             : "text-muted-foreground border-[var(--border)]"
@@ -202,10 +202,10 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
                       const chosenOption = node.options?.find((o) => o.id === chosenId);
                       return (
                         <div key={node.id} className="flex flex-col gap-0.5">
-                          <span className="text-[12px] text-muted-foreground">{node.label}</span>
+                          <span className="type-caption text-muted-foreground">{node.label}</span>
                           <span
                             className={cn(
-                              "text-[13px] font-medium pl-2 border-l-2",
+                              "type-meta font-medium pl-2 border-l-2",
                               chosenOption
                                 ? "text-[var(--primary)] border-[var(--primary)]"
                                 : "text-muted-foreground border-[var(--border)]"
@@ -218,7 +218,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
                     })}
                   </div>
                 ) : (
-                  <p className="text-[13px] text-muted-foreground italic">
+                  <p className="type-meta text-muted-foreground italic">
                     {decided > 0 ? "Scenario not yet completed." : "You haven't reached this section yet."}
                   </p>
                 )}
@@ -235,7 +235,7 @@ export function KCReview({ questions, answers, onJumpTo, onSubmit, onBack }: Pro
         {unansweredCount > 0 && (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-[8px] bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] border border-[color-mix(in_srgb,var(--destructive)_20%,transparent)]">
             <AlertCircle size={14} color="var(--destructive)" />
-            <p className="text-[13px] text-destructive">
+            <p className="type-meta text-destructive">
               {unansweredCount} question{unansweredCount !== 1 ? "s" : ""} unanswered. Skipped questions count as incorrect.
             </p>
           </div>

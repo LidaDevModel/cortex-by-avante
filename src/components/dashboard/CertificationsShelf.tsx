@@ -71,7 +71,7 @@ export function CertificationsShelf() {
         className="h-full rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
         style={{ border: "1px solid var(--border)" }}
       >
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Certifications</h2>
+        <h2 className="type-h2 font-semibold text-foreground">Certifications</h2>
         {/* VISION tone: no exclamation marks. */}
         <StatePanel
           icon={GraduationCap}
@@ -90,7 +90,7 @@ export function CertificationsShelf() {
       style={{ border: "1px solid var(--border)" }}
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Certifications ({items.length})</h2>
+        <h2 className="type-h2 font-semibold text-foreground">Certifications ({items.length})</h2>
         <div className="flex items-center gap-2">
           {/* Arrows are a pointer affordance — hidden on narrow screens where the
               carousel swipes natively and the dots carry position. Keeps the
@@ -103,7 +103,7 @@ export function CertificationsShelf() {
           )}
           <Link
             href="/profile#certifications"
-            className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium whitespace-nowrap transition-opacity duration-100 hover:opacity-70"
+            className="inline-flex items-center h-11 md:h-auto type-meta font-medium whitespace-nowrap transition-opacity duration-100 hover:opacity-70"
             style={{ color: "var(--primary)" }}
           >
             View all
@@ -161,7 +161,7 @@ export function CertificationsShelf() {
                 />
               ))}
             </div>
-            <span aria-live="polite" className="text-[12px] leading-[16px] text-muted-foreground tabular-nums">
+            <span aria-live="polite" className="type-caption text-muted-foreground tabular-nums">
               {activeIndex + 1} of {items.length}
             </span>
           </div>

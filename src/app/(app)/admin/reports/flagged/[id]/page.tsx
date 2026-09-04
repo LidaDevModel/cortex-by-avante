@@ -34,8 +34,8 @@ function FlagPill({ status, pop = false }: { status: FlagStatus; pop?: boolean }
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
-      <div className="text-[14px] leading-[22px] text-foreground">{children}</div>
+      <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      <div className="type-label text-foreground">{children}</div>
     </div>
   );
 }
@@ -67,7 +67,7 @@ export default function AdminFlagDetailPage() {
 
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Flagged response</h1>
+              <h1 className="type-h1 font-bold text-foreground">Flagged response</h1>
               <FlagPill status={flag.status} pop={justResolved} />
             </div>
             <div className="flex items-center gap-2">

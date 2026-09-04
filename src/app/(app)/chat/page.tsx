@@ -463,7 +463,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
               guaranteed exit, regardless of how the user arrived). */}
           <Link
             href="/dashboard"
-            className="lg:hidden -ml-2 flex items-center gap-0.5 h-11 pl-1 pr-2 text-[14px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 shrink-0"
+            className="lg:hidden -ml-2 flex items-center gap-0.5 h-11 pl-1 pr-2 type-label font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 shrink-0"
           >
             <ChevronLeft size={18} strokeWidth={2} />
             Home
@@ -478,7 +478,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
               because AI Chat is top-level in their sidebar. */}
           {group.length > 0 && (
             <span className="hidden md:flex items-center gap-1.5 shrink-0">
-              <span className="text-[14px] leading-[20px] text-muted-foreground">{group[0].label}</span>
+              <span className="type-label text-muted-foreground">{group[0].label}</span>
               <ChevronRight size={14} strokeWidth={1.5} className="shrink-0 text-muted-foreground opacity-60" />
             </span>
           )}
@@ -494,12 +494,12 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                   if (e.key === "Enter") saveTitle();
                   if (e.key === "Escape") setIsRenamingTitle(false);
                 }}
-                className="text-[14px] font-medium text-foreground bg-transparent border border-primary rounded px-2 py-0.5 outline-none focus:ring-1 focus:ring-primary min-w-0 max-w-[280px]"
+                className="type-label font-medium text-foreground bg-transparent border border-primary rounded px-2 py-0.5 outline-none focus:ring-1 focus:ring-primary min-w-0 max-w-[280px]"
               />
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 min-w-0 h-11 md:h-auto text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
+                  <button className="flex items-center gap-1 min-w-0 h-11 md:h-auto type-label font-medium text-foreground hover:text-primary transition-colors duration-100 max-w-[280px]">
                     <span className="truncate">{conversationTitle}</span>
                     <ChevronDown size={14} className="text-muted-foreground shrink-0" />
                   </button>
@@ -524,7 +524,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
           ) : (
             /* No conversation yet: name the screen so the row agrees with the
                sidebar's highlighted item instead of sitting empty. */
-            <span className="hidden md:inline text-[14px] leading-[20px] font-medium text-foreground">
+            <span className="hidden md:inline type-label font-medium text-foreground">
               AI Chat
             </span>
           )}
@@ -538,7 +538,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                 type="button"
                 onClick={handleNewConversation}
                 aria-label="New conversation"
-                className="flex items-center justify-center gap-1.5 h-11 md:h-9 min-w-11 md:min-w-0 px-3 md:px-2.5 rounded-lg border text-[13px] leading-[20px] font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
+                className="flex items-center justify-center gap-1.5 h-11 md:h-9 min-w-11 md:min-w-0 px-3 md:px-2.5 rounded-lg border type-meta font-medium transition-colors duration-100 shrink-0 hover:bg-[var(--surface-raised)]"
                 style={{ borderColor: "var(--primary)", color: "var(--primary)" }}
               >
                 <SquarePen size={15} strokeWidth={1.75} />
@@ -628,7 +628,7 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
                   <div className="w-full max-w-[560px] relative">
                     <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
                   </div>
-                  <p className="text-[12px] text-muted-foreground">
+                  <p className="type-caption text-muted-foreground">
                     Cortex AI can make mistakes. Please check important info.
                   </p>
                 </div>
@@ -642,14 +642,14 @@ const MOCK_LATENCY = { appendMs: 80, thinkMs: 1400, retryThinkMs: 800 } as const
           >
             <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center text-center gap-8" style={{ animation: "msg-in 200ms ease-out both" }}>
               <div className="flex flex-col items-center gap-2">
-                <h1 className="text-[20px] leading-none font-semibold text-primary">
+                <h1 className="type-h2 leading-none text-primary">
                   How can I help you {USER.firstName}?
                 </h1>
               </div>
               <div className="w-full relative">
                 <ChatComposer onSubmit={handleSubmit} isResponding={isAiResponding} onStop={handleStopResponse} detailLevel={detailLevel} onDetailLevelChange={setDetailLevel} draft={draft ?? undefined} />
               </div>
-              <p className="text-[12px] text-muted-foreground -mt-4">
+              <p className="type-caption text-muted-foreground -mt-4">
                 Cortex AI can make mistakes. Please check important info.
               </p>
             </div>

@@ -21,7 +21,7 @@ export function OfflineBanner() {
       style={{ animation: "msg-in 200ms ease-out both" }}
     >
       <CloudOff size={14} strokeWidth={1.5} className="shrink-0" />
-      <span className="text-[12px] leading-[16px] font-medium">
+      <span className="type-caption font-medium">
         You&apos;re offline. Showing saved copies.
       </span>
     </div>

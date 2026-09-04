@@ -150,7 +150,7 @@ export function CortexSidebar() {
                 <SidebarMenuItem>
                   <div className="flex items-center gap-1.5 px-3 pt-1 pb-2 text-muted-foreground group-data-[collapsible=icon]:hidden">
                     <Lock size={12} strokeWidth={2} className="shrink-0" />
-                    <span className="text-[11px] leading-[14px] font-semibold uppercase tracking-wide">
+                    <span className="type-caption font-semibold uppercase tracking-wide">
                       Locked until cleared
                     </span>
                   </div>

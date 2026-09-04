@@ -82,12 +82,12 @@ export default function KCAttemptPage({ params }: { params: Promise<{ attemptId:
           {/* Score */}
           <div className="flex items-baseline gap-2">
             <span
-              className="text-[32px] leading-none font-bold tabular-nums"
+              className="type-display tabular-nums"
               style={{ color: pct >= 70 ? "var(--primary)" : "var(--destructive)" }}
             >
               {pct}%
             </span>
-            <span className="text-[15px] text-muted-foreground">
+            <span className="type-body text-muted-foreground">
               {attempt.score} of {attempt.total} correct
             </span>
           </div>

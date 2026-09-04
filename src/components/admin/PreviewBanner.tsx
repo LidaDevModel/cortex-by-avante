@@ -20,13 +20,13 @@ export function PreviewBanner({ note, backHref, backLabel }: { note: string; bac
     >
       <div className="flex items-center gap-2 min-w-0">
         <Eye size={16} strokeWidth={1.5} className="text-primary shrink-0" />
-        <span className="text-[13px] leading-[18px] font-semibold text-primary shrink-0">Preview</span>
-        <span className="text-[13px] leading-[18px] text-muted-foreground truncate">— {note}</span>
+        <span className="type-meta font-semibold text-primary shrink-0">Preview</span>
+        <span className="type-meta text-muted-foreground truncate">— {note}</span>
       </div>
       {/* min-h-11 = the 44px floor. The old Close was 32px. */}
       <Link
         href={backHref}
-        className="flex items-center gap-1.5 min-h-11 px-2.5 rounded-lg text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100 shrink-0"
+        className="flex items-center gap-1.5 min-h-11 px-2.5 rounded-lg type-meta font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors duration-100 shrink-0"
       >
         <ArrowLeft size={14} strokeWidth={1.5} /> {backLabel}
       </Link>

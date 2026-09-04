@@ -66,7 +66,7 @@ export function ProfileForm({
       <div className="flex items-end gap-4">
         <Avatar className="h-16 w-16 rounded-full shrink-0">
           {profile.avatarUrl && <AvatarImage src={profile.avatarUrl} alt="" />}
-          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[18px]">
+          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-h3">
             {USER.initials}
           </AvatarFallback>
         </Avatar>
@@ -84,7 +84,7 @@ export function ProfileForm({
             <button
               type="button"
               onClick={() => setProfile((p) => ({ ...p, avatarUrl: undefined }))}
-              className="text-[12px] leading-[16px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+              className="type-caption text-muted-foreground hover:text-foreground transition-colors duration-100"
             >
               Remove photo
             </button>
@@ -105,7 +105,7 @@ export function ProfileForm({
           ] as const
         ).map(([id, label, value]) => (
           <div key={id} className="flex flex-col gap-1.5">
-            <label htmlFor={id} className="text-[14px] leading-[20px] font-semibold text-foreground">
+            <label htmlFor={id} className="type-label font-semibold text-foreground">
               {label}
             </label>
             <div className="relative">
@@ -123,7 +123,7 @@ export function ProfileForm({
 
       {/* Description */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="description" className="text-[14px] leading-[20px] font-semibold text-foreground">
+        <label htmlFor="description" className="type-label font-semibold text-foreground">
           Description
         </label>
         <textarea
@@ -133,9 +133,9 @@ export function ProfileForm({
           value={profile.description ?? ""}
           onChange={(e) => setProfile((p) => ({ ...p, description: e.target.value }))}
           placeholder="e.g. Night-shift field agent, Harbor site"
-          className="w-full resize-none rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2.5 text-[14px] leading-[20px] text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="w-full resize-none rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2.5 type-label text-foreground outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         />
-        <span className="self-end text-[12px] leading-[16px] text-muted-foreground tabular-nums">
+        <span className="self-end type-caption text-muted-foreground tabular-nums">
           {descriptionLength}/{MAX_DESCRIPTION}
         </span>
       </div>

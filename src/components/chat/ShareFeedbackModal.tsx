@@ -52,8 +52,8 @@ export function ShareFeedbackModal({
         </button>
 
         <div className="flex flex-col gap-1">
-          <h2 className="text-[16px] font-semibold leading-[24px] text-foreground">Share feedback</h2>
-          <p className="text-[13px] leading-[20px] text-muted-foreground">Help us improve Cortex AI</p>
+          <h2 className="type-body font-semibold leading-[24px] text-foreground">Share feedback</h2>
+          <p className="type-meta text-muted-foreground">Help us improve Cortex AI</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -62,7 +62,7 @@ export function ShareFeedbackModal({
               <button
                 key={opt}
                 onClick={() => setSelected(opt)}
-                className="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors duration-100"
+                className="px-3 py-1.5 rounded-full type-meta font-medium border transition-colors duration-100"
                 style={
                   selected === opt
                     ? { background: "color-mix(in srgb, var(--primary) 10%, var(--surface))", borderColor: "var(--primary)", color: "var(--primary)" }
@@ -80,7 +80,7 @@ export function ShareFeedbackModal({
               value={otherText}
               onChange={e => setOtherText(e.target.value)}
               placeholder="Tell us more…"
-              className="w-full h-10 rounded-lg border border-border bg-surface-raised px-3 text-[13px] text-foreground outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors duration-100"
+              className="w-full h-10 rounded-lg border border-border bg-surface-raised px-3 type-meta text-foreground outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors duration-100"
             />
           )}
         </div>
@@ -88,7 +88,7 @@ export function ShareFeedbackModal({
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
-            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1"
+            className="type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 px-1"
           >
             Cancel
           </button>

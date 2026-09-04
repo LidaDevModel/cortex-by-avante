@@ -33,15 +33,15 @@ export function InProgressCard({ module, style }: { module: Module; style?: Reac
 
       {/* Content — z-10 so it sits above the bleeding gradient */}
       <div className="relative z-10 flex flex-col gap-2 px-3 pt-3 pb-3">
-        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--foreground)" }}>
+        <p className="type-label font-semibold" style={{ color: "var(--foreground)" }}>
           {module.title}
         </p>
-        <p className="text-[12px] leading-[16px] text-muted-foreground">
+        <p className="type-caption text-muted-foreground">
           {module.chapters} chapters · {module.hours}h
         </p>
         <ProgressBar value={module.progress} />
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[12px] leading-[16px] text-muted-foreground">
+          <span className="type-caption text-muted-foreground">
             {module.status === "completed" ? "Completed" : module.status === "not-started" ? "Not started" : `${module.progress}% complete`}
           </span>
           <RequiredPill required={module.required} />
@@ -68,21 +68,21 @@ export function ModuleCard({ module, style }: { module: Module; style?: React.CS
 
       {/* Right content — z-10 so it sits above the bleeding gradient */}
       <div className="relative z-10 flex flex-col gap-1.5 min-w-0 flex-1 px-3 py-3">
-        <p className="text-[14px] leading-[20px] font-semibold truncate" style={{ color: "var(--foreground)" }}>
+        <p className="type-label font-semibold truncate" style={{ color: "var(--foreground)" }}>
           {module.title}
         </p>
-        <p className="text-[12px] leading-[16px] text-muted-foreground whitespace-nowrap">
+        <p className="type-caption text-muted-foreground whitespace-nowrap">
           {module.chapters} chapters · {module.hours}h
         </p>
         {showProgress ? (
           <div className="flex items-center gap-2">
             <div className="flex-1"><ProgressBar value={module.progress} /></div>
-            <span className="text-[12px] leading-[16px] text-muted-foreground shrink-0 w-8 text-right">
+            <span className="type-caption text-muted-foreground shrink-0 w-8 text-right">
               {module.status === "completed" ? "100%" : `${module.progress}%`}
             </span>
           </div>
         ) : (
-          <span className="text-[12px] leading-[16px] text-muted-foreground">Not started</span>
+          <span className="type-caption text-muted-foreground">Not started</span>
         )}
         <RequiredPill required={module.required} />
       </div>

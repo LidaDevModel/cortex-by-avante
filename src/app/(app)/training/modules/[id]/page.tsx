@@ -139,7 +139,7 @@ function ChapterStepper({
               style={{ paddingTop: 4 }}
             >
               <span
-                className="text-[13px] leading-[18px] block truncate flex-1 min-w-0"
+                className="type-meta block truncate flex-1 min-w-0"
                 style={{
                   fontWeight: isActive ? 600 : 400,
                   color: isActive
@@ -153,7 +153,7 @@ function ChapterStepper({
               </span>
               {matchCount > 0 && (
                 <span
-                  className="text-[11px] font-semibold px-[6px] py-[1px] rounded-[4px] tabular-nums shrink-0 mt-[1px]"
+                  className="type-caption font-semibold px-[6px] py-[1px] rounded-[4px] tabular-nums shrink-0 mt-[1px]"
                   style={{
                     background: "color-mix(in srgb, var(--accent-subtle) 50%, transparent)",
                     color: "var(--primary)",
@@ -220,11 +220,11 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Brain size={16} strokeWidth={1.5} />
-          <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider">
+          <span className="type-caption font-semibold uppercase tracking-wider">
             Knowledge check
           </span>
         </div>
-        <p className="text-[14px] leading-[22px] font-semibold" style={{ color: "var(--foreground)" }}>
+        <p className="type-label font-semibold" style={{ color: "var(--foreground)" }}>
           {quiz.question}
         </p>
       </div>
@@ -275,7 +275,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
               </span>
 
               <span
-                className="text-[13px] leading-[20px]"
+                className="type-meta"
                 style={{
                   fontWeight: showCorrect ? 600 : 400,
                   color: showCorrect
@@ -303,7 +303,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
           <span style={{ animation: "check-pop 250ms cubic-bezier(0.32, 0.72, 0, 1) both" }} className="flex">
             {submitState === "correct" ? <Check size={15} strokeWidth={2.5} /> : <X size={15} strokeWidth={2.5} />}
           </span>
-          <span className="text-[13px] leading-[20px] font-semibold">
+          <span className="type-meta font-semibold">
             {submitState === "correct" ? "Correct" : canRetry ? "Not quite" : "Incorrect"}
           </span>
         </div>
@@ -320,7 +320,7 @@ function QuizCard({ quiz }: { quiz: Quiz }) {
               Submit your answer
             </Button>
           )}
-          <span className="text-[12px] leading-[16px] text-muted-foreground">optional</span>
+          <span className="type-caption text-muted-foreground">optional</span>
         </div>
       )}
     </div>
@@ -536,15 +536,15 @@ export default function ModuleDetailPage() {
     <>
       <Link
         href="/training/modules"
-        className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+        className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"
       >
         <ArrowLeft size={14} strokeWidth={2} />
         <span>Back to modules</span>
       </Link>
-      <h1 className="text-[22px] leading-[30px] font-bold" style={{ color: "var(--foreground)" }}>
+      <h1 className="type-h1 font-bold" style={{ color: "var(--foreground)" }}>
         {trainingModule.title}
       </h1>
-      <p className="text-[13px] leading-[20px] text-muted-foreground">
+      <p className="type-meta text-muted-foreground">
         {contentChapters.length} {contentChapters.length === 1 ? "chapter" : "chapters"}&nbsp;&nbsp;·&nbsp;&nbsp;{trainingModule.hours}h&nbsp;&nbsp;·&nbsp;&nbsp;Certification
       </p>
       <RequiredPill required={trainingModule.required} />
@@ -552,7 +552,7 @@ export default function ModuleDetailPage() {
         <div className="flex-1">
           <ProgressBar value={progress} height={8} />
         </div>
-        <span className="text-[12px] leading-[16px] font-medium shrink-0" style={{ color: "var(--primary)" }}>
+        <span className="type-caption font-medium shrink-0" style={{ color: "var(--primary)" }}>
           {progress}% Complete
         </span>
       </div>
@@ -669,16 +669,16 @@ export default function ModuleDetailPage() {
                   <>
                     <div className="flex flex-col gap-3">
                       <div className="flex flex-col gap-1.5">
-                        <p className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground tabular-nums">
+                        <p className="type-caption font-semibold uppercase tracking-wider text-muted-foreground tabular-nums">
                           Chapter {contentChapters.findIndex((c) => c.id === currentChapter.id) + 1} of {contentChapters.length}
                         </p>
-                        <h2 className="text-[18px] leading-[26px] font-semibold" style={{ color: "var(--foreground)" }}>
+                        <h2 className="type-h3 font-semibold" style={{ color: "var(--foreground)" }}>
                           {currentChapter.title}
                         </h2>
                       </div>
                       <div className="flex flex-col gap-4">
                         {currentChapter.body.split("\n\n").map((para, i) => (
-                          <p key={i} className="text-[15px] leading-[26px]" style={{ color: "var(--foreground)" }}>
+                          <p key={i} className="type-body" style={{ color: "var(--foreground)" }}>
                             <Highlight text={para} query={findQuery.trim().toLowerCase()} />
                           </p>
                         ))}
@@ -754,7 +754,7 @@ export default function ModuleDetailPage() {
       <Sheet open={chaptersSheetOpen} onOpenChange={setChaptersSheetOpen}>
         <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
           <SheetHeader className="px-4 pt-4 pb-0">
-            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
+            <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
               <ListChecks size={16} strokeWidth={1.5} />
               Chapters
             </SheetTitle>

@@ -119,11 +119,11 @@ export function AttachmentChip({
         <FileText size={16} strokeWidth={1.5} />
       </span>
       <span className="flex flex-col gap-0.5 min-w-0 flex-1 text-left" title={name}>
-        <span className="flex text-[12px] leading-[16px] font-medium text-foreground min-w-0">
+        <span className="flex type-caption font-medium text-foreground min-w-0">
           <span className="truncate">{head}</span>
           {tail && <span className="shrink-0">{tail}</span>}
         </span>
-        <span className="text-[11px] leading-[14px] text-muted-foreground tabular-nums">
+        <span className="type-caption text-muted-foreground tabular-nums">
           {ext ? `${ext} · ${formatFileSize(size)}` : formatFileSize(size)}
         </span>
       </span>

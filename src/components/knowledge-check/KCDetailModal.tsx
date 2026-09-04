@@ -50,14 +50,14 @@ function SectionRow({
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-2 px-4 py-[10px] border-b border-border hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100"
       >
-        <span className="flex-1 text-left text-[14px] text-foreground">{label}</span>
+        <span className="flex-1 text-left type-label text-foreground">{label}</span>
         <span
-          className="w-10 text-right text-[14px] font-medium tabular-nums"
+          className="w-10 text-right type-label font-medium tabular-nums"
           style={{ color: correct === total ? "var(--primary)" : "var(--destructive)" }}
         >
           {correct}
         </span>
-        <span className="w-10 text-right text-[14px] text-muted-foreground tabular-nums">{total}</span>
+        <span className="w-10 text-right type-label text-muted-foreground tabular-nums">{total}</span>
         <span className="w-5 flex justify-end text-muted-foreground">
           {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
         </span>
@@ -65,7 +65,7 @@ function SectionRow({
       {open && (
         <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
-            {children ?? <p className="text-[13px] text-muted-foreground">All answers correct.</p>}
+            {children ?? <p className="type-meta text-muted-foreground">All answers correct.</p>}
           </div>
         </div>
       )}
@@ -82,12 +82,12 @@ function MCWrong({ question, answer }: {
   const userIdx = answer.selectedIndex;
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[13px] font-medium text-foreground">{question.question}</span>
+      <span className="type-meta font-medium text-foreground">{question.question}</span>
       <WrongAnswerRow>
-        <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
+        <span className={cn("type-meta", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
           Your answer: {userIdx !== null ? question.options[userIdx] : "Skipped"}
         </span>
-        <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+        <span className="type-meta" style={{ color: "var(--primary)" }}>
           Correct answer: {question.options[question.correctIndex]}
         </span>
       </WrongAnswerRow>
@@ -108,12 +108,12 @@ function MatchingWrong({ question, answer }: {
         const matchedDef = question.pairs.find((p) => p.id === matchedId);
         return (
           <div key={pair.id} className="flex flex-col gap-2">
-            <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
+            <span className="type-meta font-medium text-foreground">{pair.term}</span>
             <WrongAnswerRow>
-              <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
+              <span className={cn("type-meta", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                 Your match: {matchedDef ? matchedDef.definition : "Not matched"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+              <span className="type-meta" style={{ color: "var(--primary)" }}>
                 Correct: {pair.definition}
               </span>
             </WrongAnswerRow>
@@ -142,12 +142,12 @@ function BranchingWrong({ question, answer }: {
         const correctOpt = node.options?.find((o) => o.isCorrect);
         return (
           <div key={node.id} className="flex flex-col gap-2">
-            <span className="text-[13px] font-medium text-foreground">{node.label}</span>
+            <span className="type-meta font-medium text-foreground">{node.label}</span>
             <WrongAnswerRow>
-              <span className={cn("text-[13px]", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
+              <span className={cn("type-meta", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
                 Your choice: {chosenOpt?.text ?? "Not answered"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--primary)" }}>
+              <span className="type-meta" style={{ color: "var(--primary)" }}>
                 Correct choice: {correctOpt?.text}
               </span>
             </WrongAnswerRow>
@@ -211,9 +211,9 @@ function ScoreTable({ questions, answers }: { questions: KCQuestion[]; answers: 
   return (
     <div className="rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]">
       <div className="flex items-center gap-2 px-4 py-[10px] bg-[var(--surface-raised)] border-b border-border">
-        <span className="flex-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Section</span>
-        <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Score</span>
-        <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Total</span>
+        <span className="flex-1 type-caption font-semibold text-muted-foreground uppercase tracking-wide">Section</span>
+        <span className="w-10 text-right type-caption font-semibold text-muted-foreground uppercase tracking-wide">Score</span>
+        <span className="w-10 text-right type-caption font-semibold text-muted-foreground uppercase tracking-wide">Total</span>
         <span className="w-5" />
       </div>
       {rows.map((row) => (
@@ -222,14 +222,14 @@ function ScoreTable({ questions, answers }: { questions: KCQuestion[]; answers: 
         </SectionRow>
       ))}
       <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
-        <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
+        <span className="flex-1 type-label font-semibold text-foreground">Total</span>
         <span
-          className="w-10 text-right text-[14px] font-bold tabular-nums"
+          className="w-10 text-right type-label font-bold tabular-nums"
           style={{ color: totalCorrect === totalPoints ? "var(--primary)" : "var(--destructive)" }}
         >
           {totalCorrect}
         </span>
-        <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">{totalPoints}</span>
+        <span className="w-10 text-right type-label font-medium text-muted-foreground tabular-nums">{totalPoints}</span>
         <span className="w-5" />
       </div>
     </div>
@@ -260,15 +260,15 @@ export function KCDetailModal({ attempt, onClose }: { attempt: KCAttempt; onClos
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-border shrink-0">
           <div className="flex flex-col gap-0.5">
-            <p className="text-[16px] leading-[24px] font-semibold text-foreground">
+            <p className="type-body font-semibold text-foreground">
               Knowledge check — {formatDate(attempt.date)}
             </p>
             <div className="flex items-center gap-3">
-              <span className="text-[13px] leading-[20px] text-muted-foreground">
+              <span className="type-meta text-muted-foreground">
                 {attempt.formats.map((f) => FORMAT_LABELS[f]).join(", ")}
               </span>
               <span
-                className="text-[13px] leading-[20px] font-semibold tabular-nums"
+                className="type-meta font-semibold tabular-nums"
                 style={{ color: pct >= KC_PASS_MARK ? "var(--primary)" : "var(--destructive)" }}
               >
                 {attempt.score}/{attempt.total} · {pct}%

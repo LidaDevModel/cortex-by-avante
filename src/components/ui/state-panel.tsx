@@ -97,14 +97,14 @@ export function StatePanel({
       <div className="flex flex-col gap-1">
         {title && (
           <p
-            className="text-[20px] leading-[28px] font-semibold text-foreground"
+            className="type-h2 font-semibold text-foreground"
           >
             {title}
           </p>
         )}
         {description && (
           <p
-            className="text-[15px] leading-[24px] text-muted-foreground max-w-[46ch] break-words"
+            className="type-body text-muted-foreground max-w-[46ch] break-words"
           >
             {description}
           </p>

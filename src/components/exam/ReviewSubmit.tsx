@@ -51,8 +51,8 @@ function SectionBlock({
       {/* Header row */}
       <div className="flex items-center justify-between px-4 py-3 bg-[var(--surface-raised)]">
         <div className="flex items-center gap-2">
-          <span className="text-[14px] font-medium text-foreground">{label}</span>
-          <span className={cn("text-[12px]", ok ? "text-muted-foreground" : "text-destructive")}>
+          <span className="type-label font-medium text-foreground">{label}</span>
+          <span className={cn("type-caption", ok ? "text-muted-foreground" : "text-destructive")}>
             {status}
           </span>
         </div>
@@ -60,7 +60,7 @@ function SectionBlock({
           {section && onEdit && (
             <button
               onClick={onEdit}
-              className="text-[13px] font-medium text-[var(--primary)] hover:opacity-70 transition-opacity duration-100 cursor-pointer"
+              className="type-meta font-medium text-[var(--primary)] hover:opacity-70 transition-opacity duration-100 cursor-pointer"
             >
               Edit
             </button>
@@ -122,10 +122,10 @@ export function ReviewSubmit({
         style={{ animationTimingFunction: "ease-out" }}
       >
         <div className="flex flex-col gap-1">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 className="type-h2 font-semibold text-foreground">
             Review your answers
           </h2>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="type-label text-muted-foreground">
             Check each section before submitting.
           </p>
         </div>
@@ -143,10 +143,10 @@ export function ReviewSubmit({
             const selected = answer?.selectedIndex ?? null;
             return (
               <div key={q.id} className="flex flex-col gap-1">
-                <span className="text-[12px] text-muted-foreground">Q{i + 1} — {q.question}</span>
+                <span className="type-caption text-muted-foreground">Q{i + 1} — {q.question}</span>
                 <span
                   className={cn(
-                    "text-[13px] font-medium pl-2 border-l-2",
+                    "type-meta font-medium pl-2 border-l-2",
                     selected !== null
                       ? "text-[var(--primary)] border-[var(--primary)]"
                       : "text-muted-foreground border-[var(--card-border)]"
@@ -174,10 +174,10 @@ export function ReviewSubmit({
               // Term over matched definition — same stacked shape as the MC and
               // branching rows, so the definition gets full width on mobile.
               <div key={pair.id} className="flex flex-col gap-0.5">
-                <span className="text-[12px] text-muted-foreground">{pair.term}</span>
+                <span className="type-caption text-muted-foreground">{pair.term}</span>
                 <span
                   className={cn(
-                    "text-[13px] font-medium pl-2 border-l-2",
+                    "type-meta font-medium pl-2 border-l-2",
                     matchedDef
                       ? "text-[var(--primary)] border-[var(--primary)]"
                       : "text-muted-foreground border-[var(--card-border)]"
@@ -198,10 +198,10 @@ export function ReviewSubmit({
           section="shortAnswer"
           onEdit={() => onEditSection("shortAnswer")}
         >
-          <p className="text-[12px] text-muted-foreground">{shortAnswerQuestion.prompt}</p>
+          <p className="type-caption text-muted-foreground">{shortAnswerQuestion.prompt}</p>
           <p
             className={cn(
-              "text-[13px] font-medium pl-2 border-l-2",
+              "type-meta font-medium pl-2 border-l-2",
               shortAnswerAnswered
                 ? "text-[var(--primary)] border-[var(--primary)]"
                 : "text-muted-foreground border-[var(--card-border)]"
@@ -233,10 +233,10 @@ export function ReviewSubmit({
                   const chosenOption = node.options?.find((o) => o.id === chosenId);
                   return (
                     <div key={node.id} className="flex flex-col gap-0.5">
-                      <span className="text-[12px] text-muted-foreground">{node.label}</span>
+                      <span className="type-caption text-muted-foreground">{node.label}</span>
                       <span
                         className={cn(
-                          "text-[13px] font-medium pl-2 border-l-2",
+                          "type-meta font-medium pl-2 border-l-2",
                           chosenOption
                             ? "text-[var(--primary)] border-[var(--primary)]"
                             : "text-muted-foreground border-[var(--card-border)]"
@@ -250,7 +250,7 @@ export function ReviewSubmit({
               </div>
             </>
           ) : (
-            <p className="text-[13px] text-muted-foreground italic">
+            <p className="type-meta text-muted-foreground italic">
               You haven&apos;t reached this section yet.
             </p>
           )}
@@ -261,14 +261,14 @@ export function ReviewSubmit({
           {hasSkipped && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-[8px] bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] border border-[color-mix(in_srgb,var(--destructive)_20%,transparent)]">
               <AlertCircle size={14} color="var(--destructive)" className="shrink-0" />
-              <p className="text-[13px] text-destructive">
+              <p className="type-meta text-destructive">
                 You have unanswered questions.
               </p>
             </div>
           )}
           <button
             onClick={onSubmit}
-            className="w-full h-10 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] text-[14px] font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
+            className="w-full h-10 rounded-[8px] bg-[var(--primary)] text-[var(--primary-foreground)] type-label font-medium hover:opacity-90 transition-opacity duration-100 cursor-pointer"
           >
             {hasSkipped ? "Submit anyway" : "Submit exam"}
           </button>

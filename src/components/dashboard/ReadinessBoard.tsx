@@ -158,7 +158,7 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
       <div className="relative z-10 flex flex-col gap-1 min-w-0 flex-1">
         <div className="flex items-center gap-2 min-w-0">
           <span
-            className="text-[14px] leading-[20px] font-semibold truncate"
+            className="type-label font-semibold truncate"
             style={{ color: "var(--foreground)" }}
           >
             {m.title}
@@ -171,13 +171,13 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
         </div>
 
         {state === "ready-to-certify" && (
-          <span className="text-[12px] leading-[16px] font-medium">
+          <span className="type-caption font-medium">
             <span style={{ color: "var(--success)" }}>Completed</span>
             <span className="text-muted-foreground"> · Not yet certified</span>
           </span>
         )}
         {state === "certified" && (
-          <span className="text-[12px] leading-[16px] font-medium" style={{ color: "var(--success)" }}>
+          <span className="type-caption font-medium" style={{ color: "var(--success)" }}>
             Completed · Certified
           </span>
         )}
@@ -186,13 +186,13 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
             <div className="flex-1 max-w-[180px]">
               <ProgressBar value={m.progress} />
             </div>
-            <span className="text-[12px] leading-[16px] text-muted-foreground tabular-nums shrink-0">
+            <span className="type-caption text-muted-foreground tabular-nums shrink-0">
               {m.progress}%
             </span>
           </div>
         )}
         {state === "not-started" && (
-          <span className="text-[12px] leading-[16px] text-muted-foreground">
+          <span className="type-caption text-muted-foreground">
             Not yet started · {m.chapters} chapters
           </span>
         )}
@@ -203,7 +203,7 @@ function RequirementRow({ module: m, isPrimary, index }: { module: Module; isPri
           matching the Quick practice cards. Certified rows show their score. */}
       {state === "certified" ? (
         <span
-          className="relative z-10 text-[15px] leading-[20px] font-bold tabular-nums shrink-0"
+          className="relative z-10 type-label font-bold tabular-nums shrink-0"
           style={{ color: "var(--success)" }}
         >
           {m.certification!.score}%
@@ -296,7 +296,7 @@ export function ReadinessBoard({
       {/* Header */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 className="type-h2 font-semibold text-foreground">
             Required for {role}
           </h2>
           <Badge variant="outline" tone="neutral">Any order</Badge>
@@ -311,13 +311,13 @@ export function ReadinessBoard({
             ariaLabel={`${certifiedCount} of ${total} required certifications complete`}
           />
           <div className="flex flex-col gap-0.5 min-w-0">
-            <p className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">
+            <p className="type-meta text-muted-foreground tabular-nums">
               {certifiedCount} certified · {remaining} to go{timeLeft ? ` · ${timeLeft} left` : ""}
             </p>
-            <h3 className="text-[18px] leading-[24px] font-semibold text-foreground">
+            <h3 className="type-h3 font-semibold text-foreground">
               Shift readiness
             </h3>
-            <p className="text-[13px] leading-[18px] text-muted-foreground">
+            <p className="type-meta text-muted-foreground">
               Earn every required certification to be cleared for duty.
             </p>
           </div>
@@ -342,7 +342,7 @@ export function ReadinessBoard({
                 type="button"
                 className="group flex items-center gap-1.5 w-full h-11 px-3 rounded-[8px] text-muted-foreground transition-colors duration-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
-                <span className="text-[13px] leading-[18px] font-medium">
+                <span className="type-meta font-medium">
                   {certifiedRows.length} certified
                 </span>
                 <ChevronDown size={16} strokeWidth={2} className="shrink-0 group-data-[state=open]:hidden" />

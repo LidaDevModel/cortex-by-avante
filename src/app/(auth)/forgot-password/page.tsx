@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
       {/* Back to sign in — first row, above everything */}
       <Link
         href="/sign-in"
-        className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+        className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"
       >
         <ArrowLeft size={14} strokeWidth={2} />
         <span>Back to sign in</span>
@@ -54,8 +54,8 @@ export default function ForgotPasswordPage() {
             </span>
             {/* Title + text share the house 4px title rhythm (same as sign-in) */}
             <div className="flex flex-col gap-1">
-              <h1 className="text-[22px] leading-[30px] font-bold text-foreground">Check your email</h1>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
+              <h1 className="type-h1 font-bold text-foreground">Check your email</h1>
+              <p className="type-label text-muted-foreground">
                 If an account exists for{" "}
                 <span className="text-foreground font-medium">{email.trim() || "that address"}</span>, we&apos;ve sent a
                 link to reset your password. It may take a few minutes to arrive.
@@ -66,15 +66,15 @@ export default function ForgotPasswordPage() {
       ) : (
         <>
           <div className="flex flex-col gap-1">
-            <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground">Reset your password</h1>
-            <p className="text-[14px] leading-[20px] text-muted-foreground">
+            <h1 className="type-h1 font-bold text-foreground">Reset your password</h1>
+            <p className="type-label text-muted-foreground">
               Enter your email and we&apos;ll send you a link to set a new password.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-1" noValidate>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-[14px] leading-[20px] font-semibold text-foreground">
+              <label htmlFor="email" className="type-label font-semibold text-foreground">
                 Email
               </label>
               <Input
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
                 className="h-12 bg-surface"
               />
               {/* Reserved message line — same rhythm as the other auth fields */}
-              <p aria-live="polite" className="min-h-[16px] text-[12px] leading-[16px] text-destructive" />
+              <p aria-live="polite" className="min-h-[16px] type-caption text-destructive" />
             </div>
 
             <Button type="submit" size="cta" className="w-full mt-3">

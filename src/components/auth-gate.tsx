@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { isSessionExpired, isSignedIn } from "@/lib/auth-mock";
 import { withReturn } from "@/lib/admin-nav";
 
@@ -15,7 +15,6 @@ import { withReturn } from "@/lib/admin-nav";
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const search = useSearchParams();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -32,14 +31,19 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     // effect — after that call the answer is always false.
     const expired = isSessionExpired();
     if (!isSignedIn()) {
-      const q = search.toString();
-      const target = q ? `${pathname}?${q}` : pathname;
+      /* `window.location.search`, not `useSearchParams()`. This gate wraps the
+         whole app shell, and `useSearchParams` opts every page inside it out
+         of static prerendering unless the tree is wrapped in Suspense — the
+         build fails outright ("should be wrapped in a suspense boundary").
+         The read happens in an effect, so the browser is always there. */
+      const q = window.location.search;
+      const target = q ? `${pathname}${q}` : pathname;
       const next = withReturn("/sign-in", target);
       router.replace(expired ? `${next}&expired=1` : next);
       return;
     }
     setReady(true);
-  }, [router, pathname, search]);
+  }, [router, pathname]);
 
   if (!ready) return null;
   return <>{children}</>;

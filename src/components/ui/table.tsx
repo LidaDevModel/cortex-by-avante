@@ -38,7 +38,7 @@ export function TableHead({
         onClick={onSort}
         style={style}
         className={cn(
-          "flex items-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors duration-100",
+          "flex items-center gap-1 type-caption font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors duration-100",
           className
         )}
       >
@@ -54,7 +54,7 @@ export function TableHead({
     );
   }
   return (
-    <span style={style} className={cn("text-[11px] font-semibold text-muted-foreground uppercase tracking-wide", className)}>
+    <span style={style} className={cn("type-caption font-semibold text-muted-foreground uppercase tracking-wide", className)}>
       {children}
     </span>
   );
@@ -128,7 +128,7 @@ export function TableRow({
 
 export function TableCell({ className, style, children }: { className?: string; style?: React.CSSProperties; children: React.ReactNode }) {
   return (
-    <span className={cn("text-[14px] text-foreground", className)} style={style}>
+    <span className={cn("type-label text-foreground", className)} style={style}>
       {children}
     </span>
   );
@@ -142,7 +142,7 @@ export function TableCell({ className, style, children }: { className?: string; 
  */
 export function TableCardMeta({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <span className={cn("block text-[12px] leading-[16px] font-[500] text-muted-foreground truncate", className)}>
+    <span className={cn("block type-caption font-[500] text-muted-foreground truncate", className)}>
       {children}
     </span>
   );
@@ -178,7 +178,7 @@ export function TableCard({
     <TableRow onClick={onClick} style={style} className={cn("gap-3 py-3 items-start", className)}>
       {leading}
       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-        <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{title}</span>
+        <span className="type-label font-medium text-foreground truncate">{title}</span>
         {meta}
       </div>
       {trailing != null && <div className="shrink-0 flex items-start gap-2">{trailing}</div>}

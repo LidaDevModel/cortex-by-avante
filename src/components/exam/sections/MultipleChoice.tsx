@@ -69,7 +69,7 @@ export function MultipleChoice({
               <div key={i} className="flex items-center gap-2">
                 <button
                   onClick={() => onJumpTo(i)}
-                  className="flex items-center justify-center rounded-full text-[11px] font-semibold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 shrink-0"
+                  className="flex items-center justify-center rounded-full type-caption font-semibold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 shrink-0"
                   style={{
                     width: 28, height: 28,
                     background: isCurrent || isAnswered ? "var(--primary)" : "transparent",
@@ -95,12 +95,12 @@ export function MultipleChoice({
               with minutes left. Naming the section's position scopes the
               count without repeating the section name, which the tabs above
               already show. */}
-          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
+          <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">
             {sectionPosition && sectionCount
               ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
               : `Question ${questionIndex + 1} of ${totalQuestions}`}
           </span>
-          <h2 id={`mc-q-${questionIndex}`} className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 id={`mc-q-${questionIndex}`} className="type-h2 font-semibold text-foreground">
             {question.question}
           </h2>
         </div>
@@ -124,7 +124,7 @@ export function MultipleChoice({
           ) : (
             <button
               onClick={onSkip}
-              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
+              className="type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer"
             >
               Skip question
             </button>

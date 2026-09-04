@@ -72,8 +72,8 @@ export default function AdminActivityPage() {
       <ScrollCanvas onScroll={onScroll}>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex flex-col gap-1">
-            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Activity log</h1>
-            <p className="text-[14px] leading-[20px] text-muted-foreground">Who did what across content, people, and flagged responses.</p>
+            <h1 className="type-h1 font-bold text-foreground">Activity log</h1>
+            <p className="type-label text-muted-foreground">Who did what across content, people, and flagged responses.</p>
           </div>
 
           {/* Locked: the screen keeps its identity above, and its working

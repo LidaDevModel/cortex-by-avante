@@ -12,7 +12,7 @@ export function ProgressDonut({
   ariaLabel,
   size = 76,
   stroke = 8,
-  labelClassName = "text-[15px] font-bold",
+  labelClassName = "type-body font-bold",
 }: {
   /** 0–100; drives the arc length. */
   value: number;

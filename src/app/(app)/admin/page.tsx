@@ -84,8 +84,8 @@ export default function AdminHomePage() {
           {/* Title + the actions admins repeat daily */}
           <div className="flex items-end justify-between gap-3 flex-wrap">
             <div className="flex flex-col gap-1">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Home</h1>
-              {dateMeta && <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>}
+              <h1 className="type-h1 font-bold text-foreground">Home</h1>
+              {dateMeta && <p className="type-meta text-muted-foreground">{dateMeta}</p>}
             </div>
           </div>
 
@@ -101,11 +101,11 @@ export default function AdminHomePage() {
           {/* Needs attention — only items with an action, each linking to its fix.
               Carries the readiness card's glow: it is this screen's hero. */}
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)", boxShadow: "var(--card-glow-shadow)" }}>
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Needs attention</h2>
+            <h2 className="type-h2 font-semibold text-foreground">Needs attention</h2>
             {attention.length === 0 ? (
               <div className="flex items-center gap-2.5 py-2">
                 <CheckCircle2 size={16} strokeWidth={1.5} style={{ color: "var(--success)" }} />
-                <span className="text-[14px] leading-[20px] text-muted-foreground">All clear — nothing needs your review.</span>
+                <span className="type-label text-muted-foreground">All clear — nothing needs your review.</span>
               </div>
             ) : (
               <Table>
@@ -115,7 +115,7 @@ export default function AdminHomePage() {
                       <TableCell className="flex-1 min-w-0">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <item.icon size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
-                          <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{item.text}</span>
+                          <span className="type-label font-medium text-foreground truncate">{item.text}</span>
                         </div>
                       </TableCell>
                       <TableCell className="w-8 flex items-center justify-end">
@@ -168,7 +168,7 @@ export default function AdminHomePage() {
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Content</h2>
+              <h2 className="type-h2 font-semibold text-foreground">Content</h2>
               <Button size="cta" variant="outline" onClick={() => setNewContentOpen(true)}>
                 <Plus size={16} strokeWidth={1.5} /> Add content
               </Button>
@@ -185,7 +185,7 @@ export default function AdminHomePage() {
                     onClick={() => router.push(t.href)}
                     className="group flex items-center justify-between gap-2 text-left cursor-pointer"
                   >
-                    <span className="text-[14px] leading-[20px] font-semibold text-foreground">{t.label}</span>
+                    <span className="type-label font-semibold text-foreground">{t.label}</span>
                     <ArrowUpRight size={16} strokeWidth={1.5} className="text-muted-foreground transition-colors duration-100 group-hover:text-foreground" />
                   </button>
                   <Table>
@@ -208,13 +208,13 @@ export default function AdminHomePage() {
           {/* Recent activity — the last five admin actions, straight from the log. */}
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Recent activity</h2>
-              <Link href="/admin/reports/activity" className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
+              <h2 className="type-h2 font-semibold text-foreground">Recent activity</h2>
+              <Link href="/admin/reports/activity" className="inline-flex items-center h-11 md:h-auto type-meta font-medium text-primary hover:opacity-70 transition-opacity duration-100">
                 View all
               </Link>
             </div>
             {recentActivity.length === 0 ? (
-              <p className="text-[14px] leading-[20px] text-muted-foreground">No activity data yet.</p>
+              <p className="type-label text-muted-foreground">No activity data yet.</p>
             ) : (
               <>
                 {/* Desktop: full column table */}

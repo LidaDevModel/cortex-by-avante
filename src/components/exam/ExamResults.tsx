@@ -60,9 +60,9 @@ function SectionRow({
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-2 px-4 py-[10px] border-b border-border hover:bg-[color-mix(in_srgb,var(--surface-raised)_60%,transparent)] transition-colors duration-100 cursor-pointer"
       >
-        <span className="flex-1 text-left text-[14px] text-foreground">{label}</span>
-        <span className="w-10 text-right text-[14px] font-medium text-foreground tabular-nums">{score}</span>
-        <span className="w-10 text-right text-[14px] text-muted-foreground tabular-nums">{max}</span>
+        <span className="flex-1 text-left type-label text-foreground">{label}</span>
+        <span className="w-10 text-right type-label font-medium text-foreground tabular-nums">{score}</span>
+        <span className="w-10 text-right type-label text-muted-foreground tabular-nums">{max}</span>
         <span className="w-5 flex justify-end text-muted-foreground">
           {open ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
         </span>
@@ -72,7 +72,7 @@ function SectionRow({
         <div className="border-b border-border bg-[var(--surface)] px-4 py-3">
           <div className="rounded-[8px] bg-[var(--surface-raised)] px-3 py-[14px] flex flex-col gap-4">
             {children ?? (
-              <p className="text-[13px] text-muted-foreground">All answers correct.</p>
+              <p className="type-meta text-muted-foreground">All answers correct.</p>
             )}
           </div>
         </div>
@@ -165,32 +165,32 @@ export function ExamResults({
             </div>
           )}
           <h1
-            className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
+            className="type-h1"
             style={{ color: passed ? "var(--success)" : "var(--foreground)" }}
           >
             {heading}
           </h1>
           <div className="flex items-baseline gap-3">
             <span
-              className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
+              className="type-display tabular-nums"
               style={{ color: passed ? "var(--success)" : "var(--destructive)" }}
             >
               {total}
             </span>
-            <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
+            <span className="type-h3 sm:type-h2 text-muted-foreground font-medium">/ {MAX_TOTAL}</span>
           </div>
           {isSimulation ? (
-            <p className="text-[14px] text-muted-foreground">
+            <p className="type-label text-muted-foreground">
               {passed
                 ? `Practice score — you'd clear the ${PASS_THRESHOLD} needed to certify. Nothing is recorded; this was practice.`
                 : `Practice score — the certification pass mark is ${PASS_THRESHOLD}. Review the breakdown below and try again when you're ready.`}
             </p>
           ) : passed ? (
-            <p className="text-[14px] text-muted-foreground">
+            <p className="type-label text-muted-foreground">
               Your certification has been recorded. Issued {today}.
             </p>
           ) : (
-            <p className="text-[14px] text-muted-foreground">
+            <p className="type-label text-muted-foreground">
               Passing score: {PASS_THRESHOLD}. Review the breakdown below and return to the module.
             </p>
           )}
@@ -200,13 +200,13 @@ export function ExamResults({
         <div className="rounded-[12px] border border-border overflow-hidden bg-[var(--surface)]">
           {/* Header row */}
           <div className="flex items-center gap-2 px-4 py-[10px] bg-[var(--surface-raised)] border-b border-border">
-            <span className="flex-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+            <span className="flex-1 type-caption font-semibold text-muted-foreground uppercase tracking-wide">
               Section
             </span>
-            <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+            <span className="w-10 text-right type-caption font-semibold text-muted-foreground uppercase tracking-wide">
               Score
             </span>
-            <span className="w-10 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+            <span className="w-10 text-right type-caption font-semibold text-muted-foreground uppercase tracking-wide">
               Max
             </span>
             <span className="w-5" />
@@ -217,14 +217,14 @@ export function ExamResults({
             {mcWrong.length > 0 ? (
               mcWrong.map(({ q, qi, userIdx }) => (
                 <div key={q.id} className="flex flex-col gap-2">
-                  <span className="text-[13px] font-medium text-foreground">
+                  <span className="type-meta font-medium text-foreground">
                     Q{qi + 1} — {q.question}
                   </span>
                   <WrongAnswerRow>
-                    <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
+                    <span className={cn("type-meta", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
                       Your answer: {userIdx !== null ? q.options[userIdx] : "Skipped"}
                     </span>
-                    <span className="text-[13px]" style={{ color: "var(--success)" }}>
+                    <span className="type-meta" style={{ color: "var(--success)" }}>
                       Correct answer: {q.options[q.correctIndex]}
                     </span>
                   </WrongAnswerRow>
@@ -241,12 +241,12 @@ export function ExamResults({
                 const matchedDef = exam.matching.pairs.find((p) => p.id === matchedDefId);
                 return (
                   <div key={pair.id} className="flex flex-col gap-2">
-                    <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
+                    <span className="type-meta font-medium text-foreground">{pair.term}</span>
                     <WrongAnswerRow>
-                      <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
+                      <span className={cn("type-meta", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                         Your match: {matchedDef ? matchedDef.definition : "Not matched"}
                       </span>
-                      <span className="text-[13px]" style={{ color: "var(--success)" }}>
+                      <span className="type-meta" style={{ color: "var(--success)" }}>
                         Correct: {pair.definition}
                       </span>
                     </WrongAnswerRow>
@@ -260,10 +260,10 @@ export function ExamResults({
           <SectionRow label="Short answer" score={scores.shortAnswer} max={25}>
             {shortAnswerWrong ? (
               <div className="flex flex-col gap-2">
-                <p className={cn("text-[13px]", shortAnswer.trim() ? "text-foreground" : "text-muted-foreground")}>
+                <p className={cn("type-meta", shortAnswer.trim() ? "text-foreground" : "text-muted-foreground")}>
                   &ldquo;{shortAnswer || "No answer provided"}&rdquo;
                 </p>
-                <p className={cn("text-[13px]", shortAnswer.trim() ? "text-destructive" : "text-muted-foreground")}>
+                <p className={cn("type-meta", shortAnswer.trim() ? "text-destructive" : "text-muted-foreground")}>
                   {exam.shortAnswer.aiJustification ?? "Your answer didn't fully address the required concepts."}
                 </p>
               </div>
@@ -279,12 +279,12 @@ export function ExamResults({
                 const optimalOption = node.options?.find((o) => o.isOptimal);
                 return (
                   <div key={node.id} className="flex flex-col gap-2">
-                    <span className="text-[13px] font-medium text-foreground">{node.label}</span>
+                    <span className="type-meta font-medium text-foreground">{node.label}</span>
                     <WrongAnswerRow>
-                      <span className={cn("text-[13px]", chosenOption ? "text-destructive" : "text-muted-foreground")}>
+                      <span className={cn("type-meta", chosenOption ? "text-destructive" : "text-muted-foreground")}>
                         Your choice: {chosenOption?.text ?? "Not answered"}
                       </span>
-                      <span className="text-[13px]" style={{ color: "var(--success)" }}>
+                      <span className="type-meta" style={{ color: "var(--success)" }}>
                         Optimal choice: {optimalOption?.text}
                       </span>
                     </WrongAnswerRow>
@@ -296,14 +296,14 @@ export function ExamResults({
 
           {/* Total row */}
           <div className="flex items-center gap-2 px-4 py-[13px] bg-[var(--surface-raised)]">
-            <span className="flex-1 text-[14px] font-semibold text-foreground">Total</span>
+            <span className="flex-1 type-label font-semibold text-foreground">Total</span>
             <span
-              className={cn("w-10 text-right text-[14px] font-bold tabular-nums", passed ? "" : "text-destructive")}
+              className={cn("w-10 text-right type-label font-bold tabular-nums", passed ? "" : "text-destructive")}
               style={passed ? { color: "var(--success)" } : undefined}
             >
               {total}
             </span>
-            <span className="w-10 text-right text-[14px] font-medium text-muted-foreground tabular-nums">
+            <span className="w-10 text-right type-label font-medium text-muted-foreground tabular-nums">
               {MAX_TOTAL}
             </span>
             <span className="w-5" />

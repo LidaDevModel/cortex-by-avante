@@ -76,14 +76,14 @@ function ToastCard({ toast }: { toast: Toast }) {
       >
         <X size={13} />
       </button>
-      <p className="text-[14px] leading-[20px] font-semibold text-foreground">{toast.title}</p>
+      <p className="type-label font-semibold text-foreground">{toast.title}</p>
       {toast.description && (
-        <p className="text-[13px] leading-[18px] text-muted-foreground">{toast.description}</p>
+        <p className="type-meta text-muted-foreground">{toast.description}</p>
       )}
       {toast.action && (
         <button
           onClick={() => { toast.action!.onClick(); dismissToast(toast.id); }}
-          className="self-start mt-1 text-[13px] leading-[18px] font-semibold text-primary hover:opacity-70 transition-opacity duration-100"
+          className="self-start mt-1 type-meta font-semibold text-primary hover:opacity-70 transition-opacity duration-100"
         >
           {toast.action.label}
         </button>

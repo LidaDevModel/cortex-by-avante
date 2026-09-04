@@ -116,7 +116,7 @@ export function NewRequirementCard({
           <Badge tone="primary" className="font-semibold">
             {multiple ? "New requirements" : "New requirement"}
           </Badge>
-          <span className="text-[13px] leading-[18px] italic text-muted-foreground">
+          <span className="type-meta italic text-muted-foreground">
             {timePhrase}
           </span>
         </div>
@@ -136,18 +136,18 @@ export function NewRequirementCard({
           <div className="relative z-10 flex flex-col gap-1.5 min-w-0">
             <h2
               id="new-requirement-title"
-              className="text-[20px] leading-[28px] font-semibold text-foreground"
+              className="type-h2 font-semibold text-foreground"
             >
               {title}
             </h2>
-            <span className="text-[13px] leading-[18px] text-muted-foreground">
+            <span className="type-meta text-muted-foreground">
               {addedPhrase} · {chapters} chapters
             </span>
           </div>
         </div>
 
         {/* Reassurance — its own line, the emotional work of the card */}
-        <p className="relative z-10 text-[15px] leading-[24px] text-foreground">
+        <p className="relative z-10 type-body text-foreground">
           {reassurance}
           {certifiedCount > 0 && (
             <span className="text-muted-foreground">
@@ -170,7 +170,7 @@ export function NewRequirementCard({
           <button
             type="button"
             onClick={onDismiss}
-            className="text-[13px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px] px-1"
+            className="type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px] px-1"
           >
             Not now
           </button>

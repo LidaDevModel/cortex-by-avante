@@ -50,7 +50,7 @@ export default function CertificationDetailPage() {
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <Link
             href={backHref}
-            className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+            className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"
           >
             <ArrowLeft size={14} strokeWidth={2} />
             <span>Back</span>
@@ -62,13 +62,13 @@ export default function CertificationDetailPage() {
               className="rounded-[12px] p-6 flex flex-col items-start gap-2 bg-surface-raised"
               style={{ border: "1px solid var(--border)" }}
             >
-              <h1 className="text-[22px] leading-[30px] font-bold text-foreground">Certification unavailable</h1>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
+              <h1 className="type-h1 font-bold text-foreground">Certification unavailable</h1>
+              <p className="type-label text-muted-foreground">
                 We couldn&apos;t find this certification.
               </p>
               <Link
                 href="/profile"
-                className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+                className="type-meta font-medium transition-opacity duration-100 hover:opacity-70"
                 style={{ color: "var(--primary)" }}
               >
                 Back to profile
@@ -82,8 +82,8 @@ export default function CertificationDetailPage() {
               style={{ border: "1px solid var(--border)" }}
             >
               <RequiredPill required={m.required} />
-              <h1 className="text-[22px] leading-[30px] font-bold text-foreground">{m.title}</h1>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
+              <h1 className="type-h1 font-bold text-foreground">{m.title}</h1>
+              <p className="type-label text-muted-foreground">
                 You haven&apos;t earned this certification yet. Finish the module and pass its exam to earn it.
               </p>
               <Button size="cta" asChild>
@@ -119,19 +119,19 @@ export default function CertificationDetailPage() {
                       <TierChip tier={tier} />
                       <RequiredPill required={m.required} />
                     </div>
-                    <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+                    <h1 className="type-h1 font-bold text-foreground">
                       {m.title}
                     </h1>
-                    <p className="text-[13px] leading-[18px] text-muted-foreground">
+                    <p className="type-meta text-muted-foreground">
                       Issued {formatDate(cert.date)}
                     </p>
                   </div>
 
                   <div className="flex flex-col items-end shrink-0">
-                    <span className="text-[32px] leading-[36px] font-bold tabular-nums text-foreground">
+                    <span className="type-h1 font-bold tabular-nums text-foreground">
                       {cert.score}%
                     </span>
-                    <span className="text-[12px] leading-[16px] text-muted-foreground">Overall score</span>
+                    <span className="type-caption text-muted-foreground">Overall score</span>
                   </div>
                 </div>
               </section>
@@ -141,7 +141,7 @@ export default function CertificationDetailPage() {
                 className="rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
                 style={{ border: "1px solid var(--border)" }}
               >
-                <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Section results</h2>
+                <h2 className="type-h2 font-semibold text-foreground">Section results</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {EXAM_SECTIONS.map((label, i) => {
                     const s = cert.sectionScores[i] ?? 0;
@@ -153,8 +153,8 @@ export default function CertificationDetailPage() {
                         className="flex flex-col gap-3 rounded-[10px] p-4 bg-surface-lifted"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[14px] leading-[20px] font-medium text-foreground">{label}</span>
-                          <span className="text-[14px] leading-[20px] font-semibold tabular-nums text-foreground">
+                          <span className="type-label font-medium text-foreground">{label}</span>
+                          <span className="type-label font-semibold tabular-nums text-foreground">
                             {s}%
                           </span>
                         </div>
@@ -163,7 +163,7 @@ export default function CertificationDetailPage() {
                     );
                   })}
                 </div>
-                <p className="text-[12px] leading-[16px] text-muted-foreground">
+                <p className="type-caption text-muted-foreground">
                   Overall pass mark {PASS_MARK}%.
                 </p>
               </section>

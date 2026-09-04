@@ -66,7 +66,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className="h-[34px] px-4 rounded-full border text-[13px] leading-[20px] font-medium transition-colors duration-100"
+      className="h-[34px] px-4 rounded-full border type-meta font-medium transition-colors duration-100"
       style={
         active
           ? {
@@ -115,17 +115,17 @@ function ConfigScreen({
         style={{ background: "var(--surface-raised)", border: "1px solid var(--border)" }}
       >
         <div className="flex flex-col gap-1">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 className="type-h2 font-semibold text-foreground">
             Configure your check
           </h2>
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
+          <p className="type-meta text-muted-foreground">
             Choose the formats and categories for this session.
           </p>
         </div>
 
         {/* Formats */}
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">
             Format
           </p>
           <div className="flex flex-wrap gap-2">
@@ -143,7 +143,7 @@ function ConfigScreen({
 
         {/* Categories */}
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">
             Category
           </p>
           <div className="flex flex-wrap gap-2">
@@ -164,8 +164,8 @@ function ConfigScreen({
           className="flex items-center justify-between px-4 py-3 rounded-[8px]"
           style={{ background: "color-mix(in srgb, var(--primary) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)" }}
         >
-          <span className="text-[13px] leading-[20px] text-muted-foreground">Estimated</span>
-          <span className="text-[13px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
+          <span className="type-meta text-muted-foreground">Estimated</span>
+          <span className="type-meta font-semibold" style={{ color: "var(--primary)" }}>
             {formats.length > 0 && categories.length > 0 ? `${budget.total} questions · ${budget.time}` : "Select formats and categories"}
           </span>
         </div>
@@ -179,7 +179,7 @@ function ConfigScreen({
           </Button>
           <button
             onClick={onCancel}
-            className="text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
+            className="type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
           >
             Cancel
           </button>
@@ -198,7 +198,7 @@ function GeneratingScreen() {
         className="w-8 h-8 rounded-full border-2 animate-spin"
         style={{ borderColor: "var(--border)", borderTopColor: "var(--primary)" }}
       />
-      <p className="text-[15px] leading-[24px] font-medium text-foreground">
+      <p className="type-body font-medium text-foreground">
         Preparing your questions…
       </p>
     </div>
@@ -225,7 +225,7 @@ function HistorySection({ attempts, onViewDetail }: { attempts: KCAttempt[]; onV
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <p className="text-[12px] leading-[16px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
+        <p className="type-caption font-medium uppercase tracking-wider text-muted-foreground shrink-0">
           Previous checks
         </p>
         {attempts.length > 0 && (
@@ -317,7 +317,7 @@ function HistoryTable({
   });
 
   const emptyFiltered = (
-    <div className="px-4 py-10 text-center text-[13px] leading-[20px] text-muted-foreground">
+    <div className="px-4 py-10 text-center type-meta text-muted-foreground">
       No checks match the selected filters.
     </div>
   );
@@ -363,7 +363,7 @@ function HistoryTable({
               meta={<TableCardMeta>{formatLabel} · {formatDate(attempt.date)}</TableCardMeta>}
               trailing={
                 <span
-                  className="text-[13px] leading-[20px] font-semibold"
+                  className="type-meta font-semibold"
                   style={{ fontVariantNumeric: "tabular-nums", color: scoreColor }}
                 >
                   {attempt.score}/{attempt.total} · {pct}%
@@ -586,10 +586,10 @@ function QuickCheckContent() {
               <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
                 {/* Title */}
                 <div className="flex flex-col gap-1">
-                  <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+                  <h1 className="type-h1 font-bold text-foreground">
                     Knowledge check
                   </h1>
-                  <p className="text-[14px] leading-[20px] text-muted-foreground">
+                  <p className="type-label text-muted-foreground">
                     Test your knowledge across topics and formats without time pressure.
                   </p>
                 </div>
@@ -657,7 +657,7 @@ function QuickCheckContent() {
             <div className="flex flex-col h-full overflow-hidden">
               <div className="max-w-[920px] mx-auto w-full px-4 sm:px-8 pt-8 pb-4 flex flex-col gap-4 shrink-0">
                 <div className="flex items-center justify-between gap-3">
-                  <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground capitalize min-w-0 truncate">
+                  <h1 className="type-h1 font-bold text-foreground capitalize min-w-0 truncate">
                     {selectedCategories.length === 0 || selectedCategories.length === ALL_CATEGORIES.length
                       ? "All categories check"
                       : selectedCategories.length === 1

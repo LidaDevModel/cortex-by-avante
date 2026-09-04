@@ -97,7 +97,7 @@ export default function ActivatePage() {
       {step === 1 && (
         <Link
           href="/sign-in"
-          className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           <ArrowLeft size={14} strokeWidth={2} />
           <span>Back to sign in</span>
@@ -108,7 +108,7 @@ export default function ActivatePage() {
           reads from the same ring indicator as the dashboard readiness board,
           with "[x] of [y]" in the centre instead of a percentage. */}
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-[22px] leading-[30px] lg:text-[28px] lg:leading-[36px] font-bold text-foreground min-w-0">
+        <h1 className="type-h1 font-bold text-foreground min-w-0">
           {step === 1 ? "Activate your account" : step === 2 ? "Create your password" : "Set up your profile"}
         </h1>
         <ProgressDonut
@@ -117,7 +117,7 @@ export default function ActivatePage() {
           ariaLabel={`Step ${step} of ${TOTAL_STEPS}`}
           size={52}
           stroke={4}
-          labelClassName="text-[11px] font-semibold"
+          labelClassName="type-caption font-semibold"
         />
       </div>
 
@@ -129,7 +129,7 @@ export default function ActivatePage() {
           {/* The last auth screen a new hire sees. Nothing told them which
               door to use next time, or that the password they just chose is
               the one to use — so the next visit started with a guess. */}
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
+          <p className="type-meta text-muted-foreground">
             Next time, sign in with your email and the password you just created.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function ActivatePage() {
           noValidate
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-[14px] leading-[20px] font-semibold text-foreground">
+            <label htmlFor="email" className="type-label font-semibold text-foreground">
               Email
             </label>
             <Input
@@ -157,15 +157,15 @@ export default function ActivatePage() {
               className={`h-12 bg-surface ${emailError ? "field-error" : ""}`}
             />
             {/* Reserved message line — always present so the form never jumps */}
-            <p aria-live="polite" className="min-h-[16px] text-[12px] leading-[16px] text-destructive">
+            <p aria-live="polite" className="min-h-[16px] type-caption text-destructive">
               {emailError ? "Enter a valid email address." : ""}
             </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[14px] leading-[20px] font-semibold text-foreground">PIN</label>
+            <label className="type-label font-semibold text-foreground">PIN</label>
             <PinInput value={pin} onChange={setPin} />
-            <p className="text-[12px] leading-[16px] text-muted-foreground">
+            <p className="type-caption text-muted-foreground">
               Your PIN was issued by Avante — ask your manager if you don&apos;t have one.
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function ActivatePage() {
           noValidate
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="new-password" className="text-[14px] leading-[20px] font-semibold text-foreground">
+            <label htmlFor="new-password" className="type-label font-semibold text-foreground">
               New password
             </label>
             <div className="relative">
@@ -229,7 +229,7 @@ export default function ActivatePage() {
               </div>
               <span
                 aria-live="polite"
-                className="text-[12px] leading-[16px] font-semibold shrink-0 tabular-nums text-right min-w-[3.5rem]"
+                className="type-caption font-semibold shrink-0 tabular-nums text-right min-w-[3.5rem]"
                 style={{ color: STRENGTH[strength].color }}
               >
                 {STRENGTH[strength].label}
@@ -246,7 +246,7 @@ export default function ActivatePage() {
                 <li
                   key={r.label}
                   aria-label={`${r.label} — ${r.ok ? "met" : "not met"}`}
-                  className="flex items-center justify-between gap-2 h-8 px-2.5 rounded-[8px] border text-[12px] leading-[16px] font-medium transition-colors duration-150"
+                  className="flex items-center justify-between gap-2 h-8 px-2.5 rounded-[8px] border type-caption font-medium transition-colors duration-150"
                   style={
                     r.ok
                       ? { borderColor: "color-mix(in srgb, var(--primary) 45%, transparent)", color: "var(--primary)" }

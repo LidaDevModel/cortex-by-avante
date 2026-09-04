@@ -19,10 +19,10 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
       >
         {/* Question */}
         <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
+          <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">
             Short answer
           </span>
-          <h2 id={`sa-prompt-${question.id}`} className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <h2 id={`sa-prompt-${question.id}`} className="type-h2 font-semibold text-foreground">
             {question.prompt}
           </h2>
         </div>
@@ -40,7 +40,7 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
               aria-describedby={`sa-hint-${question.id}`}
               placeholder="Write your answer here…"
               rows={5}
-              className="w-full px-4 py-3 rounded-[8px] border border-input bg-[var(--surface-raised)] text-[14px] leading-[24px] text-foreground placeholder:text-muted-foreground resize-y outline-none focus:ring-2 transition-shadow duration-100"
+              className="w-full px-4 py-3 rounded-[8px] border border-input bg-[var(--surface-raised)] type-body text-foreground placeholder:text-muted-foreground resize-y outline-none focus:ring-2 transition-shadow duration-100"
               style={
                 { "--tw-ring-color": "color-mix(in srgb, var(--primary) 30%, transparent)" } as React.CSSProperties
               }
@@ -50,19 +50,19 @@ export function ShortAnswer({ question, answer, onChange, onNext }: Props) {
               so it reported a number the candidate could not act on — and it
               read as a constraint that does not exist. The guidance stays, and
               is now the field's description. */}
-          <p id={`sa-hint-${question.id}`} className="text-[12px] text-muted-foreground">
+          <p id={`sa-hint-${question.id}`} className="type-caption text-muted-foreground">
             Cover the key points in 2–3 sentences.
           </p>
         </div>
 
         {/* Rubric hints */}
         <div className="flex flex-col gap-2 p-4 rounded-[10px] bg-[var(--surface-raised)] border border-border">
-          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <p className="type-caption font-semibold text-muted-foreground uppercase tracking-wider">
             Your answer should address
           </p>
           <ul className="flex flex-col gap-1">
             {question.rubricHints.map((hint, i) => (
-              <li key={i} className="flex items-start gap-2 text-[13px] text-muted-foreground">
+              <li key={i} className="flex items-start gap-2 type-meta text-muted-foreground">
                 <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground shrink-0" />
                 {hint}
               </li>

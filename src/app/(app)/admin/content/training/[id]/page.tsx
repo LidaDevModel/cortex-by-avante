@@ -222,12 +222,12 @@ export default function AdminModuleEditorPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">{isNew ? "Create module" : "Edit module"}</h1>
+              <h1 className="type-h1 font-bold text-foreground">{isNew ? "Create module" : "Edit module"}</h1>
               <PublishBadge published={found.published !== false} />
             </div>
             <div className="flex items-center gap-2">
               {!hasContent && (
-                <span className="hidden md:inline text-[12px] leading-[16px] text-muted-foreground self-center mr-1">Add content to save or publish</span>
+                <span className="hidden md:inline type-caption text-muted-foreground self-center mr-1">Add content to save or publish</span>
               )}
               <Button size="cta" variant="ghost" onClick={handleExit}>Exit</Button>
               <Button
@@ -248,12 +248,12 @@ export default function AdminModuleEditorPage() {
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] leading-[20px] font-semibold text-foreground">Title</span>
+              <span className="type-label font-semibold text-foreground">Title</span>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} className={FIELD_BG} />
             </label>
 
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <span className="text-[14px] leading-[20px] font-semibold text-foreground">Category</span>
+              <span className="type-label font-semibold text-foreground">Category</span>
               <FilterSelect value={category} onChange={(v) => setCategory(v as ModuleCategory)} options={CATEGORY_OPTIONS} />
             </div>
 
@@ -261,8 +261,8 @@ export default function AdminModuleEditorPage() {
 
             <div className="flex items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-semibold text-foreground">Roles</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Who this module is for.</span>
+                <span className="type-label font-semibold text-foreground">Roles</span>
+                <span className="type-caption text-muted-foreground">Who this module is for.</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap justify-end">
                 {ROLES.map((r) => {
@@ -271,7 +271,7 @@ export default function AdminModuleEditorPage() {
                     <button
                       key={r}
                       onClick={() => toggleRole(r)}
-                      className="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors duration-100"
+                      className="px-3 py-1.5 rounded-full type-meta font-medium border transition-colors duration-100"
                       style={on
                         ? { background: "color-mix(in srgb, var(--primary) 10%, transparent)", borderColor: "var(--primary)", color: "var(--primary)" }
                         : { background: "transparent", borderColor: "var(--border)", color: "var(--foreground)" }}
@@ -287,19 +287,19 @@ export default function AdminModuleEditorPage() {
 
             <div className="flex items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-semibold text-foreground">Required</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Counts toward shift readiness.</span>
+                <span className="type-label font-semibold text-foreground">Required</span>
+                <span className="type-caption text-muted-foreground">Counts toward shift readiness.</span>
               </div>
               <Switch checked={required} onCheckedChange={setRequired} />
             </div>
           </section>
 
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Chapters</h2>
+          <h2 className="type-h2 font-semibold text-foreground">Chapters</h2>
 
           {chapters.map((c, i) => (
               <section key={c.key} className="rounded-[12px] p-4 sm:p-5 flex flex-col gap-3 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Chapter {i + 1}</span>
+                  <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Chapter {i + 1}</span>
                   <button onClick={() => removeChapter(c)} className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove chapter">
                     <Trash2 size={15} strokeWidth={1.5} />
                   </button>
@@ -309,7 +309,7 @@ export default function AdminModuleEditorPage() {
                   value={c.body}
                   onChange={(e) => editChapter(c.key, { body: e.target.value })}
                   placeholder="Chapter body" aria-label="Chapter body"
-                  className="w-full min-h-[140px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 text-[14px] leading-[22px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
+                  className="w-full min-h-[140px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 type-label text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
                 />
 
                 {/* Subchapters — nested title + body blocks within the chapter. */}
@@ -317,7 +317,7 @@ export default function AdminModuleEditorPage() {
                   {c.subs.map((s, j) => (
                     <div key={s.key} className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Subchapter {i + 1}.{j + 1}</span>
+                        <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Subchapter {i + 1}.{j + 1}</span>
                         <button onClick={() => removeSub(c.key, s)} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove subchapter">
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
@@ -327,11 +327,11 @@ export default function AdminModuleEditorPage() {
                         value={s.body}
                         onChange={(e) => editSub(c.key, s.key, { body: e.target.value })}
                         placeholder="Subchapter body" aria-label="Subchapter body"
-                        className="w-full min-h-[90px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 text-[14px] leading-[22px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
+                        className="w-full min-h-[90px] resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 type-label text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring"
                       />
                     </div>
                   ))}
-                  <button onClick={() => addSub(c.key)} className="self-start flex items-center gap-1.5 text-[13px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
+                  <button onClick={() => addSub(c.key)} className="self-start flex items-center gap-1.5 type-meta font-medium text-primary hover:opacity-70 transition-opacity duration-100">
                     <Plus size={14} strokeWidth={1.5} /> Add subchapter
                   </button>
                 </div>
@@ -339,19 +339,19 @@ export default function AdminModuleEditorPage() {
                 {/* Knowledge check — one multiple-choice question per chapter. */}
                 <div className="flex flex-col gap-3 mt-1 pl-4 border-l-2 border-border">
                   {!c.quiz ? (
-                    <button onClick={() => addQuiz(c.key)} className="self-start flex items-center gap-1.5 text-[13px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
+                    <button onClick={() => addQuiz(c.key)} className="self-start flex items-center gap-1.5 type-meta font-medium text-primary hover:opacity-70 transition-opacity duration-100">
                       <Plus size={14} strokeWidth={1.5} /> Add knowledge check
                     </button>
                   ) : (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Knowledge check</span>
+                        <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Knowledge check</span>
                         <button onClick={() => removeQuiz(c)} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove knowledge check">
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
                       </div>
                       <Input value={c.quiz.question} onChange={(e) => editQuiz(c.key, { question: e.target.value })} placeholder="Question" aria-label="Question" className={FIELD_BG} />
-                      <span className="text-[12px] leading-[16px] text-muted-foreground">Select the correct answer.</span>
+                      <span className="type-caption text-muted-foreground">Select the correct answer.</span>
                       <div className="flex flex-col gap-2">
                         {c.quiz.options.map((o, k) => {
                           const correct = c.quiz!.correctId === o.id;
@@ -377,7 +377,7 @@ export default function AdminModuleEditorPage() {
                         })}
                       </div>
                       {c.quiz.options.length < 6 && (
-                        <button onClick={() => addOption(c.key)} className="self-start flex items-center gap-1.5 text-[13px] font-medium text-primary hover:opacity-70 transition-opacity duration-100">
+                        <button onClick={() => addOption(c.key)} className="self-start flex items-center gap-1.5 type-meta font-medium text-primary hover:opacity-70 transition-opacity duration-100">
                           <Plus size={14} strokeWidth={1.5} /> Add option
                         </button>
                       )}

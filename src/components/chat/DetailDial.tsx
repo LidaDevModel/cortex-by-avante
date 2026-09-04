@@ -61,7 +61,7 @@ export function DetailDial({
         <button
           type="button"
           aria-label={`Answer detail: ${current.label}`}
-          className="inline-flex items-center gap-1 h-11 md:h-8 px-2 rounded-[6px] text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="inline-flex items-center gap-1 h-11 md:h-8 px-2 rounded-[6px] type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           {current.label}
           <ChevronDown size={14} strokeWidth={1.75} />
@@ -81,7 +81,7 @@ export function DetailDial({
           }}
         >
           <div className="mb-2">
-            <span className="text-[13px] font-semibold text-foreground">Answer detail</span>
+            <span className="type-meta font-semibold text-foreground">Answer detail</span>
           </div>
 
           <div
@@ -117,11 +117,11 @@ export function DetailDial({
           </div>
 
           <div className="flex items-center justify-between mt-1">
-            <span className="text-[11px] leading-[14px] text-muted-foreground">Shorter</span>
-            <span className="text-[11px] leading-[14px] text-muted-foreground">More detail</span>
+            <span className="type-caption text-muted-foreground">Shorter</span>
+            <span className="type-caption text-muted-foreground">More detail</span>
           </div>
 
-          <p className="mt-4 text-[12px] leading-[16px] text-muted-foreground">
+          <p className="mt-4 type-caption text-muted-foreground">
             <span className="font-medium text-primary">{current.label}</span>
             {" — "}
             {current.description.charAt(0).toLowerCase() + current.description.slice(1)}

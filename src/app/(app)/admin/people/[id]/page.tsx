@@ -47,7 +47,7 @@ function Section({ title, action, children }: { title: string; action?: React.Re
   return (
     <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-4 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">{title}</h2>
+        <h2 className="type-h2 font-semibold text-foreground">{title}</h2>
         {action}
       </div>
       {children}
@@ -110,11 +110,11 @@ export default function AdminPersonPage() {
           <Section title="Identity">
             <div className="flex items-center gap-4">
               <Avatar className="h-14 w-14 rounded-full shrink-0">
-                <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[18px]">{user.initials}</AvatarFallback>
+                <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-h3">{user.initials}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[16px] leading-[22px] font-semibold text-foreground truncate">{user.fullName}</span>
+                  <span className="type-label font-semibold text-foreground truncate">{user.fullName}</span>
                   <StatusPill status={user.status} />
                   {/* Shift-readiness — only for active field agents (the on-shift
                       role); it doesn't apply to admins or to accounts that can't
@@ -123,8 +123,8 @@ export default function AdminPersonPage() {
                     user.shiftReady ? <ClearedBadge /> : <NotClearedBadge />
                   )}
                 </div>
-                <span className="text-[14px] leading-[20px] text-muted-foreground truncate">{user.email}</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Member since {formatDate(user.memberSince)}</span>
+                <span className="type-label text-muted-foreground truncate">{user.email}</span>
+                <span className="type-caption text-muted-foreground">Member since {formatDate(user.memberSince)}</span>
               </div>
             </div>
           </Section>
@@ -154,7 +154,7 @@ export default function AdminPersonPage() {
                   type="button"
                   aria-pressed={catFilter === "all"}
                   onClick={() => setCatFilter("all")}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                  className={`inline-flex items-center px-3 py-1.5 rounded-full type-meta font-medium transition-colors duration-100 ${
                     catFilter === "all"
                       ? "bg-[var(--sidebar-active)] text-primary"
                       : "bg-surface-chip text-foreground hover:opacity-80"
@@ -171,7 +171,7 @@ export default function AdminPersonPage() {
                       type="button"
                       aria-pressed={active}
                       onClick={() => setCatFilter(category)}
-                      className={`inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                      className={`inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full type-meta font-medium transition-colors duration-100 ${
                         active
                           ? "bg-[var(--sidebar-active)] text-primary"
                           : "bg-surface-chip text-foreground hover:opacity-80"
@@ -190,7 +190,7 @@ export default function AdminPersonPage() {
             )}
 
             {user.certs.length === 0 ? (
-              <p className="text-[14px] leading-[20px] text-muted-foreground">No certifications yet.</p>
+              <p className="type-label text-muted-foreground">No certifications yet.</p>
             ) : shownCerts.length > 0 ? (
               <div className="flex flex-col -my-1">
                 {shownCerts.map((c, i) => (
@@ -201,21 +201,21 @@ export default function AdminPersonPage() {
                   >
                     <ModuleIllustration category={c.category} width={36} height={36} className="flex shrink-0" />
                     <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                      <span className="text-[14px] leading-[20px] font-semibold text-foreground truncate">{c.module}</span>
-                      <span className="text-[12px] leading-[16px] text-muted-foreground">{CATEGORY_LABELS[c.category]}</span>
+                      <span className="type-label font-semibold text-foreground truncate">{c.module}</span>
+                      <span className="type-caption text-muted-foreground">{CATEGORY_LABELS[c.category]}</span>
                     </div>
                     <div className="shrink-0 hidden sm:flex">
                       <TierChip tier={c.score === 100 ? "ace" : "certified"} />
                     </div>
                     <div className="flex flex-col items-end gap-0.5 shrink-0 w-[88px]">
-                      <span className="text-[14px] leading-[20px] font-semibold tabular-nums text-foreground">{c.score}%</span>
-                      <span className="text-[12px] leading-[16px] text-muted-foreground">{formatDate(c.date)}</span>
+                      <span className="type-label font-semibold tabular-nums text-foreground">{c.score}%</span>
+                      <span className="type-caption text-muted-foreground">{formatDate(c.date)}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-[14px] leading-[20px] text-muted-foreground">No certifications match this filter.</p>
+              <p className="type-label text-muted-foreground">No certifications match this filter.</p>
             )}
           </Section>
 
@@ -223,8 +223,8 @@ export default function AdminPersonPage() {
           <Section title="Manage">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground">Role</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Controls what this person can access.</span>
+                <span className="type-label font-medium text-foreground">Role</span>
+                <span className="type-caption text-muted-foreground">Controls what this person can access.</span>
               </div>
               <FilterSelect
                 value={user.role}
@@ -237,14 +237,14 @@ export default function AdminPersonPage() {
 
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground">Account status</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">
+                <span className="type-label font-medium text-foreground">Account status</span>
+                <span className="type-caption text-muted-foreground">
                   {user.status === "invited" ? "Invitation sent. Waiting for activation." : user.status === "deactivated" ? "This account cannot sign in." : "This account is active."}
                 </span>
               </div>
               {user.status === "invited" ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-[12px] leading-[16px] text-muted-foreground">Invited {formatDate(user.memberSince)}</span>
+                  <span className="type-caption text-muted-foreground">Invited {formatDate(user.memberSince)}</span>
                   <Button
                     variant="cta-secondary"
                     size="cta"
@@ -282,11 +282,11 @@ export default function AdminPersonPage() {
                 <div className="h-px bg-border" />
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[14px] leading-[20px] font-medium text-foreground">Activation PIN</span>
-                    <span className="text-[12px] leading-[16px] text-muted-foreground">Share this with {user.fullName} to activate their account.</span>
+                    <span className="type-label font-medium text-foreground">Activation PIN</span>
+                    <span className="type-caption text-muted-foreground">Share this with {user.fullName} to activate their account.</span>
                   </div>
                   {pin ? (
-                    <span className="text-[18px] leading-[24px] font-semibold tracking-[0.2em] tabular-nums text-foreground">{pin}</span>
+                    <span className="type-h3 font-semibold tracking-[0.2em] tabular-nums text-foreground">{pin}</span>
                   ) : (
                     <Button
                       variant="cta-secondary"

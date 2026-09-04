@@ -126,7 +126,7 @@ export function AiMessage({
   if (message.isStreaming && message.streamText) {
     return (
       <div className="flex flex-col gap-3 w-full">
-        <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
+        <p className="type-body text-foreground whitespace-pre-wrap">
           {message.streamText}
           <StreamingCaret />
         </p>
@@ -138,13 +138,13 @@ export function AiMessage({
     return (
       <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
         {message.streamText && (
-          <p className="text-[15px] leading-[24px] text-foreground whitespace-pre-wrap">
+          <p className="type-body text-foreground whitespace-pre-wrap">
             {message.streamText}
           </p>
         )}
         {/* Quiet, not an error — the user chose this. No citation chips: a
             partial answer has no complete source list to stand behind. */}
-        <p className="text-[13px] leading-[20px] text-muted-foreground">Stopped</p>
+        <p className="type-meta text-muted-foreground">Stopped</p>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export function AiMessage({
     return (
       <div className="flex flex-col gap-3 w-full" style={{ animation: "msg-in 200ms ease-out both" }}>
         {message.streamText && (
-          <p className="text-[15px] leading-[24px] text-muted-foreground whitespace-pre-wrap">
+          <p className="type-body text-muted-foreground whitespace-pre-wrap">
             {message.streamText}
           </p>
         )}
@@ -161,16 +161,16 @@ export function AiMessage({
             description; only the description was rendered. The partial text
             above is muted so it reads as abandoned, not as an answer. */}
         <div className="flex flex-col gap-1">
-          <p className="text-[13px] leading-[20px] font-semibold text-foreground">
+          <p className="type-meta font-semibold text-foreground">
             Something went wrong
           </p>
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-[13px] leading-[20px] text-muted-foreground">
+            <p className="type-meta text-muted-foreground">
               Cortex couldn&apos;t get a response. Try again in a moment.
             </p>
             <button
               onClick={() => onRetry(message.id)}
-              className="shrink-0 text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
+              className="shrink-0 type-meta font-medium text-primary hover:underline transition-colors duration-100"
             >
               Try again
             </button>
@@ -193,7 +193,7 @@ export function AiMessage({
           {(message.blocks ?? []).map((block, i) => {
             if (block.type === "text") {
               return (
-                <p key={i} className="text-[15px] leading-[24px] text-foreground">
+                <p key={i} className="type-body text-foreground">
                   {block.segments.map((seg, j) =>
                     seg.type === "text"
                       ? <span key={j}>{seg.text}</span>
@@ -208,7 +208,7 @@ export function AiMessage({
         {message.browseLibraryHref && (
           <Link
             href={message.browseLibraryHref}
-            className="inline-flex items-center gap-1.5 self-start text-[13px] font-medium text-primary hover:underline transition-colors duration-100"
+            className="inline-flex items-center gap-1.5 self-start type-meta font-medium text-primary hover:underline transition-colors duration-100"
             style={{ animation: "msg-in 200ms ease-out 150ms both" }}
           >
             <Library size={14} strokeWidth={1.5} />
@@ -269,7 +269,7 @@ export function AiMessage({
             </button>
           </div>
           {fb === "down" && (
-            <p className="text-[12px] leading-[16px] text-muted-foreground">Feedback received</p>
+            <p className="type-caption text-muted-foreground">Feedback received</p>
           )}
         </div>
       </div>

@@ -102,11 +102,11 @@ export function DocumentToolbar({
                 autoCorrect="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 min-w-0 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
+                className="flex-1 min-w-0 bg-transparent type-meta outline-none placeholder:text-muted-foreground"
                 style={{ color: "var(--foreground)" }}
               />
               {counterText && (
-                <span className="text-[12px] tabular-nums shrink-0 whitespace-nowrap" style={{ color: "var(--muted-foreground)" }}>
+                <span className="type-caption tabular-nums shrink-0 whitespace-nowrap" style={{ color: "var(--muted-foreground)" }}>
                   {counterText}
                 </span>
               )}
@@ -145,7 +145,7 @@ export function DocumentToolbar({
           title="Find in document (⌘F)"
           aria-hidden={findOpen}
           tabIndex={findOpen ? -1 : 0}
-          className="absolute inset-y-0 left-0 flex items-center h-10 rounded-[10px] border pl-10 pr-0 sm:pr-3 text-[13px] transition-opacity duration-150 ease-out hover:bg-[var(--surface-raised)]"
+          className="absolute inset-y-0 left-0 flex items-center h-10 rounded-[10px] border pl-10 pr-0 sm:pr-3 type-meta transition-opacity duration-150 ease-out hover:bg-[var(--surface-raised)]"
           style={{
             background: "var(--surface)",
             borderColor: "var(--border)",
@@ -156,7 +156,7 @@ export function DocumentToolbar({
         >
           <span className="hidden sm:inline">Find</span>
           <span
-            className="hidden sm:inline text-[11px] px-1 rounded-[3px] ml-2"
+            className="hidden sm:inline type-caption px-1 rounded-[3px] ml-2"
             style={{ background: "var(--surface-raised)", color: "var(--muted-foreground)" }}
           >
             ⌘F

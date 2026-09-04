@@ -196,8 +196,8 @@ export default function AdminContentPage() {
           {locked ? (
             <>
               <div className="flex flex-col gap-1">
-                <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
-                <p className="text-[14px] leading-[20px] text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
+                <h1 className="type-h1 font-bold text-foreground">Library</h1>
+                <p className="type-label text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
               </div>
               <ManageLockedPanel task="managing the content library" />
             </>
@@ -212,7 +212,7 @@ export default function AdminContentPage() {
             // Folder view: name + its actions (New document, Publish/Unpublish
             // the folder) share the title row.
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+              <h1 className="type-h1 font-bold text-foreground">
                 {folder.name}
               </h1>
               <div className="flex items-center gap-2">
@@ -233,8 +233,8 @@ export default function AdminContentPage() {
           ) : (
             <>
               <div className="flex flex-col gap-1">
-                <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
-                <p className="text-[14px] leading-[20px] text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
+                <h1 className="type-h1 font-bold text-foreground">Library</h1>
+                <p className="type-label text-muted-foreground">Documents and folders staff can read. Publish one to make it visible to learners.</p>
               </div>
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <Segmented

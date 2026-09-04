@@ -20,24 +20,24 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <AuthCursorGlow />
 
           <div className="relative z-10 flex flex-col gap-0.5">
-            <span className="text-[22px] leading-[30px] font-bold tracking-tight" style={{ color: "var(--primary)" }}>
+            <span className="type-h1 font-bold tracking-tight" style={{ color: "var(--primary)" }}>
               Cortex
             </span>
-            <span className="text-[12px] leading-[16px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
+            <span className="type-caption font-medium uppercase tracking-[0.05em] text-muted-foreground">
               Avante Security
             </span>
           </div>
 
           <div className="relative z-10 flex flex-col gap-3 pb-10">
-            <h2 className="text-[28px] leading-[36px] font-bold text-foreground max-w-[420px] text-balance">
+            <h2 className="type-h1 font-bold text-foreground max-w-[420px] text-balance">
               Every protocol, procedure, and answer — in one place.
             </h2>
-            <p className="text-[14px] leading-[20px] max-w-[400px] text-muted-foreground">
+            <p className="type-label max-w-[400px] text-muted-foreground">
               Ask anything, train for your role, and stay ready — on shift or at your desk.
             </p>
           </div>
 
-          <p className="relative z-10 text-[12px] leading-[16px] text-muted-foreground">
+          <p className="relative z-10 type-caption text-muted-foreground">
             © 2026 Avante Security. All rights reserved.
           </p>
         </aside>
@@ -47,10 +47,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="min-h-full flex flex-col items-center justify-center px-4 py-8">
             {/* Compact brand header — mobile/tablet, where the panel is hidden */}
             <div className="lg:hidden w-full max-w-[400px] flex flex-col mb-8">
-              <span className="text-[16px] leading-[22px] font-semibold tracking-tight" style={{ color: "var(--primary)" }}>
+              <span className="type-label font-semibold tracking-tight" style={{ color: "var(--primary)" }}>
                 Cortex
               </span>
-              <span className="text-[12px] leading-[16px] text-muted-foreground">Avante Security</span>
+              <span className="type-caption text-muted-foreground">Avante Security</span>
             </div>
             {children}
           </div>

@@ -74,7 +74,7 @@ export function CitationChip({
           // with text selection on a pointer device. This is the control a guard most
           // wants to hit while checking whether Cortex told them the truth, and it
           // measured 28px tall.
-          className="relative inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md text-[12px] font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] md:before:content-none"
+          className="relative inline-flex items-center gap-0.5 mx-1 px-2 py-0.5 rounded-md type-caption font-medium text-primary cursor-pointer hover:bg-primary/10 transition-colors duration-100 whitespace-nowrap before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] md:before:content-none"
           style={{
             background: "color-mix(in srgb, var(--primary) 10%, var(--surface))",
             animation: `chip-in 150ms ease-out ${delayMs}ms both`,
@@ -108,10 +108,10 @@ export function CitationChip({
             <>
               <div className="flex flex-col gap-0.5">
                 {section.parentTitle && (
-                  <span className="text-[11px] leading-[15px] text-muted-foreground truncate">{section.parentTitle}</span>
+                  <span className="type-caption text-muted-foreground truncate">{section.parentTitle}</span>
                 )}
-                <span className="text-[13px] leading-[18px] font-semibold text-foreground">{result.doc.name}</span>
-                <span className="text-[12px] leading-[16px] font-medium truncate" style={{ color: "var(--primary)" }}>
+                <span className="type-meta font-semibold text-foreground">{result.doc.name}</span>
+                <span className="type-caption font-medium truncate" style={{ color: "var(--primary)" }}>
                   {section.num}. {section.title}
                 </span>
               </div>
@@ -119,7 +119,7 @@ export function CitationChip({
               <Link
                 href={href}
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-1 self-start pt-0.5 text-[12px] font-medium transition-colors duration-100"
+                className="inline-flex items-center gap-1 self-start pt-0.5 type-caption font-medium transition-colors duration-100"
                 style={{ color: "var(--primary)" }}
               >
                 Open in Library

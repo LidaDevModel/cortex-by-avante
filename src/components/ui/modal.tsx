@@ -97,12 +97,12 @@ export function Modal({
           )}
           style={{ boxShadow: "var(--shadow-modal-panel)" }}
         >
-          <Dialog.Title className="text-[20px] leading-[28px] font-semibold text-foreground">
+          <Dialog.Title className="type-h2 font-semibold text-foreground">
             {title}
           </Dialog.Title>
 
           {description ? (
-            <Dialog.Description className="text-[14px] leading-[20px] text-muted-foreground -mt-3">
+            <Dialog.Description className="type-label text-muted-foreground -mt-3">
               {description}
             </Dialog.Description>
           ) : (

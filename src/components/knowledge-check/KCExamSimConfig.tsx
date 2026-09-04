@@ -28,8 +28,8 @@ export function KCExamSimConfig({
         style={{ background: "var(--surface-raised)", border: "1px solid var(--border)" }}
       >
         <div className="flex flex-col gap-1">
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Exam simulation</h2>
-          <p className="text-[13px] leading-[20px] text-muted-foreground">
+          <h2 className="type-h2 font-semibold text-foreground">Exam simulation</h2>
+          <p className="type-meta text-muted-foreground">
             Practice the timed exam for a module you&apos;re currently working on. It&apos;s practice — no certificate is awarded.
           </p>
         </div>
@@ -43,8 +43,8 @@ export function KCExamSimConfig({
             >
               <ModuleIllustration category={m.category} width={32} height={32} className="shrink-0" />
               <span className="flex flex-col min-w-0 flex-1">
-                <span className="text-[14px] leading-[20px] font-medium text-foreground truncate">{m.title}</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground tabular-nums">{m.progress}% complete</span>
+                <span className="type-label font-medium text-foreground truncate">{m.title}</span>
+                <span className="type-caption text-muted-foreground tabular-nums">{m.progress}% complete</span>
               </span>
               <ArrowRight size={16} strokeWidth={1.5} className="shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5" />
             </button>
@@ -53,7 +53,7 @@ export function KCExamSimConfig({
 
         <button
           onClick={onCancel}
-          className="text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
+          className="type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 text-center py-1"
         >
           Cancel
         </button>

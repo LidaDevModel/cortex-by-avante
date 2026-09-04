@@ -66,13 +66,13 @@ function TableOfContents({
             >
               {/* Number chip */}
               <span
-                className="shrink-0 text-[10px] font-semibold tabular-nums w-5 text-center leading-[1]"
+                className="shrink-0 type-caption font-semibold tabular-nums w-5 text-center leading-[1]"
                 style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
               >
                 {s.num}
               </span>
               <span
-                className="text-[13px] leading-[18px] truncate flex-1 min-w-0"
+                className="type-meta truncate flex-1 min-w-0"
                 style={{
                   fontWeight: isActive ? 700 : 500,
                   color: isActive ? "var(--primary)" : "var(--foreground)",
@@ -83,14 +83,14 @@ function TableOfContents({
               <div className="flex items-center gap-2 shrink-0">
                 {count > 0 && (
                   <span
-                    className="text-[10px] font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums"
+                    className="type-caption font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums"
                     style={{ background: "color-mix(in srgb, var(--accent-subtle) 50%, transparent)", color: "var(--primary)" }}
                   >
                     {count}
                   </span>
                 )}
                 <span
-                  className="text-[11px] tabular-nums w-4 text-right"
+                  className="type-caption tabular-nums w-4 text-right"
                   style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
                 >
                   {pageNumbers[s.id] ?? s.page}
@@ -113,13 +113,13 @@ function TableOfContents({
                       style={{ background: subActive ? "var(--sidebar-active)" : "transparent" }}
                     >
                       <span
-                        className="shrink-0 text-[10px] tabular-nums w-6 leading-[1]"
+                        className="shrink-0 type-caption tabular-nums w-6 leading-[1]"
                         style={{ color: subActive ? "var(--primary)" : "var(--muted-foreground)", fontWeight: subActive ? 600 : 400 }}
                       >
                         {subNum}
                       </span>
                       <span
-                        className="text-[12px] leading-[17px] truncate flex-1 min-w-0"
+                        className="type-caption truncate flex-1 min-w-0"
                         style={{
                           fontWeight: subActive ? 600 : 400,
                           color: subActive ? "var(--primary)" : "var(--muted-foreground)",
@@ -129,7 +129,7 @@ function TableOfContents({
                       </span>
                       {subCount > 0 && (
                         <span
-                          className="text-[10px] font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums shrink-0"
+                          className="type-caption font-semibold px-[5px] py-[1px] rounded-[3px] tabular-nums shrink-0"
                           style={{ background: "color-mix(in srgb, var(--accent-subtle) 50%, transparent)", color: "var(--primary)" }}
                         >
                           {subCount}
@@ -174,6 +174,12 @@ function PageInner({
   return (
     <>
       <div className="mb-5">{heading}</div>
+      {/* The document page keeps its OWN type, not the app's `.type-*` scale.
+          It is a fixed A4 box (560x792) with `overflow-hidden`, so growing the
+          body text to 16px would silently CLIP the end of every page — far
+          worse than small text. It is a rendering of a page rather than UI
+          chrome, and the toolbar's zoom is the accessibility affordance for
+          it. Whether the DEFAULT zoom should be higher is an open decision. */}
       <div className="flex flex-col gap-3 overflow-hidden flex-1">
         <p className="text-[13px] leading-[1.75]" style={{ color: "var(--doc-text)" }}>
           <Highlight text={body} query={q} />
@@ -200,7 +206,7 @@ function PageInner({
         )}
       </div>
       <div className="pt-4 flex justify-end shrink-0">
-        <span className="text-[10px]" style={{ color: "var(--doc-text-faint)" }}>{pageNum}</span>
+        <span className="type-caption" style={{ color: "var(--doc-text-faint)" }}>{pageNum}</span>
       </div>
     </>
   );
@@ -229,7 +235,7 @@ function buildAllPages(sections: TocSection[]): PageDescriptor[] {
       id: s.id,
       searchText: makeSearchText(s.num, s.title, s.body, ...(s.paragraphs ?? []), ...(s.points ?? []), s.note),
       heading: (
-        <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--doc-text)" }}>
+        <h2 className="inline font-semibold leading-[1.4] type-body" style={{ color: "var(--doc-text)" }}>
           {s.num}.  {s.title}
         </h2>
       ),
@@ -245,10 +251,10 @@ function buildAllPages(sections: TocSection[]): PageDescriptor[] {
         searchText: makeSearchText(subNum, sub.title, sub.body, ...(sub.paragraphs ?? []), ...(sub.points ?? []), sub.note),
         heading: (
           <>
-            <p className="text-[11px] font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
+            <p className="type-caption font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
               {s.num}. {s.title}
             </p>
-            <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--doc-text)" }}>
+            <h3 className="font-semibold leading-[1.4] type-body" style={{ color: "var(--doc-text)" }}>
               {subNum}  {sub.title}
             </h3>
           </>
@@ -264,7 +270,7 @@ function buildAllPages(sections: TocSection[]): PageDescriptor[] {
         id: `${s.id}-cont-${cpIdx}`,
         searchText: makeSearchText(s.title, ...(cp.paragraphs ?? []), ...(cp.points ?? []), cp.note),
         heading: (
-          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted-foreground)" }}>
+          <p className="type-caption font-semibold uppercase tracking-widest" style={{ color: "var(--muted-foreground)" }}>
             {s.num}. {s.title} — continued
           </p>
         ),
@@ -433,7 +439,7 @@ function DocumentPage({
               expanse — the reader looked broken rather than empty. Reachable
               through normal use once an admin unpublishes or clears content. */}
           {sections.length === 0 && (
-            <p className="py-24 text-[14px] leading-[20px] text-muted-foreground">
+            <p className="py-24 type-label text-muted-foreground">
               This document has no content yet.
             </p>
           )}
@@ -458,7 +464,7 @@ function DocumentPage({
             pages.push(renderPage(s.id, {
               id: s.id,
               heading: (
-                <h2 className="inline font-semibold leading-[1.4] text-[16px]" style={{ color: "var(--doc-text)" }}>
+                <h2 className="inline font-semibold leading-[1.4] type-body" style={{ color: "var(--doc-text)" }}>
                   <Highlight text={`${s.num}.  ${s.title}`} query={q} />
                 </h2>
               ),
@@ -471,10 +477,10 @@ function DocumentPage({
                 id: sub.id,
                 heading: (
                   <>
-                    <p className="text-[11px] font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="type-caption font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
                       {s.num}. {s.title}
                     </p>
-                    <h3 className="font-semibold leading-[1.4] text-[15px]" style={{ color: "var(--doc-text)" }}>
+                    <h3 className="font-semibold leading-[1.4] type-body" style={{ color: "var(--doc-text)" }}>
                       <Highlight text={`${subNum}  ${sub.title}`} query={q} />
                     </h3>
                   </>
@@ -488,7 +494,7 @@ function DocumentPage({
               pages.push(renderPage(contId, {
                 id: contId,
                 heading: (
-                  <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="type-caption font-semibold uppercase tracking-widest" style={{ color: "var(--muted-foreground)" }}>
                     {s.num}. {s.title} — continued
                   </p>
                 ),
@@ -602,7 +608,7 @@ function GridView({
               </div>
               {/* Page label */}
               <span
-                className="text-[11px] tabular-nums"
+                className="type-caption tabular-nums"
                 style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}
               >
                 {pageNumbers[pg.id]}
@@ -833,9 +839,9 @@ export default function FileViewPage() {
             pageNumbers={pageNumbers}
           />
         ) : tocFilter ? (
-          <p className="text-[13px] text-muted-foreground px-2 py-4">No sections found.</p>
+          <p className="type-meta text-muted-foreground px-2 py-4">No sections found.</p>
         ) : (
-          <p className="text-[13px] text-muted-foreground px-2 py-4">No table of contents available.</p>
+          <p className="type-meta text-muted-foreground px-2 py-4">No table of contents available.</p>
         )}
       </div>
     </>
@@ -874,7 +880,7 @@ export default function FileViewPage() {
                 {/* Zoom — pointer affordance; on mobile the page fits the
                     viewport width instead */}
                 <div className="hidden sm:flex items-center gap-3">
-                  <span className="text-[14px] text-muted-foreground tabular-nums w-10 text-right">
+                  <span className="type-label text-muted-foreground tabular-nums w-10 text-right">
                     {zoom}%
                   </span>
                   <div className="flex">
@@ -892,9 +898,9 @@ export default function FileViewPage() {
                   {/* No counter when there is nothing to count — an empty
                       document used to read "Page 1 / 0". */}
                   {totalPages > 0 && (
-                    <span className="text-[14px] text-muted-foreground">
+                    <span className="type-label text-muted-foreground">
                       Page{" "}
-                      <span className="text-[16px] text-foreground">{activePageNum}</span>
+                      <span className="type-body text-foreground">{activePageNum}</span>
                       {" "}/ {totalPages}
                     </span>
                   )}
@@ -914,7 +920,7 @@ export default function FileViewPage() {
               <>
                 {/* Thumbnail size */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] text-muted-foreground">{totalPages} pages</span>
+                  <span className="type-meta text-muted-foreground">{totalPages} pages</span>
                   <div className="hidden sm:flex">
                     <IconButton position="left" onClick={() => setThumbSize(s => Math.max(120, s - 40))}>
                       <ZoomOut size={15} strokeWidth={1.5} className="text-foreground" />
@@ -1002,7 +1008,7 @@ export default function FileViewPage() {
           // Nothing to count means nothing to say — the reading surface below
           // already carries "This document has no content yet."
           meta={totalPages > 0 ? `${totalPages} ${totalPages === 1 ? "page" : "pages"}` : undefined}
-          className="[&_h1]:text-[22px] [&_h1]:leading-[30px]"
+          className="[&_h1]:type-h2 [&_h1]:leading-[30px]"
         />
       </div>
 
@@ -1012,7 +1018,7 @@ export default function FileViewPage() {
       <Sheet open={tocSheetOpen} onOpenChange={setTocSheetOpen}>
         <SheetContent side="left" className="w-[300px] bg-surface p-0 gap-0 flex flex-col">
           <SheetHeader className="px-4 pt-4 pb-0">
-            <SheetTitle className="flex items-center gap-2.5 text-[14px] leading-[20px] font-semibold text-foreground">
+            <SheetTitle className="flex items-center gap-2.5 type-label font-semibold text-foreground">
               <TableOfContentsIcon size={16} strokeWidth={1.5} />
               Contents
             </SheetTitle>

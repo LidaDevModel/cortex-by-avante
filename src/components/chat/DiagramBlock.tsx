@@ -79,10 +79,10 @@ export function DiagramBlock({ svg, caption }: { svg: string; caption?: string }
         )}
         {state === "failed" ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center px-4">
-            <p className="text-[14px] leading-[20px] font-medium text-foreground">
+            <p className="type-label font-medium text-foreground">
               This diagram didn&apos;t load
             </p>
-            <p className="text-[13px] leading-[18px] text-muted-foreground">
+            <p className="type-meta text-muted-foreground">
               The steps are written out in the answer above.
             </p>
           </div>
@@ -105,7 +105,7 @@ export function DiagramBlock({ svg, caption }: { svg: string; caption?: string }
           actually reach it. */}
       {description && <p className="sr-only">{description}</p>}
       {caption && (
-        <figcaption className="mt-2 text-[12px] leading-[16px] text-muted-foreground">{caption}</figcaption>
+        <figcaption className="mt-2 type-caption text-muted-foreground">{caption}</figcaption>
       )}
     </figure>
   );

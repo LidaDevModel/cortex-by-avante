@@ -29,7 +29,7 @@ export function KCResults({
       {/* Heading + score */}
       <div className="flex flex-col gap-3">
         <h1
-          className="text-[28px] leading-[36px] sm:text-[36px] sm:leading-[44px] font-bold"
+          className="type-h1"
           style={{ color: pct === 100 ? "var(--success)" : "var(--foreground)" }}
         >
           {pct === 100 ? "Perfect score" : "Knowledge check complete"}
@@ -37,12 +37,12 @@ export function KCResults({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-baseline gap-3">
             <span
-              className="text-[40px] sm:text-[48px] leading-none font-bold tabular-nums"
+              className="type-display tabular-nums"
               style={{ color: passed ? "var(--success)" : "var(--destructive)" }}
             >
               {pct}%
             </span>
-            <span className="text-[18px] sm:text-[20px] text-muted-foreground font-medium">
+            <span className="type-h3 sm:type-h2 text-muted-foreground font-medium">
               {/* "points", not "correct": a matching exercise is worth one
                   point per pair, so the total exceeds the number of items. */}
               {totalCorrect} of {totalPoints} points
@@ -52,7 +52,7 @@ export function KCResults({
               percentage — green at or above the mark, red below — which says
               nothing to a colour-blind reader, a screen reader, or a printout.
               The mark itself was never stated here either. */}
-          <p className="text-[15px] leading-[24px] font-medium text-foreground">
+          <p className="type-body font-medium text-foreground">
             {passed
               ? `Above the ${KC_PASS_MARK}% pass mark`
               : `Below the ${KC_PASS_MARK}% pass mark`}

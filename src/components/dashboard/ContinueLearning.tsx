@@ -91,22 +91,22 @@ function AccordionItem({
           Resume · Chapter {current} of {total}
         </p>
         <div className="flex flex-col gap-0.5">
-          <h3 className="text-[20px] leading-[28px] font-bold text-foreground text-balance">{m.title}</h3>
+          <h3 className="type-h2 font-bold text-foreground text-balance">{m.title}</h3>
           {chapterTitle && (
-            <p className="text-[13px] leading-[18px] text-muted-foreground">{chapterTitle}</p>
+            <p className="type-meta text-muted-foreground">{chapterTitle}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <ProgressBar value={m.progress} />
           </div>
-          <span className="text-[13px] leading-[18px] font-semibold tabular-nums shrink-0" style={{ color: "var(--primary)" }}>
+          <span className="type-meta font-semibold tabular-nums shrink-0" style={{ color: "var(--primary)" }}>
             {m.progress}%
           </span>
         </div>
         <Link
           href={`/training/modules/${m.id}`}
-          className="inline-flex items-center justify-center gap-1.5 h-[44px] px-5 rounded-[8px] text-[14px] font-semibold self-start transition-opacity duration-100 hover:opacity-90"
+          className="inline-flex items-center justify-center gap-1.5 h-[44px] px-5 rounded-[8px] type-label font-semibold self-start transition-opacity duration-100 hover:opacity-90"
           style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
         >
           Resume · {mins} min left
@@ -129,12 +129,12 @@ function AccordionItem({
         <ModuleGlow />
         <ModuleIcon category={m.category} size={36} />
         <span className="relative z-10 flex flex-col min-w-0 flex-1">
-          <span className="text-[14px] leading-[20px] font-semibold text-foreground truncate">{m.title}</span>
-          <span className="text-[12px] leading-[16px] text-muted-foreground tabular-nums">
+          <span className="type-label font-semibold text-foreground truncate">{m.title}</span>
+          <span className="type-caption text-muted-foreground tabular-nums">
             Chapter {current} of {total} · {m.progress}%
           </span>
         </span>
-        <span className="relative z-10 text-[12px] leading-[16px] text-muted-foreground shrink-0 tabular-nums">{mins} min</span>
+        <span className="relative z-10 type-caption text-muted-foreground shrink-0 tabular-nums">{mins} min</span>
       </button>
     </li>
   );
@@ -161,7 +161,7 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
         className="h-full rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
         style={{ border: "1px solid var(--border)" }}
       >
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
+        <h2 className="type-h2 font-semibold text-foreground">Continue learning</h2>
         {/* VISION tone: no exclamation marks. */}
         <StatePanel
           icon={BookOpen}
@@ -179,10 +179,10 @@ export function ContinueLearning({ modules }: { modules: Module[] }) {
       style={{ border: "1px solid var(--border)" }}
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Continue learning</h2>
+        <h2 className="type-h2 font-semibold text-foreground">Continue learning</h2>
         <Link
           href="/training/modules/in-progress"
-          className="inline-flex items-center h-11 md:h-auto text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+          className="inline-flex items-center h-11 md:h-auto type-meta font-medium transition-opacity duration-100 hover:opacity-70"
           style={{ color: "var(--primary)" }}
         >
           View all

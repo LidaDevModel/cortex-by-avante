@@ -30,7 +30,7 @@ export function KCStartSection({
           sit a hair below the page bg and nearly disappear. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <PresetCard
-          icon={<span className="text-[17px] font-bold tabular-nums leading-none">5</span>}
+          icon={<span className="type-h3 font-bold tabular-nums leading-none">5</span>}
           title="Daily 5"
           meta="5 questions · mixed · ~4 min"
           onClick={onDaily5}

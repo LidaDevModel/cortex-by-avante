@@ -66,10 +66,10 @@ export function HonorCard({
     >
       <TierChip tier={tier} />
       <div className="flex flex-col gap-0.5">
-        <span className="text-[32px] leading-[36px] font-bold tabular-nums text-foreground">{score}%</span>
-        <span className="text-[15px] leading-[20px] font-semibold text-foreground truncate">{m.title}</span>
+        <span className="type-h1 font-bold tabular-nums text-foreground">{score}%</span>
+        <span className="type-label font-semibold text-foreground truncate">{m.title}</span>
       </div>
-      <span className="text-[12px] leading-[16px] text-muted-foreground">Certified {formatDate(m.certification!.date)}</span>
+      <span className="type-caption text-muted-foreground">Certified {formatDate(m.certification!.date)}</span>
     </Link>
   );
 }

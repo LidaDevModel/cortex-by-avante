@@ -52,7 +52,7 @@ export function ThinkingIndicator({ sources = [] }: { sources?: string[] }) {
       <span
         aria-hidden
         key={statusIdx}
-        className="text-[13px] leading-[20px] font-medium"
+        className="type-meta font-medium"
         style={{
           backgroundImage:
             "linear-gradient(90deg, var(--muted-foreground) 40%, var(--foreground) 50%, var(--muted-foreground) 60%)",

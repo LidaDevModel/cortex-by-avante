@@ -123,7 +123,7 @@ export default function DashboardPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>
+              <h1 className="type-h1 font-bold text-foreground">{canManage ? "Learning" : welcomePending ? `Welcome to Cortex, ${USER.firstName}` : `${greeting}, ${USER.firstName}`}</h1>
               {loading ? (
                 <Skeleton className="h-7 w-32 rounded-full" />
               ) : (
@@ -137,7 +137,7 @@ export default function DashboardPage() {
               )}
             </div>
             {!canManage && dateMeta && (
-              <p className="text-[13px] leading-[18px] text-muted-foreground">{dateMeta}</p>
+              <p className="type-meta text-muted-foreground">{dateMeta}</p>
             )}
           </div>
 

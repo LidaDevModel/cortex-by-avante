@@ -42,10 +42,10 @@ export function PresetCard({
         {icon}
       </span>
       <span className="flex flex-col gap-0.5 min-w-0 flex-1">
-        <span className="text-[15px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
+        <span className="type-label font-semibold" style={{ color: "var(--primary)" }}>
           {title}
         </span>
-        <span className="text-[13px] leading-[18px] text-muted-foreground truncate">{meta}</span>
+        <span className="type-meta text-muted-foreground truncate">{meta}</span>
       </span>
       <ArrowRight
         size={18}

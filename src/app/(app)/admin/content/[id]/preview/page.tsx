@@ -34,28 +34,28 @@ export default function AdminDocumentPreviewPage() {
 
       <ScrollCanvas>
         <div className="max-w-[760px] mx-auto px-4 sm:px-8 pt-10 pb-16 flex flex-col gap-8">
-          <h1 className="text-[28px] leading-[36px] font-bold text-foreground">{doc.name}</h1>
+          <h1 className="type-h1 font-bold text-foreground">{doc.name}</h1>
 
           {sections.length === 0 ? (
-            <p className="text-[15px] leading-[24px] text-muted-foreground">This document has no content yet.</p>
+            <p className="type-body text-muted-foreground">This document has no content yet.</p>
           ) : (
             sections.map((s, i) => (
               <section key={s.id} className="flex flex-col gap-3">
-                <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">{i + 1}. {s.title || "Untitled section"}</h2>
-                {s.body && <p className="text-[15px] leading-[26px] text-foreground whitespace-pre-line">{s.body}</p>}
+                <h2 className="type-h2 font-semibold text-foreground">{i + 1}. {s.title || "Untitled section"}</h2>
+                {s.body && <p className="type-body text-foreground whitespace-pre-line">{s.body}</p>}
 
                 {s.image?.src && (
                   <figure className="flex flex-col gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={s.image.src} alt={s.image.caption || s.title} className="block w-full max-h-[360px] object-contain rounded-[8px] border border-border bg-surface" />
-                    {s.image.caption && <figcaption className="text-[12px] leading-[16px] text-muted-foreground">{s.image.caption}</figcaption>}
+                    {s.image.caption && <figcaption className="type-caption text-muted-foreground">{s.image.caption}</figcaption>}
                   </figure>
                 )}
 
                 {s.points && s.points.length > 0 && (
                   <ul className="flex flex-col gap-1.5 pl-1">
                     {s.points.map((p, k) => (
-                      <li key={k} className="flex gap-2.5 text-[15px] leading-[24px] text-foreground">
+                      <li key={k} className="flex gap-2.5 type-body text-foreground">
                         <span aria-hidden className="mt-[9px] w-1.5 h-1.5 rounded-full bg-muted-foreground shrink-0" />
                         <span>{p}</span>
                       </li>
@@ -69,8 +69,8 @@ export default function AdminDocumentPreviewPage() {
                   <div className="flex flex-col gap-4 mt-1 pl-4 border-l-2 border-border">
                     {s.subsections.map((sub, j) => (
                       <div key={sub.id} className="flex flex-col gap-2">
-                        <h3 className="text-[16px] leading-[24px] font-semibold text-foreground">{i + 1}.{j + 1} {sub.title || "Untitled subsection"}</h3>
-                        {sub.body && <p className="text-[15px] leading-[26px] text-foreground whitespace-pre-line">{sub.body}</p>}
+                        <h3 className="type-body font-semibold text-foreground">{i + 1}.{j + 1} {sub.title || "Untitled subsection"}</h3>
+                        {sub.body && <p className="type-body text-foreground whitespace-pre-line">{sub.body}</p>}
                       </div>
                     ))}
                   </div>

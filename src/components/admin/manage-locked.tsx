@@ -28,14 +28,14 @@ export function ManageLocked() {
       <ScrollCanvas>
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full text-[12px] leading-[16px] font-medium bg-surface-raised text-muted-foreground" style={{ border: "1px solid var(--border)" }}>
+            <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full type-caption font-medium bg-surface-raised text-muted-foreground" style={{ border: "1px solid var(--border)" }}>
               <Lock size={13} strokeWidth={1.75} />
               Locked
             </span>
-            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+            <h1 className="type-h1 font-bold text-foreground">
               Finish your training to manage content
             </h1>
-            <p className="text-[14px] leading-[20px] text-muted-foreground max-w-[60ch]">
+            <p className="type-label text-muted-foreground max-w-[60ch]">
               Cortex Manage unlocks once you&apos;re cleared for duty — certified in every required module. Earn the certifications below to open content, people, and reports.
             </p>
           </div>
@@ -44,7 +44,7 @@ export function ManageLocked() {
 
           <Link
             href="/dashboard"
-            className="self-start inline-flex items-center gap-1.5 text-[14px] leading-[20px] font-semibold text-primary hover:opacity-70 transition-opacity duration-100"
+            className="self-start inline-flex items-center gap-1.5 type-label font-semibold text-primary hover:opacity-70 transition-opacity duration-100"
           >
             Go to your training
             <ArrowRight size={16} strokeWidth={2} />

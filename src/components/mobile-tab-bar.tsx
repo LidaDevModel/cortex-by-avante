@@ -210,7 +210,7 @@ export function MobileTabBar() {
               {activeDial.options.map((opt, i) => {
                 const active = opt.href ? pathname.startsWith(opt.href) : false;
                 const className = cn(
-                  "flex items-center h-11 px-5 rounded-full border text-[14px] leading-[20px] font-semibold",
+                  "flex items-center h-11 px-5 rounded-full border type-label font-semibold",
                   active
                     ? "bg-[var(--sidebar-active)] text-primary border-transparent"
                     : "bg-surface text-foreground border-border"
@@ -278,7 +278,7 @@ export function MobileTabBar() {
                 "ring" shows. */}
             <Avatar className="h-full w-full border-0">
               {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-              <AvatarFallback className="bg-secondary text-primary font-semibold text-[15px]">
+              <AvatarFallback className="bg-secondary text-primary font-semibold type-body">
                 {USER.initials}
               </AvatarFallback>
             </Avatar>
@@ -306,7 +306,7 @@ export function MobileTabBar() {
                   )}
                 >
                   <tab.icon size={20} strokeWidth={isActive ? 2.25 : 1.5} />
-                  <span className={cn("text-[12px] leading-[16px]", isActive ? "font-semibold" : "font-medium")}>
+                  <span className={cn("type-caption", isActive ? "font-semibold" : "font-medium")}>
                     {tab.label}
                   </span>
                 </Link>
@@ -346,7 +346,7 @@ export function MobileTabBar() {
               </span>
               <span
                 className={cn(
-                  "text-[12px] leading-[16px]",
+                  "type-caption",
                   trainingActive || trainingDialShown ? "font-semibold" : "font-medium"
                 )}
               >

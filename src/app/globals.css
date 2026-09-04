@@ -666,3 +666,93 @@ select:disabled {
     scroll-behavior: auto;
   }
 }
+
+/* ─── Type scale (decision D2) ─────────────────────────────────────────────
+   ONE definition per role, in `rem`, so the scale changes in one place and
+   the app respects the reader's own text-size setting. Before this there were
+   640 hard-coded `text-[Npx] leading-[Mpx]` pairs across ELEVEN different
+   sizes, none of them named, and a reader who set larger text on their phone
+   saw no change at all — which is the part that actually mattered for
+   accessibility, more than any single number.
+
+   Body is 16px. The floor is 12px everywhere, mobile included: a guard reads
+   outdoors, mid-shift, and both platform guidelines put the minimum near
+   12px, so a smaller mobile floor would have put the smallest text in the
+   product on the hardest screen to read it on.
+
+   ANY ROLE THAT CAN WRAP PAST TWO LINES CARRIES LINE HEIGHT >= 150% — body,
+   meta and caption. That is WCAG 1.4.12's text-spacing figure, and it is what
+   makes a paragraph readable rather than merely present. Headings sit at
+   ~1.27-1.3: they are one or two lines by construction, 1.4.12 addresses
+   blocks of text rather than headings, and 150% on a 32px title reads as a
+   gap rather than a line.
+
+   Use the named class. A raw `text-[Npx]` in new code is the drift this
+   replaces. */
+@layer components {
+  /* Screen title. Steps up at the sm breakpoint, so callers no longer repeat
+     a `sm:text-[…] sm:leading-[…]` pair at every H1. */
+  .type-h1 {
+    font-size: 1.625rem;      /* 26px */
+    line-height: 2.125rem;    /* 34px — 131% */
+    font-weight: 700;
+  }
+  @media (width >= 40rem) {
+    .type-h1 {
+      font-size: 2rem;        /* 32px */
+      line-height: 2.5rem;    /* 40px — 125% */
+    }
+  }
+
+  /* Section title. */
+  .type-h2 {
+    font-size: 1.375rem;      /* 22px */
+    line-height: 1.75rem;     /* 28px — 127% */
+    font-weight: 600;
+  }
+
+  /* Sub-section / card title. */
+  .type-h3 {
+    font-size: 1.125rem;      /* 18px */
+    line-height: 1.5rem;      /* 24px — 133% */
+    font-weight: 600;
+  }
+
+  /* Reading text. Wraps, so >= 150%. */
+  .type-body {
+    font-size: 1rem;          /* 16px */
+    line-height: 1.625rem;    /* 26px — 163% */
+  }
+
+  /* Labels, buttons, table cells — one line by design, so it may sit tighter. */
+  .type-label {
+    font-size: 1rem;          /* 16px */
+    line-height: 1.25rem;     /* 20px */
+    font-weight: 600;
+  }
+
+  /* Secondary text: meta lines, hints, timestamps. Wraps, so >= 150%. */
+  .type-meta {
+    font-size: 0.875rem;      /* 14px */
+    line-height: 1.375rem;    /* 22px — 157% */
+  }
+
+  /* One number, as large as it gets: an exam or knowledge-check score. Never
+     wraps, so `leading-none` is correct rather than lax. */
+  .type-display {
+    font-size: 2.5rem;        /* 40px */
+    line-height: 1;
+    font-weight: 700;
+  }
+  @media (width >= 40rem) {
+    .type-display {
+      font-size: 3rem;        /* 48px */
+    }
+  }
+
+  /* The floor. Badges, eyebrows, counters. Wraps, so >= 150%. */
+  .type-caption {
+    font-size: 0.75rem;       /* 12px */
+    line-height: 1.125rem;    /* 18px — 150% */
+  }
+}

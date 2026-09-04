@@ -39,7 +39,7 @@ export function NamePromptModal({
   return (
     <Modal open onClose={onClose} title={title}>
       <label className="flex flex-col gap-1.5">
-        <span className="text-[14px] leading-[20px] font-semibold text-foreground">{label}</span>
+        <span className="type-label font-semibold text-foreground">{label}</span>
         <Input autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
       </label>
 
@@ -48,7 +48,7 @@ export function NamePromptModal({
             a link visually; only the target grows. */}
         <button
           onClick={onClose}
-          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="min-h-11 -ml-1 px-1 type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           Cancel
         </button>

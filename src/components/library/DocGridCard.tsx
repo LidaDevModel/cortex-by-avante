@@ -37,10 +37,10 @@ export function DocGridCard({ name, kind, lastModified, onClick, style }: Props)
         )}
       </div>
       <div className="flex flex-col gap-0.5 px-1 items-center text-center">
-        <span className="text-[14px] leading-[20px] font-medium text-foreground truncate w-full block">
+        <span className="type-label font-medium text-foreground truncate w-full block">
           {name}
         </span>
-        <span className="text-[12px] leading-[16px] font-[500] text-muted-foreground">
+        <span className="type-caption font-[500] text-muted-foreground">
           {formatDate(lastModified)}
         </span>
       </div>

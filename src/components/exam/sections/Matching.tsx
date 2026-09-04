@@ -111,19 +111,19 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">
               Matching exercise
             </span>
-            <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+            <h2 className="type-h2 font-semibold text-foreground">
               {exercise.instruction}
             </h2>
-            <p className="text-[13px] text-muted-foreground mt-1">
+            <p className="type-meta text-muted-foreground mt-1">
               Tap a term, then its definition to match.
             </p>
           </div>
           <button
             onClick={onClear}
-            className="shrink-0 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer whitespace-nowrap"
+            className="shrink-0 type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer whitespace-nowrap"
           >
             Clear all
           </button>
@@ -161,7 +161,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
 
           {/* Terms column */}
           <div className="flex flex-col gap-3">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            <p className="type-caption font-semibold text-muted-foreground uppercase tracking-wider px-1">
               Terms
             </p>
             {exercise.pairs.map((pair) => {
@@ -190,7 +190,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
                     setDragOver(null);
                   }}
                   className={cn(
-                    "px-4 rounded-[10px] border text-[14px] leading-[20px] cursor-pointer transition-all duration-150 select-none flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                    "px-4 rounded-[10px] border type-label cursor-pointer transition-all duration-150 select-none flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
                     "min-h-[80px] py-3",
                     dragging === pair.id ? "opacity-50 scale-95" : "opacity-100",
                     isSelected && "ring-2 ring-[var(--ring)]",
@@ -208,7 +208,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
 
           {/* Definitions column */}
           <div className="flex flex-col gap-3">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            <p className="type-caption font-semibold text-muted-foreground uppercase tracking-wider px-1">
               Definitions
             </p>
             {shuffledDefs.map((pair) => {
@@ -237,7 +237,7 @@ export function Matching({ exercise, matches, onMatch, onClear, onNext }: Props)
                     setDragging(null);
                   }}
                   className={cn(
-                    "px-4 rounded-[10px] border text-[14px] leading-[20px] transition-all duration-150 flex items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                    "px-4 rounded-[10px] border type-label transition-all duration-150 flex items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
                     "min-h-[80px] py-3",
                     (isOver || isTapTarget) && !isMatched
                       ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] scale-[1.01]"

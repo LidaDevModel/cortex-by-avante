@@ -88,8 +88,8 @@ export default function AdminPeoplePage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex flex-col gap-1">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">People</h1>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">Everyone at Avante, their role, and whether they&apos;re cleared for duty.</p>
+              <h1 className="type-h1 font-bold text-foreground">People</h1>
+              <p className="type-label text-muted-foreground">Everyone at Avante, their role, and whether they&apos;re cleared for duty.</p>
             </div>
             {!locked && (
             <Button size="cta" onClick={() => setInviteOpen(true)}>
@@ -140,11 +140,11 @@ export default function AdminPeoplePage() {
                       <TableCell className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 min-w-0">
                           <Avatar className="h-8 w-8 rounded-full shrink-0">
-                            <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[12px]">{u.initials}</AvatarFallback>
+                            <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">{u.initials}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[14px] leading-[18px] font-medium text-foreground truncate">{u.fullName}</span>
-                            <span className="text-[12px] leading-[16px] text-muted-foreground truncate">{u.email}</span>
+                            <span className="type-meta font-medium text-foreground truncate">{u.fullName}</span>
+                            <span className="type-caption text-muted-foreground truncate">{u.email}</span>
                           </div>
                         </div>
                       </TableCell>
@@ -175,7 +175,7 @@ export default function AdminPeoplePage() {
                       style={rowStyle(i)}
                       leading={
                         <Avatar className="h-9 w-9 rounded-full shrink-0">
-                          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[12px]">{u.initials}</AvatarFallback>
+                          <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-caption">{u.initials}</AvatarFallback>
                         </Avatar>
                       }
                       title={u.fullName}

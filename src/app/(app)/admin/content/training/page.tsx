@@ -150,8 +150,8 @@ export default function AdminTrainingPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6 min-h-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex flex-col gap-1">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Modules</h1>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">Training modules and their chapters. Publish one to assign it to a role.</p>
+              <h1 className="type-h1 font-bold text-foreground">Modules</h1>
+              <p className="type-label text-muted-foreground">Training modules and their chapters. Publish one to assign it to a role.</p>
             </div>
             {!locked && (
             <Button size="cta" onClick={() => setNewOpen(true)}>

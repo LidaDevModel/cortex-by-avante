@@ -113,7 +113,7 @@ export function KCSectionTabs({
           <button
             key={s.startIndex}
             onClick={() => onJumpTo(s.startIndex)}
-            className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150 shrink-0"
+            className="flex items-center gap-1.5 h-[34px] px-4 rounded-full type-meta font-medium transition-colors duration-150 shrink-0"
             style={
               isActive
                 ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -138,7 +138,7 @@ export function KCSectionTabs({
       {/* Review tab — always shown at the end */}
       <button
         onClick={onReview}
-        className="flex items-center gap-1.5 h-[34px] px-4 rounded-full text-[13px] leading-[20px] font-medium transition-colors duration-150 shrink-0"
+        className="flex items-center gap-1.5 h-[34px] px-4 rounded-full type-meta font-medium transition-colors duration-150 shrink-0"
         style={
           isReviewActive
             ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -194,7 +194,7 @@ function MCProgressDots({
             <button
               onClick={() => onJumpTo(globalIdx)}
               aria-label={`Question ${pos + 1}`}
-              className="flex items-center justify-center rounded-full text-[11px] font-semibold transition-all duration-150 shrink-0 focus-visible:outline-none focus-visible:ring-2"
+              className="flex items-center justify-center rounded-full type-caption font-semibold transition-all duration-150 shrink-0 focus-visible:outline-none focus-visible:ring-2"
               style={{
                 width: 28,
                 height: 28,
@@ -323,12 +323,12 @@ function MCQuestion({
         {/* Scoped to the section, so "of 4" cannot read as the whole check —
             a "Daily 5" is four MC questions plus a matching exercise, scored
             out of 8. */}
-        <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
+        <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">
           {sectionCount > 1
             ? `Section ${sectionPosition} of ${sectionCount} · Question ${questionIndex + 1} of ${totalQuestions}`
             : `Question ${questionIndex + 1} of ${totalQuestions}`}
         </span>
-        <p id={`kc-mc-q-${questionIndex}`} className="text-[20px] leading-[28px] font-semibold text-foreground">{question.question}</p>
+        <p id={`kc-mc-q-${questionIndex}`} className="type-h2 font-semibold text-foreground">{question.question}</p>
       </div>
       {/* The shared radio group — this list was a second implementation of the
           exam's, and neither had radio semantics or a non-colour selected
@@ -348,7 +348,7 @@ function MCQuestion({
         ) : (
           <button
             onClick={onSkip}
-            className="text-[14px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+            className="type-label font-medium transition-opacity duration-100 hover:opacity-70"
             style={{ color: "var(--muted-foreground)" }}
           >
             Skip question
@@ -474,10 +474,10 @@ function BranchingQuestion({
   return (
     <div className="flex flex-col w-full flex-1 gap-0 pt-12" style={{ minHeight: 500 }}>
       <div className="flex flex-col gap-1 max-w-[640px] mx-auto w-full px-4 sm:px-8">
-        <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
+        <span className="type-caption font-medium text-muted-foreground uppercase tracking-wider">Scenario</span>
         <div className="flex flex-col gap-1">
-          <p className="text-[20px] leading-[28px] font-semibold text-foreground">{question.title}</p>
-          <p className="text-[14px] leading-[20px] text-muted-foreground">Each decision is final. Choose carefully.</p>
+          <p className="type-h2 font-semibold text-foreground">{question.title}</p>
+          <p className="type-label text-muted-foreground">Each decision is final. Choose carefully.</p>
         </div>
       </div>
       <BranchingGame
@@ -581,7 +581,7 @@ export function KCQuestionFlow({
 
             {/* Title row */}
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground capitalize min-w-0 truncate">
+              <h1 className="type-h1 font-bold text-foreground capitalize min-w-0 truncate">
                 {title}
               </h1>
               <Button

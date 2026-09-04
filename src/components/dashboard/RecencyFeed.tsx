@@ -46,10 +46,10 @@ function DocRow({ doc }: { doc: LibraryDoc }) {
         <FileIllustration uid={uid} shadowOpacity={shadowOpacity} />
       </span>
       <span className="flex flex-col min-w-0 flex-1">
-        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>
+        <span className="type-label font-medium truncate" style={{ color: "var(--foreground)" }}>
           {doc.name}
         </span>
-        <span className="text-[12px] leading-[16px] text-muted-foreground">Document · {doc.content}</span>
+        <span className="type-caption text-muted-foreground">Document · {doc.content}</span>
       </span>
     </Link>
   );
@@ -64,10 +64,10 @@ function ModuleRow({ module: m }: { module: Module }) {
       <ModuleGlow />
       <ModuleIcon category={m.category} size={36} />
       <span className="relative z-10 flex flex-col min-w-0 flex-1">
-        <span className="text-[14px] leading-[20px] font-medium truncate" style={{ color: "var(--foreground)" }}>
+        <span className="type-label font-medium truncate" style={{ color: "var(--foreground)" }}>
           {m.title}
         </span>
-        <span className="text-[12px] leading-[16px] text-muted-foreground">
+        <span className="type-caption text-muted-foreground">
           {m.chapters} chapters · {m.hours}h
         </span>
       </span>
@@ -119,7 +119,7 @@ export function RecencyFeed() {
       style={{ border: "1px solid var(--border)" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">New for your role</h2>
+        <h2 className="type-h2 font-semibold text-foreground">New for your role</h2>
         <Segmented options={FILTERS} value={filter} onChange={setFilter} ariaLabel="Filter by type" />
       </div>
 
@@ -132,7 +132,7 @@ export function RecencyFeed() {
           )}
         </div>
       ) : (
-        <p className="py-6 text-center text-[13px] leading-[20px] text-muted-foreground">
+        <p className="py-6 text-center type-meta text-muted-foreground">
           Nothing new in this category.
         </p>
       )}

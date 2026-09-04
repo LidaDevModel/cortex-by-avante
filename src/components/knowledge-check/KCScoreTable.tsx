@@ -100,7 +100,7 @@ function SectionRow({
  */
 function SourceLine({ doc, section }: { doc: string; section: string }) {
   return (
-    <p className="text-[12px] leading-[16px] text-muted-foreground">
+    <p className="type-caption text-muted-foreground">
       Read the source: <span className="text-foreground">{doc}</span> · {section}
     </p>
   );
@@ -115,12 +115,12 @@ function MCWrong({ question, answer }: {
   const userIdx = answer.selectedIndex;
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[13px] font-medium text-foreground">{question.question}</span>
+      <span className="type-meta font-medium text-foreground">{question.question}</span>
       <WrongAnswerRow>
-        <span className={cn("text-[13px]", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
+        <span className={cn("type-meta", userIdx !== null ? "text-destructive" : "text-muted-foreground")}>
           Your answer: {userIdx !== null ? question.options[userIdx] : "Skipped"}
         </span>
-        <span className="text-[13px]" style={{ color: "var(--success)" }}>
+        <span className="type-meta" style={{ color: "var(--success)" }}>
           Correct answer: {question.options[question.correctIndex]}
         </span>
       </WrongAnswerRow>
@@ -142,12 +142,12 @@ function MatchingWrong({ question, answer }: {
         const matchedDef = question.pairs.find((p) => p.id === matchedId);
         return (
           <div key={pair.id} className="flex flex-col gap-2">
-            <span className="text-[13px] font-medium text-foreground">{pair.term}</span>
+            <span className="type-meta font-medium text-foreground">{pair.term}</span>
             <WrongAnswerRow>
-              <span className={cn("text-[13px]", matchedDef ? "text-destructive" : "text-muted-foreground")}>
+              <span className={cn("type-meta", matchedDef ? "text-destructive" : "text-muted-foreground")}>
                 Your match: {matchedDef ? matchedDef.definition : "Not matched"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--success)" }}>
+              <span className="type-meta" style={{ color: "var(--success)" }}>
                 Correct: {pair.definition}
               </span>
             </WrongAnswerRow>
@@ -165,7 +165,7 @@ function BranchingWrong({ question, answer }: {
 }) {
   const decisionNodes = question.nodes.filter((n) => n.type === "decision" && answer.decisions[n.id]);
   if (decisionNodes.length === 0) {
-    return <p className="text-[13px] text-muted-foreground">Scenario not attempted.</p>;
+    return <p className="type-meta text-muted-foreground">Scenario not attempted.</p>;
   }
   const wrongNodes = decisionNodes.filter((node) => {
     const chosenId = answer.decisions[node.id];
@@ -180,12 +180,12 @@ function BranchingWrong({ question, answer }: {
         const correctOpt = node.options?.find((o) => o.isCorrect);
         return (
           <div key={node.id} className="flex flex-col gap-2">
-            <span className="text-[13px] font-medium text-foreground">{node.label}</span>
+            <span className="type-meta font-medium text-foreground">{node.label}</span>
             <WrongAnswerRow>
-              <span className={cn("text-[13px]", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
+              <span className={cn("type-meta", chosenOpt ? "text-destructive" : "text-muted-foreground")}>
                 Your choice: {chosenOpt?.text ?? "Not answered"}
               </span>
-              <span className="text-[13px]" style={{ color: "var(--success)" }}>
+              <span className="type-meta" style={{ color: "var(--success)" }}>
                 Correct choice: {correctOpt?.text}
               </span>
             </WrongAnswerRow>

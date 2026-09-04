@@ -57,7 +57,7 @@ export function Badge({
     <span
       title={title}
       className={cn(
-        "inline-flex items-center gap-1 shrink-0 px-2.5 py-0.5 rounded-full text-[12px] leading-[16px] font-medium whitespace-nowrap",
+        "inline-flex items-center gap-1 shrink-0 px-2.5 py-0.5 rounded-full type-caption font-medium whitespace-nowrap",
         className,
       )}
       style={{ ...(variant === "outline" ? OUTLINE[tone] : SOFT[tone]), ...style }}

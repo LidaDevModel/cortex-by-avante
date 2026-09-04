@@ -42,31 +42,31 @@ export function RoleChangeDialog({
 
   return (
     <Modal open onClose={onClose} title={`Change ${name}\u2019s role?`} className="w-[440px]">
-      <div className="flex items-center gap-2 text-[14px] leading-[20px] text-muted-foreground -mt-3">
+      <div className="flex items-center gap-2 type-label text-muted-foreground -mt-3">
         <span className="font-medium text-foreground">{ROLE_LABEL[fromRole]}</span>
         <ArrowRight size={15} strokeWidth={1.5} />
         <span className="font-medium text-foreground">{ROLE_LABEL[toRole]}</span>
       </div>
 
       <div className="flex flex-col gap-3 rounded-[8px] p-4 bg-surface-chip" style={{ border: "1px solid var(--border)" }}>
-        <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">
           As {ROLE_LABEL[toRole]}, they can
         </span>
         <ul className="flex flex-col gap-2">
           {info.gains.map((g) => (
-            <li key={g} className="flex items-start gap-2 text-[14px] leading-[20px] text-foreground">
+            <li key={g} className="flex items-start gap-2 type-label text-foreground">
               <Check size={16} strokeWidth={1.5} className="mt-0.5 shrink-0" style={{ color: "var(--success)" }} />
               <span>{g}</span>
             </li>
           ))}
         </ul>
-        <p className="text-[13px] leading-[18px] text-muted-foreground">{info.note}</p>
+        <p className="type-meta text-muted-foreground">{info.note}</p>
       </div>
 
       <div className="flex items-center justify-between">
         <button
           onClick={onClose}
-          className="min-h-11 -ml-1 px-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
+          className="min-h-11 -ml-1 px-1 type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100"
         >
           Cancel
         </button>

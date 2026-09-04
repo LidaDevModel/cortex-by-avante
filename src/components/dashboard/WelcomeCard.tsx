@@ -64,7 +64,7 @@ export function WelcomeCard({
             First visit
           </Badge>
           {timePhrase && (
-            <span className="text-[13px] leading-[18px] italic text-muted-foreground">
+            <span className="type-meta italic text-muted-foreground">
               {timePhrase}
             </span>
           )}
@@ -87,10 +87,10 @@ export function WelcomeCard({
                 directly above, and saying it twice on one screen wastes the
                 card's title on a line already read. The title carries the
                 day-one instruction instead; the greeting carries the welcome. */}
-            <h2 id="welcome-title" className="text-[20px] leading-[28px] font-semibold text-foreground">
+            <h2 id="welcome-title" className="type-h2 font-semibold text-foreground">
               Start here
             </h2>
-            <span className="text-[13px] leading-[18px] text-muted-foreground">
+            <span className="type-meta text-muted-foreground">
               {count} {count === 1 ? "module" : "modules"} required for {role} · any order
             </span>
           </div>
@@ -98,7 +98,7 @@ export function WelcomeCard({
 
         {/* What clearance means, then what else is here. Two sentences, in the
             order the questions arrive. */}
-        <p className="relative z-10 text-[15px] leading-[24px] text-foreground">
+        <p className="relative z-10 type-body text-foreground">
           Your training is below. Once you&apos;re certified in{" "}
           {count === 1 ? "it" : `all ${count}`} you&apos;re cleared for duty.
           <span className="text-muted-foreground">
@@ -122,7 +122,7 @@ export function WelcomeCard({
           <button
             type="button"
             onClick={onDismiss}
-            className="text-[13px] leading-[20px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px] px-1"
+            className="type-meta font-medium text-muted-foreground hover:text-foreground transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-[4px] px-1"
           >
             Explore first
           </button>

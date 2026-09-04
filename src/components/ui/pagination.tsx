@@ -24,11 +24,11 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
   // 44px on touch, 32px on pointer devices. Shared by every paginated list —
   // Library, admin content, people, flagged responses, activity — so one
   // change covers them all.
-  const navBtn = "size-11 md:size-8 flex items-center justify-center rounded-[6px] border border-border text-[13px] leading-[20px] transition-[colors,transform] duration-100 enabled:active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]";
+  const navBtn = "size-11 md:size-8 flex items-center justify-center rounded-[6px] border border-border type-meta transition-[colors,transform] duration-100 enabled:active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-raised)]";
 
   return (
     <div className={cn("flex items-center justify-between", className)}>
-      <span className="text-[12px] leading-[16px] text-muted-foreground">
+      <span className="type-caption text-muted-foreground">
         Page {page} of {totalPages}
       </span>
       <div className="flex items-center gap-1">
@@ -44,7 +44,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
           p === "…" ? (
             <span
               key={`ellipsis-${i}`}
-              className="size-11 md:size-8 flex items-center justify-center text-[13px] text-muted-foreground"
+              className="size-11 md:size-8 flex items-center justify-center type-meta text-muted-foreground"
             >
               …
             </span>
@@ -52,7 +52,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
             <button
               key={p}
               onClick={() => onChange(p)}
-              className="size-11 md:size-8 flex items-center justify-center rounded-[6px] border text-[13px] leading-[20px] font-medium transition-[colors,transform] duration-100 active:scale-95"
+              className="size-11 md:size-8 flex items-center justify-center rounded-[6px] border type-meta font-medium transition-[colors,transform] duration-100 active:scale-95"
               style={
                 p === page
                   ? { background: "var(--primary)", borderColor: "var(--primary)", color: "var(--primary-foreground)" }

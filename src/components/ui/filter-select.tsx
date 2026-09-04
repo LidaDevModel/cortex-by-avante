@@ -26,7 +26,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={cn("relative h-12 pl-3 pr-8 flex items-center rounded-[8px] border border-input bg-surface dark:bg-input/30 text-[14px] leading-[20px] whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer", className)}
+          className={cn("relative h-12 pl-3 pr-8 flex items-center rounded-[8px] border border-input bg-surface dark:bg-input/30 type-label whitespace-nowrap outline-none focus-visible:ring-2 transition-shadow duration-100 cursor-pointer", className)}
           style={{
             color: selected ? "var(--foreground)" : "var(--muted-foreground)",
             ["--tw-ring-color" as string]: "color-mix(in srgb, var(--primary) 25%, transparent)",
@@ -51,7 +51,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
           <DropdownMenuItem
             onClick={() => onChange("")}
             className={cn(
-              "text-[14px] leading-[20px] whitespace-nowrap cursor-pointer",
+              "type-label whitespace-nowrap cursor-pointer",
               !value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
             )}
           >
@@ -64,7 +64,7 @@ export function FilterSelect({ value, onChange, options, placeholder, className 
             key={o.value}
             onClick={() => onChange(o.value)}
             className={cn(
-              "text-[14px] leading-[20px] whitespace-nowrap cursor-pointer",
+              "type-label whitespace-nowrap cursor-pointer",
               value === o.value && "bg-secondary text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground"
             )}
           >

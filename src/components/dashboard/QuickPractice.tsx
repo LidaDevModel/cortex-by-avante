@@ -30,7 +30,7 @@ export function QuickPractice() {
       className="h-full rounded-[12px] p-6 flex flex-col gap-5 bg-surface-raised"
       style={{ border: "1px solid var(--border)" }}
     >
-      <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Quick practice</h2>
+      <h2 className="type-h2 font-semibold text-foreground">Quick practice</h2>
 
       {/* Flat chips carry the equal-contrast pair (doc-page white / --accent 0.36)
           so they match the bloomed rows' luminance in the neighbouring widgets. */}
@@ -45,7 +45,7 @@ export function QuickPractice() {
           />
         ) : (
           <PresetCard
-            icon={<span className="text-[17px] font-bold tabular-nums leading-none">5</span>}
+            icon={<span className="type-h3 font-bold tabular-nums leading-none">5</span>}
             title="Daily 5"
             /* "exercises", not "questions": a matching exercise scores one point per
    pair, so five items are worth more than five points. The card said "5

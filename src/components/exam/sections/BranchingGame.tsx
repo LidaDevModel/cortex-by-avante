@@ -311,8 +311,8 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
           </div>
         )}
         <div className="flex-1 flex flex-col items-center justify-center gap-3 px-4 sm:px-8">
-          <p className="text-[14px] font-medium text-muted-foreground">Scenario completed</p>
-          <p className="text-[13px] text-muted-foreground text-center max-w-[400px]">
+          <p className="type-label font-medium text-muted-foreground">Scenario completed</p>
+          <p className="type-meta text-muted-foreground text-center max-w-[400px]">
             Your decisions have been recorded and cannot be changed.
           </p>
         </div>
@@ -343,7 +343,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
           {isDecisionNode && (
             <>
               <p
-                className="text-[15px] leading-[24px] text-foreground animate-in fade-in slide-in-from-bottom-2 duration-200"
+                className="type-body text-foreground animate-in fade-in slide-in-from-bottom-2 duration-200"
                 style={{ animationTimingFunction: "ease-out" }}
               >
                 {currentNode.scenarioText}
@@ -361,7 +361,7 @@ export function BranchingGame({ scenario, decisions, isCompleted, onDecision, on
                       onClick={() => !locked && setSelectedOption(option.id)}
                       disabled={isDisabled}
                       className={cn(
-                        "w-full text-left px-4 py-3.5 rounded-[12px] border-2 text-[14px] leading-[20px] transition-all duration-150",
+                        "w-full text-left px-4 py-3.5 rounded-[12px] border-2 type-label transition-all duration-150",
                         isConfirmed
                           ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] cursor-default"
                           : isSelected

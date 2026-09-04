@@ -16,12 +16,12 @@ export default function RootNotFound() {
       <div className="flex items-center gap-2 px-4 h-14 shrink-0">
         <Link href="/dashboard" className="flex flex-col">
           <span
-            className="text-[16px] leading-[22px] font-semibold tracking-tight"
+            className="type-label font-semibold tracking-tight"
             style={{ color: "var(--primary)" }}
           >
             Cortex
           </span>
-          <span className="text-[12px] leading-[16px] text-muted-foreground">Avante Security</span>
+          <span className="type-caption text-muted-foreground">Avante Security</span>
         </Link>
       </div>
       <NotFoundState

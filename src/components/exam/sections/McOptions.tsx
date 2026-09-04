@@ -77,7 +77,7 @@ export function McOptions({
             onClick={() => onSelect(i)}
             onKeyDown={(e) => onKeyDown(e, i)}
             className={cn(
-              "w-full text-left px-4 py-3.5 rounded-[12px] border-2 text-[14px] leading-[20px] transition-all duration-150 cursor-pointer",
+              "w-full text-left px-4 py-3.5 rounded-[12px] border-2 type-label transition-all duration-150 cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
               isSelected
                 ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-foreground"
@@ -88,7 +88,7 @@ export function McOptions({
               <span
                 aria-hidden
                 className={cn(
-                  "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[11px] font-semibold transition-all duration-150",
+                  "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center type-caption font-semibold transition-all duration-150",
                   isSelected
                     ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
                     : "border-border text-muted-foreground"

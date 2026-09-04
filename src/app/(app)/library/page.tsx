@@ -59,7 +59,7 @@ export default function LibraryPage() {
 
       <ScrollCanvas onScroll={onScroll}>
           <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-8">
-            <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">Library</h1>
+            <h1 className="type-h1 font-bold text-foreground">Library</h1>
 
             {loading ? (
               <>

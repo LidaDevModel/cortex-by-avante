@@ -48,7 +48,7 @@ export function UserMessage({
 
       {viewing && <AttachmentLightbox attachment={viewing} onClose={() => setViewing(null)} />}
       {content && (
-        <div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-[24px] text-foreground break-words bg-surface-raised">
+        <div className="max-w-[85%] rounded-2xl px-4 py-2.5 type-body text-foreground break-words bg-surface-raised">
           {content}
         </div>
       )}

@@ -45,15 +45,15 @@ function InProgressCard({ module }: { module: Module }) {
         <ModuleIllustration category={module.category} width={80} height={80} className="relative object-contain z-10" />
       </div>
       <div className="relative z-10 flex flex-col gap-2 px-3 pt-3 pb-3">
-        <p className="text-[14px] leading-[20px] font-semibold" style={{ color: "var(--primary)" }}>
+        <p className="type-label font-semibold" style={{ color: "var(--primary)" }}>
           {module.title}
         </p>
-        <p className="text-[12px] leading-[16px] text-muted-foreground">
+        <p className="type-caption text-muted-foreground">
           {module.chapters} chapters · {module.hours}h
         </p>
         <ProgressBar value={module.progress} />
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[12px] leading-[16px] text-muted-foreground">
+          <span className="type-caption text-muted-foreground">
             {module.progress}% complete
           </span>
           <RequiredPill required={module.required} />
@@ -124,15 +124,15 @@ export default function InProgressPage() {
             <div className="flex flex-col gap-1">
               <Link
                 href="/training/modules"
-                className="flex items-center gap-1.5 w-fit text-[13px] leading-[20px] text-muted-foreground hover:text-foreground transition-colors duration-100 mb-1"
+                className="flex items-center gap-1.5 w-fit type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 mb-1"
               >
                 <ArrowLeft size={14} strokeWidth={2} />
                 <span>Back to modules</span>
               </Link>
-              <h1 className="text-[28px] leading-[36px] font-bold text-foreground">
+              <h1 className="type-h1 font-bold text-foreground">
                 In progress
               </h1>
-              <p className="text-[13px] leading-[20px] text-muted-foreground">
+              <p className="type-meta text-muted-foreground">
                 {sourceModules.length} module{sourceModules.length !== 1 ? "s" : ""} in progress
               </p>
             </div>

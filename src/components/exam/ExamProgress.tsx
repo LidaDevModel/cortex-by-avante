@@ -61,24 +61,24 @@ export function ExamProgress({
         aria-label={isSimulation ? "Exit simulation" : "Exit exam"}
         // 44x44 minimum: the negative margin keeps the visual position while
         // the padding grows the hit area. The header is 56px, so it fits.
-        className="flex items-center gap-1.5 min-h-[44px] px-2 -ml-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer shrink-0"
+        className="flex items-center gap-1.5 min-h-[44px] px-2 -ml-2 type-meta text-muted-foreground hover:text-foreground transition-colors duration-100 cursor-pointer shrink-0"
       >
         <X size={14} />
         <span>Exit</span>
       </button>
       {/* Title — inline-centered in the flex row on mobile, viewport-centered
           via absolute positioning on desktop (unchanged there). */}
-      <span className="flex-1 min-w-0 flex items-center justify-center gap-2 text-[13px] text-muted-foreground pointer-events-none sm:flex-none sm:absolute sm:left-1/2 sm:-translate-x-1/2">
+      <span className="flex-1 min-w-0 flex items-center justify-center gap-2 type-meta text-muted-foreground pointer-events-none sm:flex-none sm:absolute sm:left-1/2 sm:-translate-x-1/2">
         <span className="truncate">{isSimulation ? "Exam simulation" : "Certification exam"}</span>
         {isSimulation && (
-          <span className="shrink-0 px-2 py-[1px] rounded-full text-[11px] font-medium bg-[var(--sidebar-active)] text-primary">
+          <span className="shrink-0 px-2 py-[1px] rounded-full type-caption font-medium bg-[var(--sidebar-active)] text-primary">
             Practice
           </span>
         )}
       </span>
       <span
         className={cn(
-          "shrink-0 sm:ml-auto inline-flex items-center px-[10px] py-[2px] rounded-full text-[12px] font-medium tabular-nums transition-colors duration-300",
+          "shrink-0 sm:ml-auto inline-flex items-center px-[10px] py-[2px] rounded-full type-caption font-medium tabular-nums transition-colors duration-300",
           isLowTime
             ? "bg-[color-mix(in_srgb,var(--destructive)_15%,transparent)] text-destructive"
             : "bg-[var(--sidebar-active)] text-foreground"
@@ -127,7 +127,7 @@ export function SectionNav({ activeSection, completedSections, onSectionClick }:
             onClick={() => isClickable && onSectionClick(s.id)}
             disabled={!isClickable}
             className={cn(
-              "flex items-center gap-1.5 px-3 h-7 rounded-full text-[12px] font-medium transition-all duration-150 shrink-0",
+              "flex items-center gap-1.5 px-3 h-7 rounded-full type-caption font-medium transition-all duration-150 shrink-0",
               isActive
                 ? "bg-[var(--primary)] text-[var(--primary-foreground)] cursor-default"
                 : isDone

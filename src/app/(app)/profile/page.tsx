@@ -100,14 +100,14 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-start gap-4">
               <Avatar className="h-16 w-16 rounded-full shrink-0">
                 {profile.avatarUrl && <AvatarImage src={profile.avatarUrl} alt="" />}
-                <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold text-[18px]">
+                <AvatarFallback className="rounded-full bg-secondary text-primary font-semibold type-h3">
                   {USER.initials}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex flex-col gap-1 min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">
+                  <h1 className="type-h1 font-bold text-foreground">
                     {USER.fullName}
                   </h1>
                   {cleared && <ClearedBadge requiredCount={getLearnerRequired(role).length} />}
@@ -115,9 +115,9 @@ export default function ProfilePage() {
                 {/* The live access role, not a baked-in string — the sidebar
                     footer two inches away shows the same fact, and a frozen
                     value here made the two disagree. */}
-                <p className="text-[14px] leading-[20px] text-muted-foreground">{ROLE_LABEL[role]}</p>
+                <p className="type-label text-muted-foreground">{ROLE_LABEL[role]}</p>
                 {profile.description && (
-                  <p className="text-[14px] leading-[20px] text-foreground pt-1">{profile.description}</p>
+                  <p className="type-label text-foreground pt-1">{profile.description}</p>
                 )}
               </div>
 
@@ -130,14 +130,14 @@ export default function ProfilePage() {
             </div>
 
             {/* Quiet stats row */}
-            <p className="text-[13px] leading-[18px] text-muted-foreground tabular-nums">
+            <p className="type-meta text-muted-foreground tabular-nums">
               <span className="font-semibold text-foreground">{completedModules}</span> modules completed ·{" "}
               <span className="font-semibold text-foreground">{certified.length}</span> certification
               {certified.length !== 1 ? "s" : ""} ·{" "}
               member since {memberSinceLabel(memberSince)}
             </p>
 
-            <p className="text-[12px] leading-[16px] text-muted-foreground">Visible to Avante staff.</p>
+            <p className="type-caption text-muted-foreground">Visible to Avante staff.</p>
           </section>
 
           {/* Certifications — the credentials, front and center. id + scroll-mt
@@ -153,7 +153,7 @@ export default function ProfilePage() {
                   (shown only when the user holds both required and optional
                   certs). */}
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">
+                <h2 className="type-h2 font-semibold text-foreground">
                   Certifications ({certified.length})
                 </h2>
                 {showReqTabs && (
@@ -175,7 +175,7 @@ export default function ProfilePage() {
                       type="button"
                       aria-pressed={catFilter === "all"}
                       onClick={() => setCatFilter("all")}
-                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                      className={`inline-flex items-center px-3 py-1.5 rounded-full type-meta font-medium transition-colors duration-100 ${
                         catFilter === "all"
                           ? "bg-[var(--sidebar-active)] text-primary"
                           : "bg-surface-chip text-foreground hover:opacity-80"
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                           type="button"
                           aria-pressed={active}
                           onClick={() => setCatFilter(category)}
-                          className={`inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[13px] leading-[18px] font-medium transition-colors duration-100 ${
+                          className={`inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full type-meta font-medium transition-colors duration-100 ${
                             active
                               ? "bg-[var(--sidebar-active)] text-primary"
                               : "bg-surface-chip text-foreground hover:opacity-80"
@@ -213,12 +213,12 @@ export default function ProfilePage() {
 
             {certified.length === 0 ? (
               <div className="flex flex-col items-start gap-2 py-4">
-                <p className="text-[14px] leading-[20px] text-muted-foreground">
+                <p className="type-label text-muted-foreground">
                   Certifications you earn will appear here.
                 </p>
                 <Link
                   href="/training/modules"
-                  className="text-[13px] leading-[20px] font-medium transition-opacity duration-100 hover:opacity-70"
+                  className="type-meta font-medium transition-opacity duration-100 hover:opacity-70"
                   style={{ color: "var(--primary)" }}
                 >
                   Start training
@@ -231,7 +231,7 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : (
-              <p className="text-[14px] leading-[20px] text-muted-foreground py-4">
+              <p className="type-label text-muted-foreground py-4">
                 No certifications match these filters.
               </p>
             )}

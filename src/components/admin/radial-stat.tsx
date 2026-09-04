@@ -64,7 +64,7 @@ export function RadialStat({
   const inner = (
     <>
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">{title}</h2>
+        <h2 className="type-h2 font-semibold text-foreground">{title}</h2>
         {href && (
           <span
             data-nav-arrow
@@ -160,17 +160,17 @@ export function RadialStat({
             >
               {hovered !== null ? (
                 <>
-                  <span className="text-[24px] leading-[28px] font-bold tabular-nums text-foreground">
+                  <span className="type-h1 font-bold tabular-nums text-foreground">
                     {series[hovered].value}
                   </span>
-                  <span className="text-[11px] leading-[14px] font-medium" style={{ color: series[hovered].color }}>
+                  <span className="type-caption font-medium" style={{ color: series[hovered].color }}>
                     {series[hovered].label}
                   </span>
                 </>
               ) : (
                 <>
-                  <span className="text-[24px] leading-[28px] font-bold tabular-nums text-foreground">{tc}</span>
-                  <span className="text-[11px] leading-[14px] text-muted-foreground">{centerLabel}</span>
+                  <span className="type-h1 font-bold tabular-nums text-foreground">{tc}</span>
+                  <span className="type-caption text-muted-foreground">{centerLabel}</span>
                 </>
               )}
             </div>

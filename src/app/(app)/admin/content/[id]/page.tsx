@@ -34,9 +34,9 @@ type Draft = {
 // transparent default; kept mode-aware (light surface / dark input tint).
 const FIELD_BG = "!bg-surface dark:!bg-input/30";
 const textareaCls =
-  "w-full resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 text-[14px] leading-[22px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
+  "w-full resize-y rounded-[8px] border border-input bg-surface dark:bg-input/30 px-3 py-2 type-label text-foreground placeholder:text-muted-foreground outline-none transition-[color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
 const addLinkCls =
-  "self-start flex items-center gap-1.5 text-[13px] font-medium text-primary hover:opacity-70 transition-opacity duration-100";
+  "self-start flex items-center gap-1.5 type-meta font-medium text-primary hover:opacity-70 transition-opacity duration-100";
 
 export default function AdminDocumentEditorPage() {
   const { headerClassName, onScroll } = useGlassHeader();
@@ -212,12 +212,12 @@ export default function AdminDocumentEditorPage() {
         <div className="max-w-[920px] mx-auto px-4 sm:px-8 pt-8 pb-12 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <h1 className="text-[22px] leading-[30px] sm:text-[28px] sm:leading-[36px] font-bold text-foreground">{isNew ? "Create document" : "Edit document"}</h1>
+              <h1 className="type-h1 font-bold text-foreground">{isNew ? "Create document" : "Edit document"}</h1>
               <PublishBadge published={found.doc.published !== false} />
             </div>
             <div className="flex items-center gap-2">
               {!hasContent && (
-                <span className="hidden md:inline text-[12px] leading-[16px] text-muted-foreground self-center mr-1">Add content to save or publish</span>
+                <span className="hidden md:inline type-caption text-muted-foreground self-center mr-1">Add content to save or publish</span>
               )}
               <Button size="cta" variant="ghost" onClick={handleExit}>Exit</Button>
               <Button
@@ -238,7 +238,7 @@ export default function AdminDocumentEditorPage() {
 
           <section className="rounded-[12px] p-4 sm:p-6 flex flex-col gap-5 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] leading-[20px] font-semibold text-foreground">Document name</span>
+              <span className="type-label font-semibold text-foreground">Document name</span>
               <Input value={name} onChange={(e) => setName(e.target.value)} className={FIELD_BG} />
             </label>
 
@@ -246,8 +246,8 @@ export default function AdminDocumentEditorPage() {
 
             <div className="flex items-center justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[14px] leading-[20px] font-semibold text-foreground">Roles</span>
-                <span className="text-[12px] leading-[16px] text-muted-foreground">Who this document is for.</span>
+                <span className="type-label font-semibold text-foreground">Roles</span>
+                <span className="type-caption text-muted-foreground">Who this document is for.</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap justify-end">
                 {ROLES.map((r) => {
@@ -256,7 +256,7 @@ export default function AdminDocumentEditorPage() {
                     <button
                       key={r}
                       onClick={() => toggleRole(r)}
-                      className="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors duration-100"
+                      className="px-3 py-1.5 rounded-full type-meta font-medium border transition-colors duration-100"
                       style={on
                         ? { background: "color-mix(in srgb, var(--primary) 10%, transparent)", borderColor: "var(--primary)", color: "var(--primary)" }
                         : { background: "transparent", borderColor: "var(--border)", color: "var(--foreground)" }}
@@ -269,12 +269,12 @@ export default function AdminDocumentEditorPage() {
             </div>
           </section>
 
-          <h2 className="text-[20px] leading-[28px] font-semibold text-foreground">Sections</h2>
+          <h2 className="type-h2 font-semibold text-foreground">Sections</h2>
 
           {sections.map((s, i) => (
             <section key={s.key} className="rounded-[12px] p-4 sm:p-5 flex flex-col gap-3 bg-surface-raised" style={{ border: "1px solid var(--border)" }}>
               <div className="flex items-center justify-between">
-                <span className="text-[12px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Section {i + 1}</span>
+                <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Section {i + 1}</span>
                 <button onClick={() => removeSection(s)} className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove section">
                   <Trash2 size={15} strokeWidth={1.5} />
                 </button>
@@ -323,7 +323,7 @@ export default function AdminDocumentEditorPage() {
               {s.note !== undefined ? (
                 <div className="flex flex-col gap-2 pl-3 border-l-[3px]" style={{ borderColor: "var(--doc-callout-border)" }}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Highlighted paragraph</span>
+                    <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Highlighted paragraph</span>
                     <button onClick={() => edit(s.key, { note: undefined })} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove highlighted paragraph">
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
@@ -341,7 +341,7 @@ export default function AdminDocumentEditorPage() {
                 {s.subs.map((sub, j) => (
                   <div key={sub.key} className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] leading-[16px] font-semibold uppercase tracking-wider text-muted-foreground">Subsection {i + 1}.{j + 1}</span>
+                      <span className="type-caption font-semibold uppercase tracking-wider text-muted-foreground">Subsection {i + 1}.{j + 1}</span>
                       <button onClick={() => removeSub(s.key, sub)} className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-foreground/5 transition-colors duration-100" aria-label="Remove subsection">
                         <Trash2 size={14} strokeWidth={1.5} />
                       </button>

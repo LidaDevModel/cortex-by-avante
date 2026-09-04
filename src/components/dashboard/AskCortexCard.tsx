@@ -22,7 +22,7 @@ export function AskCortexCard() {
     >
       <BlobField scale={0.5} />
       <div className="relative z-10 flex flex-col items-center text-center gap-5 px-6 py-8">
-        <h2 className="text-[20px] leading-none font-semibold text-primary">
+        <h2 className="type-h2 leading-none text-primary">
           How can I help you {USER.firstName}?
         </h2>
         <div className="w-full max-w-[600px]">
@@ -35,7 +35,7 @@ export function AskCortexCard() {
             }}
           />
         </div>
-        <p className="text-[12px] leading-[16px] text-muted-foreground">
+        <p className="type-caption text-muted-foreground">
           Cortex AI can make mistakes. Please check important info.
         </p>
       </div>
